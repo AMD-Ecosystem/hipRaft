@@ -10,6 +10,24 @@
 # is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
 # or implied. See the License for the specific language governing permissions and limitations under
 # the License.
+
+# Modifications Copyright (c) 2024 Advanced Micro Devices, Inc.
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
+
 cmake_minimum_required(VERSION 3.26.4 FATAL_ERROR)
 include(../rapids_config.cmake)
 include(rapids-cmake)
@@ -17,13 +35,24 @@ include(rapids-cpm)
 include(rapids-export)
 include(rapids-find)
 
+option(BUILD_CPU_ONLY "Build CPU only components. Applies to RAFT ANN benchmarks currently" OFF)
+option(CUDA_BACKEND "Build for CUDA devices. Default configuration builds for AMD devices." OFF)
+
 # workaround for rapids_cuda_init_architectures not working for arch detection with
 # enable_language(CUDA)
 set(lang_list "CXX")
 
-include(rapids-cuda)
-rapids_cuda_init_architectures(RAFT)
-list(APPEND lang_list "CUDA")
+if(NOT BUILD_CPU_ONLY)
+  if(CUDA_BACKEND)
+    include(rapids-cuda)
+    rapids_cuda_init_architectures(RAFT)
+    list(APPEND lang_list "CUDA")
+  else()
+    include(rapids-hip)
+    rapids_hip_init_architectures(RAFT)
+    list(APPEND lang_list "HIP")
+  endif()
+endif()
 
 project(
   RAFT
@@ -135,17 +164,31 @@ if(CUDA_STATIC_MATH_LIBRARIES)
   set(_ctk_static_suffix "_static")
 endif()
 
-# CUDA runtime
-rapids_cuda_init_runtime(USE_STATIC ${CUDA_STATIC_RUNTIME})
-# * find CUDAToolkit package
-# * determine GPU architectures
-# * enable the CMake CUDA language
-# * set other CUDA compilation flags
-rapids_find_package(
-  CUDAToolkit REQUIRED
-  BUILD_EXPORT_SET raft-exports
-  INSTALL_EXPORT_SET raft-exports
-)
+if(CUDA_BACKEND)
+  # CUDA runtime
+  rapids_cuda_init_runtime(USE_STATIC ${CUDA_STATIC_RUNTIME})
+  # * find CUDAToolkit package
+  # * determine GPU architectures
+  # * enable the CMake CUDA language
+  # * set other CUDA compilation flags
+  rapids_find_package(
+    CUDAToolkit REQUIRED
+    BUILD_EXPORT_SET raft-exports
+    INSTALL_EXPORT_SET raft-exports
+  )
+else()
+  # HIP runtime
+  rapids_hip_init_runtime(USE_STATIC ${CUDA_STATIC_RUNTIME})
+  # * find HIP package
+  # * determine GPU architectures
+  # * enable the CMake CUDA language
+  # * set other CUDA compilation flags
+  rapids_find_package(
+    HIP REQUIRED
+    BUILD_EXPORT_SET raft-exports
+    INSTALL_EXPORT_SET raft-exports
+  )
+endif()
 
 if(NOT DISABLE_OPENMP)
   rapids_find_package(
