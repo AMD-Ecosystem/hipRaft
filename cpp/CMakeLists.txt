@@ -351,7 +351,7 @@ if(RAFT_COMPILE_LIBRARY)
   target_compile_definitions(raft_objs PRIVATE "RAFT_EXPLICIT_INSTANTIATE_ONLY")
   target_compile_options(
     raft_objs PRIVATE "$<$<COMPILE_LANGUAGE:CXX>:${RAFT_CXX_FLAGS}>"
-                      "$<$<COMPILE_LANGUAGE:CUDA>:${RAFT_CUDA_FLAGS}>"
+                      "$<$<COMPILE_LANGUAGE:CUDA>:${RAFT_GPU_FLAGS}>"
   )
 
   # Make sure not to add the rmm logger twice since it will be brought in as an interface source by
