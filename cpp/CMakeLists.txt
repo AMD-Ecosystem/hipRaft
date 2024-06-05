@@ -201,7 +201,11 @@ if(NOT DISABLE_OPENMP)
   endif()
 endif()
 
-include(cmake/modules/ConfigureCUDA.cmake)
+if(CUDA_BACKEND) 
+  include(cmake/modules/ConfigureCUDA.cmake)
+else()
+  include(cmake/modules/ConfigureHIP.cmake)
+endif()
 
 # ##################################################################################################
 # * Requirements -------------------------------------------------------------
