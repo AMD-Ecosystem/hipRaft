@@ -11,6 +11,20 @@
 # or implied. See the License for the specific language governing permissions and limitations under
 # the License.
 # =============================================================================
+
+# Modifications Copyright (c) 2024-25 Advanced Micro Devices, Inc. Permission is hereby granted,
+# free of charge, to any person obtaining a copy of this software and associated documentation files
+# (the "Software"), to deal in the Software without restriction, including without limitation the
+# rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the
+# Software, and to permit persons to whom the Software is furnished to do so, subject to the
+# following conditions: The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software. THE SOFTWARE IS PROVIDED "AS IS", WITHOUT
+# WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR
+# THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
 file(READ "${CMAKE_CURRENT_LIST_DIR}/VERSION" _rapids_version)
 if(_rapids_version MATCHES [[^([0-9][0-9])\.([0-9][0-9])\.([0-9][0-9])]])
   set(RAPIDS_VERSION_MAJOR "${CMAKE_MATCH_1}")
@@ -27,10 +41,39 @@ else()
 endif()
 
 if(NOT EXISTS "${CMAKE_CURRENT_BINARY_DIR}/RAFT_RAPIDS-${RAPIDS_VERSION_MAJOR_MINOR}.cmake")
-  file(
-    DOWNLOAD
-    "https://raw.githubusercontent.com/rapidsai/rapids-cmake/branch-${RAPIDS_VERSION_MAJOR_MINOR}/RAPIDS.cmake"
-    "${CMAKE_CURRENT_BINARY_DIR}/RAFT_RAPIDS-${RAPIDS_VERSION_MAJOR_MINOR}.cmake"
+  # FIXME(HIP/AMD): For the time being, we use our internal rapids-cmake branch. At some point, we
+  # should follow the same naming conventions for rapids-cmake as in the upstream, i.e., use
+  # ${RAPIDS_VERSION_MAJOR_MINOR} in our branch names.
+  if(DEFINED ENV{RAPIDS_CMAKE_BRANCH})
+    set(RAPIDS_CMAKE_BRANCH "$ENV{RAPIDS_CMAKE_BRANCH}")
+  else()
+    set(RAPIDS_CMAKE_BRANCH raft-dev)
+  endif()
+  # file( DOWNLOAD
+  # "https://raw.githubusercontent.com/rapidsai/rapids-cmake/branch-${RAPIDS_VERSION_MAJOR_MINOR}/RAPIDS.cmake"
+  # "${CMAKE_CURRENT_BINARY_DIR}/RAFT_RAPIDS-${RAPIDS_VERSION_MAJOR_MINOR}.cmake")
+
+  # TODO(HIP/AMD): once rapids-cmake is publicly available for HIP, we can remove the authentication
+  # needed here
+  set(URL
+      "https://$ENV{GITHUB_USER}:$ENV{GITHUB_PASS}@raw.githubusercontent.com/AMD-AI/rapids-cmake/${RAPIDS_CMAKE_BRANCH}/RAPIDS.cmake"
   )
+  file(DOWNLOAD ${URL} "${CMAKE_CURRENT_BINARY_DIR}/RAFT_RAPIDS-${RAPIDS_VERSION_MAJOR_MINOR}.cmake"
+       STATUS DOWNLOAD_STATUS
+  )
+  list(GET DOWNLOAD_STATUS 0 STATUS_CODE)
+  list(GET DOWNLOAD_STATUS 1 ERROR_MESSAGE)
+
+  if(${STATUS_CODE} EQUAL 0)
+    message(STATUS "Downloaded 'RAFT_RAPIDS-${RAPIDS_VERSION_MAJOR_MINOR}.cmake' successfully!")
+  else()
+    file(REMOVE ${CMAKE_CURRENT_BINARY_DIR}/HIPDF_RAPIDS.cmake)
+    # for debuging: message(FATAL_ERROR "Failed to download
+    # 'RAFT_RAPIDS-${RAPIDS_VERSION_MAJOR_MINOR}.cmake'. URL: ${URL}, Reason: ${ERROR_MESSAGE}")
+    message(
+      FATAL_ERROR
+        "Failed to download 'RAFT_RAPIDS-${RAPIDS_VERSION_MAJOR_MINOR}.cmake'. Reason: ${ERROR_MESSAGE}"
+    )
+  endif()
 endif()
 include("${CMAKE_CURRENT_BINARY_DIR}/RAFT_RAPIDS-${RAPIDS_VERSION_MAJOR_MINOR}.cmake")
