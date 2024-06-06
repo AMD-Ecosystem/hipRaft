@@ -318,7 +318,11 @@ endif()
 
 if(RAFT_NVTX)
   # This enables NVTX within the project with no option to disable it downstream.
-  target_link_libraries(raft INTERFACE CUDA::nvtx3)
+  if (CUDA_BACKEND)
+    target_link_libraries(raft INTERFACE CUDA::nvtx3)
+  else()
+    target_link_libraries(raft INTERFACE roctx64)
+  endif()
   target_compile_definitions(raft INTERFACE NVTX_ENABLED)
 else()
   # Allow enable NVTX downstream if not set here. This creates a new option at build/install time,
