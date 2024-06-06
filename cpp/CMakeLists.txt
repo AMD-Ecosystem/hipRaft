@@ -219,11 +219,22 @@ rapids_make_logger(raft LOGGER_HEADER_DIR include/raft/core EXPORT_SET raft-expo
 
 # CCCL before rmm/cuco so we get the right version of CCCL
 include(cmake/thirdparty/get_cccl.cmake)
-include(cmake/thirdparty/get_rmm.cmake)
-include(cmake/thirdparty/get_cutlass.cmake)
 
-include(${rapids-cmake-dir}/cpm/cuco.cmake)
-rapids_cpm_cuco(BUILD_EXPORT_SET raft-exports INSTALL_EXPORT_SET raft-exports)
+
+if(CUDA_BACKEND)
+  include(${rapids-cmake-dir}/cpm/cuco.cmake)
+  rapids_cpm_cuco(BUILD_EXPORT_SET raft-exports INSTALL_EXPORT_SET raft-exports)
+else()
+  include(${rapids-cmake-dir}/cpm/hipco.cmake)
+  rapids_cpm_hipco(BUILD_EXPORT_SET raft-exports INSTALL_EXPORT_SET raft-exports)
+endif()
+
+# FIXME(HIP/AMD): the original ordering of getting RMM before hipCo leads to a CMake
+# configuration error where roc::rocprim target is not defined, but target roc::rocprim_hip
+# is defined. This makes CMake configuration of rocprim fail. Further investigation tbd.
+include(cmake/thirdparty/get_rmm.cmake)
+#include(cmake/thirdparty/get_cutlass.cmake)
+
 
 if(BUILD_TESTS)
   include(${rapids-cmake-dir}/cpm/gtest.cmake)
