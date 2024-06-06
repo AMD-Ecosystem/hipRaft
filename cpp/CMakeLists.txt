@@ -357,6 +357,11 @@ endif()
 
 set_target_properties(raft_compiled PROPERTIES EXPORT_NAME compiled)
 
+if(NOT CUDA_BACKEND)
+  file(GLOB CUDA_SOURCES src/*.cu src/*/*.cu src/*/*/*.cu src/*/*/*/*.cu)
+  set_source_files_properties(${CUDA_SOURCES} PROPERTIES LANGUAGE HIP)
+endif()
+
 if(RAFT_COMPILE_LIBRARY)
   add_library(
     raft_objs OBJECT
