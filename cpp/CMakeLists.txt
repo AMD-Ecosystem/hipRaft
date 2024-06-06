@@ -256,10 +256,9 @@ target_include_directories(
 )
 
 # Keep RAFT as lightweight as possible. Only CUDA libs and rmm should be used in global target.
-target_link_libraries(
-  raft INTERFACE rmm::rmm rmm::rmm_logger spdlog::spdlog_header_only cuco::cuco
-                 nvidia::cutlass::cutlass CCCL::CCCL raft_logger
-)
+# TODO(HIP/AMD): re-add cutlass when it is available on AMD
+# target_link_libraries(raft INTERFACE rmm::rmm cuco::cuco nvidia::cutlass::cutlass CCCL::CCCL)
+target_link_libraries(raft INTERFACE rmm::rmm rmm::rmm_logger spdlog::spdlog_header_only $<IF:$<CXX_COMPILER_ID:NVIDIA>,cuco::cuco,hipco::hipco> CCCL::CCCL raft_logger)
 
 target_compile_features(raft INTERFACE cxx_std_17 $<BUILD_INTERFACE:cuda_std_17>)
 target_compile_options(
