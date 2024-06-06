@@ -113,6 +113,13 @@ target_link_libraries(raft_test_logger PRIVATE raft_logger_impl)
 # test sources ##################################################################################
 # ##################################################################################################
 if(BUILD_TESTS)
+
+  if(NOT CUDA_BACKEND)
+    file(GLOB CUDA_TEST_SOURCES */*.cu */*/*.cu)
+    set_source_files_properties(${CUDA_TEST_SOURCES} PROPERTIES LANGUAGE HIP)
+  endif()
+
+
   ConfigureTest(
     NAME
     CORE_TEST
