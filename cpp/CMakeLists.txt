@@ -269,10 +269,23 @@ target_compile_definitions(
   raft INTERFACE "RAFT_LOG_ACTIVE_LEVEL=RAFT_LOG_LEVEL_${LIBRAFT_LOGGING_LEVEL}"
 )
 
-set(RAFT_CUSOLVER_DEPENDENCY CUDA::cusolver${_ctk_static_suffix})
-set(RAFT_CUBLAS_DEPENDENCY CUDA::cublas${_ctk_static_suffix})
-set(RAFT_CURAND_DEPENDENCY CUDA::curand${_ctk_static_suffix})
-set(RAFT_CUSPARSE_DEPENDENCY CUDA::cusparse${_ctk_static_suffix})
+if (CUDA_BACKEND)
+  set(RAFT_CUSOLVER_DEPENDENCY CUDA::cusolver${_ctk_static_suffix})
+  set(RAFT_CUBLAS_DEPENDENCY CUDA::cublas${_ctk_static_suffix})
+  set(RAFT_CURAND_DEPENDENCY CUDA::curand${_ctk_static_suffix})
+  set(RAFT_CUSPARSE_DEPENDENCY CUDA::cusparse${_ctk_static_suffix})
+else()
+  find_package(hipsolver CONFIG PATHS "/opt/rocm/")
+  find_package(hipblas CONFIG PATHS "/opt/rocm/")
+  find_package(hiprand CONFIG PATHS "/opt/rocm/")
+  find_package(hipsparse CONFIG PATHS "/opt/rocm/")
+
+  set(RAFT_CUSOLVER_DEPENDENCY hipsolver${_ctk_static_suffix})
+  set(RAFT_CUBLAS_DEPENDENCY hipblas${_ctk_static_suffix})
+  set(RAFT_CURAND_DEPENDENCY hiprand${_ctk_static_suffix})
+  set(RAFT_CUSPARSE_DEPENDENCY hipsparse${_ctk_static_suffix})
+endif()
+
 
 set(RAFT_CTK_MATH_DEPENDENCIES ${RAFT_CUBLAS_DEPENDENCY} ${RAFT_CUSOLVER_DEPENDENCY}
                                ${RAFT_CUSPARSE_DEPENDENCY} ${RAFT_CURAND_DEPENDENCY}
