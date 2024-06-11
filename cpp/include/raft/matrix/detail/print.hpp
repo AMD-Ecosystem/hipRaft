@@ -44,13 +44,16 @@
 
 #ifdef __HIP_PLATFORM_AMD__
 #include <raft/cuda_runtime.h>
+#include <raft/cusolver.h>
 #else
 #include <cuda_runtime.h>
+#include <cusolverDn.h>
 #endif
+
 #include <thrust/for_each.h>
 #include <thrust/iterator/counting_iterator.h>
 
-#include <cusolverDn.h>
+
 
 #include <algorithm>
 #include <cstddef>

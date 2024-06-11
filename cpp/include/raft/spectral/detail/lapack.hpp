@@ -19,7 +19,11 @@
 #include <raft/linalg/detail/cublas_wrappers.hpp>
 #include <raft/linalg/detail/cusolver_wrappers.hpp>
 
+#ifdef __HIP_PLATFORM_AMD__
+#include <raft/cusolver.h>
+#else
 #include <cusolverDn.h>
+#endif
 
 // for now; TODO: check if/where this `define` should be;
 //

@@ -61,6 +61,7 @@
 #ifdef __HIP_PLATFORM_AMD__
 #include <raft/cuda_runtime.h>
 #include <raft/cublas_v2.h>
+#include <raft/cusolver.h>
 #else
 #include <cuda_runtime.h>
 #include <cublas_v2.h>

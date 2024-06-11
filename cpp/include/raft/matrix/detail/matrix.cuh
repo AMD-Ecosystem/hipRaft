@@ -45,6 +45,7 @@
 
 #ifdef __HIP_PLATFORM_AMD__
 #include <raft/cuda_runtime.h>
+#include <raft/cusolver.h>
 #else
 #include <cuda_runtime.h>
 #include <cusolverDn.h>
