@@ -42,7 +42,11 @@
 #include <cuda_fp16.hpp>
 #endif
 
+#ifdef __HIP_PLATFORM_AMD__
+#include <raft/library_types.h>
+#else
 #include <library_types.h>
+#endif
 
 #include <cstdint>
 

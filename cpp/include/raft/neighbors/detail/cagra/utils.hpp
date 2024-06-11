@@ -44,6 +44,7 @@
 #ifdef __HIP_PLATFORM_AMD__
 #include <raft/cuda_runtime.h>
 #include <hip/hip_fp16.h>
+#include <raft/library_types.h>
 #else
 #include <cuda.h>
 #include <cuda_fp16.h>
