@@ -42,6 +42,7 @@
 
 
 #ifdef __HIP_PLATFORM_AMD__
+#include <raft/cuda_bf16.h>
 #include <hip/hip_fp16.h>
 #else
 #include <cuda_bf16.h>
