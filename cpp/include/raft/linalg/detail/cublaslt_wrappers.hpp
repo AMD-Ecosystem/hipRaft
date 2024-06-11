@@ -45,6 +45,7 @@
 
 #ifdef __HIP_PLATFORM_AMD__
 #include <hip/hip_fp16.h>
+#include <raft/cublasLt.h>
 #else
 #include <cuda_fp16.hpp>
 #include <cublasLt.h>
