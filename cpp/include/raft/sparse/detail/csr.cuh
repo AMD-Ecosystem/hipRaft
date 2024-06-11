@@ -45,6 +45,7 @@
 
 #ifdef __HIP_PLATFORM_AMD__
 #include <raft/cuda_runtime.h>
+#include <raft/cusparse.h>
 #else
 #include <cuda_runtime.h>
 #include <cusparse_v2.h>

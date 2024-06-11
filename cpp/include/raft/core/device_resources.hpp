@@ -62,6 +62,7 @@
 #include <raft/cuda_runtime.h>
 #include <raft/cublas_v2.h>
 #include <raft/cusolver.h>
+#include <raft/cusparse.h>
 #else
 #include <cuda_runtime.h>
 #include <cublas_v2.h>
