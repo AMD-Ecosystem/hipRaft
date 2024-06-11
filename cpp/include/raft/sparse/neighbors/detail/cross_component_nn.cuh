@@ -36,7 +36,13 @@
 
 #include <rmm/device_uvector.hpp>
 
+#ifdef __HIP_PLATFORM_AMD__
+#include <hipcub/hipcub.hpp>
+namespace cub = hipcub;
+#else
 #include <cub/cub.cuh>
+#endif
+
 #include <thrust/copy.h>
 #include <thrust/device_ptr.h>
 #include <thrust/gather.h>

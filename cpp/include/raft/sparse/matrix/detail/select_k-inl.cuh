@@ -26,7 +26,12 @@
 #include <raft/matrix/detail/select_k-inl.cuh>
 #include <raft/matrix/select_k_types.hpp>
 
+#ifdef __HIP_PLATFORM_AMD__
+#include <hipcub/hipcub.hpp>
+namespace cub = hipcub;
+#else
 #include <cub/cub.cuh>
+#endif
 
 #include <type_traits>
 

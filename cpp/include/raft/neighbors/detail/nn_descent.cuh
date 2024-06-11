@@ -58,6 +58,8 @@
 
 
 #ifdef __HIP_PLATFORM_AMD__
+#include <hipcub/hipcub.hpp>
+namespace cub = hipcub;
 #include <raft/cuda_runtime.h>
 #else
 #include <cub/cub.cuh>

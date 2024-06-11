@@ -25,7 +25,13 @@
 #include <raft/core/resource/cuda_stream.hpp>
 #include <raft/core/resources.hpp>
 
+#ifdef __HIP_PLATFORM_AMD__
+#include <hipcub/hipcub.hpp>
+namespace cub = hipcub;
+#else
 #include <cub/cub.cuh>
+#endif
+
 #include <cuda/atomic>
 
 #include <cstddef>

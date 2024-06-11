@@ -21,7 +21,12 @@
 #include <raft/linalg/reduce.cuh>
 #include <raft/util/cuda_utils.cuh>
 
+#ifdef __HIP_PLATFORM_AMD__
+#include <hipcub/hipcub.hpp>
+namespace cub = hipcub;
+#else
 #include <cub/cub.cuh>
+#endif
 
 namespace raft {
 namespace stats {

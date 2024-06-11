@@ -58,6 +58,9 @@
 #include <rmm/device_uvector.hpp>
 
 #ifdef __HIP_PLATFORM_AMD__
+#include <hipcub/hipcub.hpp>
+namespace cub = hipcub;
+#define CUB_RUNTIME_FUNCTION HIPCUB_RUNTIME_FUNCTION
 #include <raft/cuda_runtime.h>
 #else
 #include <cub/cub.cuh>

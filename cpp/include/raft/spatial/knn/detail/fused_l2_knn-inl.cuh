@@ -17,7 +17,12 @@
 #include <raft/linalg/norm.cuh>
 #include <raft/neighbors/detail/faiss_select/Select.cuh>
 
+#ifdef __HIP_PLATFORM_AMD__
+#include <hipcub/hipcub.hpp>
+namespace cub = hipcub;
+#else
 #include <cub/cub.cuh>
+#endif
 
 #include <limits>
 // TODO: Need to hide the PairwiseDistance class impl and expose to public API
