@@ -72,7 +72,7 @@ struct KeyValuePair {
 
   RAFT_INLINE_FUNCTION operator cub::KeyValuePair<_Key, _Value>()
   {
-    return cub::KeyValuePair(key, value);
+    return cub::KeyValuePair<_Key, _Value>(key, value);
   }
 #endif
 
