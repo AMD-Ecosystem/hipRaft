@@ -35,7 +35,11 @@
 
 #pragma once
 
+#ifdef __HIP_PLATFORM_AMD__
+#include <rocprim/intrinsics/warp_shuffle.hpp>
+#else
 #include <cuda_fp16.h>
+#endif
 
 // This file provides a few essential functions for use in __device__ code. The
 // scope is necessarily limited to ensure that compilation times are minimized.
@@ -109,7 +113,11 @@ static const int WarpSize = 32;
 DI int laneId()
 {
   int id;
+#ifdef __HIP_PLATFORM_AMD__
+  id = ::rocprim::lane_id();
+#else
   asm("mov.s32 %0, %%laneid;" : "=r"(id));
+#endif
   return id;
 }
 
