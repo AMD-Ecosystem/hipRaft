@@ -62,6 +62,13 @@
 namespace raft {
 
 /** Helper method to get to know warp size in device code */
+__host__ __device__ constexpr inline int warp_size() {
+#ifdef __HIP_PLATFORM_AMD__
+   return 64; 
+#else
+   return 32;
+#endif
+}
 
 __host__ __device__ constexpr inline bitmask_type warp_full_mask() { return LANE_MASK_ALL; }
 
