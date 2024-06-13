@@ -277,18 +277,21 @@ if (CUDA_BACKEND)
 else()
   find_package(hipsolver CONFIG PATHS "/opt/rocm/")
   find_package(hipblas CONFIG PATHS "/opt/rocm/")
+  find_package(hipblaslt CONFIG PATHS "/opt/rocm/")
   find_package(hiprand CONFIG PATHS "/opt/rocm/")
   find_package(hipsparse CONFIG PATHS "/opt/rocm/")
 
   set(RAFT_CUSOLVER_DEPENDENCY hipsolver${_ctk_static_suffix})
   set(RAFT_CUBLAS_DEPENDENCY hipblas${_ctk_static_suffix})
+  set(RAFT_CUBLASLT_DEPENDENCY hipblaslt${_ctk_static_suffix})
   set(RAFT_CURAND_DEPENDENCY hiprand${_ctk_static_suffix})
   set(RAFT_CUSPARSE_DEPENDENCY hipsparse${_ctk_static_suffix})
 endif()
 
 
-set(RAFT_CTK_MATH_DEPENDENCIES ${RAFT_CUBLAS_DEPENDENCY} ${RAFT_CUSOLVER_DEPENDENCY}
-                               ${RAFT_CUSPARSE_DEPENDENCY} ${RAFT_CURAND_DEPENDENCY}
+set(RAFT_CTK_MATH_DEPENDENCIES ${RAFT_CUBLAS_DEPENDENCY}  ${RAFT_CUBLASLT_DEPENDENCY}
+                               ${RAFT_CUSOLVER_DEPENDENCY} ${RAFT_CUSPARSE_DEPENDENCY}
+                               ${RAFT_CURAND_DEPENDENCY}
 )
 
 # Endian detection
