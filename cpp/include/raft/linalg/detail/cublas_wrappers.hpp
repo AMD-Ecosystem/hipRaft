@@ -623,7 +623,10 @@ inline cublasStatus_t cublasgetriBatched(  // NOLINT
   cudaStream_t stream)
 {
   RAFT_CUBLAS_TRY(cublasSetStream(handle, stream));
-  return cublasSgetriBatched(handle, n, A, lda, P, C, ldc, info, batchSize);
+  // FIXME(HIP/AMD): These casts are unsafe/potentially dangerous, but necessary, as hipBlas expects float* const A[]
+  // instead of const float* const A[] and int* instead of const int*
+  float* const* A_cast = const_cast<float* const*>(A);
+  return cublasSgetriBatched(handle, n, A_cast, lda, const_cast<int*>(P), C, ldc, info, batchSize);
 }
 
 template <>
@@ -640,7 +643,10 @@ inline cublasStatus_t cublasgetriBatched(  // NOLINT
   cudaStream_t stream)
 {
   RAFT_CUBLAS_TRY(cublasSetStream(handle, stream));
-  return cublasDgetriBatched(handle, n, A, lda, P, C, ldc, info, batchSize);
+  // FIXME(HIP/AMD): These casts are unsafe/potentially dangerous, but necessary, as hipBlas expects float* const A[]
+  // instead of const float* const A[] and int* instead of const int*
+  double* const* A_cast = const_cast<double* const*>(A);
+  return cublasDgetriBatched(handle, n, A_cast, lda, const_cast<int*>(P), C, ldc, info, batchSize);
 }
 
 /** @} */
