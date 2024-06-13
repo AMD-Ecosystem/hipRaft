@@ -14,6 +14,25 @@
  * limitations under the License.
  */
 
+/*
+ * Modifications Copyright (c) 2024 Advanced Micro Devices, Inc.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
 #pragma once
 #include <raft/core/cuda_support.hpp>
 #include <raft/core/device_mdspan.hpp>
@@ -31,7 +50,7 @@
 #include <raft/core/device_mdarray.hpp>
 #include <raft/core/resource/cublas_handle.hpp>
 #include <raft/linalg/detail/cublas_wrappers.hpp>
-#ifdef __CUDACC__
+#if defined(__CUDACC__) || defined(__HIPCC__)
 #include <raft/linalg/transpose.cuh>
 #include <raft/util/cuda_dev_essentials.cuh>
 #endif
@@ -231,7 +250,7 @@ template <typename DstType, typename SrcType, typename T = void>
 using mdspan_copyable_not_with_kernel_t =
   std::enable_if_t<mdspan_copyable_not_with_kernel_v<DstType, SrcType>, T>;
 
-#ifdef __CUDACC__
+#if defined(__CUDACC__) || defined(__HIPCC__)
 auto static constexpr const mdspan_copy_tile_dim   = 32;
 auto static constexpr const mdspan_copy_tile_elems = mdspan_copy_tile_dim * mdspan_copy_tile_dim;
 
@@ -501,7 +520,7 @@ mdspan_copyable_t<DstType, SrcType> copy(resources const& res, DstType&& dst, Sr
     throw(raft::non_cuda_build_error("Copying to from or on device in non-CUDA build"));
 #endif
   } else if constexpr (config::custom_kernel_allowed) {
-#ifdef __CUDACC__
+#if defined(__CUDACC__) || defined(__HIPCC__)
     config::check_for_unique_dst(dst);
     auto const blocks = std::min(
       // This maximum is somewhat arbitrary. Could query the device to see
