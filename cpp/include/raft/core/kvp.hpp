@@ -101,7 +101,7 @@ template <typename _Key, typename _Value>
 RAFT_INLINE_FUNCTION KeyValuePair<_Key, _Value> shfl_xor(const KeyValuePair<_Key, _Value>& input,
                                                          int laneMask,
                                                          int width     = WarpSize,
-                                                         uint32_t mask = 0xffffffffu)
+                                                         bitmask_type mask = LANE_MASK_ALL)
 {
   return KeyValuePair<_Key, _Value>(shfl_xor(input.key, laneMask, width, mask),
                                     shfl_xor(input.value, laneMask, width, mask));

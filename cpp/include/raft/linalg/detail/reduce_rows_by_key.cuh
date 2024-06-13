@@ -169,7 +169,7 @@ __launch_bounds__(SUM_ROWS_SMALL_K_DIMX, 4)
 
     if (threadIdx.x < 32) {
       // We only need 4
-      thread_sums = cub::ShuffleIndex<32>(thread_sums, 0, 0xffffffff);
+      thread_sums = cub::ShuffleIndex<32>(thread_sums, 0, LANE_MASK_ALL);
       if (static_cast<IdxT>(threadIdx.x) < nkeys) {
         if (threadIdx.x == 0) raft::myAtomicAdd(&d_sums[threadIdx.x * ncols + idim], thread_sums.x);
         if (threadIdx.x == 1) raft::myAtomicAdd(&d_sums[threadIdx.x * ncols + idim], thread_sums.y);

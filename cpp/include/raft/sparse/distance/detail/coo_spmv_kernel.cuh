@@ -14,6 +14,25 @@
  * limitations under the License.
  */
 
+/*
+ * Modifications Copyright (c) 2024 Advanced Micro Devices, Inc.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
 #pragma once
 
 #include <cub/block/block_load.cuh>
@@ -185,10 +204,10 @@ RAFT_KERNEL balanced_coo_generalized_spmv_kernel(strategy_t strategy,
 
     bool diff_rows = next_row_b != cur_row_b;
 
-    if (__any_sync(0xffffffff, diff_rows)) {
+    if (__any_sync(LANE_MASK_ALL, diff_rows)) {
       // grab the threads currently participating in loops.
       // because any other threads should have returned already.
-      unsigned int peer_group = __match_any_sync(0xffffffff, cur_row_b);
+      unsigned int peer_group = __match_any_sync(LANE_MASK_ALL, cur_row_b);
       bool is_leader          = get_lowest_peer(peer_group) == lane_id;
       value_t v               = warp_red.HeadSegmentedReduce(c, is_leader, accum_func);
 

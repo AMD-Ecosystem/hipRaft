@@ -43,6 +43,7 @@
 #ifdef __HIP_PLATFORM_AMD__
 #include <hip/hip_fp16.h>
 #include <raft/cuda_runtime.h>
+#include <raft/util/warp_primitives.cuh>
 #else
 #include <cuda_fp16.h>
 #include <cuda_runtime_api.h>
@@ -61,9 +62,8 @@
 namespace raft {
 
 /** Helper method to get to know warp size in device code */
-__host__ __device__ constexpr inline int warp_size() { return 32; }
 
-__host__ __device__ constexpr inline unsigned int warp_full_mask() { return 0xffffffff; }
+__host__ __device__ constexpr inline bitmask_type warp_full_mask() { return LANE_MASK_ALL; }
 
 /**
  * @brief A kernel grid configuration construction gadget for simple one-dimensional mapping

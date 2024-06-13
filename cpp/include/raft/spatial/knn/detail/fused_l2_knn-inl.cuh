@@ -156,7 +156,7 @@ template <typename Pair, int NumWarpQRegs, typename myWarpSelect>
 DI void updateSortedWarpQ(
   myWarpSelect& heapArr, Pair* allWarpTopKs, int rowId, int finalNumVals, int startId = 0)
 {
-  constexpr uint32_t mask = 0xffffffffu;
+  constexpr bitmask_type mask = LANE_MASK_ALL;
   const int lid           = raft::laneId();
   // calculate srcLane such that tid 0 -> 31, 1 -> 0,... 31 -> 30.
   // warp around 0 to 31 required for NN > 32
@@ -166,7 +166,7 @@ DI void updateSortedWarpQ(
     Pair KVPair = allWarpTopKs[rowId * (256) + k];
 #pragma unroll
     for (int i = 0; i < NumWarpQRegs; i++) {
-      unsigned activeLanes = __ballot_sync(mask, KVPair.value < heapArr->warpK[i]);
+      bitmask_type activeLanes = __ballot_sync(mask, KVPair.value < heapArr->warpK[i]);
       if (activeLanes) {
         Pair tempKV;
         tempKV.value               = raft::shfl(heapArr->warpK[i], srcLane);
@@ -314,7 +314,7 @@ __launch_bounds__(Policy::Nthreads, 2) RAFT_KERNEL fusedL2kNN(const DataT* x,
           const auto rowId = starty + i * Policy::AccThRows;
           if (rowId < m) {
             bool needSort = (heapArr[i]->numVals > 0);
-            needSort      = __any_sync(0xffffffff, needSort);
+            needSort      = __any_sync(LANE_MASK_ALL, needSort);
             if (needSort) { heapArr[i]->reduce(); }
           }
         }
@@ -360,7 +360,7 @@ __launch_bounds__(Policy::Nthreads, 2) RAFT_KERNEL fusedL2kNN(const DataT* x,
       int smem_offset = OpT::template shared_mem_size<Policy>();
       Pair* shDumpKV  = (Pair*)(&smem[smem_offset]);
 
-      constexpr uint32_t mask = 0xffffffffu;
+      constexpr bitmask_type mask = LANE_MASK_ALL;
       const IdxT starty       = gridStrideY + (threadIdx.x / Policy::AccThCols);
       const IdxT startx       = gridStrideX + (threadIdx.x % Policy::AccThCols);
       const int lid           = raft::laneId();
@@ -403,7 +403,7 @@ __launch_bounds__(Policy::Nthreads, 2) RAFT_KERNEL fusedL2kNN(const DataT* x,
         anyWarpTopKs = __syncthreads_or(anyWarpTopKs > 0);
         if (anyWarpTopKs) {
           Pair* allWarpTopKs = (Pair*)(&smem[0]);
-          uint32_t needScanSort[Policy::AccRowsPerTh];
+          bitmask_type needScanSort[Policy::AccRowsPerTh];
 
 #pragma unroll
           for (int i = 0; i < Policy::AccRowsPerTh; ++i) {

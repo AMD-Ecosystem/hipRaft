@@ -120,11 +120,11 @@ RAFT_KERNEL kern_sort(const DATA_T* const dataset,  // [dataset_chunk_size, data
                      dataset[d + static_cast<uint64_t>(dataset_dim) * dstNode]);
       dist += diff * diff;
     }
-    dist += __shfl_xor_sync(0xffffffff, dist, 1);
-    dist += __shfl_xor_sync(0xffffffff, dist, 2);
-    dist += __shfl_xor_sync(0xffffffff, dist, 4);
-    dist += __shfl_xor_sync(0xffffffff, dist, 8);
-    dist += __shfl_xor_sync(0xffffffff, dist, 16);
+    dist += __shfl_xor_sync(LANE_MASK_ALL, dist, 1);
+    dist += __shfl_xor_sync(LANE_MASK_ALL, dist, 2);
+    dist += __shfl_xor_sync(LANE_MASK_ALL, dist, 4);
+    dist += __shfl_xor_sync(LANE_MASK_ALL, dist, 8);
+    dist += __shfl_xor_sync(LANE_MASK_ALL, dist, 16);
     if (lane_id == (k % raft::WarpSize)) {
       my_keys[k / raft::WarpSize] = dist;
       my_vals[k / raft::WarpSize] = dstNode;
@@ -198,11 +198,11 @@ RAFT_KERNEL kern_prune(const IdxT* const knn_graph,  // [graph_chunk_size, graph
     detour_count[k + (graph_degree * iA)] = min(smem_num_detour[k], (uint32_t)255);
     if (smem_num_detour[k] == 0) { num_edges_no_detour++; }
   }
-  num_edges_no_detour += __shfl_xor_sync(0xffffffff, num_edges_no_detour, 1);
-  num_edges_no_detour += __shfl_xor_sync(0xffffffff, num_edges_no_detour, 2);
-  num_edges_no_detour += __shfl_xor_sync(0xffffffff, num_edges_no_detour, 4);
-  num_edges_no_detour += __shfl_xor_sync(0xffffffff, num_edges_no_detour, 8);
-  num_edges_no_detour += __shfl_xor_sync(0xffffffff, num_edges_no_detour, 16);
+  num_edges_no_detour += __shfl_xor_sync(LANE_MASK_ALL, num_edges_no_detour, 1);
+  num_edges_no_detour += __shfl_xor_sync(LANE_MASK_ALL, num_edges_no_detour, 2);
+  num_edges_no_detour += __shfl_xor_sync(LANE_MASK_ALL, num_edges_no_detour, 4);
+  num_edges_no_detour += __shfl_xor_sync(LANE_MASK_ALL, num_edges_no_detour, 8);
+  num_edges_no_detour += __shfl_xor_sync(LANE_MASK_ALL, num_edges_no_detour, 16);
   num_edges_no_detour = min(num_edges_no_detour, degree);
 
   if (threadIdx.x == 0) {

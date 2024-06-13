@@ -605,7 +605,7 @@ __device__ void insert_to_global_graph(ResultItem<Index_t> elem,
       } else if (elem == prev_elem || elem == knn_list_frag) {
         pos_to_insert = -2;
       }
-      uint mask = __ballot_sync(raft::warp_full_mask(), pos_to_insert >= 0);
+      bitmask_type mask = __ballot_sync(raft::warp_full_mask(), pos_to_insert >= 0);
       if (mask) {
         uint set_lane_id = __fns(mask, 0, 1);
         pos_to_insert    = __shfl_sync(raft::warp_full_mask(), pos_to_insert, set_lane_id);

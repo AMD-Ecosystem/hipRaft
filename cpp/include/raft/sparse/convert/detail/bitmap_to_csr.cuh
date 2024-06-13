@@ -40,15 +40,16 @@
 #include <raft/core/resource/thrust_policy.hpp>
 #include <raft/core/resources.hpp>
 #include <raft/sparse/convert/detail/adj_to_csr.cuh>
-#include <raft/util/device_loads_stores.cuh>
 
 #include <rmm/device_uvector.hpp>
 
 #ifdef __HIP_PLATFORM_AMD__
 #include <hip/hip_cooperative_groups.h>
+#include <raft/util/device_loads_stores_hip.cuh>
 #else
 #include <cooperative_groups.h>
 #include <cooperative_groups/reduce.h>
+#include <raft/util/device_loads_stores.cuh>
 #endif
 
 

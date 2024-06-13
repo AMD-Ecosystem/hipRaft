@@ -43,9 +43,21 @@
 #include <raft/util/amd_warp_primitives.h>
 using namespace hip_warp_primitives;
 #endif
+
+#ifdef __HIP_PLATFORM_AMD__
+using bitmask_type = uint64_t;
+#else
+using bitmask_type = uint32_t;
+#endif
+
 #include <stdint.h>
 
 namespace raft {
+
+/**
+ * \return the full mask: all bits are set to 1.
+ */
+constexpr bitmask_type LANE_MASK_ALL = ~0;
 
 /** True CUDA alignment of a type (adapted from CUB) */
 template <typename T>
@@ -78,7 +90,7 @@ DI void warpFence()
 }
 
 /** warp-wide any boolean aggregator */
-DI bool any(bool inFlag, uint32_t mask = 0xffffffffu)
+DI bool any(bool inFlag, bitmask_type mask = LANE_MASK_ALL)
 {
 #if CUDART_VERSION >= 9000
   inFlag = __any_sync(mask, inFlag);
@@ -89,7 +101,7 @@ DI bool any(bool inFlag, uint32_t mask = 0xffffffffu)
 }
 
 /** warp-wide all boolean aggregator */
-DI bool all(bool inFlag, uint32_t mask = 0xffffffffu)
+DI bool all(bool inFlag, bitmask_type mask = LANE_MASK_ALL)
 {
 #if CUDART_VERSION >= 9000
   inFlag = __all_sync(mask, inFlag);
@@ -100,7 +112,7 @@ DI bool all(bool inFlag, uint32_t mask = 0xffffffffu)
 }
 
 /** For every thread in the warp, set the corresponding bit to the thread's flag value.  */
-DI uint32_t ballot(bool inFlag, uint32_t mask = 0xffffffffu)
+DI uint32_t ballot(bool inFlag, bitmask_type mask = LANE_MASK_ALL)
 {
 #if CUDART_VERSION >= 9000
   return __ballot_sync(mask, inFlag);
@@ -133,7 +145,7 @@ template <typename T>
 DI std::enable_if_t<is_shuffleable_v<T>, T> shfl(T val,
                                                  int srcLane,
                                                  int width     = WarpSize,
-                                                 uint32_t mask = 0xffffffffu)
+                                                 bitmask_type mask = LANE_MASK_ALL)
 {
 #if CUDART_VERSION >= 9000
   return __shfl_sync(mask, val, srcLane, width);
@@ -147,7 +159,7 @@ template <typename T>
 DI std::enable_if_t<!is_shuffleable_v<T>, T> shfl(T val,
                                                   int srcLane,
                                                   int width     = WarpSize,
-                                                  uint32_t mask = 0xffffffffu)
+                                                  bitmask_type mask = LANE_MASK_ALL)
 {
   using UnitT =
     std::conditional_t<is_multiple_v<T, int>,
@@ -186,7 +198,7 @@ template <typename T>
 DI std::enable_if_t<is_shuffleable_v<T>, T> shfl_up(T val,
                                                     int delta,
                                                     int width     = WarpSize,
-                                                    uint32_t mask = 0xffffffffu)
+                                                    bitmask_type mask = LANE_MASK_ALL)
 {
 #if CUDART_VERSION >= 9000
   return __shfl_up_sync(mask, val, delta, width);
@@ -200,7 +212,7 @@ template <typename T>
 DI std::enable_if_t<!is_shuffleable_v<T>, T> shfl_up(T val,
                                                      int delta,
                                                      int width     = WarpSize,
-                                                     uint32_t mask = 0xffffffffu)
+                                                     bitmask_type mask = LANE_MASK_ALL)
 {
   using UnitT =
     std::conditional_t<is_multiple_v<T, int>,
@@ -239,7 +251,7 @@ template <typename T>
 DI std::enable_if_t<is_shuffleable_v<T>, T> shfl_xor(T val,
                                                      int laneMask,
                                                      int width     = WarpSize,
-                                                     uint32_t mask = 0xffffffffu)
+                                                     bitmask_type mask = LANE_MASK_ALL)
 {
 #if CUDART_VERSION >= 9000
   return __shfl_xor_sync(mask, val, laneMask, width);
@@ -253,7 +265,7 @@ template <typename T>
 DI std::enable_if_t<!is_shuffleable_v<T>, T> shfl_xor(T val,
                                                       int laneMask,
                                                       int width     = WarpSize,
-                                                      uint32_t mask = 0xffffffffu)
+                                                      bitmask_type mask = LANE_MASK_ALL)
 {
   using UnitT =
     std::conditional_t<is_multiple_v<T, int>,

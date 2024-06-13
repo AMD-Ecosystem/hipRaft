@@ -13,7 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+/*
+ * Modifications Copyright (c) 2024 Advanced Micro Devices, Inc.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 #pragma once
+
+#ifdef __HIP_PLATFORM_AMD__
+#include <hip/hip_runtime.h>
+#endif
 
 #include <raft/core/detail/macros.hpp>
 
@@ -40,8 +63,8 @@ _RAFT_DEVICE inline void swap_if_needed(K& k0, V& v0, K& k1, V& v1, const bool a
 template <class K, class V>
 _RAFT_DEVICE inline void swap_if_needed(K& k0, V& v0, const unsigned lane_offset, const bool asc)
 {
-  auto k1 = __shfl_xor_sync(~0u, k0, lane_offset);
-  auto v1 = __shfl_xor_sync(~0u, v0, lane_offset);
+  auto k1 = __shfl_xor_sync(LANE_MASK_ALL, k0, lane_offset);
+  auto v1 = __shfl_xor_sync(LANE_MASK_ALL, v0, lane_offset);
   if ((k0 != k1) && ((k0 < k1) != asc)) {
     k0 = k1;
     v0 = v1;

@@ -482,7 +482,7 @@ __device__ inline void select_best_index_for_next_threshold(
     }
   }
   if (threadIdx.x < num_bins) {
-    const int laneid = 31 - __clz(__ballot_sync(0xffffffff, (my_index != 0xffffffff)));
+    const int laneid = 31 - __clz(__ballot_sync(LANE_MASK_ALL, (my_index != 0xffffffff)));
     if ((threadIdx.x & 0x1f) == laneid) {
       const uint32_t old_index = atomicMax(best_index, my_index);
       if (old_index < my_index) { atomicMax(best_csum, my_csum); }
@@ -830,8 +830,9 @@ __device__ inline void topk_cta_11_core(uint32_t topk,
         if (thread_id < numSortThreads) {
 #pragma unroll
           for (int i = 0; i < numTopkPerThread; i++) {
-            float opp_key = __shfl_xor_sync(0xffffffff, my_keys[i], curr_mask);
-            ValT opp_val  = __shfl_xor_sync(0xffffffff, my_vals[i], curr_mask);
+            float opp_key = __shfl_xor_sync(LANE_MASK_ALL, my_keys[i], curr_mask);
+            ValT opp_val  = __shfl_xor_sync(LANE_MASK_ALL, my_vals[i], curr_mask);
+
             swap_if_needed<float, ValT>(my_keys[i], opp_key, my_vals[i], opp_val, ascending);
           }
         }
