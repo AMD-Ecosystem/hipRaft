@@ -69,6 +69,7 @@ using cudaStream_t = hipStream_t;
 #define cudaMemPoolAttrReleaseThreshold hipMemPoolAttrReleaseThreshold
 #define cudaMemPoolAttrReleaseThreshold hipMemPoolAttrReleaseThreshold
 #define cudaMemPoolReuseAllowOpportunistic hipMemPoolReuseAllowOpportunistic
+#define cudaMemset hipMemset
 #define cudaStreamNonBlocking hipStreamNonBlocking
 #define cudaStreamPerThread hipStreamPerThread
 #define cudaSuccess hipSuccess
