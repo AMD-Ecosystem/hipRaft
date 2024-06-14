@@ -71,7 +71,7 @@ function(ConfigureBench)
 
   target_compile_options(
     ${BENCH_NAME} PRIVATE "$<$<COMPILE_LANGUAGE:CXX>:${RAFT_CXX_FLAGS}>"
-                          "$<$<COMPILE_LANGUAGE:CUDA>:${RAFT_GPU_FLAGS}>"
+                          "$<$<OR:$<COMPILE_LANGUAGE:CUDA>,$<COMPILE_LANGUAGE:HIP>>:${RAFT_GPU_FLAGS}>"
   )
 
   if(ConfigureTest_EXPLICIT_INSTANTIATE_ONLY)

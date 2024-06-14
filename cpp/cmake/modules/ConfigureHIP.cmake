@@ -17,14 +17,14 @@
 
 if(DISABLE_DEPRECATION_WARNINGS)
   list(APPEND RAFT_CXX_FLAGS -Wno-deprecated-declarations -DRAFT_HIDE_DEPRECATION_WARNINGS)
-  list(APPEND RAFT_GPU_FLAGS -Xcompiler=-Wno-deprecated-declarations -DRAFT_HIDE_DEPRECATION_WARNINGS)
+  list(APPEND RAFT_GPU_FLAGS -Wno-deprecated-declarations -DRAFT_HIDE_DEPRECATION_WARNINGS)
 endif()
 
 # Be very strict when compiling with GCC as host compiler (and thus more lenient when compiling with
 # clang)
 if(CMAKE_COMPILER_IS_GNUCXX)
   list(APPEND RAFT_CXX_FLAGS -Wall -Werror -Wno-unknown-pragmas -Wno-error=deprecated-declarations)
-  list(APPEND RAFT_GPU_FLAGS -Xcompiler=-Wall,-Werror,-Wno-error=deprecated-declarations)
+  list(APPEND RAFT_GPU_FLAGS -Wall,-Werror,-Wno-error=deprecated-declarations)
 
   # set warnings as errors
   #if(CMAKE_CUDA_COMPILER_VERSION VERSION_GREATER_EQUAL 11.2.0)
@@ -50,11 +50,11 @@ if(CUDA_ENABLE_LINEINFO)
 endif()
 
 if(OpenMP_FOUND)
-  list(APPEND RAFT_GPU_FLAGS -Xcompiler=${OpenMP_CXX_FLAGS})
+  list(APPEND RAFT_GPU_FLAGS ${OpenMP_CXX_FLAGS})
 endif()
 
 # Debug options
 if(CMAKE_BUILD_TYPE MATCHES Debug)
   message(VERBOSE "RAFT: Building with debugging flags")
-  list(APPEND RAFT_GPU_FLAGS -G -Xcompiler=-rdynamic)
+  list(APPEND RAFT_GPU_FLAGS -G -rdynamic)
 endif()

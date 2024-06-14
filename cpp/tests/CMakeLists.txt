@@ -85,7 +85,7 @@ function(ConfigureTest)
   )
   target_compile_options(
     ${TEST_NAME} PRIVATE "$<$<COMPILE_LANGUAGE:CXX>:${RAFT_CXX_FLAGS}>"
-                         "$<$<COMPILE_LANGUAGE:CUDA>:${RAFT_GPU_FLAGS}>"
+                         "$<$<OR:$<COMPILE_LANGUAGE:CUDA>,$<COMPILE_LANGUAGE:HIP>>:${RAFT_GPU_FLAGS}>"
   )
   if(_RAFT_TEST_EXPLICIT_INSTANTIATE_ONLY)
     target_compile_definitions(${TEST_NAME} PRIVATE "RAFT_EXPLICIT_INSTANTIATE_ONLY")
