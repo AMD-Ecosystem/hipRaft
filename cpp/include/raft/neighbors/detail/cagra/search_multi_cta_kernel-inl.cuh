@@ -94,13 +94,13 @@ __device__ void pickup_next_parents(INDEX_T* const next_parent_indices,  // [sea
     }
     const bitmask_type ballot_mask = __ballot_sync(LANE_MASK_ALL, new_parent);
     if (new_parent) {
-      const auto i = __popc(ballot_mask & ((1 << lane_id) - 1)) + num_new_parents;
+      const auto i = __POPC(ballot_mask & ((1 << lane_id) - 1)) + num_new_parents;
       if (i < search_width) {
         next_parent_indices[i] = j;
         itopk_indices[j] |= index_msb_1_mask;  // set most significant bit as used node
       }
     }
-    num_new_parents += __popc(ballot_mask);
+    num_new_parents += __POPC(ballot_mask);
     if (num_new_parents >= search_width) { break; }
   }
   if (threadIdx.x == 0 && (num_new_parents == 0)) { *terminate_flag = 1; }

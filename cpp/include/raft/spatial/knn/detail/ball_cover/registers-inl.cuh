@@ -14,6 +14,25 @@
  * limitations under the License.
  */
 
+/*
+ * Modifications Copyright (c) 2024 Advanced Micro Devices, Inc.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
 #pragma once
 
 #include "../../ball_cover_types.hpp"
@@ -678,10 +697,10 @@ RAFT_KERNEL block_rbc_kernel_eps_csr_pass(const value_t* X_reordered,
           const int mask = raft::ballot(in_range);
           if (in_range) {
             const uint32_t index   = R_1nn_cols[R_start_offset + i];
-            const uint32_t row_pos = __popc(mask & lid_mask);
+            const uint32_t row_pos = __POPC(mask & lid_mask);
             adj_ja[row_pos]        = index;
           }
-          adj_ja += __popc(mask);
+          adj_ja += __POPC(mask);
         } else {
           column_index_offset += (in_range);
         }
@@ -701,10 +720,10 @@ RAFT_KERNEL block_rbc_kernel_eps_csr_pass(const value_t* X_reordered,
           const int mask = raft::ballot(in_range);
           if (in_range) {
             const uint32_t index   = R_1nn_cols[R_start_offset + i0 + lid];
-            const uint32_t row_pos = __popc(mask & lid_mask);
+            const uint32_t row_pos = __POPC(mask & lid_mask);
             adj_ja[row_pos]        = index;
           }
-          adj_ja += __popc(mask);
+          adj_ja += __POPC(mask);
         } else {
           column_index_offset += (in_range);
         }
@@ -824,10 +843,10 @@ RAFT_KERNEL __launch_bounds__(tpb)
           const int mask = raft::ballot(in_range);
           if (in_range) {
             const uint32_t index   = R_1nn_cols[R_start_offset + i];
-            const uint32_t row_pos = __popc(mask & lid_mask);
+            const uint32_t row_pos = __POPC(mask & lid_mask);
             adj_ja[row_pos]        = index;
           }
-          adj_ja += __popc(mask);
+          adj_ja += __POPC(mask);
         } else {
           column_index_offset += (in_range);
         }
@@ -847,10 +866,10 @@ RAFT_KERNEL __launch_bounds__(tpb)
           const int mask = raft::ballot(in_range);
           if (in_range) {
             const uint32_t index   = R_1nn_cols[R_start_offset + i0 + lid];
-            const uint32_t row_pos = __popc(mask & lid_mask);
+            const uint32_t row_pos = __POPC(mask & lid_mask);
             adj_ja[row_pos]        = index;
           }
-          adj_ja += __popc(mask);
+          adj_ja += __POPC(mask);
         } else {
           column_index_offset += (in_range);
         }
@@ -955,14 +974,14 @@ RAFT_KERNEL block_rbc_kernel_eps_max_k(const value_t* X_reordered,
         const bool in_range = (dist <= eps2);
         const int mask      = raft::ballot(in_range);
         if (in_range) {
-          auto row_pos = column_count + __popc(mask & lid_mask);
+          auto row_pos = column_count + __POPC(mask & lid_mask);
           // we still continue to look for more hits to return valid vd
           if (row_pos < max_k) {
             auto index   = R_1nn_cols[R_start_offset + i];
             tmp[row_pos] = index;
           }
         }
-        column_count += __popc(mask);
+        column_count += __POPC(mask);
         // abort in case subsequent points cannot possibly be in reach
         i *= (cur_R_dist - min_warp_dist <= eps);
       }
@@ -977,14 +996,14 @@ RAFT_KERNEL block_rbc_kernel_eps_max_k(const value_t* X_reordered,
         const bool in_range         = (dist <= eps2);
         const int mask              = raft::ballot(in_range);
         if (in_range) {
-          auto row_pos = column_count + __popc(mask & lid_mask);
+          auto row_pos = column_count + __POPC(mask & lid_mask);
           // we still continue to look for more hits to return valid vd
           if (row_pos < max_k) {
             auto index   = R_1nn_cols[R_start_offset + i0 + lid];
             tmp[row_pos] = index;
           }
         }
-        column_count += __popc(mask);
+        column_count += __POPC(mask);
         // abort in case subsequent points cannot possibly be in reach
         i0 *= (cur_R_dist - min_warp_dist <= eps);
       }

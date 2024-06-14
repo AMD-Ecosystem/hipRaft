@@ -14,6 +14,24 @@
  * limitations under the License.
  */
 
+/*
+ * Modifications Copyright (c) 2024 Advanced Micro Devices, Inc.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 #pragma once
 
 #include <raft/core/detail/macros.hpp>
@@ -412,7 +430,7 @@ class warp_sort_distributed : public warp_sort<Capacity, Ascending, T, IdxT> {
     uint32_t mask = ballot(is_ordered<Ascending>(val, k_th_));
     if (mask == 0) { return; }
     // how many elements to be added
-    uint32_t n_valid = __popc(mask);
+    uint32_t n_valid = __POPC(mask);
     // index of the source lane containing the value to put into the current lane.
     uint32_t src_ix = 0;
     // remove a few smallest set bits from the mask.
@@ -531,7 +549,7 @@ class warp_sort_distributed_ext : public warp_sort<Capacity, Ascending, T, IdxT>
     uint32_t mask = ballot(do_add);
     if (mask == 0) { return; }
     // where to put the element in the tmp buffer
-    int dst_ix = buf_len_ + __popc(mask & ((1u << laneId()) - 1u));
+    int dst_ix = buf_len_ + __POPC(mask & ((1u << laneId()) - 1u));
     // put all elements, which fit into the current tmp buffer
     if (do_add && dst_ix < WarpSize) {
       val_buf_[dst_ix] = val;
@@ -539,7 +557,7 @@ class warp_sort_distributed_ext : public warp_sort<Capacity, Ascending, T, IdxT>
       do_add           = false;
     }
     // Total number of elements to be added
-    buf_len_ += __popc(mask);
+    buf_len_ += __POPC(mask);
     // If the buffer is still not full, we can return
     if (buf_len_ < WarpSize) { return; }
     // Otherwise, merge the warp tmp buffer into the queue

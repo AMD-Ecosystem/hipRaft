@@ -59,6 +59,34 @@ namespace raft {
  */
 constexpr bitmask_type LANE_MASK_ALL = ~0;
 
+/**
+ * \return Number of bits set to 1.
+ * \note Return value type matches that of the underlying device builtin.
+ */
+template <typename T>
+__device__ inline int __POPC(T v);
+
+
+template <>
+__device__ inline int __POPC<int32_t>(int32_t v) {
+  return __popc(v);
+}
+
+template <>
+__device__ inline int __POPC<int64_t>(int64_t v) {
+  return __popcll(v);
+}
+
+template <>
+__device__ inline int __POPC<uint32_t>(uint32_t v) {
+  return __popc(v);
+}
+
+template <>
+__device__ inline int __POPC<uint64_t>(uint64_t v) {
+  return __popcll(v);
+}
+
 /** True CUDA alignment of a type (adapted from CUB) */
 template <typename T>
 struct cuda_alignment {

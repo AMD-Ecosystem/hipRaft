@@ -199,7 +199,7 @@ DI i_t binaryBlockReduce(i_t val, i_t* shmem)
   static_assert(BLOCK_SIZE <= 1024);
   assert(val == 0 || val == 1);
   const bitmask_type mask    = __ballot_sync(LANE_MASK_ALL, val); 
-  const uint32_t n_items = __popc(mask);
+  const bitmask_type n_items = __POPC(mask);
 
   // Each first thread of the warp
   if (threadIdx.x % WarpSize == 0) { shmem[threadIdx.x / WarpSize] = n_items; }
