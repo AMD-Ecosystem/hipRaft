@@ -14,6 +14,25 @@
  * limitations under the License.
  */
 
+/*
+ * Modifications Copyright (c) 2024 Advanced Micro Devices, Inc.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
 #include "../test_utils.cuh"
 
 #include <raft/random/device/sample.cuh>
@@ -168,8 +187,14 @@ class ReductionTest : public testing::TestWithParam<std::vector<int>> {  // NOLI
     reduction_launch::run(arr_d, 158, raft::add_op{}, stream);
     reduction_launch::run_ranked(arr_d, 5, 15, raft::max_op{}, stream);
     reduction_launch::run_ranked(arr_d, 0, 26, raft::min_op{}, stream);
-    // value 15 is for the current state of PCgenerator. adjust this if rng changes
-    reduction_launch::run_random_sample(arr_d, 15, stream);
+    // value 15 is for the current state of PCgenerator on CUDA, 3 on HIP (there is also a difference in warp sizes that affects the reduction). adjust this if rng changes
+    int expected;
+    #ifdef __HIP_PLATFORM_AMD__
+    expected = 3;
+    #else
+    expected = 15;
+    #endif
+    reduction_launch::run_random_sample(arr_d, expected, stream);
   }
 
   void run_binary_reduction() { reduction_launch::run_binary(arr_d, 24, stream); }
