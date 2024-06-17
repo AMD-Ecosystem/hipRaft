@@ -112,6 +112,16 @@ auto memory_type_from_pointer(T* ptr)
 {
   auto result = memory_type::host;
 #ifndef RAFT_DISABLE_CUDA
+// Special treatment of nullptr on HIP/AMD:
+// In contrast to cuda, hipPointerGetAttributes
+// currently (ROCm 6.1.2) fails if a nullptr is passed on the host.
+// We mimick CUDA's behavior by returning memory_type::host.
+#ifdef __HIP_PLATFORM_AMD__
+  if(!ptr) {
+    return result;
+  }
+#endif
+
   auto attrs = cudaPointerAttributes{};
   RAFT_CUDA_TRY(cudaPointerGetAttributes(&attrs, ptr));
   switch (attrs.type) {
