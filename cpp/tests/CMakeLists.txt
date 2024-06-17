@@ -120,39 +120,39 @@ if(BUILD_TESTS)
   endif()
 
 
-# ConfigureTest(
-#   NAME
-#   CORE_TEST
-#   PATH
-#   core/bitmap.cu
-#   core/bitset.cu
-#   core/device_resources_manager.cpp
-#   core/device_setter.cpp
-#   core/logger.cpp
-#   core/math_device.cu
-#   core/math_host.cpp
-#   core/operators_device.cu
-#   core/operators_host.cpp
-#   core/handle.cpp
-#   core/interruptible.cu
-#   core/nvtx.cpp
-#   core/mdarray.cu
-#   core/mdbuffer.cu
-#   core/mdspan_copy.cpp
-#   core/mdspan_copy.cu
-#   core/mdspan_utils.cu
-#   core/numpy_serializer.cu
-#   core/memory_type.cpp
-#   core/sparse_matrix.cu
-#   core/sparse_matrix.cpp
-#   core/span.cpp
-#   core/span.cu
-#   core/stream_view.cpp
-#   core/temporary_device_buffer.cu
-#   test.cpp
-#   LIB
-#   EXPLICIT_INSTANTIATE_ONLY
-# )
+ConfigureTest(
+  NAME
+  CORE_TEST
+  PATH
+  core/bitmap.cu
+  core/bitset.cu
+  core/device_resources_manager.cpp
+  core/device_setter.cpp
+  core/logger.cpp
+  core/math_device.cu
+  core/math_host.cpp
+  core/operators_device.cu
+  core/operators_host.cpp
+  core/handle.cpp
+  core/interruptible.cu
+  core/nvtx.cpp
+  core/mdarray.cu
+  core/mdbuffer.cu
+  core/mdspan_copy.cpp
+  core/mdspan_copy.cu
+  core/mdspan_utils.cu
+  core/numpy_serializer.cu
+  core/memory_type.cpp
+  core/sparse_matrix.cu
+  core/sparse_matrix.cpp
+  core/span.cpp
+  core/span.cu
+  core/stream_view.cpp
+  core/temporary_device_buffer.cu
+  test.cpp
+  LIB
+  EXPLICIT_INSTANTIATE_ONLY
+)
 
 # ConfigureTest(
 #   NAME CORE_TEST PATH core/stream_view.cpp core/mdspan_copy.cpp LIB EXPLICIT_INSTANTIATE_ONLY
