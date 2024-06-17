@@ -64,7 +64,7 @@ RAFT_INLINE_FUNCTION auto abs(T x)
                         std::is_same_v<long long int, T>,
                       T>
 {
-#ifdef __CUDA_ARCH__
+#if defined(__CUDA_ARCH__) || defined(__HIP_DEVICE_COMPILE__)
   return ::abs(x);
 #else
   return std::abs(x);
@@ -90,7 +90,7 @@ constexpr RAFT_INLINE_FUNCTION auto abs(T x)
 template <typename T>
 RAFT_DEVICE_INLINE_FUNCTION typename std::enable_if_t<std::is_same_v<T, __half>, __half> abs(T x)
 {
-#if (__CUDA_ARCH__ >= 530)
+#if (__CUDA_ARCH__ >= 530) || defined(__HIP_DEVICE_COMPILE__)
   return ::__habs(x);
 #else
   // Fail during template instantiation if the compute capability doesn't support this operation
@@ -103,7 +103,7 @@ template <typename T>
 RAFT_DEVICE_INLINE_FUNCTION typename std::enable_if_t<std::is_same_v<T, nv_bfloat16>, nv_bfloat16>
 abs(T x)
 {
-#if (__CUDA_ARCH__ >= 800)
+#if (__CUDA_ARCH__ >= 800)|| defined(__HIP_DEVICE_COMPILE__)
   return ::__habs(x);
 #else
   // Fail during template instantiation if the compute capability doesn't support this operation
@@ -118,7 +118,7 @@ abs(T x)
 template <typename T>
 RAFT_INLINE_FUNCTION auto acos(T x)
 {
-#ifdef __CUDA_ARCH__
+#if defined(__CUDA_ARCH__) || defined(__HIP_DEVICE_COMPILE__)
   return ::acos(x);
 #else
   return std::acos(x);
@@ -129,7 +129,7 @@ RAFT_INLINE_FUNCTION auto acos(T x)
 template <typename T>
 RAFT_INLINE_FUNCTION auto asin(T x)
 {
-#ifdef __CUDA_ARCH__
+#if defined(__CUDA_ARCH__) || defined(__HIP_DEVICE_COMPILE__)
   if constexpr (std::is_same<T, __half>::value) {
     float x_float      = __half2float(x);
     float result_float = ::asin(x_float);
@@ -146,7 +146,7 @@ RAFT_INLINE_FUNCTION auto asin(T x)
 template <typename T>
 RAFT_INLINE_FUNCTION auto atanh(T x)
 {
-#ifdef __CUDA_ARCH__
+#if defined(__CUDA_ARCH__) || defined(__HIP_DEVICE_COMPILE__)
   return ::atanh(x);
 #else
   return std::atanh(x);
@@ -160,7 +160,7 @@ template <typename T,
                            int> = 0>
 RAFT_INLINE_FUNCTION auto cos(T x)
 {
-#ifdef __CUDA_ARCH__
+#if defined(__CUDA_ARCH__) || defined(__HIP_DEVICE_COMPILE__)
   return ::cos(x);
 #else
   return std::cos(x);
@@ -173,9 +173,13 @@ RAFT_DEVICE_INLINE_FUNCTION typename std::enable_if_t<std::is_same_v<T, __half>,
 {
 #if (__CUDA_ARCH__ >= 530)
   return ::hcos(x);
-#else
+#elif defined(__HIP_DEVICE_COMPILE__)
+  return hcos(x); //FIXME(HIP/AMD): hcos is in anonymous namespace in amd_hip_fp16.h header
+#elif defined(__CUDA_ARCH__) //macro check necessary, as on hipcc, static_assert would fail during host pass otherwise
   // Fail during template instantiation if the compute capability doesn't support this operation
   static_assert(sizeof(T) != sizeof(T), "__half is only supported on __CUDA_ARCH__ >= 530");
+  return T{};
+#else
   return T{};
 #endif
 }
@@ -184,11 +188,13 @@ template <typename T>
 RAFT_DEVICE_INLINE_FUNCTION typename std::enable_if_t<std::is_same_v<T, nv_bfloat16>, nv_bfloat16>
 cos(T x)
 {
-#if (__CUDA_ARCH__ >= 800)
+#if (__CUDA_ARCH__ >= 800) || defined(__HIP_DEVICE_COMPILE__)
   return ::hcos(x);
-#else
+#elif defined(__CUDA_ARCH__) //macro check necessary, as on hipcc, static_assert would fail during host pass otherwise
   // Fail during template instantiation if the compute capability doesn't support this operation
   static_assert(sizeof(T) != sizeof(T), "nv_bfloat16 is only supported on __CUDA_ARCH__ >= 800");
+  return T{};
+#else
   return T{};
 #endif
 }
@@ -201,7 +207,7 @@ template <typename T,
                            int> = 0>
 RAFT_INLINE_FUNCTION auto sin(T x)
 {
-#ifdef __CUDA_ARCH__
+#if defined(__CUDA_ARCH__)  || defined(__HIP_DEVICE_COMPILE__)
   return ::sin(x);
 #else
   return std::sin(x);
@@ -214,9 +220,13 @@ RAFT_DEVICE_INLINE_FUNCTION typename std::enable_if_t<std::is_same_v<T, __half>,
 {
 #if (__CUDA_ARCH__ >= 530)
   return ::hsin(x);
-#else
+#elif defined(__HIP_DEVICE_COMPILE__)
+  return hsin(x); //FIXME(HIP/AMD): hsin is in anonymous namespace in amd_hip_fp16.h header
+#elif defined(__CUDA_ARCH__) //macro check necessary, as on hipcc, static_assert would fail during host pass otherwise
   // Fail during template instantiation if the compute capability doesn't support this operation
   static_assert(sizeof(T) != sizeof(T), "__half is only supported on __CUDA_ARCH__ >= 530");
+  return T{};
+#else
   return T{};
 #endif
 }
@@ -225,11 +235,13 @@ template <typename T>
 RAFT_DEVICE_INLINE_FUNCTION typename std::enable_if_t<std::is_same_v<T, nv_bfloat16>, nv_bfloat16>
 sin(T x)
 {
-#if (__CUDA_ARCH__ >= 800)
+#if (__CUDA_ARCH__ >= 800) || defined(__HIP_DEVICE_COMPILE__)
   return ::hsin(x);
-#else
+#elif defined(__CUDA_ARCH__) //macro check necessary, as on hipcc, static_assert would fail during host pass otherwise
   // Fail during template instantiation if the compute capability doesn't support this operation
   static_assert(sizeof(T) != sizeof(T), "nv_bfloat16 is only supported on __CUDA_ARCH__ >= 800");
+  return T{};
+#else
   return T{};
 #endif
 }
@@ -240,8 +252,16 @@ template <typename T>
 RAFT_INLINE_FUNCTION std::enable_if_t<std::is_same_v<float, T> || std::is_same_v<double, T>> sincos(
   const T& x, T* s, T* c)
 {
-#ifdef __CUDA_ARCH__
+#if defined(__CUDA_ARCH__)
   ::sincos(x, s, c);
+#elif defined(__HIP_DEVICE_COMPILE__)
+  // FIXME(HIP/AMD): HIP doesn't offer a sincos overload/specialization for float
+  if constexpr(std::is_same_v<float, T>) {
+    ::sincosf(x, s, c);
+  }
+  else {
+    ::sincos(x, s, c);
+  }
 #else
   *s = std::sin(x);
   *c = std::cos(x);
@@ -252,7 +272,7 @@ RAFT_INLINE_FUNCTION std::enable_if_t<std::is_same_v<float, T> || std::is_same_v
 template <typename T>
 RAFT_INLINE_FUNCTION auto tanh(T x)
 {
-#ifdef __CUDA_ARCH__
+#if defined(__CUDA_ARCH__) || defined(__HIP_DEVICE_COMPILE__)
   return ::tanh(x);
 #else
   return std::tanh(x);
@@ -266,7 +286,7 @@ template <typename T,
                            int> = 0>
 RAFT_INLINE_FUNCTION auto exp(T x)
 {
-#ifdef __CUDA_ARCH__
+#if defined(__CUDA_ARCH__) || defined(__HIP_DEVICE_COMPILE__)
   return ::exp(x);
 #else
   return std::exp(x);
@@ -279,9 +299,13 @@ RAFT_DEVICE_INLINE_FUNCTION typename std::enable_if_t<std::is_same_v<T, __half>,
 {
 #if (__CUDA_ARCH__ >= 530)
   return ::hexp(x);
-#else
+#elif defined(__HIP_DEVICE_COMPILE__)
+  return hexp(x); //FIXME(HIP/AMD): hexp is in anonymous namespace in amd_hip_fp16.h header
+#elif defined(__CUDA_ARCH__) //macro check necessary, as on hipcc, static_assert would fail during host pass otherwise
   // Fail during template instantiation if the compute capability doesn't support this operation
   static_assert(sizeof(T) != sizeof(T), "__half is only supported on __CUDA_ARCH__ >= 530");
+  return T{};
+#else
   return T{};
 #endif
 }
@@ -290,11 +314,13 @@ template <typename T>
 RAFT_DEVICE_INLINE_FUNCTION typename std::enable_if_t<std::is_same_v<T, nv_bfloat16>, nv_bfloat16>
 exp(T x)
 {
-#if (__CUDA_ARCH__ >= 800)
+#if (__CUDA_ARCH__ >= 800) || defined(__HIP_DEVICE_COMPILE__)
   return ::hexp(x);
-#else
+#elif defined(__CUDA_ARCH__) //macro check necessary, as on hipcc, static_assert would fail during host pass otherwise
   // Fail during template instantiation if the compute capability doesn't support this operation
   static_assert(sizeof(T) != sizeof(T), "nv_bfloat16 is only supported on __CUDA_ARCH__ >= 800");
+  return T{};
+#else
   return T{};
 #endif
 }
@@ -307,7 +333,7 @@ template <typename T,
                            int> = 0>
 RAFT_INLINE_FUNCTION auto log(T x)
 {
-#ifdef __CUDA_ARCH__
+#if defined(__CUDA_ARCH__)  || defined(__HIP_DEVICE_COMPILE__)
   return ::log(x);
 #else
   return std::log(x);
@@ -320,9 +346,13 @@ RAFT_DEVICE_INLINE_FUNCTION typename std::enable_if_t<std::is_same_v<T, __half>,
 {
 #if (__CUDA_ARCH__ >= 530)
   return ::hlog(x);
-#else
+#elif defined(__HIP_DEVICE_COMPILE__)
+  return hlog(x); //FIXME(HIP/AMD): hexp is in anonymous namespace in amd_hip_fp16.h header
+#elif defined(__CUDA_ARCH__) //macro check necessary, as on hipcc, static_assert would fail during host pass otherwise
   // Fail during template instantiation if the compute capability doesn't support this operation
   static_assert(sizeof(T) != sizeof(T), "__half is only supported on __CUDA_ARCH__ >= 530");
+  return T{};
+#else
   return T{};
 #endif
 }
@@ -331,11 +361,13 @@ template <typename T>
 RAFT_DEVICE_INLINE_FUNCTION typename std::enable_if_t<std::is_same_v<T, nv_bfloat16>, nv_bfloat16>
 log(T x)
 {
-#if (__CUDA_ARCH__ >= 800)
+#if (__CUDA_ARCH__ >= 800) || defined(__HIP_DEVICE_COMPILE__)
   return ::hlog(x);
-#else
+#elif defined(__CUDA_ARCH__) //macro check necessary, as on hipcc, static_assert would fail during host pass otherwise
   // Fail during template instantiation if the compute capability doesn't support this operation
   static_assert(sizeof(T) != sizeof(T), "nv_bfloat16 is only supported on __CUDA_ARCH__ >= 800");
+  return T{};
+#else
   return T{};
 #endif
 }
@@ -361,7 +393,7 @@ template <
                    int> = 0>
 RAFT_INLINE_FUNCTION auto max(const T1& x, const T2& y)
 {
-#ifdef __CUDA_ARCH__
+#if defined(__CUDA_ARCH__) || defined(__HIP_DEVICE_COMPILE__)
   // Combinations of types supported by the CUDA Math API
   if constexpr ((std::is_integral_v<T1> && std::is_integral_v<T2> && std::is_same_v<T1, T2>) ||
                 ((std::is_same_v<T1, float> || std::is_same_v<T1, double>)&&(
@@ -401,7 +433,7 @@ template <typename T>
 RAFT_DEVICE_INLINE_FUNCTION typename std::enable_if_t<std::is_same_v<T, __half>, __half> max(T x,
                                                                                              T y)
 {
-#if (__CUDA_ARCH__ >= 530)
+#if (__CUDA_ARCH__ >= 530) || defined(__HIP_DEVICE_COMPILE__)
   return ::__hmax(x, y);
 #else
   // Fail during template instantiation if the compute capability doesn't support this operation
@@ -414,7 +446,7 @@ template <typename T>
 RAFT_DEVICE_INLINE_FUNCTION typename std::enable_if_t<std::is_same_v<T, nv_bfloat16>, nv_bfloat16>
 max(T x, T y)
 {
-#if (__CUDA_ARCH__ >= 800)
+#if (__CUDA_ARCH__ >= 800) || defined(__HIP_DEVICE_COMPILE__)
   return ::__hmax(x, y);
 #else
   // Fail during template instantiation if the compute capability doesn't support this operation
@@ -442,7 +474,7 @@ constexpr RAFT_INLINE_FUNCTION auto max(const T& x)
 template <typename T>
 RAFT_DEVICE_INLINE_FUNCTION typename std::enable_if_t<std::is_same_v<T, __half>, __half> max(T x)
 {
-#if (__CUDA_ARCH__ >= 530)
+#if (__CUDA_ARCH__ >= 530) || defined(__HIP_DEVICE_COMPILE__)
   return x;
 #else
   // Fail during template instantiation if the compute capability doesn't support this operation
@@ -455,7 +487,7 @@ template <typename T>
 RAFT_DEVICE_INLINE_FUNCTION typename std::enable_if_t<std::is_same_v<T, nv_bfloat16>, nv_bfloat16>
 max(T x)
 {
-#if (__CUDA_ARCH__ >= 800)
+#if (__CUDA_ARCH__ >= 800) || defined(__HIP_DEVICE_COMPILE__)
   return x;
 #else
   // Fail during template instantiation if the compute capability doesn't support this operation
@@ -487,7 +519,7 @@ template <
                    int> = 0>
 RAFT_INLINE_FUNCTION auto min(const T1& x, const T2& y)
 {
-#ifdef __CUDA_ARCH__
+#if defined(__CUDA_ARCH__) || defined(__HIP_DEVICE_COMPILE__)
   // Combinations of types supported by the CUDA Math API
   if constexpr ((std::is_integral_v<T1> && std::is_integral_v<T2> && std::is_same_v<T1, T2>) ||
                 ((std::is_same_v<T1, float> || std::is_same_v<T1, double>)&&(
@@ -521,7 +553,7 @@ template <typename T>
 RAFT_DEVICE_INLINE_FUNCTION typename std::enable_if_t<std::is_same_v<T, __half>, __half> min(T x,
                                                                                              T y)
 {
-#if (__CUDA_ARCH__ >= 530)
+#if (__CUDA_ARCH__ >= 530) || defined(__HIP_DEVICE_COMPILE__)
   return ::__hmin(x, y);
 #else
   // Fail during template instantiation if the compute capability doesn't support this operation
@@ -534,7 +566,7 @@ template <typename T>
 RAFT_DEVICE_INLINE_FUNCTION typename std::enable_if_t<std::is_same_v<T, nv_bfloat16>, nv_bfloat16>
 min(T x, T y)
 {
-#if (__CUDA_ARCH__ >= 800)
+#if (__CUDA_ARCH__ >= 800) || defined(__HIP_DEVICE_COMPILE__)
   return ::__hmin(x, y);
 #else
   // Fail during template instantiation if the compute capability doesn't support this operation
@@ -563,7 +595,7 @@ template <typename T>
 RAFT_DEVICE_INLINE_FUNCTION typename std::enable_if_t<std::is_same_v<T, nv_bfloat16>, __half> min(
   T x)
 {
-#if (__CUDA_ARCH__ >= 530)
+#if (__CUDA_ARCH__ >= 530) || defined(__HIP_DEVICE_COMPILE__)
   return x;
 #else
   // Fail during template instantiation if the compute capability doesn't support this operation
@@ -576,7 +608,7 @@ template <typename T>
 RAFT_DEVICE_INLINE_FUNCTION typename std::enable_if_t<std::is_same_v<T, nv_bfloat16>, nv_bfloat16>
 min(T x)
 {
-#if (__CUDA_ARCH__ >= 800)
+#if (__CUDA_ARCH__ >= 800) || defined(__HIP_DEVICE_COMPILE__)
   return x;
 #else
   // Fail during template instantiation if the compute capability doesn't support this operation
@@ -590,7 +622,7 @@ min(T x)
 template <typename T1, typename T2>
 RAFT_INLINE_FUNCTION auto pow(T1 x, T2 y)
 {
-#ifdef __CUDA_ARCH__
+#if defined(__CUDA_ARCH__)  || defined(__HIP_DEVICE_COMPILE__)
   return ::pow(x, y);
 #else
   return std::pow(x, y);
@@ -604,7 +636,7 @@ template <typename T,
                            int> = 0>
 RAFT_INLINE_FUNCTION auto sqrt(T x)
 {
-#ifdef __CUDA_ARCH__
+#if defined(__CUDA_ARCH__) || defined(__HIP_DEVICE_COMPILE__)
   return ::sqrt(x);
 #else
   return std::sqrt(x);
@@ -617,9 +649,13 @@ RAFT_DEVICE_INLINE_FUNCTION typename std::enable_if_t<std::is_same_v<T, __half>,
 {
 #if (__CUDA_ARCH__ >= 530)
   return ::hsqrt(x);
-#else
+#elif defined(__HIP_DEVICE_COMPILE__)
+  return hsqrt(x); //FIXME(HIP/AMD): hsqrt is in anonymous namespace in amd_hip_fp16.h header
+#elif defined(__CUDA_ARCH__) //macro check necessary, as on hipcc, static_assert would fail during host pass otherwise
   // Fail during template instantiation if the compute capability doesn't support this operation
   static_assert(sizeof(T) != sizeof(T), "__half is only supported on __CUDA_ARCH__ >= 530");
+  return T{};
+#else
   return T{};
 #endif
 }
@@ -628,11 +664,13 @@ template <typename T>
 RAFT_DEVICE_INLINE_FUNCTION typename std::enable_if_t<std::is_same_v<T, nv_bfloat16>, nv_bfloat16>
 sqrt(T x)
 {
-#if (__CUDA_ARCH__ >= 800)
+#if (__CUDA_ARCH__ >= 800) || defined(__HIP_DEVICE_COMPILE__)
   return ::hsqrt(x);
-#else
+#elif defined(__CUDA_ARCH__) //macro check necessary, as on hipcc, static_assert would fail during host pass otherwise
   // Fail during template instantiation if the compute capability doesn't support this operation
   static_assert(sizeof(T) != sizeof(T), "nv_bfloat16 is only supported on __CUDA_ARCH__ >= 800");
+  return T{};
+#else
   return T{};
 #endif
 }
