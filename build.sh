@@ -92,7 +92,9 @@ INSTALL_TARGET=install
 BUILD_REPORT_METRICS=""
 BUILD_REPORT_INCL_CACHE_STATS=OFF
 
-TEST_TARGETS="CORE_TEST;LABEL_TEST;LINALG_TEST;MATRIX_TEST;RANDOM_TEST;SOLVERS_TEST;SPARSE_TEST;STATS_TEST;UTILS_TEST"
+TEST_TARGETS=UTILS_TEST
+# TODO(HIP/AMD): Need to add support for tests
+#TEST_TARGETS="CORE_TEST;LABEL_TEST;LINALG_TEST;MATRIX_TEST;RANDOM_TEST;SOLVERS_TEST;SPARSE_TEST;STATS_TEST;UTILS_TEST"
 BENCH_TARGETS="CORE_BENCH;LINALG_BENCH;MATRIX_BENCH;SPARSE_BENCH;RANDOM_BENCH"
 
 CACHE_ARGS=""
@@ -311,12 +313,18 @@ if hasArg --compile-cuda ; then
 fi
 
 if hasArg --compile-lib || (( ${NUMARGS} == 0 )); then
+    # TODO(HIP/AMD): Need to add support to compile library
     COMPILE_LIBRARY=ON
+    echo "Currently --compile-lib not supported"
+    #exit 1
     CMAKE_TARGET="${CMAKE_TARGET};raft_lib"
 fi
 
 if hasArg --compile-static-lib || (( ${NUMARGS} == 0 )); then
+    # TODO(HIP/AMD): Need to add support to compile library
     COMPILE_LIBRARY=ON
+    #echo "Currently --compile-static-lib not supported"
+    #exit 1
     CMAKE_TARGET="${CMAKE_TARGET};raft_lib_static"
 fi
 

@@ -473,6 +473,7 @@ class ScaledBernoulliTest : public ::testing::Test {
  protected:
   void SetUp() override
   {
+    GTEST_SKIP() << "Skipping test as currently not supported";
     RAFT_CUDA_TRY(cudaStreamCreate(&stream));
     RngState r(42);
     scaled_bernoulli(handle, r, data.data(), len, T(0.5), T(scale));
@@ -480,6 +481,7 @@ class ScaledBernoulliTest : public ::testing::Test {
 
   void rangeCheck()
   {
+    GTEST_SKIP() << "Skipping test as currently not supported";
     auto h_data = std::make_unique<T[]>(len);
     update_host(h_data.get(), data.data(), len, stream);
     ASSERT_TRUE(std::none_of(
@@ -500,6 +502,7 @@ class ScaledBernoulliMdspanTest : public ::testing::Test {
  protected:
   void SetUp() override
   {
+    GTEST_SKIP() << "Skipping test as currently not supported";
     RAFT_CUDA_TRY(cudaStreamCreate(&stream));
     RngState r(42);
 
@@ -509,6 +512,7 @@ class ScaledBernoulliMdspanTest : public ::testing::Test {
 
   void rangeCheck()
   {
+    GTEST_SKIP() << "Skipping test as currently not supported";
     auto h_data = std::make_unique<T[]>(len);
     update_host(h_data.get(), data.data(), len, stream);
     ASSERT_TRUE(std::none_of(

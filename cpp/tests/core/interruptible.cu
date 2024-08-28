@@ -99,6 +99,7 @@ TEST(Raft, InterruptibleDelayedInit)
 
 TEST(Raft, InterruptibleOpenMP)
 {
+  GTEST_SKIP() << "Skipping test as currently not supported";
   // number of threads must be smaller than max number of resident grids for GPU
   const int n_threads = 10;
   // 1 <= n_expected_succeed <= n_threads

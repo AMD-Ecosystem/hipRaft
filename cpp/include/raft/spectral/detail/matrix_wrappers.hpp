@@ -13,6 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+/*
+ * Modifications Copyright (c) 2024 Advanced Micro Devices, Inc.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
 #pragma once
 
 #include <raft/core/resource/cublas_handle.hpp>
@@ -26,7 +46,7 @@
 
 #include <rmm/device_uvector.hpp>
 
-#include <cuda/functional>
+//#include <cuda/functional>
 #include <thrust/execution_policy.h>
 #include <thrust/fill.h>
 #include <thrust/reduce.h>
@@ -114,11 +134,17 @@ class vector_t {
       buffer_.data(),
       buffer_.data() + buffer_.size(),
       value_type{0},
-      cuda::proclaim_return_type<value_type>([] __device__(auto left, auto right) {
+      /*cuda::proclaim_return_type<value_type>([] __device__(auto left, auto right) {
         auto abs_left  = left > 0 ? left : -left;
         auto abs_right = right > 0 ? right : -right;
         return abs_left + abs_right;
-      }));
+      }));*/
+
+      [] __device__(auto left, auto right) -> value_type {
+        auto abs_left  = left > 0 ? left : -left;
+        auto abs_right = right > 0 ? right : -right;
+        return abs_left + abs_right;
+      });
   }
 
   void fill(value_type value)

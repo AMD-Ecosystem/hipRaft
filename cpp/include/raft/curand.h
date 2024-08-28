@@ -36,3 +36,5 @@
 #define curandDestroyGenerator hiprandDestroyGenerator
 #define curandGenerateNormalDouble hiprandGenerateNormalDouble
 #define curandSetPseudoRandomGeneratorSeed hiprandSetPseudoRandomGeneratorSeed
+#define curandGenerateUniform hiprandGenerateUniform
+#define curandGenerateUniformDouble hiprandGenerateUniformDouble
