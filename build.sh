@@ -395,8 +395,12 @@ fi
 # Configure for building all C++ targets
 if (( ${NUMARGS} == 0 )) || hasArg libraft || hasArg docs || hasArg tests || hasArg bench-prims; then
     if (( ${BUILD_ALL_GPU_ARCH} == 0 )); then
-        RAFT_CMAKE_CUDA_ARCHITECTURES="NATIVE"
-        echo "Building for the architecture of the GPU in the system..."
+        RAFT_CMAKE_CUDA_ARCHITECTURES="${RAFT_CMAKE_CUDA_ARCHITECTURES:-NATIVE}"
+        if [[ "$RAFT_CMAKE_CUDA_ARCHITECTURES" == "NATIVE" ]]; then
+            echo "Building for the architecture of the GPU in the system..."
+        else
+            echo "Building for the GPU architecture(s) $RAFT_CMAKE_CUDA_ARCHITECTURES ..."
+        fi
     else
         RAFT_CMAKE_CUDA_ARCHITECTURES="RAPIDS"
         echo "Building for *ALL* supported GPU architectures..."
