@@ -33,13 +33,8 @@
 
 function(find_and_configure_rmm)
     include(${rapids-cmake-dir}/cpm/rmm.cmake)
-    #rapids_cpm_rmm(BUILD_EXPORT_SET raft-exports
-    #               INSTALL_EXPORT_SET raft-exports)
-    rapids_cpm_find(
-      rmm 1.0.0
-      GIT_REPOSITORY https://$ENV{GITHUB_USER}:$ENV{GITHUB_PASS}@github.com/AMD-AI/rmm
-      GIT_TAG  feat/fixes_for_wip-24.06
-    )
+    rapids_cpm_rmm(BUILD_EXPORT_SET raft-exports
+                   INSTALL_EXPORT_SET raft-exports)
 endfunction()
 
 find_and_configure_rmm()
