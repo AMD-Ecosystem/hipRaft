@@ -41,25 +41,15 @@ else()
 endif()
 
 if(NOT EXISTS "${CMAKE_CURRENT_BINARY_DIR}/RAFT_RAPIDS-${RAPIDS_VERSION_MAJOR_MINOR}.cmake")
-  # FIXME(HIP/AMD): For the time being, we use our internal rapids-cmake branch. At some point, we
-  # should follow the same naming conventions for rapids-cmake as in the upstream, i.e., use
-  # ${RAPIDS_VERSION_MAJOR_MINOR} in our branch names.
-  if(DEFINED ENV{RAPIDS_CMAKE_BRANCH})
-    set(RAPIDS_CMAKE_BRANCH "$ENV{RAPIDS_CMAKE_BRANCH}")
+  if(DEFINED ENV{RAPIDS_CMAKE_SCRIPT_BRANCH})
+    set(RAPIDS_CMAKE_SCRIPT_BRANCH "$ENV{RAPIDS_CMAKE_SCRIPT_BRANCH}")
   else()
-    set(RAPIDS_CMAKE_BRANCH raft-dev)
+    set(RAPIDS_CMAKE_SCRIPT_BRANCH branch-24.06)
   endif()
-  # file( DOWNLOAD
-  # "https://raw.githubusercontent.com/rapidsai/rapids-cmake/branch-${RAPIDS_VERSION_MAJOR_MINOR}/RAPIDS.cmake"
-  # "${CMAKE_CURRENT_BINARY_DIR}/RAFT_RAPIDS-${RAPIDS_VERSION_MAJOR_MINOR}.cmake")
-
-  # TODO(HIP/AMD): once rapids-cmake is publicly available for HIP, we can remove the authentication
-  # needed here
-  set(URL
-      "https://$ENV{GITHUB_USER}:$ENV{GITHUB_PASS}@raw.githubusercontent.com/AMD-AI/rapids-cmake/${RAPIDS_CMAKE_BRANCH}/RAPIDS.cmake"
-  )
-  file(DOWNLOAD ${URL} "${CMAKE_CURRENT_BINARY_DIR}/RAFT_RAPIDS-${RAPIDS_VERSION_MAJOR_MINOR}.cmake"
-       STATUS DOWNLOAD_STATUS
+  set(URL "https://raw.githubusercontent.com/ROCm/rapids-cmake/${RAPIDS_CMAKE_SCRIPT_BRANCH}/RAPIDS.cmake")
+  file(DOWNLOAD ${URL}
+  "${CMAKE_CURRENT_BINARY_DIR}/RAFT_RAPIDS-${RAPIDS_VERSION_MAJOR_MINOR}.cmake"
+  STATUS DOWNLOAD_STATUS
   )
   list(GET DOWNLOAD_STATUS 0 STATUS_CODE)
   list(GET DOWNLOAD_STATUS 1 ERROR_MESSAGE)
