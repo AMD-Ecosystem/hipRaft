@@ -56,5 +56,5 @@ endif()
 # Debug options
 if(CMAKE_BUILD_TYPE MATCHES Debug)
   message(VERBOSE "RAFT: Building with debugging flags")
-  list(APPEND RAFT_GPU_FLAGS -G -rdynamic)
+  list(APPEND RAFT_GPU_FLAGS -g -rdynamic)
 endif()
