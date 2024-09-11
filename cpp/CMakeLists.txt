@@ -35,6 +35,11 @@ include(rapids-cpm)
 include(rapids-export)
 include(rapids-find)
 
+# prescribe versions of internal dependencies
+include(cpm/package_override)
+# message(STATUS ${CMAKE_CURRENT_LIST_DIR})
+rapids_cpm_package_override(${CMAKE_CURRENT_LIST_DIR}/../versions.json)
+
 option(BUILD_CPU_ONLY "Build CPU only components. Applies to RAFT ANN benchmarks currently" OFF)
 option(CUDA_BACKEND "Build for CUDA devices. Default configuration builds for AMD devices." OFF)
 

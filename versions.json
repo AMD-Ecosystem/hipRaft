@@ -1,0 +1,15 @@
+{
+  "packages" : {
+      "rmm-rocm" : {
+          "version" : "${rapids-cmake-version}",
+          "git_url" : "https://$ENV{GITHUB_PASS}@github.com/AMD-AI/rmm",
+          "git_tag" : "feat/fixes_for_wip-24.06"
+      },
+      "libhipcxx" : {
+          "version" : "1.0",
+          "git_url" : "https://$ENV{GITHUB_PASS}@github.com/AMD-AI/libhipcxx",
+          "git_tag" : "feat/rmm_missing_headers"
+      }
+  },
+
+}
