@@ -316,15 +316,15 @@ if hasArg --compile-lib || (( ${NUMARGS} == 0 )); then
     # TODO(HIP/AMD): Need to add support to compile library
     COMPILE_LIBRARY=ON
     echo "Currently --compile-lib not supported"
-    #exit 1
+    exit 1
     CMAKE_TARGET="${CMAKE_TARGET};raft_lib"
 fi
 
 if hasArg --compile-static-lib || (( ${NUMARGS} == 0 )); then
     # TODO(HIP/AMD): Need to add support to compile library
     COMPILE_LIBRARY=ON
-    #echo "Currently --compile-static-lib not supported"
-    #exit 1
+    echo "Currently --compile-static-lib not supported"
+    exit 1
     CMAKE_TARGET="${CMAKE_TARGET};raft_lib_static"
 fi
 

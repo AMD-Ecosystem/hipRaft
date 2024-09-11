@@ -197,17 +197,17 @@ if(BUILD_TEST_SUITE)
 
 
    ConfigureTest(
-     NAME
-     CLUSTER_TEST
-     PATH
-     cluster/kmeans.cu
-     cluster/kmeans_balanced.cu
-     cluster/kmeans_find_k.cu
-     cluster/cluster_solvers.cu
-     cluster/linkage.cu
-     cluster/spectral.cu
-     LIB
-     EXPLICIT_INSTANTIATE_ONLY
+    NAME
+    CLUSTER_TEST
+    PATH
+    cluster/kmeans.cu
+    cluster/kmeans_balanced.cu
+    cluster/kmeans_find_k.cu
+    cluster/cluster_solvers.cu
+    cluster/linkage.cu
+    cluster/spectral.cu
+    LIB
+    EXPLICIT_INSTANTIATE_ONLY
    )
 
   ConfigureTest(
