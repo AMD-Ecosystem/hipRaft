@@ -29,6 +29,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+# NOTE(HIP/AMD): make *.cu files HIP lang files
+set(CMAKE_USER_MAKE_RULES_OVERRIDE "${CMAKE_CURRENT_LIST_DIR}/../../overrides.cmake")
+
 # ##################################################################################################
 # enable testing ################################################################################
 # ##################################################################################################

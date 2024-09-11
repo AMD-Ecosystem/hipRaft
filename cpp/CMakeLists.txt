@@ -29,6 +29,10 @@
 # THE SOFTWARE.
 
 cmake_minimum_required(VERSION 3.26.4 FATAL_ERROR)
+
+# NOTE(HIP/AMD): make *.cu files HIP lang files
+set(CMAKE_USER_MAKE_RULES_OVERRIDE "${CMAKE_CURRENT_LIST_DIR}/../overrides.cmake")
+
 include(../rapids_config.cmake)
 include(rapids-cmake)
 include(rapids-cpm)
@@ -365,10 +369,6 @@ endif()
 
 set_target_properties(raft_compiled PROPERTIES EXPORT_NAME compiled)
 
-if(NOT CUDA_BACKEND)
-  file(GLOB CUDA_SOURCES src/*.cu src/*/*.cu src/*/*/*.cu src/*/*/*/*.cu)
-  set_source_files_properties(${CUDA_SOURCES} PROPERTIES LANGUAGE HIP)
-endif()
 
 if(RAFT_COMPILE_LIBRARY)
   add_library(
