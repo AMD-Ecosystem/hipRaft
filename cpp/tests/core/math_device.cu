@@ -40,7 +40,11 @@
 #include <rmm/cuda_stream.hpp>
 #include <rmm/device_scalar.hpp>
 
+#ifdef __HIP_PLATFORM_AMD__
+#include <hip/std/type_traits>
+#else
 #include <cuda/std/type_traits>
+#endif
 
 #include <gtest/gtest.h>
 
