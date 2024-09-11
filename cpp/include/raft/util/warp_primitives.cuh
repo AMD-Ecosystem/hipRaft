@@ -40,11 +40,6 @@
 #include <raft/util/cuda_dev_essentials.cuh>
 
 #ifdef __HIP_PLATFORM_AMD__
-#include <raft/util/amd_warp_primitives.h>
-using namespace hip_warp_primitives;
-#endif
-
-#ifdef __HIP_PLATFORM_AMD__
 using bitmask_type = uint64_t;
 #else
 using bitmask_type = uint32_t;

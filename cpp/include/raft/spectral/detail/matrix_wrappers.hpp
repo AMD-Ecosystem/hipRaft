@@ -46,7 +46,11 @@
 
 #include <rmm/device_uvector.hpp>
 
-//#include <cuda/functional>
+#ifdef __HIP_PLATFORM_AMD__
+#else
+#include <cuda_runtime.h>
+#endif
+#include <cuda/functional>
 #include <thrust/execution_policy.h>
 #include <thrust/fill.h>
 #include <thrust/reduce.h>
@@ -134,17 +138,20 @@ class vector_t {
       buffer_.data(),
       buffer_.data() + buffer_.size(),
       value_type{0},
-      /*cuda::proclaim_return_type<value_type>([] __device__(auto left, auto right) {
-        auto abs_left  = left > 0 ? left : -left;
-        auto abs_right = right > 0 ? right : -right;
-        return abs_left + abs_right;
-      }));*/
-
-      [] __device__(auto left, auto right) -> value_type {
+      
+      #ifdef __HIP_PLATFORM_AMD__
+        [] __device__(auto left, auto right) -> value_type {
+          auto abs_left  = left > 0 ? left : -left;
+          auto abs_right = right > 0 ? right : -right;
+          return abs_left + abs_right;
+        });
+      #else
+        cuda::proclaim_return_type<value_type>([] __device__(auto left, auto right) {
         auto abs_left  = left > 0 ? left : -left;
         auto abs_right = right > 0 ? right : -right;
         return abs_left + abs_right;
       });
+      #endif  
   }
 
   void fill(value_type value)
