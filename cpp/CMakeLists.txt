@@ -272,7 +272,7 @@ target_link_libraries(raft INTERFACE rmm::rmm rmm::rmm_logger spdlog::spdlog_hea
 target_compile_features(raft INTERFACE cxx_std_17 $<BUILD_INTERFACE:cuda_std_17>)
 target_compile_options(
   raft INTERFACE $<$<COMPILE_LANG_AND_ID:CUDA,NVIDIA>:--expt-extended-lambda
-                 --expt-relaxed-constexpr>
+                 --expt-relaxed-constexpr> -DHIP_ENABLE_WARP_SYNC_BUILTINS
 )
 target_compile_definitions(
   raft INTERFACE "RAFT_LOG_ACTIVE_LEVEL=RAFT_LOG_LEVEL_${LIBRAFT_LOGGING_LEVEL}"
@@ -633,6 +633,7 @@ target_link_libraries(raft::raft INTERFACE
   $<$<BOOL:${RAFT_ENABLE_CUBLAS_DEPENDENCY}>:${RAFT_CUBLAS_DEPENDENCY}>
   $<$<BOOL:${RAFT_ENABLE_CUSPARSE_DEPENDENCY}>:${RAFT_CUSPARSE_DEPENDENCY}>
   $<$<BOOL:${RAFT_ENABLE_CURAND_DEPENDENCY}>:${RAFT_CURAND_DEPENDENCY}>
+  $<$<BOOL:${HIPDF_GPU_DEFINITIONS}>:${HIPDF_GPU_DEFINITIONS}>
 )
 ]=]
 )

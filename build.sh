@@ -35,14 +35,12 @@ ARGS=$*
 # scripts, and that this script resides in the repo dir!
 REPODIR=$(cd $(dirname $0); pwd)
 
-VALIDARGS="clean libraft pylibraft raft-dask docs tests bench-prims clean --uninstall  -v -g -n --compile-cuda --compile-lib --compile-static-lib --allgpuarch --no-nvtx --show_depr_warn --incl-cache-stats --time -h"
-HELP="$0 [<target> ...] [<flag> ...] [--cmake-args=\"<args>\"] [--cache-tool=<tool>] [--limit-tests=<targets>] [--limit-bench-prims=<targets>] [--build-metrics=<filename>]
+VALIDARGS="clean libraft docs tests template bench-prims --uninstall  -v -g -n --compile-cuda --allgpuarch --no-nvtx --show_depr_warn --incl-cache-stats --time -h"
+HELP="$0 [<target> ...] [<flag> ...] [--cmake-args=\"<args>\"] [--cache-tool=<tool>] [--limit-tests=<targets>] [--build-metrics=<filename>]
  where <target> is:
    clean            - remove all existing build artifacts and configuration (start over)
    libraft          - build the raft C++ code only. Also builds the C-wrapper library
                       around the C++ code.
-   pylibraft        - build the pylibraft Python package
-   raft-dask        - build the raft-dask Python package. this also requires pylibraft.
    docs             - build the documentation
    tests            - build the tests
    bench-prims      - build micro-benchmarks for primitives
@@ -53,8 +51,6 @@ HELP="$0 [<target> ...] [<flag> ...] [--cmake-args=\"<args>\"] [--cache-tool=<to
    -n                          - no install step
    --uninstall                 - uninstall files for specified targets which were built and installed prior
    --compile-cuda              - compile for CUDA backend (default: HIP/AMD)
-   --compile-lib               - compile shared library for all components
-   --compile-static-lib        - compile static library for all components
    --cpu-only                  - build CPU only components without HIP/CUDA. Applies to bench-ann only currently.
    --limit-tests               - semicolon-separated list of test executables to compile (e.g. NEIGHBORS_TEST;CLUSTER_TEST)
    --limit-bench-prims         - semicolon-separated list of prims benchmark executables to compute (e.g. NEIGHBORS_PRIMS_BENCH;CLUSTER_PRIMS_BENCH)
@@ -313,18 +309,12 @@ if hasArg --compile-cuda ; then
 fi
 
 if hasArg --compile-lib || (( ${NUMARGS} == 0 )); then
-    # TODO(HIP/AMD): Need to add support to compile library
     COMPILE_LIBRARY=ON
-    echo "Currently --compile-lib not supported"
-    exit 1
     CMAKE_TARGET="${CMAKE_TARGET};raft_lib"
 fi
 
 if hasArg --compile-static-lib || (( ${NUMARGS} == 0 )); then
-    # TODO(HIP/AMD): Need to add support to compile library
     COMPILE_LIBRARY=ON
-    echo "Currently --compile-static-lib not supported"
-    exit 1
     CMAKE_TARGET="${CMAKE_TARGET};raft_lib_static"
 fi
 
@@ -359,6 +349,18 @@ if hasArg bench-prims || (( ${NUMARGS} == 0 )); then
           $CMAKE_TARGET == *"NEIGHBORS_PRIMS_BENCH"* ]]; then
       echo "-- Enabling compiled lib for benchmarks"
       COMPILE_LIBRARY=ON
+    fi
+fi
+
+if hasArg bench-ann || (( ${NUMARGS} == 0 )); then
+    BUILD_ANN_BENCH=ON
+    CMAKE_TARGET="${CMAKE_TARGET};${ANN_BENCH_TARGETS}"
+    if hasArg --cpu-only; then
+        COMPILE_LIBRARY=OFF
+        BUILD_CPU_ONLY=ON
+        NVTX=OFF
+    else
+        COMPILE_LIBRARY=ON
     fi
 fi
 

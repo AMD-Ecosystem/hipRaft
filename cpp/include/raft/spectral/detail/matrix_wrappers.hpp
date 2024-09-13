@@ -47,10 +47,12 @@
 #include <rmm/device_uvector.hpp>
 
 #ifdef __HIP_PLATFORM_AMD__
+#include <raft/cuda_runtime.h>
 #else
 #include <cuda_runtime.h>
-#endif
 #include <cuda/functional>
+#endif
+
 #include <thrust/execution_policy.h>
 #include <thrust/fill.h>
 #include <thrust/reduce.h>
