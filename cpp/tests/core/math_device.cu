@@ -52,11 +52,9 @@
 #ifdef __HIP_PLATFORM_AMD__
 #include <raft/cuda_bf16.h>
 #include <hip/hip_fp16.h>
-#include <hip/std/type_traits>
 #else
 #include <cuda_bf16.h>
 #include <cuda_fp16.h>
-#include <cuda/std/type_traits>
 #endif
 #endif
 

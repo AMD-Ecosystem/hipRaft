@@ -152,7 +152,7 @@ class vector_t {
         auto abs_left  = left > 0 ? left : -left;
         auto abs_right = right > 0 ? right : -right;
         return abs_left + abs_right;
-      });
+      }));
       #endif  
   }
 
