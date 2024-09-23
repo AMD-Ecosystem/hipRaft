@@ -1245,6 +1245,9 @@ inline cusolverStatus_t cusolverDnormqr_bufferSize(  // NOLINT
 }
 /** @} */
 
+#ifdef __HIP_PLATFORM_AMD__
+// TODO(HIP/AMD): Need to add support for batch operations
+#else
 /**
  * @defgroup csrqrBatched cusolver batched
  * @{
@@ -1383,6 +1386,7 @@ inline cusolverStatus_t cusolverSpcsrqrsvBatched(  // NOLINT
     handle, m, n, nnzA, descrA, csrValA, csrRowPtrA, csrColIndA, b, x, batchSize, info, pBuffer);
 }
 /** @} */
+#endif
 
 #if CUDART_VERSION >= 11010
 /**

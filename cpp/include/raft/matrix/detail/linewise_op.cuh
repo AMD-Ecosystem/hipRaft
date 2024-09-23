@@ -14,6 +14,25 @@
  * limitations under the License.
  */
 
+/*
+ * Modifications Copyright (c) 2024 Advanced Micro Devices, Inc.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
 #pragma once
 
 #include <raft/core/device_mdspan.hpp>
@@ -106,7 +125,12 @@ struct Linewise {
     Vec v, w;
     bool update = true;
     for (; in < in_end; in += AlignWarp::Value, out += AlignWarp::Value, rowMod += warpPad) {
-      *v.vectorized_data() = __ldcv(in);
+      #ifdef __HIP_PLATFORM_AMD__
+        //TODO(HIP/AMD): emporary workaround implemented due to unsupported operation. Please see internal issue 21
+        *v.vectorized_data() = *reinterpret_cast<const typename Vec::io_t*>(in);
+      #else
+        *v.vectorized_data() = __ldcv(in);
+      #endif
       while (rowMod >= rowLen) {
         rowMod -= rowLen;
         rowDiv++;
@@ -158,11 +182,21 @@ struct Linewise {
     Vec v;
     const IdxType d = BlockSize * gridDim.x;
     for (IdxType i = threadIdx.x + blockIdx.x * BlockSize; i < len; i += d) {
-      *v.vectorized_data() = __ldcv(in + i);
+      #ifdef __HIP_PLATFORM_AMD__
+        //TODO(HIP/AMD): emporary workaround implemented due to unsupported operation. Please see internal issue 21
+        *v.vectorized_data() = *reinterpret_cast<const typename Vec::io_t*>(in + i);
+      #else
+        *v.vectorized_data() = __ldcv(in + i);
+      #endif
 #pragma unroll VecElems
       for (int k = 0; k < VecElems; k++)
         v.val.data[k] = op(v.val.data[k], args.val[k]...);
-      __stwt(out + i, *v.vectorized_data());
+        #ifdef __HIP_PLATFORM_AMD__
+          //TODO(HIP/AMD): emporary workaround implemented due to unsupported operation. Please see internal issue 21
+          *reinterpret_cast<typename Vec::io_t*>(out + i) = *v.vectorized_data();
+        #else
+          __stwt(out + i, *v.vectorized_data());
+        #endif
     }
   }
 

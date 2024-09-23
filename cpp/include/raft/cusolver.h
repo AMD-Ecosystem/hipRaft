@@ -26,8 +26,8 @@
 #define CUSOLVERAPI
 
 //types
-#define csrqrInfo  hipsolvercsrqrInfo
-#define csrqrInfo_t  hipsolvercsrqrInfo
+#define csrqrInfo hipsolvercsrqrInfo
+#define csrqrInfo_t hipsolvercsrqrInfo_t  
 #define cusolverDnHandle_t hipsolverDnHandle_t
 #define cusolverDnParams_t hipsolverDnParams_t
 #define cusolverEigMode_t hipsolverEigMode_t

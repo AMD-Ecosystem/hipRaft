@@ -272,7 +272,7 @@ target_link_libraries(raft INTERFACE rmm::rmm cuco::cuco rmm::rmm_logger spdlog:
 target_compile_features(raft INTERFACE cxx_std_17 $<BUILD_INTERFACE:cuda_std_17>)
 target_compile_options(
   raft INTERFACE $<$<COMPILE_LANG_AND_ID:CUDA,NVIDIA>:--expt-extended-lambda
-                 --expt-relaxed-constexpr> -DHIP_ENABLE_WARP_SYNC_BUILTINS
+                 --expt-relaxed-constexpr> -DHIP_ENABLE_WARP_SYNC_BUILTINS             
 )
 target_compile_definitions(
   raft INTERFACE "RAFT_LOG_ACTIVE_LEVEL=RAFT_LOG_LEVEL_${LIBRAFT_LOGGING_LEVEL}"
@@ -289,18 +289,23 @@ else()
   find_package(hipblaslt CONFIG PATHS "/opt/rocm/")
   find_package(hiprand CONFIG PATHS "/opt/rocm/")
   find_package(hipsparse CONFIG PATHS "/opt/rocm/")
+  #NOTE(HIP/AMD): BLAS and LAPACK are needed for lapack_hip.hpp
+  find_package(BLAS REQUIRED)
+  find_package(LAPACK REQUIRED)
 
   set(RAFT_CUSOLVER_DEPENDENCY hipsolver${_ctk_static_suffix})
   set(RAFT_CUBLAS_DEPENDENCY hipblas${_ctk_static_suffix})
   set(RAFT_CUBLASLT_DEPENDENCY hipblaslt${_ctk_static_suffix})
   set(RAFT_CURAND_DEPENDENCY hiprand${_ctk_static_suffix})
   set(RAFT_CUSPARSE_DEPENDENCY hipsparse${_ctk_static_suffix})
+  set(RAFT_BLAS_DEPENDENCY ${BLAS_LIBRARIES}${_ctk_static_suffix})
+  set(RAFT_LAPACK_DEPENDENCY ${LAPACK_LIBRARIES}${_ctk_static_suffix})
 endif()
 
 
 set(RAFT_CTK_MATH_DEPENDENCIES ${RAFT_CUBLAS_DEPENDENCY}  ${RAFT_CUBLASLT_DEPENDENCY}
                                ${RAFT_CUSOLVER_DEPENDENCY} ${RAFT_CUSPARSE_DEPENDENCY}
-                               ${RAFT_CURAND_DEPENDENCY}
+                               ${RAFT_CURAND_DEPENDENCY} ${RAFT_BLAS_DEPENDENCY} ${RAFT_LAPACK_DEPENDENCY} 
 )
 
 # Endian detection
@@ -633,6 +638,7 @@ target_link_libraries(raft::raft INTERFACE
   $<$<BOOL:${RAFT_ENABLE_CUBLAS_DEPENDENCY}>:${RAFT_CUBLAS_DEPENDENCY}>
   $<$<BOOL:${RAFT_ENABLE_CUSPARSE_DEPENDENCY}>:${RAFT_CUSPARSE_DEPENDENCY}>
   $<$<BOOL:${RAFT_ENABLE_CURAND_DEPENDENCY}>:${RAFT_CURAND_DEPENDENCY}>
+  $<$<BOOL:${RAFT_ENABLE_BLAS_DEPENDENCY}>:${RAFT_BLAS_DEPENDENCY}>
   $<$<BOOL:${HIPDF_GPU_DEFINITIONS}>:${HIPDF_GPU_DEFINITIONS}>
 )
 ]=]

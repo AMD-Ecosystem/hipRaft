@@ -13,19 +13,42 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/*
+ * Modifications Copyright (c) 2024 Advanced Micro Devices, Inc.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 
 #pragma once
 
 #include <raft/core/kvp.hpp>                             // raft::KeyValuePair
 #include <raft/core/operators.hpp>                       // raft::identity_op
 #include <raft/distance/detail/distance_ops/l2_exp.cuh>  // ops::l2_exp_distance_op
-#include <raft/distance/detail/fused_distance_nn/cutlass_base.cuh>
 #include <raft/distance/detail/fused_distance_nn/simt_kernel.cuh>
 #include <raft/distance/detail/pairwise_distance_base.cuh>  // PairwiseDistances
 #include <raft/linalg/contractions.cuh>                     // Policy
 #include <raft/util/arch.cuh>                               // raft::util::arch::SM_*
 #include <raft/util/cuda_utils.cuh>                         // raft::ceildiv, raft::shfl
 #include <raft/util/device_atomics.cuh>
+
+#ifdef __HIP_PLATFORM_AMD__
+// TODO(HIP/AMD): Need to add support for fused distance NN
+#else
+#include <raft/distance/detail/fused_distance_nn/cutlass_base.cuh>
+#endif
 
 #include <cstddef>  // size_t
 #include <limits>   // std::numeric_limits

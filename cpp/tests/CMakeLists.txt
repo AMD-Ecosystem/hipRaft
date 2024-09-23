@@ -115,6 +115,10 @@ target_link_libraries(raft_test_logger PRIVATE raft_logger_impl)
 # ##################################################################################################
 # test sources ##################################################################################
 # ##################################################################################################
+
+
+# BUILD_TESTS are tests that are working with hipification
+# BUILD_TEST_SUITE is the original test suite
 if(BUILD_TESTS)
 
   if(NOT CUDA_BACKEND)
@@ -164,6 +168,9 @@ ConfigureTest(
     PATH
     random/rng_pcg_host_api.cu
     random/rng.cu
+    random/rng_discrete.cu
+    LIB
+    EXPLICIT_INSTANTIATE_ONLY
    )
 
   ConfigureTest(

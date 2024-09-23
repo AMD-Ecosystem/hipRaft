@@ -59,7 +59,6 @@
 #include <raft/util/cache.hpp>
 #include <raft/util/cuda_utils.cuh>
 #include <raft/util/device_atomics.cuh>
-#include <raft/util/device_loads_stores.cuh>
 #include <raft/util/pow2_utils.cuh>
 #include <raft/util/vectorized.cuh>
 
@@ -68,14 +67,12 @@
 #ifdef __HIP_PLATFORM_AMD__
 #include <hipcub/hipcub.hpp>
 namespace cub = hipcub;
+#include <hip/hip_fp16.h>
+#include <raft/util/device_loads_stores_hip.cuh>
 #else
 #include <cub/cub.cuh>
-#endif
-
-#ifdef __HIP_PLATFORM_AMD__
-#include <hip/hip_fp16.h>
-#else
 #include <cuda_fp16.h>
+#include <raft/util/device_loads_stores.cuh>
 #endif
 
 #include <optional>

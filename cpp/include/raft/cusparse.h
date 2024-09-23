@@ -52,10 +52,16 @@
 #define CUSPARSE_STATUS_MATRIX_TYPE_NOT_SUPPORTED HIPSPARSE_STATUS_MATRIX_TYPE_NOT_SUPPORTED
 #define CUSPARSE_STATUS_NOT_INITIALIZED HIPSPARSE_STATUS_NOT_INITIALIZED
 #define CUSPARSE_STATUS_SUCCESS HIPSPARSE_STATUS_SUCCESS
+#define CUSPARSE_OPERATION_TRANSPOSE HIPSPARSE_OPERATION_TRANSPOSE
+#define CUSPARSE_OPERATION_NON_TRANSPOSE HIPSPARSE_OPERATION_NON_TRANSPOSE
+#define CUSPARSE_POINTER_MODE_HOST HIPSPARSE_POINTER_MODE_HOST
+#define CUSPARSE_MATRIX_TYPE_SYMMETRIC HIPSPARSE_MATRIX_TYPE_SYMMETRIC
+#define CUSPARSE_MATRIX_TYPE_GENERAL HIPSPARSE_MATRIX_TYPE_GENERAL
 
 // functions
 #define cusparsecoo2csr hipsparsecoo2csr
 #define cusparseCreate hipsparseCreate
+#define cusparseCreateMatDescr hipsparseCreateMatDescr
 #define cusparseCreateIdentityPermutation hipsparseCreateIdentityPermutation
 #define cusparseCsr2cscEx2 hipsparseCsr2cscEx2
 #define cusparseCsr2cscEx2_bufferSize hipsparseCsr2cscEx2_bufferSize
@@ -65,6 +71,7 @@
 #define cusparseDestroy hipsparseDestroy
 #define cusparseDestroyDnVec hipsparseDestroyDnVec
 #define cusparseDestroySpVec hipsparseDestroySpVec
+#define cusparseDestroyMatDescr hipsparseDestroyMatDescr
 #define cusparseDgemmi hipsparseDgemmi
 #define cusparseGather hipsparseGather
 #define cusparseScsr2dense hipsparseScsr2dense
@@ -78,3 +85,5 @@
 #define cusparseXcoosort_bufferSizeExt hipsparseXcoosort_bufferSizeExt
 #define cusparseXcoosortByRow hipsparseXcoosortByRow
 #define cusparseXcsr2coo hipsparseXcsr2coo
+#define cusparseSetMatType hipsparseSetMatType
+#define cusparseSetMatIndexBase hipsparseSetMatIndexBase

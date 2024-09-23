@@ -46,13 +46,14 @@
 
 #ifdef __HIP_PLATFORM_AMD__
 #include <raft/cuda_runtime.h>
+#include <hipblas/hipblas.h>
 #else
 #include <cuda_runtime.h>
+#include <cusparse_v2.h>
 #endif
 #include <thrust/device_ptr.h>
 #include <thrust/scan.h>
 
-#include <cusparse_v2.h>
 #include <stdio.h>
 
 #include <iostream>

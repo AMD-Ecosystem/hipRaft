@@ -43,17 +43,19 @@
 #include <raft/core/resource/cublas_handle.hpp>
 #include <raft/core/resource/cuda_stream.hpp>
 #include <raft/core/resources.hpp>
-#include <raft/spectral/detail/lapack.hpp>
 #include <raft/spectral/detail/warn_dbg.hpp>
 #include <raft/spectral/matrix_wrappers.hpp>
 #include <raft/util/cudart_utils.hpp>
 
-#include <cuda.h>
 
 #ifdef __HIP_PLATFORM_AMD__
 #include <raft/curand.h>
+#include <raft/cuda_runtime.h>
+#include <raft/spectral/detail/lapack_hip.hpp>
 #else
 #include <curand.h>
+#include <cuda.h>
+#include <raft/spectral/detail/lapack.hpp>
 #endif
 
 #include <cmath>

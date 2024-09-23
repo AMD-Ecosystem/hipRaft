@@ -30,10 +30,12 @@
 //macros, constants, enums
 #define CURAND_RNG_PSEUDO_DEFAULT HIPRAND_RNG_PSEUDO_DEFAULT
 #define CURAND_STATUS_SUCCESS HIPRAND_STATUS_SUCCESS
+#define CURAND_RNG_PSEUDO_PHILOX4_32_10 HIPRAND_RNG_PSEUDO_PHILOX4_32_10
 
 //functions
 #define curandCreateGenerator hiprandCreateGenerator
 #define curandDestroyGenerator hiprandDestroyGenerator
+#define curandGenerateNormal hiprandGenerateNormal
 #define curandGenerateNormalDouble hiprandGenerateNormalDouble
 #define curandSetPseudoRandomGeneratorSeed hiprandSetPseudoRandomGeneratorSeed
 #define curandGenerateUniform hiprandGenerateUniform
