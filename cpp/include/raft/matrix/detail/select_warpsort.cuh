@@ -53,6 +53,11 @@
 #include <functional>
 #include <type_traits>
 
+#ifdef __HIP_PLATFORM_AMD__
+#include <raft/amd_warp_primitives.h>
+using namespace hip_warp_primitives;
+#endif
+
 /*
   Three APIs of different scopes are provided:
     1. host function: select_k()
@@ -133,6 +138,11 @@ _RAFT_DEVICE _RAFT_FORCEINLINE auto is_ordered(T left, T right) -> bool
 }
 
 }  // namespace
+
+template <typename T>
+__device__ T __ldcs(const T* ptr) {
+    return *ptr;
+}
 
 /**
  * A fixed-size warp-level priority queue.

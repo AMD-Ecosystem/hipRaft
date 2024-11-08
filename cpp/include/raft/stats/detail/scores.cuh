@@ -14,6 +14,25 @@
  * limitations under the License.
  */
 
+  /*
+ * Modifications Copyright (c) 2024 Advanced Micro Devices, Inc.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
 #pragma once
 
 #include <raft/distance/distance.cuh>
@@ -29,7 +48,7 @@
 
 #include <thrust/count.h>
 #include <thrust/device_ptr.h>
-#include <thrust/execution_policy.h>
+#include <raft/thrust_execution_policy.h>
 #include <thrust/reduce.h>
 
 #include <memory>
@@ -77,8 +96,8 @@ math_t r2_score(math_t* y, math_t* y_hat, int n, cudaStream_t stream)
   thrust::device_ptr<math_t> d_sse  = thrust::device_pointer_cast(sse_arr.data());
   thrust::device_ptr<math_t> d_ssto = thrust::device_pointer_cast(ssto_arr.data());
 
-  math_t sse  = thrust::reduce(thrust::cuda::par.on(stream), d_sse, d_sse + n);
-  math_t ssto = thrust::reduce(thrust::cuda::par.on(stream), d_ssto, d_ssto + n);
+  math_t sse  = thrust::reduce(THRUST_EXECUTION_POLICY.on(stream), d_sse, d_sse + n);
+  math_t ssto = thrust::reduce(THRUST_EXECUTION_POLICY.on(stream), d_ssto, d_ssto + n);
 
   return 1.0 - sse / ssto;
 }
@@ -105,7 +124,7 @@ float accuracy_score(const math_t* predictions,
   raft::linalg::eltwiseSub(diffs_array.data(), predictions, ref_predictions, n, stream);
   RAFT_CUDA_TRY(cudaGetLastError());
   correctly_predicted =
-    thrust::count(thrust::cuda::par.on(stream), diffs_array.data(), diffs_array.data() + n, 0);
+    thrust::count(THRUST_EXECUTION_POLICY.on(stream), diffs_array.data(), diffs_array.data() + n, 0);
 
   float accuracy = correctly_predicted * 1.0f / n;
   return accuracy;

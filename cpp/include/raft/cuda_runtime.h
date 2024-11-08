@@ -1,6 +1,6 @@
 // MIT License
 // 
-// Copyright (c) 2023 Advanced Micro Devices, Inc.
+// Copyright (c) 2024 Advanced Micro Devices, Inc.
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -53,6 +53,7 @@ using cudaStream_t = hipStream_t;
 #define cudaEventDisableTiming hipEventDisableTiming
 #define cudaFuncAttributeMaxDynamicSharedMemorySize hipFuncAttributeMaxDynamicSharedMemorySize
 #define cudaFuncAttributePreferredSharedMemoryCarveout hipFuncAttributePreferredSharedMemoryCarveout
+#define cudaFuncCachePreferL1 hipFuncCachePreferL1
 #define cudaHostRegisterMapped hipHostRegisterMapped
 #define cudaHostRegisterReadOnly hipHostRegisterReadOnly
 #define cudaMemAllocationTypePinned hipMemAllocationTypePinned
@@ -90,6 +91,7 @@ using cudaStream_t = hipStream_t;
 #define cudaFreeAsync hipFreeAsync
 #define cudaFreeHost hipHostFree
 #define cudaFuncGetAttributes hipFuncGetAttributes
+#define cudaFuncSetCacheConfig hipFuncSetCacheConfig
 #define cudaFuncSetAttribute hipFuncSetAttribute
 #define cudaGetDevice hipGetDevice
 #define cudaGetDeviceCount hipGetDeviceCount

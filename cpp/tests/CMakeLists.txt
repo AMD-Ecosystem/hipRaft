@@ -178,6 +178,40 @@ ConfigureTest(
     lap/lap.cu sparse/mst.cu LIB EXPLICIT_INSTANTIATE_ONLY
   )
 
+   ConfigureTest(
+    NAME
+    STATS_TEST
+    PATH
+    #stats/accuracy.cu
+    stats/adjusted_rand_index.cu
+    #stats/completeness_score.cu
+    stats/contingencyMatrix.cu
+    stats/cov.cu
+    stats/dispersion.cu
+    #stats/entropy.cu
+    stats/histogram.cu
+    #stats/homogeneity_score.cu
+    stats/information_criterion.cu
+    stats/kl_divergence.cu
+    stats/mean.cu
+    stats/meanvar.cu
+    stats/mean_center.cu
+    stats/minmax.cu
+    stats/mutual_info_score.cu
+    #stats/neighborhood_recall.cu
+    #stats/r2_score.cu
+    stats/rand_index.cu
+    #stats/regression_metrics.cu
+    #stats/silhouette_score.cu
+    stats/stddev.cu
+    stats/sum.cu
+    #stats/trustworthiness.cu
+    stats/weighted_mean.cu
+    #stats/v_measure.cu
+    LIB
+    EXPLICIT_INSTANTIATE_ONLY
+  )
+
   ConfigureTest(
     NAME
     UTILS_TEST

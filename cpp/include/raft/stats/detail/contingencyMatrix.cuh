@@ -46,7 +46,7 @@ namespace cub = hipcub;
 #endif
 
 #include <thrust/device_ptr.h>
-#include <thrust/execution_policy.h>
+#include <raft/thrust_execution_policy.h>
 #include <thrust/extrema.h>
 #include <thrust/reduce.h>
 
@@ -90,7 +90,7 @@ void computeCMatWAtomics(const T* groundTruth,
                          cudaStream_t stream)
 {
   RAFT_CUDA_TRY(
-    cudaFuncSetCacheConfig(devConstructContingencyMatrix<T, OutT>, cudaFuncCachePreferL1));
+    cudaFuncSetCacheConfig(reinterpret_cast<const void*>(devConstructContingencyMatrix<T, OutT>), cudaFuncCachePreferL1));
   static const int block = 128;
   auto grid              = raft::ceildiv(nSamples, block);
   devConstructContingencyMatrix<T, OutT><<<grid, block, 0, stream>>>(
@@ -216,7 +216,7 @@ void getInputClassCardinality(
 {
   thrust::device_ptr<const T> dTrueLabel = thrust::device_pointer_cast(groundTruth);
   auto min_max =
-    thrust::minmax_element(thrust::cuda::par.on(stream), dTrueLabel, dTrueLabel + nSamples);
+    thrust::minmax_element(THRUST_EXECUTION_POLICY.on(stream), dTrueLabel, dTrueLabel + nSamples);
   minLabel = *min_max.first;
   maxLabel = *min_max.second;
 }
