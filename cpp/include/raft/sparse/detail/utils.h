@@ -82,7 +82,7 @@ __device__ __inline__ unsigned int __match_any_sync(unsigned int init_mask, G ke
 
   do {
     // fetch key of first unclaimed lane and compare with this key
-    is_peer = (key == __shfl_sync(mask, key, __ffs(mask) - 1));
+    is_peer = (key == __shfl_sync(mask, key, __ffsll((unsigned long long int)mask) - 1));
 
     // determine which lanes had a match
     peer_group = __ballot_sync(mask, is_peer);

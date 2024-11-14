@@ -251,6 +251,36 @@ linalg/unary_op.cu
 
   ConfigureTest(
     NAME
+    MATRIX_TEST
+    PATH
+    matrix/argmax.cu
+    matrix/argmin.cu
+    matrix/columnSort.cu
+    matrix/diagonal.cu
+    matrix/gather.cu
+    matrix/scatter.cu
+    matrix/eye.cu
+    matrix/linewise_op.cu
+    matrix/math.cu
+    matrix/matrix.cu
+    matrix/norm.cu
+    matrix/reverse.cu
+    matrix/sample_rows.cu
+    matrix/slice.cu
+    matrix/triangular.cu
+    sparse/spectral_matrix.cu
+    LIB
+    EXPLICIT_INSTANTIATE_ONLY
+  )
+
+  ConfigureTest(NAME MATRIX_SELECT_TEST PATH matrix/select_k.cu LIB EXPLICIT_INSTANTIATE_ONLY)
+
+  ConfigureTest(
+    NAME MATRIX_SELECT_LARGE_TEST PATH matrix/select_large_k.cu LIB EXPLICIT_INSTANTIATE_ONLY
+  )
+
+  ConfigureTest(
+    NAME
     UTILS_TEST
     PATH
     core/seive.cu

@@ -28,7 +28,11 @@
 
 #include <rmm/device_uvector.hpp>
 
+#ifdef __HIP_PLATFORM_AMD__
+#include "../hip_profiler_api.h"
+#else
 #include <cuda_profiler_api.h>
+#endif
 
 #include <gtest/gtest.h>
 
@@ -246,11 +250,11 @@ struct LinewiseTest : public ::testing::TestWithParam<typename ParamsReader::Par
         size_t matrix_size_padded;
         if (alongRows) {
           auto extents = matrix_extent<I>{n, m};
-          typename raft::layout_right_padded<T>::mapping<matrix_extent<I>> layout{extents};
+          typename raft::layout_right_padded<T>::template mapping<matrix_extent<I>> layout{extents};
           matrix_size_padded = layout.required_span_size();
         } else {
           auto extents = matrix_extent<I>{n, m};
-          typename raft::layout_left_padded<T>::mapping<matrix_extent<I>> layout{extents};
+          typename raft::layout_left_padded<T>::template  mapping<matrix_extent<I>> layout{extents};
           matrix_size_padded = layout.required_span_size();
         }
 
