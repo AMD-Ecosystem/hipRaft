@@ -858,6 +858,7 @@ int calc_chunk_size(int batch_size, IdxT len, int sm_cnt, Kernel kernel, bool on
     // Also, the upper bound of the total number of items in a chunk is:
     // 10 (num_waves) * ~100 (sm_cnt) * 2048 (active_blocks*BlockSize) * 32 (items_per_thread) =64M.
     // So temporary buffer size required for one chunk won't be too large.
+    // TODO(HIP/AMD): Need to add support for warp size
     constexpr int items_per_thread = 32;
     chunk_size =
       std::max<int>(1, num_waves * sm_cnt * active_blocks * BlockSize * items_per_thread / len);
@@ -1327,6 +1328,7 @@ void select_k(raft::resources const& res,
 
   int sm_cnt = resource::get_device_properties(res).multiProcessorCount;
 
+  // TODO(HIP/AMD): Need to add support for warp size
   constexpr int items_per_thread = 32;
 
   if (len <= BlockSize * items_per_thread) {
