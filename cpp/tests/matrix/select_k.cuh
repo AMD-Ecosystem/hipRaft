@@ -253,10 +253,7 @@ struct SelectK  // NOLINT
     std::string test_name = test_info->name();
     std::string suite_name = test_info->test_suite_name();
 
-    std::cout<<test_name<<std::endl;
-    std::cout<<suite_name<<std::endl;
-
-    //TODO(HIP/AMD): Enable when tests are ready
+    //TODO(HIP/AMD): Unsupported test. Please see internal issue 1x
     if(("SelectK/SimpleFloatInt" == suite_name) &&
       (("Run/62" == test_name) ||  ("Run/69" == test_name) ))
     {

@@ -441,7 +441,7 @@ class warp_sort_distributed : public warp_sort<Capacity, Ascending, T, IdxT> {
   _RAFT_DEVICE void add(T val, IdxT idx)
   {
     // mask tells which lanes in the warp have valid items to be added
-    uint32_t mask = ballot(is_ordered<Ascending>(val, k_th_));
+    bitmask_type mask = ballot(is_ordered<Ascending>(val, k_th_));
     if (mask == 0) { return; }
     // how many elements to be added
     uint32_t n_valid = __POPC(mask);
@@ -450,12 +450,12 @@ class warp_sort_distributed : public warp_sort<Capacity, Ascending, T, IdxT> {
     // remove a few smallest set bits from the mask.
     for (uint32_t i = std::min(n_valid, Pow2<WarpSize>::mod(uint32_t(laneId()) - buf_len_)); i > 0;
          i--) {
-      src_ix = __ffs(mask) - 1;
+      src_ix = __FFS(mask) - 1;
       mask ^= (0x1u << src_ix);
     }
     // now the least significant bit of the mask corresponds to the lane id we want to get.
     // for not-added (invalid) indices, the mask is zeroed by now.
-    src_ix = __ffs(mask) - 1;
+    src_ix = __FFS(mask) - 1;
     // rearrange the inputs to be ready to put them into the tmp buffer
     val = shfl(val, src_ix);
     idx = shfl(idx, src_ix);

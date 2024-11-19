@@ -82,11 +82,7 @@ __device__ __inline__ unsigned int __match_any_sync(unsigned int init_mask, G ke
 
   do {
     // fetch key of first unclaimed lane and compare with this key
-    #ifdef __HIP_PLATFORM_AMD__
-    is_peer = (key == __shfl_sync(mask, key, __ffsll((unsigned long long int)mask) - 1));
-    #else
-    is_peer = (key == __shfl_sync(mask, key, __ffs(mask) - 1));
-    #endif
+    is_peer = (key == __shfl_sync(mask, key, __FFS(mask - 1)));
     
     // determine which lanes had a match
     peer_group = __ballot_sync(mask, is_peer);
@@ -101,9 +97,9 @@ __device__ __inline__ unsigned int __match_any_sync(unsigned int init_mask, G ke
 }
 #endif
 
-__device__ __inline__ unsigned int get_lowest_peer(unsigned int peer_group)
+__device__ __inline__ unsigned int get_lowest_peer(bitmask_type peer_group)
 {
-  return __ffs(peer_group) - 1;
+  return __FFS(peer_group) - 1;
 }
 
 template <typename value_idx>
