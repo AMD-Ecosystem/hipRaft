@@ -437,9 +437,9 @@ if (( ${NUMARGS} == 0 )) || hasArg libraft || hasArg docs || hasArg tests || has
           -DBUILD_TESTS=${BUILD_TESTS} \
           -DBUILD_PRIMS_BENCH=${BUILD_PRIMS_BENCH} \
           -DCMAKE_MESSAGE_LOG_LEVEL=${CMAKE_LOG_LEVEL} \
-          ${EXTRA_CMAKE_HIP_ARGS}
+          ${EXTRA_CMAKE_HIP_ARGS} \
           ${CACHE_ARGS} \
-          ${EXTRA_CMAKE_ARGS} \
+          ${EXTRA_CMAKE_ARGS}
 
 
   compile_start=$(date +%s)
