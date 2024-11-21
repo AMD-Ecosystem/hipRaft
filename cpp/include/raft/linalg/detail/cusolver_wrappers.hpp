@@ -1247,9 +1247,8 @@ inline cusolverStatus_t cusolverDnormqr_bufferSize(  // NOLINT
 }
 /** @} */
 
-#ifdef __HIP_PLATFORM_AMD__
+#ifndef __HIP_PLATFORM_AMD__
 // TODO(HIP/AMD): Need to add support for batch operations
-#else
 /**
  * @defgroup csrqrBatched cusolver batched
  * @{

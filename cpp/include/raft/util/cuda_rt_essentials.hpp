@@ -73,7 +73,7 @@ struct cuda_error : public raft::exception {
   do {                                             \
     cudaError_t const status = call;               \
     if (status != cudaSuccess) {                   \
-      cudaGetLastError();                          \
+      static_cast<void>(cudaGetLastError());       \
       std::string msg{};                           \
       SET_ERROR_MSG(msg,                           \
                     "CUDA error encountered at: ", \

@@ -40,11 +40,11 @@
 
 #include <rmm/device_uvector.hpp>
 
-#include <cuda_fp16.h>
-
 #ifdef __HIP_PLATFORM_AMD__
 #include <raft/curand_kernel.h>
+#include <hip/hip_fp16.h>
 #else
+#include <cuda_fp16.h>
 #include <curand_kernel.h>
 #endif
 

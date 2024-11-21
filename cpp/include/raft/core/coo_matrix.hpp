@@ -14,6 +14,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/*
+ * Modifications Copyright (c) 2024 Advanced Micro Devices, Inc.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+ 
 #pragma once
 
 #include <raft/core/logger.hpp>
@@ -131,8 +150,8 @@ class coordinate_structure : public coordinate_structure_t<RowType, ColType, NZT
     : coordinate_structure_t<RowType, ColType, NZType, is_device>(n_rows, n_cols, nnz),
       cp_rows_{},
       cp_cols_{},
-      c_rows_{cp_rows_.create(handle, 0)},
-      c_cols_{cp_cols_.create(handle, 0)} {};
+      c_rows_{cp_rows_.create(handle, nnz)},
+      c_cols_{cp_cols_.create(handle, nnz)} {};
 
   coordinate_structure(coordinate_structure const&) noexcept(
     std::is_nothrow_copy_constructible_v<row_container_type>) = default;

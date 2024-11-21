@@ -54,7 +54,7 @@ RAFT_KERNEL permuteKernel(
   IntType* perms, Type* out, const Type* in, IdxType a, IdxType b, IdxType N, IdxType D)
 {
   namespace cg        = cooperative_groups;
-  const int WARP_SIZE = 32;
+  static constexpr int WARP_SIZE = warp_size();
 
   int tid = threadIdx.x + blockIdx.x * blockDim.x;
 

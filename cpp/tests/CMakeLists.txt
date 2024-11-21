@@ -203,11 +203,17 @@ linalg/unary_op.cu
     NAME
     RANDOM_TEST
     PATH
+    random/make_blobs.cu
     random/rng_pcg_host_api.cu
+    random/permute.cu
     random/rng.cu
     random/rng_discrete.cu
-    LIB
-    EXPLICIT_INSTANTIATE_ONLY
+    random/rng_int.cu
+    random/rmat_rectangular_generator.cu
+    random/sample_without_replacement.cu
+    random/excess_sampling.cu
+    random/make_regression.cu
+    random/multi_variable_gaussian.cu
    )
 
   ConfigureTest(
@@ -273,10 +279,10 @@ linalg/unary_op.cu
     EXPLICIT_INSTANTIATE_ONLY
   )
 
-  ConfigureTest(NAME MATRIX_SELECT_TEST PATH matrix/select_k.cu LIB EXPLICIT_INSTANTIATE_ONLY)
+  ConfigureTest(NAME MATRIX_SELECT_TEST PATH matrix/select_k.cu)
 
   ConfigureTest(
-    NAME MATRIX_SELECT_LARGE_TEST PATH matrix/select_large_k.cu LIB EXPLICIT_INSTANTIATE_ONLY
+    NAME MATRIX_SELECT_LARGE_TEST PATH matrix/select_large_k.cu
   )
 
   ConfigureTest(
@@ -294,6 +300,9 @@ linalg/unary_op.cu
     util/pow2_utils.cu
     util/reduction.cu
   )
+
+  ConfigureTest(NAME LABEL_TEST PATH label/label.cu label/merge_labels.cu)
+
 endif()
 
 if(BUILD_TEST_SUITE)
