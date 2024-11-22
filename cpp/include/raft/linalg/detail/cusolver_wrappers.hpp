@@ -39,6 +39,8 @@
 
 #ifdef __HIP_PLATFORM_AMD__
 #include <raft/cusolver.h>
+#include <raft/cublas_v2.h>
+#include <raft/library_types.h>
 #else
 #include <cusolverDn.h>
 #include <cusolverSp.h>
@@ -718,7 +720,7 @@ inline cusolverStatus_t CUSOLVERAPI cusolverDngesvdj(  // NOLINT
     handle, jobz, econ, m, n, A, lda, S, U, ldu, V, ldv, work, lwork, info, params);
 }
 
-#if CUDART_VERSION >= 11010
+#if CUDART_VERSION >= 11010 || HIP_VERSION_MAJOR >= 6
 template <typename T>
 cusolverStatus_t cusolverDnxgesvdr_bufferSize(  // NOLINT
   cusolverDnHandle_t handle,

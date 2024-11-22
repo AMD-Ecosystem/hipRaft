@@ -14,6 +14,25 @@
  * limitations under the License.
  */
 
+/*
+ * Modifications Copyright (c) 2025 Advanced Micro Devices, Inc.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
 #include "../test_utils.cuh"
 
 #include <raft/core/device_mdspan.hpp>
@@ -25,16 +44,25 @@
 
 #include <rmm/device_uvector.hpp>
 
-#include <cuda_fp16.h>
-
-#include <gtest/gtest.h>
-
 #include <type_traits>
 
+#ifdef __HIP_PLATFORM_AMD__
+#include <hip/hip_fp16.h>
+#else
+#include <cuda_fp16.h>
+
+// The hip fp16 data type implicitly instantiates the is_floating_point
+// specialization in it's definition, so you can't specialize it again.
+// This is why this explicit instantiation must be removed from compilation
+// on TUs using the hip fp16 data type.
 namespace std {
 template <>
 struct is_floating_point<half> : std::true_type {};
 }  // namespace std
+
+#endif
+
+#include <gtest/gtest.h>
 
 namespace raft {
 namespace linalg {
@@ -241,9 +269,9 @@ namespace transpose_extra_test {
 template <typename T, typename IndexType, typename LayoutPolicy>
 [[nodiscard]] auto transpose(raft::resources const& handle,
                              device_matrix_view<T, IndexType, LayoutPolicy> in)
-  -> std::enable_if_t<std::is_floating_point_v<T> &&
-                        (std::is_same_v<LayoutPolicy, layout_c_contiguous> ||
-                         std::is_same_v<LayoutPolicy, layout_f_contiguous>),
+  -> std::enable_if_t<(std::is_floating_point_v<T> || std::is_same_v<T, half>)&&(
+                        std::is_same_v<LayoutPolicy, layout_c_contiguous> ||
+                        std::is_same_v<LayoutPolicy, layout_f_contiguous>),
                       device_matrix<T, IndexType, LayoutPolicy>>
 {
   auto out = make_device_matrix<T, IndexType, LayoutPolicy>(handle, in.extent(1), in.extent(0));
@@ -266,7 +294,8 @@ template <typename T, typename IndexType, typename LayoutPolicy>
 template <typename T, typename IndexType>
 [[nodiscard]] auto transpose(raft::resources const& handle,
                              device_matrix_view<T, IndexType, layout_stride> in)
-  -> std::enable_if_t<std::is_floating_point_v<T>, device_matrix<T, IndexType, layout_stride>>
+  -> std::enable_if_t<std::is_floating_point_v<T> || std::is_same_v<T, half>,
+                      device_matrix<T, IndexType, layout_stride>>
 {
   matrix_extent<size_t> exts{in.extent(1), in.extent(0)};
   using policy_type =

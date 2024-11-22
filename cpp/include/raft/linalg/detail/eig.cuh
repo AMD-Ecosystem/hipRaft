@@ -14,6 +14,25 @@
  * limitations under the License.
  */
 
+/*
+ * Modifications Copyright (c) 2024 Advanced Micro Devices, Inc.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
 #pragma once
 
 #include "cusolver_wrappers.hpp"
@@ -28,7 +47,11 @@
 #include <rmm/device_scalar.hpp>
 #include <rmm/device_uvector.hpp>
 
+#ifdef __HIP_PLATFORM_AMD__
+#include <raft/cuda_runtime.h>
+#else
 #include <cuda_runtime_api.h>
+#endif
 
 namespace raft {
 namespace linalg {
@@ -90,11 +113,14 @@ void eigDC(raft::resources const& handle,
            math_t* eig_vals,
            cudaStream_t stream)
 {
-#if CUDART_VERSION < 11010
+// CUDART_VERSION is unset in the current TU. In case it somehow gets set to a value higher than
+// 11010, we still call eigDC_legacy()
+#if CUDART_VERSION < 11010 || defined(__HIP_PLATFORM_AMD__)
   eigDC_legacy(handle, in, n_rows, n_cols, eig_vectors, eig_vals, stream);
   return;
 #endif
 
+#ifndef __HIP_PLATFORM_AMD__
   int cudart_version = 0;
   RAFT_CUDA_TRY(cudaRuntimeGetVersion(&cudart_version));
   cudaStream_t stream_new;
@@ -160,6 +186,7 @@ void eigDC(raft::resources const& handle,
     RAFT_CUDA_TRY(cudaEventRecord(sync_event, stream_new));
     RAFT_CUDA_TRY(cudaStreamWaitEvent(stream, sync_event));
   }
+#endif
 }
 
 enum EigVecMemUsage { OVERWRITE_INPUT, COPY_INPUT };

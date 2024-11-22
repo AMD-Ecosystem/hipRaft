@@ -131,8 +131,6 @@
 #define cusolverDnXgesvd hipsolverDnXgesvd
 #define cusolverDnXgesvdjSetMaxSweeps hipsolverDnXgesvdjSetMaxSweeps
 #define cusolverDnXgesvdjSetTolerance hipsolverDnXgesvdjSetTolerance
-#define cusolverDnxgesvdr hipsolverDnxgesvdr
-#define cusolverDnxgesvdr_bufferSize hipsolverDnxgesvdr_bufferSize
 #define cusolverDnXsyevjGetSweeps hipsolverDnXsyevjGetSweeps
 #define cusolverDnXsyevjSetMaxSweeps hipsolverDnXsyevjSetMaxSweeps
 #define cusolverDnXsyevjSetTolerance hipsolverDnXsyevjSetTolerance

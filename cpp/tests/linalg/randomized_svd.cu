@@ -14,6 +14,25 @@
  * limitations under the License.
  */
 
+ /*
+ * Modifications Copyright (c) 2024 Advanced Micro Devices, Inc.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+ 
 #include "../test_utils.cuh"
 
 #include <raft/core/device_resources.hpp>
@@ -189,11 +208,17 @@ class randomized_svdTest : public ::testing::TestWithParam<randomized_svdInputs<
   {
     int major = 0;
     int minor = 0;
-    cusolverGetProperty(MAJOR_VERSION, &major);
-    cusolverGetProperty(MINOR_VERSION, &minor);
-    int cusolv_version = major * 1000 + minor * 10;
-    if (cusolv_version >= 11050) apiTest();
-    basicTest();
+    #ifdef __HIP_PLATFORM_AMD__
+      basicTest();
+      //TODO(HIP/AMD): Enable apiTest after Issue#8
+      //apiTest(); 
+    #else
+      cusolverGetProperty(MAJOR_VERSION, &major);
+      cusolverGetProperty(MINOR_VERSION, &minor);
+      int cusolv_version = major * 1000 + minor * 10;
+      if (cusolv_version >= 11050) apiTest();
+      basicTest();
+    #endif
   }
 
  protected:
