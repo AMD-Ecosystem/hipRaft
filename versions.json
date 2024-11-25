@@ -4,6 +4,12 @@
           "version" : "${rapids-cmake-version}",
           "git_url" : "https://$ENV{GITHUB_PASS}@github.com/AMD-AI/rmm",
           "git_tag" : "feat/fixes_for_wip-24.06"
+      },
+      "hipco": {
+          "version" : "branch-24.06",
+          "git_url" : "https://github.com/ROCm/hipCollections",
+          "git_tag" : "branch-24.06"
       }
   }
 }
+
