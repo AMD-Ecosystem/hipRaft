@@ -105,7 +105,7 @@ RAFT_KERNEL gmemHistKernel(int* bins, const DataT* data, IdxT nrows, IdxT nbins,
 #else
     auto amask  = __activemask();
     auto mask   = __match_any_sync(amask, binId);
-    auto leader = __ffs(mask) - 1;
+    auto leader = __FFS(mask) - 1;
     if (raft::laneId() == leader) { raft::myAtomicAdd(bins + binOffset + binId, __POPC(mask)); }
 #endif  // __CUDA_ARCH__
   };
@@ -143,7 +143,7 @@ RAFT_KERNEL smemHistKernel(int* bins, const DataT* data, IdxT nrows, IdxT nbins,
     if (UseMatchAny) {
       auto amask  = __activemask();
       auto mask   = __match_any_sync(amask, binId);
-      auto leader = __ffs(mask) - 1;
+      auto leader = __FFS(mask) - 1;
       if (raft::laneId() == leader) {
         raft::myAtomicAdd<unsigned int>(sbins + binId, __POPC(mask));
       }

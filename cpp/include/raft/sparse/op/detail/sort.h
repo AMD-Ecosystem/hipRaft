@@ -45,8 +45,10 @@
 
 #ifdef __HIP_PLATFORM_AMD__
 #include <raft/cuda_runtime.h>
+#include <hipsparse/hipsparse.h>
 #else
 #include <cuda_runtime.h>
+#include <cusparse_v2.h>
 #endif
 #include <thrust/device_ptr.h>
 #include <thrust/iterator/zip_iterator.h>
@@ -54,7 +56,6 @@
 #include <thrust/sort.h>
 #include <thrust/tuple.h>
 
-#include <cusparse_v2.h>
 
 #include <algorithm>
 
