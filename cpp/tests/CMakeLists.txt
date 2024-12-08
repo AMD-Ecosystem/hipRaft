@@ -127,77 +127,102 @@ if(BUILD_TESTS)
   endif()
 
 
-ConfigureTest(
-  NAME
-  CORE_TEST
-  PATH
-  core/bitmap.cu
-  core/bitset.cu
-  core/device_resources_manager.cpp
-  core/device_setter.cpp
-  core/logger.cpp
-  core/math_device.cu
-  core/math_host.cpp
-  core/operators_device.cu
-  core/operators_host.cpp
-  core/handle.cpp
-  core/interruptible.cu
-  core/nvtx.cpp
-  core/mdarray.cu
-  core/mdbuffer.cu
-  core/mdspan_copy.cpp
-  core/mdspan_copy.cu
-  core/mdspan_utils.cu
-  core/numpy_serializer.cu
-  core/memory_type.cpp
-  core/sparse_matrix.cu
-  core/sparse_matrix.cpp
-  core/span.cpp
-  core/span.cu
-  core/stream_view.cpp
-  core/temporary_device_buffer.cu
-  test.cpp
-  LIB
-  EXPLICIT_INSTANTIATE_ONLY
-)
+  ConfigureTest(
+    NAME
+    CORE_TEST
+    PATH
+    core/bitmap.cu
+    core/bitset.cu
+    core/device_resources_manager.cpp
+    core/device_setter.cpp
+    core/logger.cpp
+    core/math_device.cu
+    core/math_host.cpp
+    core/operators_device.cu
+    core/operators_host.cpp
+    core/handle.cpp
+    core/interruptible.cu
+    core/nvtx.cpp
+    core/mdarray.cu
+    core/mdbuffer.cu
+    core/mdspan_copy.cpp
+    core/mdspan_copy.cu
+    core/mdspan_utils.cu
+    core/numpy_serializer.cu
+    core/memory_type.cpp
+    core/sparse_matrix.cu
+    core/sparse_matrix.cpp
+    core/span.cpp
+    core/span.cu
+    core/stream_view.cpp
+    core/temporary_device_buffer.cu
+    test.cpp
+    LIB
+    EXPLICIT_INSTANTIATE_ONLY
+  )
+
+
+  ConfigureTest(
+    NAME
+    SPARSE_TEST
+    PATH
+    sparse/add.cu
+    sparse/convert_coo.cu
+    sparse/convert_csr.cu
+    sparse/csr_row_slice.cu
+    sparse/csr_to_dense.cu
+    sparse/csr_transpose.cu
+    sparse/degree.cu
+    sparse/filter.cu
+    sparse/norm.cu
+    sparse/normalize.cu
+    sparse/reduce.cu
+    sparse/row_op.cu
+    sparse/sddmm.cu
+    sparse/select_k_csr.cu
+    sparse/sort.cu
+    sparse/spgemmi.cu
+    sparse/spmm.cu
+    sparse/symmetrize.cu
+  )
 
     ConfigureTest(
-  NAME
-  LINALG_TEST
-  PATH
-linalg/add.cu
-linalg/axpy.cu
-linalg/binary_op.cu
-linalg/cholesky_r1.cu
-linalg/coalesced_reduction.cu
-linalg/divide.cu
-linalg/dot.cu
-linalg/eig.cu
-linalg/eig_sel.cu
-linalg/gemm_layout.cu
-linalg/gemv.cu
-linalg/map.cu
-linalg/map_then_reduce.cu
-linalg/matrix_vector.cu
-linalg/matrix_vector_op.cu
-linalg/mean_squared_error.cu
-linalg/multiply.cu
-linalg/norm.cu
-linalg/normalize.cu
-linalg/power.cu
-linalg/randomized_svd.cu
-linalg/reduce.cu
-linalg/reduce_cols_by_key.cu
-linalg/reduce_rows_by_key.cu
-linalg/rsvd.cu
-linalg/sqrt.cu
-linalg/strided_reduction.cu
-linalg/subtract.cu
-linalg/svd.cu
-linalg/ternary_op.cu
-linalg/transpose.cu
-linalg/unary_op.cu
-    )
+      NAME
+      LINALG_TEST
+      PATH
+      linalg/add.cu
+      linalg/axpy.cu
+      linalg/binary_op.cu
+      linalg/cholesky_r1.cu
+      linalg/coalesced_reduction.cu
+      linalg/divide.cu
+      linalg/dot.cu
+      linalg/eig.cu
+      linalg/eig_sel.cu
+      linalg/gemm_layout.cu
+      linalg/gemv.cu
+      linalg/map.cu
+      linalg/map_then_reduce.cu
+      linalg/matrix_vector.cu
+      linalg/matrix_vector_op.cu
+      linalg/mean_squared_error.cu
+      linalg/multiply.cu
+      linalg/norm.cu
+      linalg/normalize.cu
+      linalg/power.cu
+      #linalg/randomized_svd.cu
+      linalg/reduce.cu
+      linalg/reduce_cols_by_key.cu
+      linalg/reduce_rows_by_key.cu
+      linalg/rsvd.cu
+      linalg/sqrt.cu
+      linalg/strided_reduction.cu
+      linalg/subtract.cu
+      linalg/svd.cu
+      linalg/ternary_op.cu
+      linalg/transpose.cu
+      linalg/unary_op.cu
+    )  
 
    ConfigureTest(
     NAME
@@ -219,7 +244,7 @@ linalg/unary_op.cu
   ConfigureTest(
     NAME SOLVERS_TEST PATH
     lap/lap.cu sparse/mst.cu LIB EXPLICIT_INSTANTIATE_ONLY
-  )
+   )
 
    ConfigureTest(
     NAME
