@@ -1,6 +1,6 @@
 {
   "packages" : {
-      "rmm-rocm" : {
+      "hipmm" : {
           "version" : "${rapids-cmake-version}",
           "git_url" : "https://$ENV{GITHUB_PASS}@github.com/AMD-AI/rmm",
           "git_tag" : "feat/fixes_for_wip-24.06"
