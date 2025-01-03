@@ -16,9 +16,10 @@
 3. [Is RAFT right for me?](#is-raft-right-for-me)
 4. [Getting Started](#getting-started)
 5. [Installing RAFT](#installing)
-6. [Codebase structure and contents](#folder-structure-and-contents)
-7. [Contributing](#contributing)
-8. [References](#references)
+6. [Building AMD RAFT](#building)
+7. [Codebase structure and contents](#folder-structure-and-contents)
+8. [Contributing](#contributing)
+9. [References](#references)
 
 <hr>
 
@@ -263,6 +264,43 @@ These packages statically build RAFT's pre-compiled instantiations and so the C+
 
 The [build instructions](https://docs.rapids.ai/api/raft/nightly/build/) contain more details on building RAFT from source and including it in downstream projects. You can also find a more comprehensive version of the above CPM code snippet the [Building RAFT C++ and Python from source](https://docs.rapids.ai/api/raft/nightly/build/#building-c-and-python-from-source) section of the build instructions.
 
+You can find an example [RAFT project template](cpp/template/README.md) in the `cpp/template` directory, which demonstrates how to build a new application with RAFT or incorporate RAFT into an existing CMake project.
+
+## Building
+
+These are the instructions for building RAFT for AMD GPUs with rocM 6.3.1 and
+Ubuntu 24.04 on a Docker image. A DockerFile has been provided for users to build
+their own containers which will be setup to build RAFT out of the box. Make sure
+to pass your token to the GITHUB_PASS build arg, rather than your password. These
+are the steps to build and run the docker image:
+
+```bash
+cd raft/
+
+docker build --build-arg GITHUB_USER=<YOUR_USERNAME> \
+             --build-arg GITHUB_PASS=<YOUR_TOKEN> -t my_image_name .
+
+docker run -d -it --cap-add=SYS_PTRACE --device=/dev/kfd --device=/dev/dri \
+       --group-add=video --ipc=host --name my_container_name --init        \
+       --network=host --security-opt seccomp=unconfined                    \
+       -v /home/user:/home/user my_image_name /bin/bash
+       
+docker exec -it my_container bash
+cd user/
+git clone https://github.com/AMD-AI/raft.git
+cd raft
+bash build.sh clean
+stdbuf -o 0 bash build.sh tests 2>&1 | tee stats_test_build_log.txt
+```
+
+If you want to build an image with a different version of rocM, use an
+additional build arg: `--build-arg ROCM=<YOUR_VERSION>`. Note that you
+might have to change some version numbers in the docker script to get this
+working properly. Currently, the script only supports version 6.3.
+
+If you want to build an image on a different version of Ubuntu, use an
+additional build arg: `--build-arg UBUNTU=<22.04|24.04>`. Nobel and Jammy
+are the only supported Ubuntu distros.
 
 ## Contributing
 
