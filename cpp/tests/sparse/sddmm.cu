@@ -14,6 +14,25 @@
  * limitations under the License.
  */
 
+/*
+ * Modifications Copyright (c) 2024 Advanced Micro Devices, Inc.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
 #include "../test_utils.cuh"
 
 #include <raft/core/resource/cuda_stream.hpp>
@@ -22,12 +41,21 @@
 #include <raft/sparse/linalg/sddmm.hpp>
 #include <raft/util/cudart_utils.hpp>
 
+#ifdef __HIP_PLATFORM_AMD__
+#include <raft/cusparse.h>
+#include <raft/thrust_execution_policy.h>
+
+#include <hip/hip_fp16.h>
+#else
 #include <cuda_fp16.h>
+
+#include <cusparse.h>
+#endif
+
 #include <thrust/device_vector.h>
 #include <thrust/reduce.h>
 #include <thrust/transform.h>
 
-#include <cusparse.h>
 #include <gtest/gtest.h>
 
 #include <iostream>
@@ -99,6 +127,14 @@ class SDDMMTest : public ::testing::TestWithParam<SDDMMInputs<ValueType, IndexTy
  protected:
   bool isCuSparseVersionGreaterThan_12_0_1()
   {
+#ifdef __HIP_PLATFORM_AMD__
+    // SDDMM currently does not support the half data type.
+    // More details can be found here:
+    // https://rocm.docs.amd.com/projects/rocSPARSE/en/develop/reference/generic.html#rocsparse-sddmm
+    // Regardless, the function hipsparseCreateDnMat also fails prior to the main SDDMM call.
+    // TODO(AMD/HIP): This will likely be fixed in a future release of ROCm.
+    return false;
+#else
     int version;
     cusparseHandle_t handle;
     cusparseCreate(&handle);
@@ -111,6 +147,7 @@ class SDDMMTest : public ::testing::TestWithParam<SDDMMInputs<ValueType, IndexTy
     cusparseDestroy(handle);
 
     return (major > 12) || (major == 12 && minor > 0) || (major == 12 && minor == 0 && patch >= 2);
+#endif
   }
 
   IndexType create_sparse_matrix(IndexType m,
@@ -232,7 +269,7 @@ class SDDMMTest : public ::testing::TestWithParam<SDDMMInputs<ValueType, IndexTy
         thrust::device_ptr<OutputType> d_output_ptr =
           thrust::device_pointer_cast(blobs_a_b.data_handle());
         thrust::device_ptr<ValueType> d_value_ptr = thrust::device_pointer_cast(a_data_d.data());
-        thrust::transform(thrust::cuda::par.on(stream),
+        thrust::transform(THRUST_EXECUTION_POLICY.on(stream),
                           d_output_ptr,
                           d_output_ptr + a_size,
                           d_value_ptr,
@@ -242,7 +279,7 @@ class SDDMMTest : public ::testing::TestWithParam<SDDMMInputs<ValueType, IndexTy
         thrust::device_ptr<OutputType> d_output_ptr =
           thrust::device_pointer_cast(blobs_a_b.data_handle() + a_size);
         thrust::device_ptr<ValueType> d_value_ptr = thrust::device_pointer_cast(b_data_d.data());
-        thrust::transform(thrust::cuda::par.on(stream),
+        thrust::transform(THRUST_EXECUTION_POLICY.on(stream),
                           d_output_ptr,
                           d_output_ptr + b_size,
                           d_value_ptr,
@@ -343,7 +380,7 @@ class SDDMMTest : public ::testing::TestWithParam<SDDMMInputs<ValueType, IndexTy
 
     thrust::device_ptr<OutputType> expected_data_ptr =
       thrust::device_pointer_cast(c_expected_data_d.data());
-    OutputType sum_abs = thrust::reduce(thrust::cuda::par.on(stream),
+    OutputType sum_abs = thrust::reduce(THRUST_EXECUTION_POLICY.on(stream),
                                         expected_data_ptr,
                                         expected_data_ptr + c_expected_data_d.size(),
                                         OutputType(0.0f),

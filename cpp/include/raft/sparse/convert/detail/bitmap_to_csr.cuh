@@ -44,14 +44,23 @@
 #include <rmm/device_uvector.hpp>
 
 #ifdef __HIP_PLATFORM_AMD__
-#include <hip/hip_cooperative_groups.h>
+<<<<<<< HEAD
 #include <raft/util/device_loads_stores_hip.cuh>
+
+#include <hip/hip_cooperative_groups.h>
+  =======
+>>>>>>> 3f2e1d8f (fixup! Enable SPARSE_TEST (#18))
+#include <raft/amd_warp_primitives.h>
+#include <raft/core/resource/stream_view.hpp>
+#include <raft/util/device_loads_stores_hip.cuh>
+
+#include <hip/hip_cooperative_groups.h>
 #else
+#include <raft/util/device_loads_stores.cuh>
+
 #include <cooperative_groups.h>
 #include <cooperative_groups/reduce.h>
-#include <raft/util/device_loads_stores.cuh>
 #endif
-
 
 #include <thrust/copy.h>
 #include <thrust/functional.h>
@@ -61,7 +70,7 @@
 
 #include <assert.h>
 
-namespace cg = cooperative_groups;
+  namespace cg = cooperative_groups;
 
 namespace raft {
 namespace sparse {
@@ -192,7 +201,10 @@ RAFT_KERNEL __launch_bounds__(bitmap_to_csr_tpb)
   // An assert will trigger if the allocated HBM is insufficient when `NDEBUG` isn't defined.
   // Note: Assertion is active only if `NDEBUG` is undefined.
   if constexpr (check_nnz) {
-    if (tid == 0) { assert(nnz < sub_col_nnz[num_rows * num_sub_cols]); }
+    if (tid == 0) {
+      assert(nnz <= sub_col_nnz[num_rows * num_sub_cols]);
+    }  // AMD FIX DO NOT REMOVE Note the "<="; It is possible that the last row in the matrix is all
+       // zeros.
   }
 
   size_t s_bit = size_t(row) * num_cols + sub_col * bits_per_sub_col;
@@ -317,8 +329,6 @@ void bitmap_to_csr(raft::resources const& handle,
                "Number of columns in bitmap must be equal to "
                "number of columns in csr");
 
-  if (csr_view.get_n_rows() == 0 || csr_view.get_n_cols() == 0) { return; }
-
   auto thrust_policy = resource::get_thrust_policy(handle);
   auto stream        = resource::get_cuda_stream(handle);
 
@@ -326,6 +336,8 @@ void bitmap_to_csr(raft::resources const& handle,
   index_t* indices = csr_view.get_indices().data();
 
   RAFT_CUDA_TRY(cudaMemsetAsync(indptr, 0, (csr_view.get_n_rows() + 1) * sizeof(index_t), stream));
+
+  if (csr_view.get_n_rows() == 0 || csr_view.get_n_cols() == 0) { return; }
 
   size_t sub_nnz_size      = 0;
   index_t bits_per_sub_col = 0;

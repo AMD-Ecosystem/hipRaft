@@ -40,6 +40,12 @@
 #define cusparsePointerMode_t hipsparsePointerMode_t
 #define cusparseSpVecDescr_t hipsparseSpVecDescr_t
 #define cusparseStatus_t hipsparseStatus_t
+#define cusparseDnMatDescr_t hipsparseDnMatDescr_t
+#define cusparseSpMatDescr_t hipsparseSpMatDescr_t
+#define cusparseSpMVAlg_t hipsparseSpMVAlg_t
+#define cusparseSpMMAlg_t hipsparseSpMMAlg_t
+#define cusparseSDDMMAlg_t hipsparseSDDMMAlg_t
+#define cusparseOrder_t hipsparseOrder_t
 
 //macros, constants, enums
 #define CUSPARSE_INDEX_32I HIPSPARSE_INDEX_32I
@@ -57,6 +63,18 @@
 #define CUSPARSE_POINTER_MODE_HOST HIPSPARSE_POINTER_MODE_HOST
 #define CUSPARSE_MATRIX_TYPE_SYMMETRIC HIPSPARSE_MATRIX_TYPE_SYMMETRIC
 #define CUSPARSE_MATRIX_TYPE_GENERAL HIPSPARSE_MATRIX_TYPE_GENERAL
+#define CUSPARSE_ACTION_NUMERIC HIPSPARSE_ACTION_NUMERIC
+#define CUSPARSE_CSR2CSC_ALG1 HIPSPARSE_CSR2CSC_ALG1
+#define CUSPARSE_ORDER_ROW HIPSPARSE_ORDER_ROW
+#define CUSPARSE_ORDER_COL HIPSPARSE_ORDER_COL
+#define CUSPARSE_SPMM_CSR_ALG2 HIPSPARSE_SPMM_CSR_ALG2
+#define CUSPARSE_SPMM_CSR_ALG1 HIPSPARSE_SPMM_CSR_ALG1
+#define CUSPARSE_SDDMM_ALG_DEFAULT HIPSPARSE_SDDMM_ALG_DEFAULT
+#define CUSPARSE_INDEX_64I HIPSPARSE_INDEX_64I
+#define CUSPARSE_SPARSETODENSE_ALG_DEFAULT HIPSPARSE_SPARSETODENSE_ALG_DEFAULT
+#define CUSPARSE_SPMV_CSR_ALG1 HIPSPARSE_SPMV_CSR_ALG1
+#define CUSPARSE_SPMV_CSR_ALG2 HIPSPARSE_SPMV_CSR_ALG2
+#define CUSPARSE_SPMV_ALG_DEFAULT HIPSPARSE_SPMV_ALG_DEFAULT
 
 // functions
 #define cusparsecoo2csr hipsparsecoo2csr
@@ -74,6 +92,7 @@
 #define cusparseDestroyMatDescr hipsparseDestroyMatDescr
 #define cusparseDgemmi hipsparseDgemmi
 #define cusparseGather hipsparseGather
+#define cusparseGetVersion hipsparseGetVersion
 #define cusparseScsr2dense hipsparseScsr2dense
 #define cusparseScsrmm hipsparseScsrmm
 #define cusparseScsrmv hipsparseScsrmv
@@ -87,3 +106,17 @@
 #define cusparseXcsr2coo hipsparseXcsr2coo
 #define cusparseSetMatType hipsparseSetMatType
 #define cusparseSetMatIndexBase hipsparseSetMatIndexBase
+#define cusparseDestroySpMat hipsparseDestroySpMat
+#define cusparseDestroyDnMat hipsparseDestroyDnMat
+#define cusparseCreateCsr hipsparseCreateCsr
+#define cusparseCreateDnVec hipsparseCreateDnVec
+#define cusparseSpMV_bufferSize hipsparseSpMV_bufferSize
+#define cusparseCreateDnMat hipsparseCreateDnMat
+#define cusparseSpMV hipsparseSpMV
+#define cusparseCreateCsc hipsparseCreateCsc
+#define cusparseSpMM hipsparseSpMM
+#define cusparseSDDMM_bufferSize hipsparseSDDMM_bufferSize
+#define cusparseSDDMM hipsparseSDDMM
+#define cusparseSpMM_bufferSize hipsparseSpMM_bufferSize
+#define cusparseSparseToDense hipsparseSparseToDense
+#define cusparseSparseToDense_bufferSize hipsparseSparseToDense_bufferSize

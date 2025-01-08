@@ -78,7 +78,7 @@ RAFT_KERNEL faster_dot_on_csr_kernel(dot_t* __restrict__ dot,
                                      const value_idx dim)
 {
   auto vec_id  = threadIdx.x;
-  auto lane_id = threadIdx.x & 0x1f;
+  auto lane_id = raft::laneId();
 
   extern __shared__ char smem[];
   value_t* s_A      = (value_t*)smem;

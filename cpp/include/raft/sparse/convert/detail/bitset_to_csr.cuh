@@ -25,8 +25,12 @@
 
 #include <rmm/device_uvector.hpp>
 
+#ifdef __HIP_PLATFORM_AMD__
+#include <hip/hip_cooperative_groups.h>
+#else
 #include <cooperative_groups.h>
 #include <cooperative_groups/reduce.h>
+#endif
 #include <thrust/copy.h>
 #include <thrust/functional.h>
 #include <thrust/iterator/discard_iterator.h>
@@ -104,7 +108,6 @@ void bitset_to_csr(raft::resources const& handle,
   RAFT_EXPECTS(bitset.size() == csr_view.get_n_cols(),
                "Number of size in bitset must be equal to "
                "number of columns in csr");
-  if (csr_view.get_n_rows() == 0 || csr_view.get_n_cols() == 0) { return; }
 
   auto thrust_policy = resource::get_thrust_policy(handle);
   auto stream        = resource::get_cuda_stream(handle);
@@ -113,6 +116,8 @@ void bitset_to_csr(raft::resources const& handle,
   index_t* indices = csr_view.get_indices().data();
 
   RAFT_CUDA_TRY(cudaMemsetAsync(indptr, 0, (csr_view.get_n_rows() + 1) * sizeof(index_t), stream));
+
+  if (csr_view.get_n_rows() == 0 || csr_view.get_n_cols() == 0) { return; }
 
   size_t sub_nnz_size      = 0;
   index_t bits_per_sub_col = 0;

@@ -451,7 +451,7 @@ class warp_sort_distributed : public warp_sort<Capacity, Ascending, T, IdxT> {
     for (uint32_t i = std::min(n_valid, Pow2<WarpSize>::mod(uint32_t(laneId()) - buf_len_)); i > 0;
          i--) {
       src_ix = __FFS(mask) - 1;
-      mask ^= (0x1u << src_ix);
+      mask ^= (static_cast<bitmask_type>(0x1u) << src_ix); // The cast to "bitmask_type" is to prevent unintentional overflow in case "bitmask_type" == uint64_t
     }
     // now the least significant bit of the mask corresponds to the lane id we want to get.
     // for not-added (invalid) indices, the mask is zeroed by now.
@@ -564,10 +564,10 @@ class warp_sort_distributed_ext : public warp_sort<Capacity, Ascending, T, IdxT>
   {
     bool do_add = is_ordered<Ascending>(val, k_th_);
     // mask tells which lanes in the warp have valid items to be added
-    uint32_t mask = ballot(do_add);
+    bitmask_type mask = ballot(do_add);
     if (mask == 0) { return; }
     // where to put the element in the tmp buffer
-    int dst_ix = buf_len_ + __POPC(mask & ((1u << laneId()) - 1u));
+    int dst_ix = buf_len_ + __POPC(mask & ((static_cast<bitmask_type>(1) << raft::laneId()) - static_cast<bitmask_type>(1))); // The cast to "bitmask_type" is to prevent unintentional overflow in case "bitmask_type" == uint64_t
     // put all elements, which fit into the current tmp buffer
     if (do_add && dst_ix < WarpSize) {
       val_buf_[dst_ix] = val;

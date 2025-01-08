@@ -43,6 +43,9 @@
 
 #ifdef __HIP_PLATFORM_AMD__
 #include <raft/cusparse.h>
+#include <raft/library_types.h>
+
+#include <hip/hip_fp16.h>
 #else
 #include <cusparse.h>
 #endif

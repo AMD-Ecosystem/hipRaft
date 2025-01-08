@@ -55,8 +55,16 @@
 //
 // (i.e., before including this header)
 //
-#define CUDA_VER_10_1_UP (CUDART_VERSION >= 10010)
+#define CUDA_VER_10_1_UP (CUDART_VERSION >= 10100)
 #define CUDA_VER_12_4_UP (CUDART_VERSION >= 12040)
+#if defined(__HIP_PLATFORM_AMD__)
+  #undef CUDA_VER_10_1_UP
+  // The selection of what subset of cusparse API's are made available is based on pre-processor logic
+  // around whether "CUDA_VER_10_1_UP" or "CUDA_VER_12_4_UP" is defined or not. When compiling with
+  // the HIP/AMD toolchain we force the latest version of the cuparse API's as these are known to be supported.
+  #define CUDA_VER_10_1_UP 1
+  #define CUDA_VER_12_4_UP 1
+#endif
 
 namespace raft {
 

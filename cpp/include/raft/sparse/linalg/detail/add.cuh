@@ -51,7 +51,11 @@
 #include <thrust/device_ptr.h>
 #include <thrust/scan.h>
 
+#ifdef __HIP_PLATFORM_AMD__
+#include <raft/cusparse.h>
+#else
 #include <cusparse_v2.h>
+#endif
 #include <stdio.h>
 
 #include <algorithm>

@@ -41,6 +41,10 @@
 
 #ifdef __HIP_PLATFORM_AMD__
 using bitmask_type = uint64_t;
+#undef CUDART_VERSION
+// Force "CUDART_VERSION" to be greater than 9000 when compiling using the HIP/AMD toolchain to force
+// the  selection of the "*_sync" version of warp-primitives as opposed to the deprecated non-sync versions.
+#define CUDART_VERSION 14000
 #else
 using bitmask_type = uint32_t;
 #endif
@@ -170,7 +174,7 @@ DI bool all(bool inFlag, bitmask_type mask = LANE_MASK_ALL)
 }
 
 /** For every thread in the warp, set the corresponding bit to the thread's flag value.  */
-DI uint32_t ballot(bool inFlag, bitmask_type mask = LANE_MASK_ALL)
+DI auto ballot(bool inFlag, bitmask_type mask = LANE_MASK_ALL)
 {
 #if CUDART_VERSION >= 9000
   return __ballot_sync(mask, inFlag);
@@ -348,5 +352,8 @@ DI std::enable_if_t<!is_shuffleable_v<T>, T> shfl_xor(T val,
 
   return output;
 }
-
+#ifdef __HIP_PLATFORM_AMD__
+// Undefine it to not affect any other source files
+#undef CUDART_VERSION
+#endif
 }  // namespace raft
