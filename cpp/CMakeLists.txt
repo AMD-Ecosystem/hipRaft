@@ -272,7 +272,7 @@ target_link_libraries(raft INTERFACE rmm::rmm cuco::cuco rmm::rmm_logger spdlog:
 target_compile_features(raft INTERFACE cxx_std_17 $<BUILD_INTERFACE:cuda_std_17>)
 target_compile_options(
   raft INTERFACE $<$<COMPILE_LANG_AND_ID:CUDA,NVIDIA>:--expt-extended-lambda
-                 --expt-relaxed-constexpr> -DHIP_ENABLE_WARP_SYNC_BUILTINS             
+                 --expt-relaxed-constexpr> -DHIP_ENABLE_WARP_SYNC_BUILTINS
 )
 target_compile_definitions(
   raft INTERFACE "RAFT_LOG_ACTIVE_LEVEL=RAFT_LOG_LEVEL_${LIBRAFT_LOGGING_LEVEL}"

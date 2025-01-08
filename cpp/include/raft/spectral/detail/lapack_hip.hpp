@@ -115,18 +115,22 @@ extern "C" int sgeev_(char* jobvl,
                       int* lwork,
                       int* info);
 
+//TODO(HIP/AMD): Replace function call with hipsolver call when available: Please see internal issue 22
 extern "C" {
     void ssterf_(int* n, float* d, float* e, int* info);
 }                      
 
+//TODO(HIP/AMD): Replace function call with hipsolver call when available: Please see internal issue 22
 extern "C" {
     void dsterf_(int* n, double* d, double* e, int* info);
 }
 
+//TODO(HIP/AMD): Replace function call with hipsolver call when available: Please see internal issue 22
 extern "C" {
     void ssteqr_(const char* compz, int* n, float* d, float* e, float* z, int* ldz, float* work, int* info);
 }
 
+//TODO(HIP/AMD): Replace function call with hipsolver call when available: Please see internal issue 22
 extern "C" {
     void dsteqr_(const char* compz, int* n, double* d, double* e, double* z, int* ldz, double* work, int* info);
 }
@@ -206,6 +210,7 @@ class Lapack {
     CBLAS_TRANSPOSE cblas_transa = (transa == CUBLAS_OP_N) ? CblasNoTrans : CblasTrans;
     CBLAS_TRANSPOSE cblas_transb = (transb == CUBLAS_OP_N) ? CblasNoTrans : CblasTrans;
 
+    //TODO(HIP/AMD): Replace function call with hipsolver call when available: Please see internal issue 22
     cblas_sgemm(CblasColMajor,
                 cblas_transa,
                 cblas_transb,
@@ -238,6 +243,8 @@ class Lapack {
   {
     CBLAS_TRANSPOSE cblas_transa = (transa == CUBLAS_OP_N) ? CblasNoTrans : CblasTrans;
     CBLAS_TRANSPOSE cblas_transb = (transb == CUBLAS_OP_N) ? CblasNoTrans : CblasTrans;
+
+    //TODO(HIP/AMD): Replace function call with hipsolver call when available: Please see internal issue 22
     cblas_dgemm(
       CblasColMajor, cblas_transa, cblas_transa, m, n, k, alpha, (double*)a, lda, (double*)b, ldb, beta, c, ldc);
   }
