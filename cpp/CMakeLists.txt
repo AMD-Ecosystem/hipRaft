@@ -210,7 +210,7 @@ if(NOT DISABLE_OPENMP)
   endif()
 endif()
 
-if(CUDA_BACKEND) 
+if(CUDA_BACKEND)
   include(cmake/modules/ConfigureCUDA.cmake)
 else()
   include(cmake/modules/ConfigureHIP.cmake)
@@ -223,8 +223,8 @@ endif()
 rapids_cpm_init()
 
 include(${rapids-cmake-dir}/cpm/rapids_logger.cmake)
-rapids_cpm_rapids_logger()
-rapids_make_logger(raft LOGGER_HEADER_DIR include/raft/core EXPORT_SET raft-exports)
+rapids_cpm_rapids_logger(BUILD_EXPORT_SET raft-exports INSTALL_EXPORT_SET raft-exports)
+create_logger_macros(RAFT "raft::default_logger()" include/raft/core)
 
 # CCCL before rmm/cuco so we get the right version of CCCL
 include(cmake/thirdparty/get_cccl.cmake)
@@ -261,13 +261,15 @@ add_library(raft INTERFACE)
 add_library(raft::raft ALIAS raft)
 
 target_include_directories(
-  raft INTERFACE "$<BUILD_INTERFACE:${RAFT_SOURCE_DIR}/include>" "$<INSTALL_INTERFACE:include>"
+  raft INTERFACE "$<BUILD_INTERFACE:${RAFT_SOURCE_DIR}/include>"
+                 "$<BUILD_INTERFACE:${RAFT_BINARY_DIR}/include>" "$<INSTALL_INTERFACE:include>"
 )
 
 # Keep RAFT as lightweight as possible. Only CUDA libs and rmm should be used in global target.
 # TODO(HIP/AMD): re-add cutlass when it is available on AMD
 # target_link_libraries(raft INTERFACE rmm::rmm cuco::cuco nvidia::cutlass::cutlass CCCL::CCCL)
-target_link_libraries(raft INTERFACE rmm::rmm cuco::cuco rmm::rmm_logger spdlog::spdlog_header_only CCCL::CCCL)
+target_link_libraries(
+  raft INTERFACE rapids_logger::rapids_logger rmm::rmm cuco::cuco CCCL::CCCL)
 
 target_compile_features(raft INTERFACE cxx_std_17 $<BUILD_INTERFACE:cuda_std_17>)
 target_compile_options(
@@ -275,7 +277,7 @@ target_compile_options(
                  --expt-relaxed-constexpr> -DHIP_ENABLE_WARP_SYNC_BUILTINS
 )
 target_compile_definitions(
-  raft INTERFACE "RAFT_LOG_ACTIVE_LEVEL=RAFT_LOG_LEVEL_${LIBRAFT_LOGGING_LEVEL}"
+  raft INTERFACE "RAFT_LOG_ACTIVE_LEVEL=RAPIDS_LOGGER_LOG_LEVEL_${LIBRAFT_LOGGING_LEVEL}"
 )
 
 if (CUDA_BACKEND)
@@ -305,7 +307,7 @@ endif()
 
 set(RAFT_CTK_MATH_DEPENDENCIES ${RAFT_CUBLAS_DEPENDENCY}  ${RAFT_CUBLASLT_DEPENDENCY}
                                ${RAFT_CUSOLVER_DEPENDENCY} ${RAFT_CUSPARSE_DEPENDENCY}
-                               ${RAFT_CURAND_DEPENDENCY} ${RAFT_BLAS_DEPENDENCY} ${RAFT_LAPACK_DEPENDENCY} 
+                               ${RAFT_CURAND_DEPENDENCY} ${RAFT_BLAS_DEPENDENCY} ${RAFT_LAPACK_DEPENDENCY}
 )
 
 # Endian detection
@@ -403,13 +405,11 @@ if(RAFT_COMPILE_LIBRARY)
                       "$<$<OR:$<COMPILE_LANGUAGE:CUDA>,$<COMPILE_LANGUAGE:HIP>>:${RAFT_GPU_FLAGS}>"
   )
 
-  # Make sure not to add the rmm logger twice since it will be brought in as an interface source by
-  # the rmm::rmm_logger_impl target.
-  add_library(raft_lib SHARED $<FILTER:$<TARGET_OBJECTS:raft_objs>,EXCLUDE,rmm.*logger>)
+  add_library(raft_lib SHARED $<TARGET_OBJECTS:raft_objs>)
 
   set(_raft_lib_targets raft_lib)
   if(NOT RAFT_COMPILE_DYNAMIC_ONLY)
-    add_library(raft_lib_static STATIC $<FILTER:$<TARGET_OBJECTS:raft_objs>,EXCLUDE,rmm.*logger>)
+    add_library(raft_lib_static STATIC $<TARGET_OBJECTS:raft_objs>)
     list(APPEND _raft_lib_targets raft_lib_static)
   endif()
 
@@ -436,10 +436,6 @@ if(RAFT_COMPILE_LIBRARY)
     # ensure CUDA symbols aren't relocated to the middle of the debug build binaries
     target_link_options(${target} PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/fatbin.ld")
   endforeach()
-  target_link_libraries(raft_lib PRIVATE rmm::rmm_logger_impl raft_logger_impl)
-  if(NOT RAFT_COMPILE_DYNAMIC_ONLY)
-    target_link_libraries(raft_lib_static PRIVATE rmm::rmm_logger_impl raft_logger_impl)
-  endif()
 endif()
 
 if(TARGET raft_lib AND (NOT TARGET raft::raft_lib))
