@@ -14,6 +14,25 @@
  * limitations under the License.
  */
 
+ /*
+ * Modifications Copyright (c) 2025 Advanced Micro Devices, Inc.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
 #include "../test_utils.cuh"
 
 #include <raft/random/rng.cuh>
@@ -80,8 +99,9 @@ struct bitonic_launch {
   template <typename T>
   static void run(const test_spec& spec, T* arr, rmm::cuda_stream_view stream)
   {
+    int const warp_size = raft::host_warp_size(stream);
     ASSERT(spec.capacity <= Capacity, "Invalid input: the requested capacity is too high.");
-    ASSERT(spec.warp_width <= WarpSize,
+    ASSERT(spec.warp_width <= warp_size,
            "Invalid input: the requested warp_width must be not larger than the WarpSize.");
     if constexpr (Capacity > 1) {
       if (spec.capacity < Capacity) {
@@ -92,8 +112,8 @@ struct bitonic_launch {
     RAFT_CUDA_TRY(cudaOccupancyMaxPotentialBlockSize(
       &min_grid_size, &max_block_size, bitonic_kernel<Capacity, T>, 0, kMaxBlockSize));
     const int n_warps =
-      ceildiv(std::min(spec.n_inputs * spec.warp_width, max_block_size), WarpSize);
-    const int block_dim  = n_warps * WarpSize;
+      ceildiv(std::min(spec.n_inputs * spec.warp_width, max_block_size), warp_size);
+    const int block_dim  = n_warps * warp_size;
     const int n_subwarps = block_dim / spec.warp_width;
     const int grid_dim   = ceildiv(spec.n_inputs, n_subwarps);
     bitonic_kernel<Capacity, T>

@@ -14,26 +14,7 @@
  * limitations under the License.
  */
 /*
- * Modifications Copyright (c) 2024 Advanced Micro Devices, Inc.
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- */
-
-/*
- * Modifications Copyright (c) 2024 Advanced Micro Devices, Inc.
+ * Modifications Copyright (c) 2024-2025 Advanced Micro Devices, Inc.
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -54,6 +35,7 @@
 #pragma once
 
 #include <raft/core/device_mdspan.hpp>
+#include <raft/core/error.hpp>
 #include <raft/core/mdspan.hpp>
 #include <raft/util/cuda_utils.cuh>
 #include <raft/util/pow2_utils.cuh>
@@ -143,12 +125,13 @@ struct Linewise {
     Vec v, w;
     bool update = true;
     for (; in < in_end; in += AlignWarp::Value, out += AlignWarp::Value, rowMod += warpPad) {
-      #ifdef __HIP_PLATFORM_AMD__
-        //TODO(HIP/AMD): emporary workaround implemented due to unsupported operation. Please see internal issue 21
-        *v.vectorized_data() = *reinterpret_cast<const typename Vec::io_t*>(in);
-      #else
-        *v.vectorized_data() = __ldcv(in);
-      #endif
+#ifdef __HIP_PLATFORM_AMD__
+      // TODO(HIP/AMD): Temporary workaround implemented due to unsupported operation. Please see
+      // internal issue 21
+      *v.vectorized_data() = *reinterpret_cast<const typename Vec::io_t*>(in);
+#else
+      *v.vectorized_data() = __ldcv(in);
+#endif
       while (rowMod >= rowLen) {
         rowMod -= rowLen;
         rowDiv++;
@@ -200,21 +183,23 @@ struct Linewise {
     Vec v;
     const IdxType d = BlockSize * gridDim.x;
     for (IdxType i = threadIdx.x + blockIdx.x * BlockSize; i < len; i += d) {
-      #ifdef __HIP_PLATFORM_AMD__
-        //TODO(HIP/AMD): emporary workaround implemented due to unsupported operation. Please see internal issue 21
-        *v.vectorized_data() = *reinterpret_cast<const typename Vec::io_t*>(in + i);
-      #else
-        *v.vectorized_data() = __ldcv(in + i);
-      #endif
+#ifdef __HIP_PLATFORM_AMD__
+      // TODO(HIP/AMD): Temporary workaround implemented due to unsupported operation. Please see
+      // internal issue 21
+      *v.vectorized_data() = *reinterpret_cast<const typename Vec::io_t*>(in + i);
+#else
+      *v.vectorized_data() = __ldcv(in + i);
+#endif
 #pragma unroll VecElems
       for (int k = 0; k < VecElems; k++)
         v.val.data[k] = op(v.val.data[k], args.val[k]...);
-        #ifdef __HIP_PLATFORM_AMD__
-          //TODO(HIP/AMD): emporary workaround implemented due to unsupported operation. Please see internal issue 21
-          *reinterpret_cast<typename Vec::io_t*>(out + i) = *v.vectorized_data();
-        #else
-          __stwt(out + i, *v.vectorized_data());
-        #endif
+#ifdef __HIP_PLATFORM_AMD__
+      // TODO(HIP/AMD): Temporary workaround implemented due to unsupported operation. Please see
+      // internal issue 21
+      *reinterpret_cast<typename Vec::io_t*>(out + i) = *v.vectorized_data();
+#else
+      __stwt(out + i, *v.vectorized_data());
+#endif
     }
   }
 
@@ -601,10 +586,20 @@ void matrixLinewiseVecCols(Type* out,
   }
   if (alignedLen < totalLen) {
     // should be not smaller than the warp size for better branching
-    constexpr std::size_t MaxOffset = std::max(std::size_t(raft::WarpSize), VecBytes);
-    matrixLinewiseVecColsTailKernel<Type, IdxType, MaxOffset, Lambda, Vecs...>
-      <<<dim3(2, 1, 1), dim3(MaxOffset, 1, 1), 0, stream>>>(
-        out, in, alignedOff, alignedEnd, rowLen, totalLen, op, vecs...);
+    int const warp_size = raft::host_warp_size(stream);
+    if (warp_size== 32) {
+      constexpr std::size_t MaxOffset32 = std::max(static_cast<std::size_t>(32), VecBytes);
+      matrixLinewiseVecColsTailKernel<Type, IdxType, MaxOffset32, Lambda, Vecs...>
+        <<<dim3(2, 1, 1), dim3(MaxOffset32, 1, 1), 0, stream>>>(
+          out, in, alignedOff, alignedEnd, rowLen, totalLen, op, vecs...);
+    } else if (warp_size== 64) {
+      constexpr std::size_t MaxOffset64 = std::max(static_cast<std::size_t>(64), VecBytes);
+      matrixLinewiseVecColsTailKernel<Type, IdxType, MaxOffset64, Lambda, Vecs...>
+        <<<dim3(2, 1, 1), dim3(MaxOffset64, 1, 1), 0, stream>>>(
+          out, in, alignedOff, alignedEnd, rowLen, totalLen, op, vecs...);
+    } else {
+      ASSERT(false, "Unsupported warp size");
+    }
     RAFT_CUDA_TRY(cudaPeekAtLastError());
   }
 }
@@ -718,10 +713,19 @@ void matrixLinewiseVecRows(Type* out,
   }
   if (alignedLen < totalLen) {
     // should be not smaller than the warp size for better branching
-    constexpr std::size_t MaxOffset = std::max(std::size_t(raft::WarpSize), VecBytes);
-    matrixLinewiseVecRowsTailKernel<Type, IdxType, MaxOffset, Lambda, Vecs...>
-      <<<dim3(2, 1, 1), dim3(MaxOffset, 1, 1), 0, stream>>>(
-        out, in, alignedOff, alignedEnd, rowLen, totalLen, op, vecs...);
+    if (32 == raft::host_warp_size(stream)) {
+      constexpr std::size_t MaxOffset32 = std::max(std::size_t(32), VecBytes);
+      matrixLinewiseVecRowsTailKernel<Type, IdxType, MaxOffset32, Lambda, Vecs...>
+        <<<dim3(2, 1, 1), dim3(MaxOffset32, 1, 1), 0, stream>>>(
+          out, in, alignedOff, alignedEnd, rowLen, totalLen, op, vecs...);
+    } else if (64 == raft::host_warp_size(stream)) {
+      constexpr std::size_t MaxOffset64 = std::max(std::size_t(64), VecBytes);
+      matrixLinewiseVecRowsTailKernel<Type, IdxType, MaxOffset64, Lambda, Vecs...>
+        <<<dim3(2, 1, 1), dim3(MaxOffset64, 1, 1), 0, stream>>>(
+          out, in, alignedOff, alignedEnd, rowLen, totalLen, op, vecs...);
+    } else {
+      ASSERT(false, "Unsupported warp size");
+    }
     RAFT_CUDA_TRY(cudaPeekAtLastError());
   }
 }

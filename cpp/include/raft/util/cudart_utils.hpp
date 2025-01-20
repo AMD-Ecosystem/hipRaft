@@ -15,7 +15,7 @@
  */
 
 /*
- * Modifications Copyright (c) 2024 Advanced Micro Devices, Inc.
+ * Modifications Copyright (c) 2024-2025 Advanced Micro Devices, Inc.
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -41,9 +41,12 @@
 #include <rmm/cuda_stream_view.hpp>
 
 #ifdef __HIP_PLATFORM_AMD__
-#include <hip/hip_fp16.h>
+#include <raft/amd_warp_primitives.h>
 #include <raft/cuda_runtime.h>
 #include <raft/util/warp_primitives.cuh>
+
+#include <hip/hip_fp16.h>
+#include <rocprim/rocprim.hpp>
 #else
 #include <cuda_fp16.h>
 #include <cuda_runtime_api.h>
@@ -62,11 +65,37 @@
 namespace raft {
 
 /** Helper method to get to know warp size in device code */
-__host__ __device__ constexpr inline int warp_size() {
+__device__ constexpr inline int warp_size()
+{
 #ifdef __HIP_PLATFORM_AMD__
-   return 64; 
+  return hip_warp_primitives::WAVEFRONT_SIZE;
 #else
-   return 32;
+  return 32;
+#endif
+}
+
+__host__ inline int host_warp_size(int device_id)
+{
+#ifdef __HIP_PLATFORM_AMD__
+  unsigned int warp_size = -1;
+  RAFT_EXPECTS(rocprim::host_warp_size(device_id, warp_size) == hipSuccess,
+               "Failed to query device(ID=%d) for warp size",
+               device_id);
+  return warp_size;
+#else
+  return 32;
+#endif
+}
+
+__host__ inline int host_warp_size(cudaStream_t stream)
+{
+#ifdef __HIP_PLATFORM_AMD__
+  unsigned int warp_size = -1;
+  RAFT_EXPECTS(rocprim::host_warp_size(stream, warp_size) == hipSuccess,
+               "Failed to query device for warp size");
+  return warp_size;
+#else
+  return 32;
 #endif
 }
 
@@ -88,12 +117,14 @@ class grid_1d_thread_t {
    * this can't be determined generically/automatically (as opposed to the number of blocks)
    * @param max_num_blocks_1d maximum number of blocks in 1d grid
    * @param elements_per_thread Typically, a single kernel thread processes more than a single
-   * element; this affects the number of threads the grid must contain
+   * @param device_id Device ID, used to query the specified device for the corresponding hardware
+   * warp size. element; this affects the number of threads the grid must contain
    */
   grid_1d_thread_t(size_t overall_num_elements,
                    size_t num_threads_per_block,
                    size_t max_num_blocks_1d,
-                   size_t elements_per_thread = 1)
+                   size_t elements_per_thread = 1,
+                   int device_id              = 0)
     : block_size(num_threads_per_block),
       num_blocks(
         std::min((overall_num_elements + (elements_per_thread * num_threads_per_block) - 1) /
@@ -101,7 +132,7 @@ class grid_1d_thread_t {
                  max_num_blocks_1d))
   {
     RAFT_EXPECTS(overall_num_elements > 0, "overall_num_elements must be > 0");
-    RAFT_EXPECTS(num_threads_per_block / warp_size() > 0,
+    RAFT_EXPECTS(num_threads_per_block / raft::host_warp_size(device_id) > 0,
                  "num_threads_per_block / warp_size() must be > 0");
     RAFT_EXPECTS(elements_per_thread > 0, "elements_per_thread must be > 0");
   }
@@ -122,17 +153,21 @@ class grid_1d_warp_t {
    * specific features (amount of shared memory necessary, SM functional units use pattern etc.);
    * this can't be determined generically/automatically (as opposed to the number of blocks)
    * @param max_num_blocks_1d maximum number of blocks in 1d grid
+   * @param device_id Device ID, used to query the specified device for the corresponding hardware
+   * warp size.
    */
   grid_1d_warp_t(size_t overall_num_elements,
                  size_t num_threads_per_block,
-                 size_t max_num_blocks_1d)
+                 size_t max_num_blocks_1d,
+                 int device_id)
     : block_size(num_threads_per_block),
-      num_blocks(std::min((overall_num_elements + (num_threads_per_block / warp_size()) - 1) /
-                            (num_threads_per_block / warp_size()),
-                          max_num_blocks_1d))
+      num_blocks(std::min(
+        (overall_num_elements + (num_threads_per_block / raft::host_warp_size(device_id)) - 1) /
+          (num_threads_per_block / raft::host_warp_size(device_id)),
+        max_num_blocks_1d))
   {
     RAFT_EXPECTS(overall_num_elements > 0, "overall_num_elements must be > 0");
-    RAFT_EXPECTS(num_threads_per_block / warp_size() > 0,
+    RAFT_EXPECTS(num_threads_per_block / raft::host_warp_size(device_id) > 0,
                  "num_threads_per_block / warp_size() must be > 0");
   }
 };
@@ -152,15 +187,18 @@ class grid_1d_block_t {
    * specific features (amount of shared memory necessary, SM functional units use pattern etc.);
    * this can't be determined generically/automatically (as opposed to the number of blocks)
    * @param max_num_blocks_1d maximum number of blocks in 1d grid
+   * @param device_id Device ID, used to query the specified device for the corresponding hardware
+   * warp size.
    */
   grid_1d_block_t(size_t overall_num_elements,
                   size_t num_threads_per_block,
-                  size_t max_num_blocks_1d)
+                  size_t max_num_blocks_1d,
+                  int device_id)
     : block_size(num_threads_per_block),
       num_blocks(std::min(overall_num_elements, max_num_blocks_1d))
   {
     RAFT_EXPECTS(overall_num_elements > 0, "overall_num_elements must be > 0");
-    RAFT_EXPECTS(num_threads_per_block / warp_size() > 0,
+    RAFT_EXPECTS(num_threads_per_block / raft::host_warp_size(device_id) > 0,
                  "num_threads_per_block / warp_size() must be > 0");
   }
 };

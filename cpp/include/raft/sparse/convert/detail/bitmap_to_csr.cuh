@@ -15,7 +15,7 @@
  */
 
 /*
- * Modifications Copyright (c) 2024 Advanced Micro Devices, Inc.
+ * Modifications Copyright (c) 2024-2025 Advanced Micro Devices, Inc.
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -44,23 +44,16 @@
 #include <rmm/device_uvector.hpp>
 
 #ifdef __HIP_PLATFORM_AMD__
-<<<<<<< HEAD
-#include <raft/util/device_loads_stores_hip.cuh>
-
-#include <hip/hip_cooperative_groups.h>
-  =======
->>>>>>> 3f2e1d8f (fixup! Enable SPARSE_TEST (#18))
-#include <raft/amd_warp_primitives.h>
 #include <raft/core/resource/stream_view.hpp>
-#include <raft/util/device_loads_stores_hip.cuh>
-
 #include <hip/hip_cooperative_groups.h>
+#include <raft/util/device_loads_stores_hip.cuh>
+#include <raft/amd_warp_primitives.h>
 #else
-#include <raft/util/device_loads_stores.cuh>
-
 #include <cooperative_groups.h>
 #include <cooperative_groups/reduce.h>
+#include <raft/util/device_loads_stores.cuh>
 #endif
+
 
 #include <thrust/copy.h>
 #include <thrust/functional.h>
@@ -70,12 +63,13 @@
 
 #include <assert.h>
 
-  namespace cg = cooperative_groups;
+namespace cg = cooperative_groups;
 
 namespace raft {
 namespace sparse {
 namespace convert {
 namespace detail {
+
 
 // Threads per block in bitmap_to_csr.
 static const constexpr int bitmap_to_csr_tpb = 256;

@@ -15,7 +15,7 @@
  */
 
 /*
- * Modifications Copyright (c) 2024 Advanced Micro Devices, Inc.
+ * Modifications Copyright (c) 2024-2025 Advanced Micro Devices, Inc.
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -54,7 +54,7 @@ RAFT_KERNEL permuteKernel(
   IntType* perms, Type* out, const Type* in, IdxType a, IdxType b, IdxType N, IdxType D)
 {
   namespace cg        = cooperative_groups;
-  static constexpr int WARP_SIZE = warp_size();
+  static __device__ constexpr int WARP_SIZE = raft::warp_size();
 
   int tid = threadIdx.x + blockIdx.x * blockDim.x;
 

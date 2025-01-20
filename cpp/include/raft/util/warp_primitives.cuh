@@ -15,7 +15,7 @@
  */
 
 /*
- * Modifications Copyright (c) 2024 Advanced Micro Devices, Inc.
+ * Modifications Copyright (c) 2024-2025 Advanced Micro Devices, Inc.
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -38,12 +38,14 @@
 #include <raft/core/cudart_utils.hpp>
 #include <raft/core/operators.hpp>
 #include <raft/util/cuda_dev_essentials.cuh>
+#include <raft/util/bitwise_operations.hpp>
 
 #ifdef __HIP_PLATFORM_AMD__
 using bitmask_type = uint64_t;
 #undef CUDART_VERSION
-// Force "CUDART_VERSION" to be greater than 9000 when compiling using the HIP/AMD toolchain to force
-// the  selection of the "*_sync" version of warp-primitives as opposed to the deprecated non-sync versions.
+// Force "CUDART_VERSION" to be greater than 9000 when compiling using the HIP/AMD toolchain to
+// force the  selection of the "*_sync" version of warp-primitives as opposed to the deprecated
+// non-sync versions.
 #define CUDART_VERSION 14000
 #else
 using bitmask_type = uint32_t;
@@ -56,69 +58,7 @@ namespace raft {
 /**
  * \return the full mask: all bits are set to 1.
  */
-constexpr bitmask_type LANE_MASK_ALL = ~0;
-
-/**
- * \return Number of bits set to 1.
- * \note Return value type matches that of the underlying device builtin.
- */
-template <typename T>
-__device__ inline int __POPC(T v);
-
-
-template <>
-__device__ inline int __POPC<int32_t>(int32_t v) {
-  return __popc(v);
-}
-
-template <>
-__device__ inline int __POPC<int64_t>(int64_t v) {
-  return __popcll(v);
-}
-
-template <>
-__device__ inline int __POPC<uint32_t>(uint32_t v) {
-  return __popc(v);
-}
-
-template <>
-__device__ inline int __POPC<uint64_t>(uint64_t v) {
-  return __popcll(v);
-}
-
-/**
-* \brief Find First Set
-* \return index of first set bit of lowest significance.
-* \note Return value type matches that of the underlying device builtin.
-* \note While `uint64_t` is defined as `unsigned long int` on x86_64,
-*        the HIP `__ffsll` device function provides `__ffsll` with `unsigned long long int`
-*        argument, which is also an 64-bit integer type on x86_64.
-*        However, the compilers typically see both as different types.
-*        We work with `uint64t` and `uint32t` here, so explicit instantiations
-*        for both are added here.
-*/
-template <typename T>
-__device__ inline int __FFS(T v);
-
-template <>
-__device__ inline int __FFS<int32_t>(int32_t v) {
-  return __ffs(v);
-}
-
-template <>
-__device__ inline int __FFS<int64_t>(int64_t v) {
-  return __ffsll(static_cast<unsigned long long int>(v));
-}
-
-template <>
-__device__ inline int __FFS<uint32_t>(uint32_t v) {
-  return __ffs(v);
-}
-
-template <>
-__device__ inline int __FFS<uint64_t>(uint64_t v) {
-  return __ffsll(static_cast<unsigned long long int>(v));
-}
+__device__ inline constexpr bitmask_type LANE_MASK_ALL = ~0;
 
 
 /** True CUDA alignment of a type (adapted from CUB) */

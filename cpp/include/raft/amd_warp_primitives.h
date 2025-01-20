@@ -1,5 +1,5 @@
 /*
- * Modifications Copyright (c) 2024 Advanced Micro Devices, Inc.
+ * Modifications Copyright (c) 2024-2025 Advanced Micro Devices, Inc.
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -22,18 +22,13 @@
 
 #include <hip/hip_runtime.h>
 #include <hip/hip_cooperative_groups.h>
-
-#ifdef __AMDGCN_WAVEFRONT_SIZE
-#undef WAVEFRONT_SIZE
-#define WAVEFRONT_SIZE __AMDGCN_WAVEFRONT_SIZE
-#endif
+#include <rocprim/rocprim.hpp>
+#include <raft/util/bitwise_operations.hpp>
 
 namespace hip_warp_primitives {
 
-__device__ inline lane_mask __activemask()
-{
-    return __ballot(1);
-}
+inline constexpr __device__ auto WAVEFRONT_SIZE = rocprim::device_warp_size();
+static_assert(WAVEFRONT_SIZE == 32 || WAVEFRONT_SIZE == 64, "Unsupported WAVEFRONT_SIZE");
 
 __device__ inline lane_mask __activemask(lane_mask mask)
 {
@@ -70,11 +65,7 @@ __device__ inline int __thread_rank(lane_mask mask)
 
 __device__ inline unsigned int __mask_size(lane_mask mask)
 {
-#if WAVEFRONT_SIZE == 64
-    return __popcll(mask);
-#else
-    return __popc(mask);
-#endif
+    return raft::__POPC(mask);
 }
 
 __device__ inline int __thread_rank_to_lane_id(lane_mask mask, int i)
@@ -243,7 +234,7 @@ __device__ inline T __shfl_down_local_sync(lane_mask mask, T var, unsigned int l
 
     int lane;
 
-    if (WAVEFRONT_SIZE == 64) {
+    if constexpr (WAVEFRONT_SIZE == 64) {
         lane = __fns64(mask, __lane_id(), lane_delta + 1);
     }
     else {
@@ -277,10 +268,10 @@ __device__ inline T __shfl_up_local_sync(lane_mask mask, T var, unsigned int lan
 
     int lane;
 
-    if (WAVEFRONT_SIZE == 64) {
+    if constexpr (WAVEFRONT_SIZE == 64) {
         lane = __fns64(mask, __lane_id(), -((int)lane_delta + 1));
     }
-    else if (WAVEFRONT_SIZE == 32) {
+    else {
         lane = __fns32(mask, __lane_id(), -((int)lane_delta + 1));
     }
 
@@ -309,11 +300,7 @@ __device__ inline lane_mask __match_any_sync(lane_mask mask, T value)
     bmask = __branchmask();
 
     while (1) {
-#if WAVEFRONT_SIZE == 64
-        int i = __ffsll(bmask) - 1;
-#else
-        int i = __ffs((unsigned int)bmask) - 1;
-#endif
+        int const i = raft::__FFS(bmask);
 
         if (i < 0) break;
 
@@ -340,11 +327,7 @@ __device__ inline lane_mask __match_any_sync(lane_mask mask, T value)
 #endif
 
     while (1) {
-#if WAVEFRONT_SIZE == 64
-        int i = __ffsll(bmask) - 1;
-#else
-        int i = __ffs((unsigned int)bmask) - 1;
-#endif
+        int const i = raft::__FFS(bmask)
 
         if (i < 0) break;
 

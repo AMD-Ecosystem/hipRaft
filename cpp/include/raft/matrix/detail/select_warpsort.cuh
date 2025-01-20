@@ -15,7 +15,7 @@
  */
 
 /*
- * Modifications Copyright (c) 2024 Advanced Micro Devices, Inc.
+ * Modifications Copyright (c) 2024-2025 Advanced Micro Devices, Inc.
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -39,6 +39,7 @@
 #include <raft/core/resource/cuda_stream.hpp>
 #include <raft/core/resource/custom_resource.hpp>
 #include <raft/core/resource/device_memory_resource.hpp>
+#include <raft/core/resource/stream_view.hpp>
 #include <raft/util/bitonic_sort.cuh>
 #include <raft/util/cache.hpp>
 #include <raft/util/cuda_utils.cuh>
@@ -870,7 +871,9 @@ struct launch_setup {
     }
     ASSERT(capacity <= Capacity, "Requested k is too big (%d)", k);
     auto calc_smem = [k](int block_size) {
-      int num_of_warp = block_size / std::min<int>(WarpSize, Capacity);
+      int device_id = -1;
+      RAFT_CUDA_TRY(cudaGetDevice(&device_id));
+      int num_of_warp = block_size / std::min<int>(raft::host_warp_size(device_id), Capacity);
       return calc_smem_size_for_block_wide<T, IdxT>(num_of_warp, k);
     };
     launch_params ps;
@@ -999,22 +1002,35 @@ void calc_launch_parameter(raft::resources const& res,
                            int* p_num_of_block,
                            int* p_num_of_warp)
 {
-  const int capacity               = bound_by_power_of_two(k);
-  const int capacity_per_full_warp = std::max(capacity, WarpSize);
+  const int warp_size = raft::host_warp_size(raft::resource::get_stream_view(res).value());
+  const int capacity         = bound_by_power_of_two(k);
+  const int capacity_per_full_warp = std::max(capacity, warp_size);
   auto lps                         = calc_optimal_params<WarpSortClass, T, IdxT>(res, k);
   int block_size                   = lps.block_size;
   int min_grid_size                = lps.min_grid_size;
-  block_size                       = Pow2<WarpSize>::roundDown(block_size);
+  if (warp_size== 32) {
+    block_size = Pow2<32>::roundDown(block_size);
+  } else if (warp_size== 64) {
+    block_size = Pow2<64>::roundDown(block_size);
+  } else {
+    ASSERT(false, "Unexpected warp size");
+  }
 
   int num_of_warp;
   int num_of_block;
   if (batch_size < size_t(min_grid_size)) {  // may use multiple blocks
-    num_of_warp       = block_size / WarpSize;
+    num_of_warp       = block_size / warp_size;
     num_of_block      = min_grid_size / int(batch_size);
     int len_per_block = int(ceildiv<size_t>(len, num_of_block));
     int len_per_warp  = ceildiv(len_per_block, num_of_warp);
 
-    len_per_warp  = Pow2<WarpSize>::roundUp(len_per_warp);
+    if (warp_size== 32) {
+      len_per_warp = Pow2<32>::roundUp(len_per_warp);
+    } else if (warp_size== 64) {
+      len_per_warp = Pow2<64>::roundUp(len_per_warp);
+    } else {
+      ASSERT(false, "Unexpected warp size");
+    }
     len_per_block = len_per_warp * num_of_warp;
     num_of_block  = int(ceildiv<size_t>(len, len_per_block));
 
@@ -1029,11 +1045,17 @@ void calc_launch_parameter(raft::resources const& res,
   } else {  // use only single block
     num_of_block = 1;
 
-    auto adjust_block_size = [len, capacity_per_full_warp](int bs) {
-      int warps_per_block = bs / WarpSize;
+    auto adjust_block_size = [len, capacity_per_full_warp, warp_size](int bs) {
+      int warps_per_block = bs / warp_size;
       int len_per_warp    = int(ceildiv<size_t>(len, warps_per_block));
-      len_per_warp        = Pow2<WarpSize>::roundUp(len_per_warp);
-      warps_per_block     = int(ceildiv<size_t>(len, len_per_warp));
+      if (warp_size== 32) {
+        len_per_warp = Pow2<32>::roundUp(len_per_warp);
+      } else if (warp_size== 64) {
+        len_per_warp = Pow2<64>::roundUp(len_per_warp);
+      } else {
+        ASSERT(false, "Unexpected warp size");
+      }
+      warps_per_block = int(ceildiv<size_t>(len, len_per_warp));
 
       constexpr int kLenFactor = LaunchThreshold<WarpSortClass>::len_factor_for_single_block;
       if (len_per_warp < capacity_per_full_warp * kLenFactor) {
@@ -1041,14 +1063,14 @@ void calc_launch_parameter(raft::resources const& res,
         warps_per_block = int(ceildiv<size_t>(len, len_per_warp));
       }
 
-      return warps_per_block * WarpSize;
+      return warps_per_block * warp_size;
     };
 
     // gradually reduce the block size while the batch size allows and the len is not big enough
     // to occupy a single block well.
     block_size = adjust_block_size(block_size);
     do {
-      num_of_warp        = block_size / WarpSize;
+      num_of_warp        = block_size / warp_size;
       auto another       = calc_optimal_params<WarpSortClass, T, IdxT>(res, k, block_size);
       another.block_size = adjust_block_size(another.block_size);
       if (batch_size >= size_t(another.min_grid_size)  // still have enough work
@@ -1061,7 +1083,7 @@ void calc_launch_parameter(raft::resources const& res,
       } else {
         break;
       }
-    } while (block_size > WarpSize);
+    } while (block_size > warp_size);
     num_of_warp = std::max(1, num_of_warp);
   }
 
@@ -1084,11 +1106,12 @@ void select_k_(int num_of_block,
                rmm::cuda_stream_view stream,
                rmm::device_async_resource_ref mr)
 {
+  const int warp_size = raft::host_warp_size(stream.value());
   rmm::device_uvector<T> tmp_val(num_of_block * k * batch_size, stream, mr);
   rmm::device_uvector<IdxT> tmp_idx(num_of_block * k * batch_size, stream, mr);
 
   int capacity   = bound_by_power_of_two(k);
-  int warp_width = std::min(capacity, WarpSize);
+  int warp_width = std::min(capacity, warp_size);
 
   T* result_val    = (num_of_block == 1) ? out : tmp_val.data();
   IdxT* result_idx = (num_of_block == 1) ? out_idx : tmp_idx.data();
@@ -1221,7 +1244,9 @@ void select_k(raft::resources const& res,
   int num_of_warp  = 0;
   calc_launch_parameter<warp_sort_immediate, T, IdxT>(
     res, batch_size, len, k, &num_of_block, &num_of_warp);
-  int len_per_thread = len / (num_of_block * num_of_warp * std::min(capacity, WarpSize));
+  int len_per_thread =
+    len / (num_of_block * num_of_warp *
+           std::min(capacity, raft::host_warp_size(raft::resource::get_stream_view(res).value())));
 
   if (len_per_thread <= LaunchThreshold<warp_sort_immediate>::len_factor_for_choosing) {
     select_k_<warp_sort_immediate, T, IdxT>(num_of_block,

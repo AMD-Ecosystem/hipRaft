@@ -67,7 +67,7 @@ MDSPAN_INLINE_FUNCTION auto native_popc(T v) -> int32_t
 MDSPAN_INLINE_FUNCTION auto popc(uint32_t v) -> int32_t
 {
 #if defined(__CUDA_ARCH__)
-  return __POPC(v);
+  return raft::__POPC(v);
 #elif defined(__GNUC__) || defined(__clang__)
   return __builtin_popcount(v);
 #else

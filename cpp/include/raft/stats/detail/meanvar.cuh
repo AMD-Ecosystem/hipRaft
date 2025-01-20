@@ -15,7 +15,7 @@
  */
 
  /*
- * Modifications Copyright (c) 2024 Advanced Micro Devices, Inc.
+ * Modifications Copyright (c) 2024-2025 Advanced Micro Devices, Inc.
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -222,8 +222,9 @@ void meanvar(
   T* mean, T* var, const T* data, I D, I N, bool sample, bool rowMajor, cudaStream_t stream)
 {
   if (rowMajor) {
-    static_assert(BlockSize >= WarpSize, "Block size must be not smaller than the warp size.");
-    const dim3 bs(WarpSize, BlockSize / WarpSize, 1);
+    int device_warp_size = raft::host_warp_size(stream);
+    ASSERT(BlockSize >= device_warp_size, "Block size must be not smaller than the warp size.");
+    const dim3 bs(device_warp_size, BlockSize / device_warp_size, 1);
     dim3 gs(raft::ceildiv<decltype(bs.x)>(D, bs.x), raft::ceildiv<decltype(bs.y)>(N, bs.y), 1);
 
     // Don't create more blocks than necessary to occupy the GPU

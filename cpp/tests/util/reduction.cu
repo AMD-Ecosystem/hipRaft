@@ -15,7 +15,7 @@
  */
 
 /*
- * Modifications Copyright (c) 2024 Advanced Micro Devices, Inc.
+ * Modifications Copyright (c) 2024-2025 Advanced Micro Devices, Inc.
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -188,9 +188,16 @@ class ReductionTest : public testing::TestWithParam<std::vector<int>> {  // NOLI
     reduction_launch::run_ranked(arr_d, 5, 15, raft::max_op{}, stream);
     reduction_launch::run_ranked(arr_d, 0, 26, raft::min_op{}, stream);
     // value 15 is for the current state of PCgenerator on CUDA, 3 on HIP (there is also a difference in warp sizes that affects the reduction). adjust this if rng changes
+    // 15 is the expected value for the current state of PCgenerator on CUDA, 3 on HIP when warp size is 64 otherwise 15
     int expected;
     #ifdef __HIP_PLATFORM_AMD__
-    expected = 3;
+    int device{};
+    static_cast<void>(hipGetDevice(&device));
+    if (raft::host_warp_size(device) == 64) {
+      expected = 3;
+    } else {
+      expected = 15;
+    }
     #else
     expected = 15;
     #endif
