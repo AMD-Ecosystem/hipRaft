@@ -74,6 +74,7 @@ namespace cub = hipcub;
 #include <omp.h>
 
 #include <limits>
+#include <numeric>
 #include <optional>
 #include <queue>
 #include <random>

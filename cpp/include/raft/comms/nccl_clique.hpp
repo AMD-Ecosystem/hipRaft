@@ -40,6 +40,8 @@
 #include <nccl.h>
 #endif
 
+#include <numeric>
+
 /**
  * @brief Error checking macro for NCCL runtime API functions.
  *
