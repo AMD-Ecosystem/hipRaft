@@ -284,7 +284,7 @@ docker run -d -it --cap-add=SYS_PTRACE --device=/dev/kfd --device=/dev/dri \
        --group-add=video --ipc=host --name my_container_name --init        \
        --network=host --security-opt seccomp=unconfined                    \
        -v /home/user:/home/user my_image_name /bin/bash
-       
+
 docker exec -it my_container bash
 cd user/
 git clone https://github.com/AMD-AI/raft.git

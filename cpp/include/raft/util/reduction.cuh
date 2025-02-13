@@ -15,7 +15,7 @@
  */
 
 /*
- * Modifications Copyright (c) 2024 Advanced Micro Devices, Inc.
+ * Modifications Copyright (c) 2024-2025 Advanced Micro Devices, Inc.
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -198,7 +198,7 @@ DI i_t binaryBlockReduce(i_t val, i_t* shmem)
 {
   static_assert(BLOCK_SIZE <= 1024);
   assert(val == 0 || val == 1);
-  const bitmask_type mask    = __ballot_sync(LANE_MASK_ALL, val); 
+  const bitmask_type mask    = __ballot_sync(LANE_MASK_ALL, val);
   const bitmask_type n_items = __POPC(mask);
 
   // Each first thread of the warp

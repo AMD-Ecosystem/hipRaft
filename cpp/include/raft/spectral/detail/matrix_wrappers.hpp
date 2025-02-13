@@ -48,16 +48,18 @@
 
 #ifdef __HIP_PLATFORM_AMD__
 #include <raft/cuda_runtime.h>
+
 #include <thrust/system/hip/detail/util.h>
 #include <thrust/system/hip/execution_policy.h>
 #else
-#include <cuda_runtime.h>
 #include <cuda/functional>
+#include <cuda_runtime.h>
 #include <thrust/system/cuda/detail/util.h>
 #include <thrust/system/cuda/execution_policy.h>
 #endif
 
 #include <raft/thrust_execution_policy.h>
+
 #include <thrust/fill.h>
 #include <thrust/reduce.h>
 
@@ -138,25 +140,24 @@ class vector_t {
 
   value_type nrm1() const
   {
-    return thrust::reduce(
-      thrust_policy,
-      buffer_.data(),
-      buffer_.data() + buffer_.size(),
-      value_type{0},
-      
-      #ifdef __HIP_PLATFORM_AMD__
-        [] __device__(auto left, auto right) -> value_type {
-          auto abs_left  = left > 0 ? left : -left;
-          auto abs_right = right > 0 ? right : -right;
-          return abs_left + abs_right;
-        });
-      #else
+    return thrust::reduce(thrust_policy,
+                          buffer_.data(),
+                          buffer_.data() + buffer_.size(),
+                          value_type{0},
+
+#ifdef __HIP_PLATFORM_AMD__
+                          [] __device__(auto left, auto right) -> value_type {
+                            auto abs_left  = left > 0 ? left : -left;
+                            auto abs_right = right > 0 ? right : -right;
+                            return abs_left + abs_right;
+                          });
+#else
         cuda::proclaim_return_type<value_type>([] __device__(auto left, auto right) {
         auto abs_left  = left > 0 ? left : -left;
         auto abs_right = right > 0 ? right : -right;
         return abs_left + abs_right;
       }));
-      #endif  
+#endif
   }
 
   void fill(value_type value)
@@ -165,9 +166,9 @@ class vector_t {
   }
 
  private:
-  using thrust_exec_policy_t =
-    thrust::detail::execute_with_allocator<rmm::mr::thrust_allocator<char>,
-                                           THRUST_CUDA_CUB_EXECUTE_ON_STREAM_NOSYNC_BASE::execute_on_stream_nosync_base>;                                      
+  using thrust_exec_policy_t = thrust::detail::execute_with_allocator<
+    rmm::mr::thrust_allocator<char>,
+    THRUST_CUDA_CUB_EXECUTE_ON_STREAM_NOSYNC_BASE::execute_on_stream_nosync_base>;
   rmm::device_uvector<value_type> buffer_;
   const thrust_exec_policy_t thrust_policy;
 };

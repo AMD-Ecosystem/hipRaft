@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
- /*
+/*
  * Modifications Copyright (c) 2025 Advanced Micro Devices, Inc.
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -466,11 +466,10 @@ TEST_P(MVGTestD, CovIsCorrectD)
 {
 #ifdef __HIP_PLATFORM_AMD__
   auto test_name = std::string(::testing::UnitTest::GetInstance()->current_test_info()->name());
-  if ( raft::host_warp_size(0) == 32 &&
-         (test_name == "CovIsCorrectD/2" ||
-          test_name == "CovIsCorrectD/4")
-     ) {
-    // TODO: Skipping test. See issue: https://github.com/AMD-AI/raft/issues/8. Investigate why this test fails on devices with warp size 32.
+  if (raft::host_warp_size(0) == 32 &&
+      (test_name == "CovIsCorrectD/2" || test_name == "CovIsCorrectD/4")) {
+    // TODO: Skipping test. See issue: https://github.com/AMD-AI/raft/issues/8. Investigate why this
+    // test fails on devices with warp size 32.
     GTEST_SKIP() << "Known failure\n";
   }
 #endif
@@ -517,11 +516,10 @@ TEST_P(MVGMdspanTestD, CovIsCorrectD)
 {
 #ifdef __HIP_PLATFORM_AMD__
   auto test_name = std::string(::testing::UnitTest::GetInstance()->current_test_info()->name());
-  if ( raft::host_warp_size(0) == 32 &&
-         (test_name == "CovIsCorrectD/2" ||
-          test_name == "CovIsCorrectD/4")
-     ) {
-    // TODO: Skipping test. See issue: https://github.com/AMD-AI/raft/issues/8. Investigate why this test fails on devices with warp size 32.
+  if (raft::host_warp_size(0) == 32 &&
+      (test_name == "CovIsCorrectD/2" || test_name == "CovIsCorrectD/4")) {
+    // TODO: Skipping test. See issue: https://github.com/AMD-AI/raft/issues/8. Investigate why this
+    // test fails on devices with warp size 32.
     GTEST_SKIP() << "Known failure\n";
   }
 #endif

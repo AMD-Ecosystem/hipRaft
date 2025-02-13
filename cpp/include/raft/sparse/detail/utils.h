@@ -15,7 +15,7 @@
  */
 
 /*
- * Modifications Copyright (c) 2024 Advanced Micro Devices, Inc.
+ * Modifications Copyright (c) 2024-2025 Advanced Micro Devices, Inc.
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -83,7 +83,7 @@ __device__ __inline__ unsigned int __match_any_sync(unsigned int init_mask, G ke
   do {
     // fetch key of first unclaimed lane and compare with this key
     is_peer = (key == __shfl_sync(mask, key, __FFS(mask - 1)));
-    
+
     // determine which lanes had a match
     peer_group = __ballot_sync(mask, is_peer);
 

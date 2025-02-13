@@ -9,6 +9,7 @@ ignore =
     W503,
     # whitespace before :
     E203
+    E231
 per-file-ignores =
     # Rules ignored only in Cython:
     # E211: whitespace before '(' (used in multi-line imports)

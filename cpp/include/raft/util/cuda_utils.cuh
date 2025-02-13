@@ -15,7 +15,7 @@
  */
 
 /*
- * Modifications Copyright (c) 2024 Advanced Micro Devices, Inc.
+ * Modifications Copyright (c) 2024-2025 Advanced Micro Devices, Inc.
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -33,18 +33,17 @@
  * THE SOFTWARE.
  */
 
-
 #pragma once
 
 #include <raft/core/cudart_utils.hpp>
 #include <raft/core/math.hpp>
 #include <raft/core/operators.hpp>
 
-
 #ifdef __HIP_PLATFORM_AMD__
 #include <raft/cuda_bf16.h>
-#include <hip/hip_fp16.h>
 #include <raft/math_constants.h>
+
+#include <hip/hip_fp16.h>
 #else
 #include <cuda_bf16.h>
 #include <cuda_fp16.h>

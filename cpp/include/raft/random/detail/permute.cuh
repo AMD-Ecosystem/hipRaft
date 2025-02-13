@@ -53,7 +53,7 @@ template <typename Type, typename IntType, typename IdxType, int TPB, bool rowMa
 RAFT_KERNEL permuteKernel(
   IntType* perms, Type* out, const Type* in, IdxType a, IdxType b, IdxType N, IdxType D)
 {
-  namespace cg        = cooperative_groups;
+  namespace cg                              = cooperative_groups;
   static __device__ constexpr int WARP_SIZE = raft::warp_size();
 
   int tid = threadIdx.x + blockIdx.x * blockDim.x;

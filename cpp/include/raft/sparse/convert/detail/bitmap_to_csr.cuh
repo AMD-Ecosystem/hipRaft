@@ -44,16 +44,17 @@
 #include <rmm/device_uvector.hpp>
 
 #ifdef __HIP_PLATFORM_AMD__
-#include <raft/core/resource/stream_view.hpp>
-#include <hip/hip_cooperative_groups.h>
-#include <raft/util/device_loads_stores_hip.cuh>
 #include <raft/amd_warp_primitives.h>
+#include <raft/core/resource/stream_view.hpp>
+#include <raft/util/device_loads_stores_hip.cuh>
+
+#include <hip/hip_cooperative_groups.h>
 #else
+#include <raft/util/device_loads_stores.cuh>
+
 #include <cooperative_groups.h>
 #include <cooperative_groups/reduce.h>
-#include <raft/util/device_loads_stores.cuh>
 #endif
-
 
 #include <thrust/copy.h>
 #include <thrust/functional.h>
@@ -69,7 +70,6 @@ namespace raft {
 namespace sparse {
 namespace convert {
 namespace detail {
-
 
 // Threads per block in bitmap_to_csr.
 static const constexpr int bitmap_to_csr_tpb = 256;

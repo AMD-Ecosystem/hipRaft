@@ -15,7 +15,7 @@
  */
 
 /*
- * Modifications Copyright (c) 2024 Advanced Micro Devices, Inc.
+ * Modifications Copyright (c) 2024-2025 Advanced Micro Devices, Inc.
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -51,7 +51,7 @@
 #include <algorithm>
 #ifndef __HIP_PLATFORM_AMD__
 // TODO(HIP/AMD): Is this header really required?
-// It does not compile since a recursively included TBB 
+// It does not compile since a recursively included TBB
 // header is missing. Building in the conda environment may fix this,
 // but right now, it seems that this header is not actively needed.
 #include <execution>

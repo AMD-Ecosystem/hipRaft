@@ -30,7 +30,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
- 
+
 #include "../test_utils.cuh"
 
 #include <raft/core/resource/cuda_stream.hpp>
@@ -156,7 +156,7 @@ const std::vector<DotInputs<double>> inputsd = {
 typedef DotTest<float> DotTestF;
 TEST_P(DotTestF, Result)
 {
-  if(std::string(::testing::UnitTest::GetInstance()->current_test_info()->name()) == "Result/1") {
+  if (std::string(::testing::UnitTest::GetInstance()->current_test_info()->name()) == "Result/1") {
     // See issue: https://github.com/AMD-AI/raft/issues/8
     GTEST_SKIP() << "Known failure\n";
   }

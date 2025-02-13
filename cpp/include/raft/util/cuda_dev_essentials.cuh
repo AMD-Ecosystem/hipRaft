@@ -36,8 +36,9 @@
 #pragma once
 
 #ifdef __HIP_PLATFORM_AMD__
-#include <rocprim/intrinsics/warp_shuffle.hpp>
 #include <raft/amd_warp_primitives.h>
+
+#include <rocprim/intrinsics/warp_shuffle.hpp>
 #else
 #include <cuda_fp16.h>
 #endif

@@ -127,7 +127,7 @@ const std::vector<MapReduceInputs<float>> inputsf = {{0.001f, 1024 * 1024, 1234U
 typedef MapReduceTest<float, float> MapReduceTestFF;
 TEST_P(MapReduceTestFF, Result)
 {
-  if(std::string(::testing::UnitTest::GetInstance()->current_test_info()->name()) == "Result/0") {
+  if (std::string(::testing::UnitTest::GetInstance()->current_test_info()->name()) == "Result/0") {
     // See issue: https://github.com/AMD-AI/raft/issues/8
     GTEST_SKIP() << "Known failure\n";
   }

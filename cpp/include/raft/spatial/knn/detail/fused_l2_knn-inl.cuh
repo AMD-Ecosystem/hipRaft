@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 /*
- * Modifications Copyright (c) 2024 Advanced Micro Devices, Inc.
+ * Modifications Copyright (c) 2024-2025 Advanced Micro Devices, Inc.
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -176,7 +176,7 @@ DI void updateSortedWarpQ(
   myWarpSelect& heapArr, Pair* allWarpTopKs, int rowId, int finalNumVals, int startId = 0)
 {
   constexpr bitmask_type mask = LANE_MASK_ALL;
-  const int lid           = raft::laneId();
+  const int lid               = raft::laneId();
   // calculate srcLane such that tid 0 -> 31, 1 -> 0,... 31 -> 30.
   // warp around 0 to 31 required for NN > 32
   const auto srcLane = (warpSize + (lid - 1)) & (warpSize - 1);
@@ -380,9 +380,9 @@ __launch_bounds__(Policy::Nthreads, 2) RAFT_KERNEL fusedL2kNN(const DataT* x,
       Pair* shDumpKV  = (Pair*)(&smem[smem_offset]);
 
       constexpr bitmask_type mask = LANE_MASK_ALL;
-      const IdxT starty       = gridStrideY + (threadIdx.x / Policy::AccThCols);
-      const IdxT startx       = gridStrideX + (threadIdx.x % Policy::AccThCols);
-      const int lid           = raft::laneId();
+      const IdxT starty           = gridStrideY + (threadIdx.x / Policy::AccThCols);
+      const IdxT startx           = gridStrideX + (threadIdx.x % Policy::AccThCols);
+      const int lid               = raft::laneId();
 
       myWarpSelect heapArr1(identity, keyMax, numOfNN);
       myWarpSelect heapArr2(identity, keyMax, numOfNN);

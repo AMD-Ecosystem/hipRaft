@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-  /*
- * Modifications Copyright (c) 2024 Advanced Micro Devices, Inc.
+/*
+ * Modifications Copyright (c) 2024-2025 Advanced Micro Devices, Inc.
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -41,6 +41,7 @@
 #include <raft/linalg/subtract.cuh>
 #include <raft/spatial/knn/knn.cuh>
 #include <raft/stats/mean.cuh>
+#include <raft/thrust_execution_policy.h>
 #include <raft/util/cudart_utils.hpp>
 
 #include <rmm/device_scalar.hpp>
@@ -48,7 +49,6 @@
 
 #include <thrust/count.h>
 #include <thrust/device_ptr.h>
-#include <raft/thrust_execution_policy.h>
 #include <thrust/reduce.h>
 
 #include <memory>
@@ -123,8 +123,8 @@ float accuracy_score(const math_t* predictions,
   // TODO could write a kernel instead
   raft::linalg::eltwiseSub(diffs_array.data(), predictions, ref_predictions, n, stream);
   RAFT_CUDA_TRY(cudaGetLastError());
-  correctly_predicted =
-    thrust::count(THRUST_EXECUTION_POLICY.on(stream), diffs_array.data(), diffs_array.data() + n, 0);
+  correctly_predicted = thrust::count(
+    THRUST_EXECUTION_POLICY.on(stream), diffs_array.data(), diffs_array.data() + n, 0);
 
   float accuracy = correctly_predicted * 1.0f / n;
   return accuracy;

@@ -15,7 +15,7 @@
  */
 
 /*
- * Modifications Copyright (c) 2024 Advanced Micro Devices, Inc.
+ * Modifications Copyright (c) 2024-2025 Advanced Micro Devices, Inc.
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -473,7 +473,7 @@ class ScaledBernoulliTest : public ::testing::Test {
  protected:
   void SetUp() override
   {
-    //TODO(HIP/AMD): Disabled due to range check issue. Please see internal issue 8
+    // TODO(HIP/AMD): Disabled due to range check issue. Please see internal issue 8
     GTEST_SKIP() << "Skipping test as currently not supported";
     RAFT_CUDA_TRY(cudaStreamCreate(&stream));
     RngState r(42);
@@ -482,7 +482,7 @@ class ScaledBernoulliTest : public ::testing::Test {
 
   void rangeCheck()
   {
-    //TODO(HIP/AMD): Disabled due to range check issue. Please see internal issue 8
+    // TODO(HIP/AMD): Disabled due to range check issue. Please see internal issue 8
     GTEST_SKIP() << "Skipping test as currently not supported";
     auto h_data = std::make_unique<T[]>(len);
     update_host(h_data.get(), data.data(), len, stream);
@@ -504,7 +504,7 @@ class ScaledBernoulliMdspanTest : public ::testing::Test {
  protected:
   void SetUp() override
   {
-    //TODO(HIP/AMD): Disabled due to range check issue. Please see internal issue 8
+    // TODO(HIP/AMD): Disabled due to range check issue. Please see internal issue 8
     GTEST_SKIP() << "Skipping test as currently not supported";
     RAFT_CUDA_TRY(cudaStreamCreate(&stream));
     RngState r(42);
@@ -515,7 +515,7 @@ class ScaledBernoulliMdspanTest : public ::testing::Test {
 
   void rangeCheck()
   {
-    //TODO(HIP/AMD): Disabled due to range check issue. Please see internal issue 8
+    // TODO(HIP/AMD): Disabled due to range check issue. Please see internal issue 8
     GTEST_SKIP() << "Skipping test as currently not supported";
     auto h_data = std::make_unique<T[]>(len);
     update_host(h_data.get(), data.data(), len, stream);

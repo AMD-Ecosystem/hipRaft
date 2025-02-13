@@ -75,9 +75,9 @@ RAFT contains state-of-the-art implementations of approximate nearest neighbors 
 
 * [Brute force](https://docs.rapids.ai/api/raft/nightly/pylibraft_api/neighbors/#brute-force). Performs a brute force nearest neighbors search without an index.
 * [IVF-Flat](https://docs.rapids.ai/api/raft/nightly/pylibraft_api/neighbors/#ivf-flat) and [IVF-PQ](https://docs.rapids.ai/api/raft/nightly/pylibraft_api/neighbors/#ivf-pq). Use an inverted file index structure to map contents to their locations. IVF-PQ additionally uses product quantization to reduce the memory usage of vectors. These methods were originally popularized by the [FAISS](https://github.com/facebookresearch/faiss) library.
-* [CAGRA](https://docs.rapids.ai/api/raft/nightly/pylibraft_api/neighbors/#cagra) (Cuda Anns GRAph-based). Uses a fast ANNS graph construction and search implementation optimized for the GPU. CAGRA outperforms state-of-the art CPU methods (i.e. HNSW) for large batch queries, single queries, and graph construction time. 
+* [CAGRA](https://docs.rapids.ai/api/raft/nightly/pylibraft_api/neighbors/#cagra) (Cuda Anns GRAph-based). Uses a fast ANNS graph construction and search implementation optimized for the GPU. CAGRA outperforms state-of-the art CPU methods (i.e. HNSW) for large batch queries, single queries, and graph construction time.
 
-Projects that use the RAFT ANNS algorithms for accelerating vector search include: [Milvus](https://milvus.io/), [Redis](https://redis.io/), and [Faiss](https://github.com/facebookresearch/faiss). 
+Projects that use the RAFT ANNS algorithms for accelerating vector search include: [Milvus](https://milvus.io/), [Redis](https://redis.io/), and [Faiss](https://github.com/facebookresearch/faiss).
 
 Please see the example [Jupyter notebook](https://github.com/rapidsai/raft/blob/HEAD/notebooks/VectorSearch_QuestionRetrieval.ipynb) to get started RAFT for vector search in Python.
 
@@ -94,8 +94,8 @@ RAFT contains a catalog of reusable primitives for composing algorithms that req
 
 ### Machine Learning
 
-RAFT's primitives are used in several RAPIDS libraries, including [cuML](https://github.com/rapidsai/cuml), [cuGraph](https://github.com/rapidsai/cugraph), and [cuOpt](https://github.com/rapidsai/cuopt) to build many end-to-end machine learning algorithms that span a large spectrum of different applications, including 
-- data generation 
+RAFT's primitives are used in several RAPIDS libraries, including [cuML](https://github.com/rapidsai/cuml), [cuGraph](https://github.com/rapidsai/cugraph), and [cuOpt](https://github.com/rapidsai/cuopt) to build many end-to-end machine learning algorithms that span a large spectrum of different applications, including
+- data generation
 - model evaluation
 - classification and regression
 - clustering
@@ -261,7 +261,7 @@ pairwise_distance(in1, in2, out=output, metric="euclidean")
 
 ## Installing
 
-RAFT's C++ and Python libraries can both be installed through Conda and the Python libraries through Pip. 
+RAFT's C++ and Python libraries can both be installed through Conda and the Python libraries through Pip.
 
 
 ### Installing C++ and Python through Conda

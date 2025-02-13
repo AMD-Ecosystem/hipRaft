@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
- /*
+/*
  * Modifications Copyright (c) 2024-2025 Advanced Micro Devices, Inc.
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -178,13 +178,13 @@ RAFT_KERNEL __launch_bounds__(BlockSize)
       __threadfence();
     }
     __syncthreads();
-    if (threadIdx.x == 0 && col < D) { 
-      #ifdef __HIP_PLATFORM_AMD__
-        __builtin_nontemporal_store(0, lock);
-      #else
-        __stwt(lock, 0);
-      #endif
-      }
+    if (threadIdx.x == 0 && col < D) {
+#ifdef __HIP_PLATFORM_AMD__
+      __builtin_nontemporal_store(0, lock);
+#else
+      __stwt(lock, 0);
+#endif
+    }
   }
 }
 

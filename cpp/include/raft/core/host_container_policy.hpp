@@ -22,7 +22,7 @@
  */
 
 /*
- * Modifications Copyright (c) 2024 Advanced Micro Devices, Inc.
+ * Modifications Copyright (c) 2024-2025 Advanced Micro Devices, Inc.
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -87,7 +87,7 @@ class host_vector_policy {
 // as it is matched against a template template
 // parameter which only accepts one nested template parameter
 // (and host_vector_policy has two parameters, although one is defaulted).
-// This is a workaround for a problem specific to clang for 
+// This is a workaround for a problem specific to clang for
 // which the compile option -frelaxed-template-template-args might
 // be used. Unfortunately, this compiler flag is not compatible
 // with rocthrust.

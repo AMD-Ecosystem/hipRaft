@@ -122,7 +122,8 @@ void map_call(rmm::cuda_stream_view stream, OutT* out_ptr, IdxT len, Func f, con
 {
   const IdxT len_vectorized = raft::div_rounding_up_safe<IdxT>(len, R);
   const int threads =
-    std::max<int>(raft::host_warp_size(stream), std::min<IdxT>(raft::bound_by_power_of_two<IdxT>(len_vectorized), 256));
+    std::max<int>(raft::host_warp_size(stream),
+                  std::min<IdxT>(raft::bound_by_power_of_two<IdxT>(len_vectorized), 256));
   const IdxT blocks = raft::div_rounding_up_unsafe<IdxT>(len_vectorized, threads);
   map_kernel<R, PassOffset><<<blocks, threads, 0, stream>>>(out_ptr, len, f, in_ptrs...);
 }

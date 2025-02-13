@@ -293,7 +293,7 @@ TEST_P(RsvdSanityCheckRightVecD, Result)
 typedef RsvdTest<float> RsvdTestSquareMatrixNormF;
 TEST_P(RsvdTestSquareMatrixNormF, Result)
 {
-  if(std::string(::testing::UnitTest::GetInstance()->current_test_info()->name()) == "Result/0") {
+  if (std::string(::testing::UnitTest::GetInstance()->current_test_info()->name()) == "Result/0") {
     // See issue: https://github.com/AMD-AI/raft/issues/8
     GTEST_SKIP() << "Known failure\n";
   }

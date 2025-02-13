@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 /*
- * Modifications Copyright (c) 2024 Advanced Micro Devices, Inc.
+ * Modifications Copyright (c) 2024-2025 Advanced Micro Devices, Inc.
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -272,7 +272,7 @@ struct LinewiseTest : public ::testing::TestWithParam<typename ParamsReader::Par
           matrix_size_padded = layout.required_span_size();
         } else {
           auto extents = matrix_extent<I>{n, m};
-          typename raft::layout_left_padded<T>::template  mapping<matrix_extent<I>> layout{extents};
+          typename raft::layout_left_padded<T>::template mapping<matrix_extent<I>> layout{extents};
           matrix_size_padded = layout.required_span_size();
         }
 

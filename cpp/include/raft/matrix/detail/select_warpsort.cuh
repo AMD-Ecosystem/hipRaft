@@ -141,8 +141,9 @@ _RAFT_DEVICE _RAFT_FORCEINLINE auto is_ordered(T left, T right) -> bool
 }  // namespace
 
 template <typename T>
-__device__ T __ldcs(const T* ptr) {
-    return *ptr;
+__device__ T __ldcs(const T* ptr)
+{
+  return *ptr;
 }
 
 /**
@@ -369,11 +370,11 @@ class warp_sort_filtered : public warp_sort<Capacity, Ascending, T, IdxT> {
   _RAFT_DEVICE _RAFT_FORCEINLINE void merge_buf_()
   {
     util::bitonic<kMaxBufLen>(!Ascending, kWarpWidth).sort(val_buf_, idx_buf_);
-    #ifdef __HIP_PLATFORM_AMD__
+#ifdef __HIP_PLATFORM_AMD__
     this->template merge_in<kMaxBufLen>(val_buf_, idx_buf_);
-    #else
+#else
     this->merge_in<kMaxBufLen>(val_buf_, idx_buf_);
-    #endif
+#endif
     buf_len_ = 0;
     set_k_th_();  // contains warp sync
 #pragma unroll
@@ -452,7 +453,9 @@ class warp_sort_distributed : public warp_sort<Capacity, Ascending, T, IdxT> {
     for (uint32_t i = std::min(n_valid, Pow2<WarpSize>::mod(uint32_t(laneId()) - buf_len_)); i > 0;
          i--) {
       src_ix = __FFS(mask) - 1;
-      mask ^= (static_cast<bitmask_type>(0x1u) << src_ix); // The cast to "bitmask_type" is to prevent unintentional overflow in case "bitmask_type" == uint64_t
+      mask ^= (static_cast<bitmask_type>(0x1u)
+               << src_ix);  // The cast to "bitmask_type" is to prevent unintentional overflow in
+                            // case "bitmask_type" == uint64_t
     }
     // now the least significant bit of the mask corresponds to the lane id we want to get.
     // for not-added (invalid) indices, the mask is zeroed by now.
@@ -498,11 +501,11 @@ class warp_sort_distributed : public warp_sort<Capacity, Ascending, T, IdxT> {
   _RAFT_DEVICE _RAFT_FORCEINLINE void merge_buf_()
   {
     util::bitonic<1>(!Ascending, kWarpWidth).sort(buf_val_, buf_idx_);
-    #ifdef __HIP_PLATFORM_AMD__
+#ifdef __HIP_PLATFORM_AMD__
     this->template merge_in<1>(&buf_val_, &buf_idx_);
-    #else
+#else
     this->merge_in<1>(&buf_val_, &buf_idx_);
-    #endif
+#endif
     set_k_th_();  // contains warp sync
     buf_val_ = kDummy;
   }
@@ -568,7 +571,11 @@ class warp_sort_distributed_ext : public warp_sort<Capacity, Ascending, T, IdxT>
     bitmask_type mask = ballot(do_add);
     if (mask == 0) { return; }
     // where to put the element in the tmp buffer
-    int dst_ix = buf_len_ + __POPC(mask & ((static_cast<bitmask_type>(1) << raft::laneId()) - static_cast<bitmask_type>(1))); // The cast to "bitmask_type" is to prevent unintentional overflow in case "bitmask_type" == uint64_t
+    int dst_ix =
+      buf_len_ + __POPC(mask & ((static_cast<bitmask_type>(1) << raft::laneId()) -
+                                static_cast<bitmask_type>(
+                                  1)));  // The cast to "bitmask_type" is to prevent unintentional
+                                         // overflow in case "bitmask_type" == uint64_t
     // put all elements, which fit into the current tmp buffer
     if (do_add && dst_ix < WarpSize) {
       val_buf_[dst_ix] = val;
@@ -614,11 +621,11 @@ class warp_sort_distributed_ext : public warp_sort<Capacity, Ascending, T, IdxT>
     IdxT buf_idx       = idx_buf_[laneId()];
     val_buf_[laneId()] = kDummy;
     util::bitonic<1>(!Ascending, kWarpWidth).sort(buf_val, buf_idx);
-    #ifdef __HIP_PLATFORM_AMD__
+#ifdef __HIP_PLATFORM_AMD__
     this->template merge_in<1>(&buf_val, &buf_idx);
-    #else
+#else
     this->merge_in<1>(&buf_val, &buf_idx);
-    #endif
+#endif
     set_k_th_();  // contains warp sync
   }
 
@@ -677,11 +684,11 @@ class warp_sort_immediate : public warp_sort<Capacity, Ascending, T, IdxT> {
     ++buf_len_;
     if (buf_len_ == kMaxArrLen) {
       util::bitonic<kMaxArrLen>(!Ascending, kWarpWidth).sort(val_buf_, idx_buf_);
-      #ifdef __HIP_PLATFORM_AMD__
+#ifdef __HIP_PLATFORM_AMD__
       this->template merge_in<kMaxArrLen>(val_buf_, idx_buf_);
-      #else
+#else
       this->merge_in<kMaxArrLen>(val_buf_, idx_buf_);
-      #endif
+#endif
 #pragma unroll
       for (int i = 0; i < kMaxArrLen; i++) {
         val_buf_[i] = kDummy;
@@ -694,12 +701,11 @@ class warp_sort_immediate : public warp_sort<Capacity, Ascending, T, IdxT> {
   {
     if (buf_len_ != 0) {
       util::bitonic<kMaxArrLen>(!Ascending, kWarpWidth).sort(val_buf_, idx_buf_);
-      #ifdef __HIP_PLATFORM_AMD__
+#ifdef __HIP_PLATFORM_AMD__
       this->template merge_in<kMaxArrLen>(val_buf_, idx_buf_);
-      #else
+#else
       this->merge_in<kMaxArrLen>(val_buf_, idx_buf_);
-      #endif
-
+#endif
     }
   }
 
@@ -1003,14 +1009,14 @@ void calc_launch_parameter(raft::resources const& res,
                            int* p_num_of_warp)
 {
   const int warp_size = raft::host_warp_size(raft::resource::get_stream_view(res).value());
-  const int capacity         = bound_by_power_of_two(k);
+  const int capacity  = bound_by_power_of_two(k);
   const int capacity_per_full_warp = std::max(capacity, warp_size);
   auto lps                         = calc_optimal_params<WarpSortClass, T, IdxT>(res, k);
   int block_size                   = lps.block_size;
   int min_grid_size                = lps.min_grid_size;
-  if (warp_size== 32) {
+  if (warp_size == 32) {
     block_size = Pow2<32>::roundDown(block_size);
-  } else if (warp_size== 64) {
+  } else if (warp_size == 64) {
     block_size = Pow2<64>::roundDown(block_size);
   } else {
     ASSERT(false, "Unexpected warp size");
@@ -1024,9 +1030,9 @@ void calc_launch_parameter(raft::resources const& res,
     int len_per_block = int(ceildiv<size_t>(len, num_of_block));
     int len_per_warp  = ceildiv(len_per_block, num_of_warp);
 
-    if (warp_size== 32) {
+    if (warp_size == 32) {
       len_per_warp = Pow2<32>::roundUp(len_per_warp);
-    } else if (warp_size== 64) {
+    } else if (warp_size == 64) {
       len_per_warp = Pow2<64>::roundUp(len_per_warp);
     } else {
       ASSERT(false, "Unexpected warp size");
@@ -1048,9 +1054,9 @@ void calc_launch_parameter(raft::resources const& res,
     auto adjust_block_size = [len, capacity_per_full_warp, warp_size](int bs) {
       int warps_per_block = bs / warp_size;
       int len_per_warp    = int(ceildiv<size_t>(len, warps_per_block));
-      if (warp_size== 32) {
+      if (warp_size == 32) {
         len_per_warp = Pow2<32>::roundUp(len_per_warp);
-      } else if (warp_size== 64) {
+      } else if (warp_size == 64) {
         len_per_warp = Pow2<64>::roundUp(len_per_warp);
       } else {
         ASSERT(false, "Unexpected warp size");

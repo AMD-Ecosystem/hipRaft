@@ -15,7 +15,7 @@
  */
 
 /*
- * Modifications Copyright (c) 2024 Advanced Micro Devices, Inc.
+ * Modifications Copyright (c) 2024-2025 Advanced Micro Devices, Inc.
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -67,12 +67,14 @@
 #ifdef __HIP_PLATFORM_AMD__
 #include <hipcub/hipcub.hpp>
 namespace cub = hipcub;
-#include <hip/hip_fp16.h>
 #include <raft/util/device_loads_stores_hip.cuh>
+
+#include <hip/hip_fp16.h>
 #else
+#include <raft/util/device_loads_stores.cuh>
+
 #include <cub/cub.cuh>
 #include <cuda_fp16.h>
-#include <raft/util/device_loads_stores.cuh>
 #endif
 
 #include <optional>

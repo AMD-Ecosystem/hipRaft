@@ -15,7 +15,7 @@
  */
 
 /*
- * Modifications Copyright (c) 2024 Advanced Micro Devices, Inc.
+ * Modifications Copyright (c) 2024-2025 Advanced Micro Devices, Inc.
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -623,8 +623,8 @@ inline cublasStatus_t cublasgetriBatched(  // NOLINT
   cudaStream_t stream)
 {
   RAFT_CUBLAS_TRY(cublasSetStream(handle, stream));
-  // FIXME(HIP/AMD): These casts are unsafe/potentially dangerous, but necessary, as hipBlas expects float* const A[]
-  // instead of const float* const A[] and int* instead of const int*
+  // FIXME(HIP/AMD): These casts are unsafe/potentially dangerous, but necessary, as hipBlas expects
+  // float* const A[] instead of const float* const A[] and int* instead of const int*
   float* const* A_cast = const_cast<float* const*>(A);
   return cublasSgetriBatched(handle, n, A_cast, lda, const_cast<int*>(P), C, ldc, info, batchSize);
 }
@@ -643,8 +643,8 @@ inline cublasStatus_t cublasgetriBatched(  // NOLINT
   cudaStream_t stream)
 {
   RAFT_CUBLAS_TRY(cublasSetStream(handle, stream));
-  // FIXME(HIP/AMD): These casts are unsafe/potentially dangerous, but necessary, as hipBlas expects float* const A[]
-  // instead of const float* const A[] and int* instead of const int*
+  // FIXME(HIP/AMD): These casts are unsafe/potentially dangerous, but necessary, as hipBlas expects
+  // float* const A[] instead of const float* const A[] and int* instead of const int*
   double* const* A_cast = const_cast<double* const*>(A);
   return cublasDgetriBatched(handle, n, A_cast, lda, const_cast<int*>(P), C, ldc, info, batchSize);
 }

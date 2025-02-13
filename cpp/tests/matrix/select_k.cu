@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 /*
- * Modifications Copyright (c) 2024 Advanced Micro Devices, Inc.
+ * Modifications Copyright (c) 2024-2025 Advanced Micro Devices, Inc.
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -122,9 +122,9 @@ INSTANTIATE_TEST_CASE_P(                          // NOLINT
                                    SelectAlgo::kRadix11bitsExtraPass,
                                    SelectAlgo::kWarpImmediate,
                                    SelectAlgo::kWarpFiltered)));
-                                   //TODO(HIP/AMD): Unsupported test. Please see internal issue 1x
-                                   //SelectAlgo::kWarpDistributed,
-                                   //SelectAlgo::kWarpDistributedShm)));
+// TODO(HIP/AMD): Unsupported test. Please see internal issue 1x
+// SelectAlgo::kWarpDistributed,
+// SelectAlgo::kWarpDistributedShm)));
 
 using ReferencedRandomDoubleSizeT =
   SelectK<double, int64_t, with_ref<SelectAlgo::kAuto>::params_random>;
@@ -138,16 +138,20 @@ INSTANTIATE_TEST_CASE_P(                             // NOLINT
                                    SelectAlgo::kRadix11bitsExtraPass,
                                    SelectAlgo::kWarpImmediate,
                                    SelectAlgo::kWarpFiltered)));
-                                   //TODO(HIP/AMD): Unsupported test. Please see internal issue 1x
-                                   //SelectAlgo::kWarpDistributed,
-                                   //SelectAlgo::kWarpDistributedShm)));
+// TODO(HIP/AMD): Unsupported test. Please see internal issue 1x
+// SelectAlgo::kWarpDistributed,
+// SelectAlgo::kWarpDistributedShm)));
 
 using ReferencedRandomDoubleInt =
   SelectK<double, uint32_t, with_ref<SelectAlgo::kRadix11bits>::params_random>;
-//TODO(HIP/AMD): Unsupported test. Please see internal issue 1x  
-TEST_P(ReferencedRandomDoubleInt, LargeSize) { GTEST_SKIP(); run(); }  // NOLINT
+// TODO(HIP/AMD): Unsupported test. Please see internal issue 1x
+TEST_P(ReferencedRandomDoubleInt, LargeSize)
+{
+  GTEST_SKIP();
+  run();
+}  // NOLINT
 
-INSTANTIATE_TEST_CASE_P(                                 // NOLINT
+INSTANTIATE_TEST_CASE_P(  // NOLINT
   SelectK,
   ReferencedRandomDoubleInt,
   testing::Combine(inputs_random_largesize,

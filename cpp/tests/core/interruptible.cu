@@ -15,7 +15,7 @@
  */
 
 /*
- * Modifications Copyright (c) 2024 Advanced Micro Devices, Inc.
+ * Modifications Copyright (c) 2024-2025 Advanced Micro Devices, Inc.
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -118,7 +118,7 @@ TEST(Raft, InterruptibleDelayedInit)
 
 TEST(Raft, InterruptibleOpenMP)
 {
-  //TODO(HIP/AMD): Disabled due to OpenMP. Please see internal issue 8
+  // TODO(HIP/AMD): Disabled due to OpenMP. Please see internal issue 8
   GTEST_SKIP() << "Skipping test as currently not supported";
   // number of threads must be smaller than max number of resident grids for GPU
   const int n_threads = 10;

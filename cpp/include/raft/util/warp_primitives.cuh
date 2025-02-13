@@ -37,8 +37,8 @@
 
 #include <raft/core/cudart_utils.hpp>
 #include <raft/core/operators.hpp>
-#include <raft/util/cuda_dev_essentials.cuh>
 #include <raft/util/bitwise_operations.hpp>
+#include <raft/util/cuda_dev_essentials.cuh>
 
 #ifdef __HIP_PLATFORM_AMD__
 using bitmask_type = uint64_t;
@@ -59,7 +59,6 @@ namespace raft {
  * \return the full mask: all bits are set to 1.
  */
 __device__ inline constexpr bitmask_type LANE_MASK_ALL = ~0;
-
 
 /** True CUDA alignment of a type (adapted from CUB) */
 template <typename T>
@@ -146,7 +145,7 @@ inline constexpr bool is_shuffleable_v = is_shuffleable<T>::value;
 template <typename T>
 DI std::enable_if_t<is_shuffleable_v<T>, T> shfl(T val,
                                                  int srcLane,
-                                                 int width     = WarpSize,
+                                                 int width         = WarpSize,
                                                  bitmask_type mask = LANE_MASK_ALL)
 {
 #if CUDART_VERSION >= 9000
@@ -160,7 +159,7 @@ DI std::enable_if_t<is_shuffleable_v<T>, T> shfl(T val,
 template <typename T>
 DI std::enable_if_t<!is_shuffleable_v<T>, T> shfl(T val,
                                                   int srcLane,
-                                                  int width     = WarpSize,
+                                                  int width         = WarpSize,
                                                   bitmask_type mask = LANE_MASK_ALL)
 {
   using UnitT =
@@ -199,7 +198,7 @@ DI std::enable_if_t<!is_shuffleable_v<T>, T> shfl(T val,
 template <typename T>
 DI std::enable_if_t<is_shuffleable_v<T>, T> shfl_up(T val,
                                                     int delta,
-                                                    int width     = WarpSize,
+                                                    int width         = WarpSize,
                                                     bitmask_type mask = LANE_MASK_ALL)
 {
 #if CUDART_VERSION >= 9000
@@ -213,7 +212,7 @@ DI std::enable_if_t<is_shuffleable_v<T>, T> shfl_up(T val,
 template <typename T>
 DI std::enable_if_t<!is_shuffleable_v<T>, T> shfl_up(T val,
                                                      int delta,
-                                                     int width     = WarpSize,
+                                                     int width         = WarpSize,
                                                      bitmask_type mask = LANE_MASK_ALL)
 {
   using UnitT =
@@ -252,7 +251,7 @@ DI std::enable_if_t<!is_shuffleable_v<T>, T> shfl_up(T val,
 template <typename T>
 DI std::enable_if_t<is_shuffleable_v<T>, T> shfl_xor(T val,
                                                      int laneMask,
-                                                     int width     = WarpSize,
+                                                     int width         = WarpSize,
                                                      bitmask_type mask = LANE_MASK_ALL)
 {
 #if CUDART_VERSION >= 9000
@@ -266,7 +265,7 @@ DI std::enable_if_t<is_shuffleable_v<T>, T> shfl_xor(T val,
 template <typename T>
 DI std::enable_if_t<!is_shuffleable_v<T>, T> shfl_xor(T val,
                                                       int laneMask,
-                                                      int width     = WarpSize,
+                                                      int width         = WarpSize,
                                                       bitmask_type mask = LANE_MASK_ALL)
 {
   using UnitT =

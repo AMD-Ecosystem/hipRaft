@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 /*
- * Modifications Copyright (c) 2024 Advanced Micro Devices, Inc.
+ * Modifications Copyright (c) 2024-2025 Advanced Micro Devices, Inc.
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -181,7 +181,9 @@ const std::vector<MakeRegressionInputs<double>> inputsd_t = {
 
 TEST_P(MakeRegressionTestD, Result)
 {
-  GTEST_SKIP() << "hipblasLtMatmul does not support HIP_R_64F. https://rocm.docs.amd.com/projects/hipBLASLt/en/docs-6.2.1/api-reference.html#hipblasltmatmul";
+  GTEST_SKIP() << "hipblasLtMatmul does not support HIP_R_64F. "
+                  "https://rocm.docs.amd.com/projects/hipBLASLt/en/docs-6.2.1/"
+                  "api-reference.html#hipblasltmatmul";
   ASSERT_TRUE(match(params.n_targets * (params.n_features - params.n_informative),
                     zero_count,
                     raft::Compare<int>()));
@@ -308,7 +310,9 @@ using MakeRegressionMdspanTestD = MakeRegressionTest<double>;
 
 TEST_P(MakeRegressionMdspanTestD, Result)
 {
-  GTEST_SKIP() << "hipblasLtMatmul does not support HIP_R_64F. https://rocm.docs.amd.com/projects/hipBLASLt/en/docs-6.2.1/api-reference.html#hipblasltmatmul";
+  GTEST_SKIP() << "hipblasLtMatmul does not support HIP_R_64F. "
+                  "https://rocm.docs.amd.com/projects/hipBLASLt/en/docs-6.2.1/"
+                  "api-reference.html#hipblasltmatmul";
   ASSERT_TRUE(match(params.n_targets * (params.n_features - params.n_informative),
                     zero_count,
                     raft::Compare<int>()));

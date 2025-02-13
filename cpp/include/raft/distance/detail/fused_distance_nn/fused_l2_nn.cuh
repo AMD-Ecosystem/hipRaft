@@ -15,7 +15,7 @@
  */
 
 /*
- * Modifications Copyright (c) 2024 Advanced Micro Devices, Inc.
+ * Modifications Copyright (c) 2024-2025 Advanced Micro Devices, Inc.
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -45,7 +45,7 @@
 #include <raft/util/cuda_utils.cuh>                         // raft::ceildiv, raft::shfl
 
 #ifdef __HIP_PLATFORM_AMD__
-//TODO(HIP/AMD): Add distance based dependency
+// TODO(HIP/AMD): Add distance based dependency
 #else
 #include <raft/distance/detail/fused_distance_nn/cutlass_base.cuh>
 #endif
@@ -109,15 +109,15 @@ void fusedL2NNImpl(OutT* min,
                                       decltype(distance_op),
                                       decltype(fin_op)>;
 
-  #ifdef __HIP_PLATFORM_AMD__
+#ifdef __HIP_PLATFORM_AMD__
   // NOTE(HIP/AMD): Invoking non cutlass based kernel
   constexpr size_t shmemSize = P::SmemSize + ((P::Mblk + P::Nblk) * sizeof(DataT));
-    dim3 grid                  = launchConfigGenerator<P>(m, n, shmemSize, kernel);
+  dim3 grid                  = launchConfigGenerator<P>(m, n, shmemSize, kernel);
 
-    kernel<<<grid, blk, shmemSize, stream>>>(
-      min, x, y, xn, yn, m, n, k, maxVal, workspace, redOp, pairRedOp, distance_op, fin_op);
-    RAFT_CUDA_TRY(cudaGetLastError());
-  #else
+  kernel<<<grid, blk, shmemSize, stream>>>(
+    min, x, y, xn, yn, m, n, k, maxVal, workspace, redOp, pairRedOp, distance_op, fin_op);
+  RAFT_CUDA_TRY(cudaGetLastError());
+#else
   // Get pointer to fp32 SIMT kernel to determine the best compute architecture
   // out of all for which the kernel was compiled for that matches closely
   // to the current device. Other methods to determine the architecture (that do not
@@ -171,7 +171,7 @@ void fusedL2NNImpl(OutT* min,
       min, x, y, xn, yn, m, n, k, maxVal, workspace, redOp, pairRedOp, distance_op, fin_op);
     RAFT_CUDA_TRY(cudaGetLastError());
   }
-  #endif
+#endif
 }
 
 }  // namespace detail

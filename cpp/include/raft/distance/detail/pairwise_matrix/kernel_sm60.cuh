@@ -15,7 +15,7 @@
  */
 
 /*
- * Modifications Copyright (c) 2024 Advanced Micro Devices, Inc.
+ * Modifications Copyright (c) 2024-2025 Advanced Micro Devices, Inc.
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -55,16 +55,16 @@ template <typename Policy,
 __launch_bounds__(Policy::Nthreads, 2) RAFT_KERNEL
   pairwise_matrix_kernel(OpT distance_op, pairwise_matrix_params<IdxT, DataT, OutT, FinOpT> params)
 {
-  #ifdef __HIP_PLATFORM_AMD__
-  // TODO(HIP/AMD): Add early exit call
-  #else
+#ifdef __HIP_PLATFORM_AMD__
+// TODO(HIP/AMD): Add early exit call
+#else
   // Early exit to minimize the size of the kernel when it is not supposed to be compiled.
   constexpr SM_compat_t sm_compat_range{};
   if constexpr (!sm_compat_range.contains(raft::util::arch::SM_compute_arch())) {
     assert(false);
     return;
   }
-  #endif
+#endif
 
   extern __shared__ char smem[];
 

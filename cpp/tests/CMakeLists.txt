@@ -82,8 +82,9 @@ function(ConfigureTest)
                CUDA_STANDARD_REQUIRED ON
   )
   target_compile_options(
-    ${TEST_NAME} PRIVATE "$<$<COMPILE_LANGUAGE:CXX>:${RAFT_CXX_FLAGS}>"
-                         "$<$<OR:$<COMPILE_LANGUAGE:CUDA>,$<COMPILE_LANGUAGE:HIP>>:${RAFT_GPU_FLAGS}>"
+    ${TEST_NAME}
+    PRIVATE "$<$<COMPILE_LANGUAGE:CXX>:${RAFT_CXX_FLAGS}>"
+            "$<$<OR:$<COMPILE_LANGUAGE:CUDA>,$<COMPILE_LANGUAGE:HIP>>:${RAFT_GPU_FLAGS}>"
   )
   if(_RAFT_TEST_EXPLICIT_INSTANTIATE_ONLY)
     target_compile_definitions(${TEST_NAME} PRIVATE "RAFT_EXPLICIT_INSTANTIATE_ONLY")
@@ -107,16 +108,14 @@ endfunction()
 # test sources ##################################################################################
 # ##################################################################################################
 
-
-# BUILD_TESTS are tests that are working with hipification
-# BUILD_TEST_SUITE is the original test suite
+# BUILD_TESTS are tests that are working with hipification BUILD_TEST_SUITE is the original test
+# suite
 if(BUILD_TESTS)
 
   if(NOT CUDA_BACKEND)
     file(GLOB CUDA_TEST_SOURCES */*.cu */*/*.cu)
     set_source_files_properties(${CUDA_TEST_SOURCES} PROPERTIES LANGUAGE HIP)
   endif()
-
 
   ConfigureTest(
     NAME
@@ -151,7 +150,6 @@ if(BUILD_TESTS)
     EXPLICIT_INSTANTIATE_ONLY
   )
 
-
   ConfigureTest(
     NAME
     SPARSE_TEST
@@ -176,45 +174,45 @@ if(BUILD_TESTS)
     sparse/symmetrize.cu
   )
 
-    ConfigureTest(
-      NAME
-      LINALG_TEST
-      PATH
-      linalg/add.cu
-      linalg/axpy.cu
-      linalg/binary_op.cu
-      linalg/cholesky_r1.cu
-      linalg/coalesced_reduction.cu
-      linalg/divide.cu
-      linalg/dot.cu
-      linalg/eig.cu
-      linalg/eig_sel.cu
-      linalg/gemm_layout.cu
-      linalg/gemv.cu
-      linalg/map.cu
-      linalg/map_then_reduce.cu
-      linalg/matrix_vector.cu
-      linalg/matrix_vector_op.cu
-      linalg/mean_squared_error.cu
-      linalg/multiply.cu
-      linalg/norm.cu
-      linalg/normalize.cu
-      linalg/power.cu
-      #linalg/randomized_svd.cu
-      linalg/reduce.cu
-      linalg/reduce_cols_by_key.cu
-      linalg/reduce_rows_by_key.cu
-      linalg/rsvd.cu
-      linalg/sqrt.cu
-      linalg/strided_reduction.cu
-      linalg/subtract.cu
-      linalg/svd.cu
-      linalg/ternary_op.cu
-      linalg/transpose.cu
-      linalg/unary_op.cu
-    )
+  ConfigureTest(
+    NAME
+    LINALG_TEST
+    PATH
+    linalg/add.cu
+    linalg/axpy.cu
+    linalg/binary_op.cu
+    linalg/cholesky_r1.cu
+    linalg/coalesced_reduction.cu
+    linalg/divide.cu
+    linalg/dot.cu
+    linalg/eig.cu
+    linalg/eig_sel.cu
+    linalg/gemm_layout.cu
+    linalg/gemv.cu
+    linalg/map.cu
+    linalg/map_then_reduce.cu
+    linalg/matrix_vector.cu
+    linalg/matrix_vector_op.cu
+    linalg/mean_squared_error.cu
+    linalg/multiply.cu
+    linalg/norm.cu
+    linalg/normalize.cu
+    linalg/power.cu
+    # linalg/randomized_svd.cu
+    linalg/reduce.cu
+    linalg/reduce_cols_by_key.cu
+    linalg/reduce_rows_by_key.cu
+    linalg/rsvd.cu
+    linalg/sqrt.cu
+    linalg/strided_reduction.cu
+    linalg/subtract.cu
+    linalg/svd.cu
+    linalg/ternary_op.cu
+    linalg/transpose.cu
+    linalg/unary_op.cu
+  )
 
-   ConfigureTest(
+  ConfigureTest(
     NAME
     RANDOM_TEST
     PATH
@@ -229,26 +227,23 @@ if(BUILD_TESTS)
     random/excess_sampling.cu
     random/make_regression.cu
     random/multi_variable_gaussian.cu
-   )
+  )
+
+  ConfigureTest(NAME SOLVERS_TEST PATH lap/lap.cu sparse/mst.cu LIB EXPLICIT_INSTANTIATE_ONLY)
 
   ConfigureTest(
-    NAME SOLVERS_TEST PATH
-    lap/lap.cu sparse/mst.cu LIB EXPLICIT_INSTANTIATE_ONLY
-   )
-
-   ConfigureTest(
     NAME
     STATS_TEST
     PATH
-    #stats/accuracy.cu
+    # stats/accuracy.cu
     stats/adjusted_rand_index.cu
-    #stats/completeness_score.cu
+    # stats/completeness_score.cu
     stats/contingencyMatrix.cu
     stats/cov.cu
     stats/dispersion.cu
-    #stats/entropy.cu
+    # stats/entropy.cu
     stats/histogram.cu
-    #stats/homogeneity_score.cu
+    # stats/homogeneity_score.cu
     stats/information_criterion.cu
     stats/kl_divergence.cu
     stats/mean.cu
@@ -256,16 +251,14 @@ if(BUILD_TESTS)
     stats/mean_center.cu
     stats/minmax.cu
     stats/mutual_info_score.cu
-    #stats/neighborhood_recall.cu
-    #stats/r2_score.cu
+    # stats/neighborhood_recall.cu stats/r2_score.cu
     stats/rand_index.cu
-    #stats/regression_metrics.cu
-    #stats/silhouette_score.cu
+    # stats/regression_metrics.cu stats/silhouette_score.cu
     stats/stddev.cu
     stats/sum.cu
-    #stats/trustworthiness.cu
+    # stats/trustworthiness.cu
     stats/weighted_mean.cu
-    #stats/v_measure.cu
+    # stats/v_measure.cu
     LIB
     EXPLICIT_INSTANTIATE_ONLY
   )
@@ -296,9 +289,7 @@ if(BUILD_TESTS)
 
   ConfigureTest(NAME MATRIX_SELECT_TEST PATH matrix/select_k.cu)
 
-  ConfigureTest(
-    NAME MATRIX_SELECT_LARGE_TEST PATH matrix/select_large_k.cu
-  )
+  ConfigureTest(NAME MATRIX_SELECT_LARGE_TEST PATH matrix/select_large_k.cu)
 
   ConfigureTest(
     NAME

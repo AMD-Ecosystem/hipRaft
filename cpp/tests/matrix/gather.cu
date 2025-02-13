@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 /*
- * Modifications Copyright (c) 2024 Advanced Micro Devices, Inc.
+ * Modifications Copyright (c) 2024-2025 Advanced Micro Devices, Inc.
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -121,19 +121,18 @@ class GatherTest : public ::testing::TestWithParam<GatherInputs<IdxT>> {
     const ::testing::TestInfo* test_info = ::testing::UnitTest::GetInstance()->current_test_info();
 
     // Get the test name and test suite name
-    std::string test_name = test_info->name();
+    std::string test_name  = test_info->name();
     std::string suite_name = test_info->test_suite_name();
 
-    if(("GatherTests/GatherIfTestFU32I32" == suite_name ) ||
-      ("GatherTests/GatherIfTransformTestFU32I32" == suite_name ) ||
-      ("GatherTests/GatherIfTransformTestDU32I32" == suite_name ) ||
-      ("GatherTests/GatherIfTransformTestFU32I64" == suite_name ) ||
-      ("GatherTests/GatherIfTransformTestFI64I64" == suite_name ))
-    {
-      //TODO(HIP/AMD): Unsupported test. Please see internal issue 1x
+    if (("GatherTests/GatherIfTestFU32I32" == suite_name) ||
+        ("GatherTests/GatherIfTransformTestFU32I32" == suite_name) ||
+        ("GatherTests/GatherIfTransformTestDU32I32" == suite_name) ||
+        ("GatherTests/GatherIfTransformTestFU32I64" == suite_name) ||
+        ("GatherTests/GatherIfTransformTestFI64I64" == suite_name)) {
+      // TODO(HIP/AMD): Unsupported test. Please see internal issue 1x
       GTEST_SKIP() << "Skipping test as currently not supported";
     }
-    
+
     raft::random::RngState r(params.seed);
     raft::random::RngState r_int(params.seed);
 

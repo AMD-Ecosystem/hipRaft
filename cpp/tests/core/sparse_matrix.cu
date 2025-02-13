@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 /*
- * Modifications Copyright (c) 2024 Advanced Micro Devices, Inc.
+ * Modifications Copyright (c) 2024-2025 Advanced Micro Devices, Inc.
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -102,7 +102,8 @@ void test_device_coo_matrix()
 
   sparsity_owning.initialize_sparsity(3);
 
-  auto structure_view = sparsity_owning.structure_view(); // Can only create a view once sparsity has been set.
+  auto structure_view =
+    sparsity_owning.structure_view();  // Can only create a view once sparsity has been set.
 
   ASSERT_EQ(structure_view.get_n_cols(), 5);
   ASSERT_EQ(structure_view.get_n_rows(), 5);

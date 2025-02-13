@@ -80,16 +80,17 @@
 #include <raft/spectral/matrix_wrappers.hpp>
 #include <raft/util/cudart_utils.hpp>
 
-
 #ifdef __HIP_PLATFORM_AMD__
-#include <raft/curand.h>
 #include <raft/cuda_runtime.h>
+#include <raft/curand.h>
 #include <raft/spectral/detail/lapack_hip.hpp>
 #else
+#include <raft/spectral/detail/lapack.hpp>
+
+#include <cuda.h>
+
 #include <cublasLt.h>
 #include <curand.h>
-#include <cuda.h>
-#include <raft/spectral/detail/lapack.hpp>
 #endif
 #include <cusparse.h>
 #include <sys/types.h>

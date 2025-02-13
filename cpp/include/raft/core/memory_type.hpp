@@ -15,7 +15,7 @@
  */
 
 /*
- * Modifications Copyright (c) 2024 Advanced Micro Devices, Inc.
+ * Modifications Copyright (c) 2024-2025 Advanced Micro Devices, Inc.
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -115,11 +115,9 @@ auto memory_type_from_pointer(T* ptr)
 // Special treatment of nullptr on HIP/AMD:
 // In contrast to cuda, hipPointerGetAttributes
 // currently (ROCm 6.1.2) fails if a nullptr is passed on the host.
-// We mimick CUDA's behavior by returning memory_type::host.
+// We mimic CUDA's behavior by returning memory_type::host.
 #ifdef __HIP_PLATFORM_AMD__
-  if(!ptr) {
-    return result;
-  }
+  if (!ptr) { return result; }
 #endif
 
   auto attrs = cudaPointerAttributes{};

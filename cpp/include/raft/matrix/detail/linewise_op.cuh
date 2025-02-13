@@ -587,12 +587,12 @@ void matrixLinewiseVecCols(Type* out,
   if (alignedLen < totalLen) {
     // should be not smaller than the warp size for better branching
     int const warp_size = raft::host_warp_size(stream);
-    if (warp_size== 32) {
+    if (warp_size == 32) {
       constexpr std::size_t MaxOffset32 = std::max(static_cast<std::size_t>(32), VecBytes);
       matrixLinewiseVecColsTailKernel<Type, IdxType, MaxOffset32, Lambda, Vecs...>
         <<<dim3(2, 1, 1), dim3(MaxOffset32, 1, 1), 0, stream>>>(
           out, in, alignedOff, alignedEnd, rowLen, totalLen, op, vecs...);
-    } else if (warp_size== 64) {
+    } else if (warp_size == 64) {
       constexpr std::size_t MaxOffset64 = std::max(static_cast<std::size_t>(64), VecBytes);
       matrixLinewiseVecColsTailKernel<Type, IdxType, MaxOffset64, Lambda, Vecs...>
         <<<dim3(2, 1, 1), dim3(MaxOffset64, 1, 1), 0, stream>>>(

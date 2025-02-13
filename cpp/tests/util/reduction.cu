@@ -187,10 +187,12 @@ class ReductionTest : public testing::TestWithParam<std::vector<int>> {  // NOLI
     reduction_launch::run(arr_d, 158, raft::add_op{}, stream);
     reduction_launch::run_ranked(arr_d, 5, 15, raft::max_op{}, stream);
     reduction_launch::run_ranked(arr_d, 0, 26, raft::min_op{}, stream);
-    // value 15 is for the current state of PCgenerator on CUDA, 3 on HIP (there is also a difference in warp sizes that affects the reduction). adjust this if rng changes
-    // 15 is the expected value for the current state of PCgenerator on CUDA, 3 on HIP when warp size is 64 otherwise 15
+    // value 15 is for the current state of PCgenerator on CUDA, 3 on HIP (there is also a
+    // difference in warp sizes that affects the reduction). adjust this if rng changes 15 is the
+    // expected value for the current state of PCgenerator on CUDA, 3 on HIP when warp size is 64
+    // otherwise 15
     int expected;
-    #ifdef __HIP_PLATFORM_AMD__
+#ifdef __HIP_PLATFORM_AMD__
     int device{};
     static_cast<void>(hipGetDevice(&device));
     if (raft::host_warp_size(device) == 64) {
@@ -198,9 +200,9 @@ class ReductionTest : public testing::TestWithParam<std::vector<int>> {  // NOLI
     } else {
       expected = 15;
     }
-    #else
+#else
     expected = 15;
-    #endif
+#endif
     reduction_launch::run_random_sample(arr_d, expected, stream);
   }
 

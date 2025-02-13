@@ -15,7 +15,7 @@
  */
 
 /*
- * Modifications Copyright (c) 2024 Advanced Micro Devices, Inc.
+ * Modifications Copyright (c) 2024-2025 Advanced Micro Devices, Inc.
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -45,8 +45,9 @@ namespace cub = hipcub;
 #include <cub/cub.cuh>
 #endif
 
-#include <thrust/device_ptr.h>
 #include <raft/thrust_execution_policy.h>
+
+#include <thrust/device_ptr.h>
 #include <thrust/extrema.h>
 #include <thrust/reduce.h>
 
@@ -89,8 +90,8 @@ void computeCMatWAtomics(const T* groundTruth,
                          int outDimN,
                          cudaStream_t stream)
 {
-  RAFT_CUDA_TRY(
-    cudaFuncSetCacheConfig(reinterpret_cast<const void*>(devConstructContingencyMatrix<T, OutT>), cudaFuncCachePreferL1));
+  RAFT_CUDA_TRY(cudaFuncSetCacheConfig(
+    reinterpret_cast<const void*>(devConstructContingencyMatrix<T, OutT>), cudaFuncCachePreferL1));
   static const int block = 128;
   auto grid              = raft::ceildiv(nSamples, block);
   devConstructContingencyMatrix<T, OutT><<<grid, block, 0, stream>>>(

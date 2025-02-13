@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 /*
- * Modifications Copyright (c) 2024 Advanced Micro Devices, Inc.
+ * Modifications Copyright (c) 2024-2025 Advanced Micro Devices, Inc.
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -90,7 +90,7 @@ class ColumnSort : public ::testing::TestWithParam<columnSort<T>> {
 
   void SetUp() override
   {
-    //TODO(HIP/AMD): Unsupported test. Please see internal issue 1x
+    // TODO(HIP/AMD): Unsupported test. Please see internal issue 1x
     GTEST_SKIP() << "Skipping test as currently not supported";
     params  = ::testing::TestWithParam<columnSort<T>>::GetParam();
     int len = params.n_row * params.n_col;

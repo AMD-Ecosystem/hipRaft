@@ -14,24 +14,27 @@
  * limitations under the License.
  */
 
-/*
- * Modifications Copyright (c) 2024 Advanced Micro Devices, Inc.
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- */
+// MIT License
+//
+// Copyright (c) 2024-2025 Advanced Micro Devices, Inc.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 
 #pragma once
 #include <raft/core/error.hpp>
@@ -40,7 +43,6 @@
 #include <raft/linalg/detail/cusolver_wrappers.hpp>
 
 #include <cblas.h>
-
 
 namespace raft {
 
@@ -115,24 +117,30 @@ extern "C" int sgeev_(char* jobvl,
                       int* lwork,
                       int* info);
 
-//TODO(HIP/AMD): Replace function call with hipsolver call when available: Please see internal issue 22
+// TODO(HIP/AMD): Replace function call with hipsolver call when available: Please see internal
+// issue 22
 extern "C" {
-    void ssterf_(int* n, float* d, float* e, int* info);
-}                      
-
-//TODO(HIP/AMD): Replace function call with hipsolver call when available: Please see internal issue 22
-extern "C" {
-    void dsterf_(int* n, double* d, double* e, int* info);
+void ssterf_(int* n, float* d, float* e, int* info);
 }
 
-//TODO(HIP/AMD): Replace function call with hipsolver call when available: Please see internal issue 22
+// TODO(HIP/AMD): Replace function call with hipsolver call when available: Please see internal
+// issue 22
 extern "C" {
-    void ssteqr_(const char* compz, int* n, float* d, float* e, float* z, int* ldz, float* work, int* info);
+void dsterf_(int* n, double* d, double* e, int* info);
 }
 
-//TODO(HIP/AMD): Replace function call with hipsolver call when available: Please see internal issue 22
+// TODO(HIP/AMD): Replace function call with hipsolver call when available: Please see internal
+// issue 22
 extern "C" {
-    void dsteqr_(const char* compz, int* n, double* d, double* e, double* z, int* ldz, double* work, int* info);
+void ssteqr_(
+  const char* compz, int* n, float* d, float* e, float* z, int* ldz, float* work, int* info);
+}
+
+// TODO(HIP/AMD): Replace function call with hipsolver call when available: Please see internal
+// issue 22
+extern "C" {
+void dsteqr_(
+  const char* compz, int* n, double* d, double* e, double* z, int* ldz, double* work, int* info);
 }
 
 template <typename T>
@@ -210,7 +218,8 @@ class Lapack {
     CBLAS_TRANSPOSE cblas_transa = (transa == CUBLAS_OP_N) ? CblasNoTrans : CblasTrans;
     CBLAS_TRANSPOSE cblas_transb = (transb == CUBLAS_OP_N) ? CblasNoTrans : CblasTrans;
 
-    //TODO(HIP/AMD): Replace function call with hipsolver call when available: Please see internal issue 22
+    // TODO(HIP/AMD): Replace function call with hipsolver call when available: Please see internal
+    // issue 22
     cblas_sgemm(CblasColMajor,
                 cblas_transa,
                 cblas_transb,
@@ -244,20 +253,27 @@ class Lapack {
     CBLAS_TRANSPOSE cblas_transa = (transa == CUBLAS_OP_N) ? CblasNoTrans : CblasTrans;
     CBLAS_TRANSPOSE cblas_transb = (transb == CUBLAS_OP_N) ? CblasNoTrans : CblasTrans;
 
-    //TODO(HIP/AMD): Replace function call with hipsolver call when available: Please see internal issue 22
-    cblas_dgemm(
-      CblasColMajor, cblas_transa, cblas_transa, m, n, k, alpha, (double*)a, lda, (double*)b, ldb, beta, c, ldc);
+    // TODO(HIP/AMD): Replace function call with hipsolver call when available: Please see internal
+    // issue 22
+    cblas_dgemm(CblasColMajor,
+                cblas_transa,
+                cblas_transa,
+                m,
+                n,
+                k,
+                alpha,
+                (double*)a,
+                lda,
+                (double*)b,
+                ldb,
+                beta,
+                c,
+                ldc);
   }
 
-  static void lapack_sterf(int n, float* d, float* e, int* info)
-  {
-    ssterf_(&n, d, e, info);
-  }
+  static void lapack_sterf(int n, float* d, float* e, int* info) { ssterf_(&n, d, e, info); }
 
-  static void lapack_sterf(int n, double* d, double* e, int* info)
-  {
-     dsterf_(&n, d, e, info);
-  }
+  static void lapack_sterf(int n, double* d, double* e, int* info) { dsterf_(&n, d, e, info); }
 
   static void lapack_steqr(
     const char compz, int n, float* d, float* e, float* z, int ldz, float* work, int* info)
@@ -265,14 +281,8 @@ class Lapack {
     ssteqr_(&compz, &n, d, e, z, &ldz, work, info);
   }
 
-  static void lapack_steqr(const char compz,
-                           int n,
-                           double* d,
-                           double* e,
-                           double* z,
-                           int ldz,
-                           double* work,
-                           int* info)
+  static void lapack_steqr(
+    const char compz, int n, double* d, double* e, double* z, int ldz, double* work, int* info)
   {
     dsteqr_(&compz, &n, d, e, z, &ldz, work, info);
   }
