@@ -1,5 +1,5 @@
 # =============================================================================
-# Copyright (c) 2022-2023, NVIDIA CORPORATION.
+# Copyright (c) 2022-2024, NVIDIA CORPORATION.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
 # in compliance with the License. You may obtain a copy of the License at
@@ -37,7 +37,13 @@ function(find_and_configure_cccl)
   else()
     # TODO(HIP/AMD): simply further when CCCL is available on AMD and configurable in
     # rapids-cmake
-    add_library(CCCL::CCCL INTERFACE IMPORTED GLOBAL)   
+    add_library(CCCL INTERFACE) # Dummy interface library
+    add_library(CCCL::CCCL ALIAS CCCL)
+    install(
+      TARGETS CCCL
+      DESTINATION ${lib_dir}
+      EXPORT raft-exports
+    )
 
     include(${rapids-cmake-dir}/cpm/rocthrust.cmake)
     rapids_cpm_rocthrust(BUILD_EXPORT_SET raft-exports INSTALL_EXPORT_SET raft-exports)
