@@ -11,21 +11,17 @@
 # or implied. See the License for the specific language governing permissions and limitations under
 # the License.
 
-# Modifications Copyright (c) 2024 Advanced Micro Devices, Inc.
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# Modifications Copyright (c) 2024 Advanced Micro Devices, Inc. Permission is hereby granted, free
+# of charge, to any person obtaining a copy of this software and associated documentation files (the
+# "Software"), to deal in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
+# and to permit persons to whom the Software is furnished to do so, subject to the following
+# conditions: The above copyright notice and this permission notice shall be included in all copies
+# or substantial portions of the Software. THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+# KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+# FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+# BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+# OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
 cmake_minimum_required(VERSION 3.26.4 FATAL_ERROR)
@@ -222,13 +218,22 @@ endif()
 # add third party dependencies using CPM
 rapids_cpm_init()
 
-include(${rapids-cmake-dir}/cpm/rapids_logger.cmake)
-rapids_cpm_rapids_logger(BUILD_EXPORT_SET raft-exports INSTALL_EXPORT_SET raft-exports)
+include(${rapids-cmake-dir}/cpm/rocmds_logger.cmake)
+rapids_cpm_rocmds_logger(BUILD_EXPORT_SET raft-exports INSTALL_EXPORT_SET raft-exports)
 create_logger_macros(RAFT "raft::default_logger()" include/raft/core)
+
+if(TARGET spdlog_header_only)
+  install(TARGETS spdlog_header_only EXPORT rmm-exports)
+else()
+  message(
+    FATAL_ERROR
+      "Target spdlog_header_only not found. This must be added to the rmm-export list until rmm has been
+                       updated to use the new rocmds-logger"
+  )
+endif()
 
 # CCCL before rmm/cuco so we get the right version of CCCL
 include(cmake/thirdparty/get_cccl.cmake)
-
 
 if(CUDA_BACKEND)
   include(${rapids-cmake-dir}/cpm/cuco.cmake)
@@ -238,12 +243,11 @@ else()
   rapids_cpm_hipco(BUILD_EXPORT_SET raft-exports INSTALL_EXPORT_SET raft-exports)
 endif()
 
-# FIXME(HIP/AMD): the original ordering of getting RMM before hipCo leads to a CMake
-# configuration error where roc::rocprim target is not defined, but target roc::rocprim_hip
-# is defined. This makes CMake configuration of rocprim fail. Further investigation tbd.
+# FIXME(HIP/AMD): the original ordering of getting RMM before hipCo leads to a CMake configuration
+# error where roc::rocprim target is not defined, but target roc::rocprim_hip is defined. This makes
+# CMake configuration of rocprim fail. Further investigation tbd.
 include(cmake/thirdparty/get_rmm.cmake)
-#include(cmake/thirdparty/get_cutlass.cmake)
-
+# include(cmake/thirdparty/get_cutlass.cmake)
 
 if(BUILD_TESTS)
   include(${rapids-cmake-dir}/cpm/gtest.cmake)
@@ -266,10 +270,9 @@ target_include_directories(
 )
 
 # Keep RAFT as lightweight as possible. Only CUDA libs and rmm should be used in global target.
-# TODO(HIP/AMD): re-add cutlass when it is available on AMD
-# target_link_libraries(raft INTERFACE rmm::rmm cuco::cuco nvidia::cutlass::cutlass CCCL::CCCL)
-target_link_libraries(
-  raft INTERFACE rapids_logger::rapids_logger rmm::rmm cuco::cuco CCCL::CCCL)
+# TODO(HIP/AMD): re-add cutlass when it is available on AMD target_link_libraries(raft INTERFACE
+# rmm::rmm cuco::cuco nvidia::cutlass::cutlass CCCL::CCCL)
+target_link_libraries(raft INTERFACE rapids_logger::rapids_logger rmm::rmm cuco::cuco CCCL::CCCL)
 
 target_compile_features(raft INTERFACE cxx_std_17 $<BUILD_INTERFACE:cuda_std_17>)
 target_compile_options(
@@ -280,7 +283,7 @@ target_compile_definitions(
   raft INTERFACE "RAFT_LOG_ACTIVE_LEVEL=RAPIDS_LOGGER_LOG_LEVEL_${LIBRAFT_LOGGING_LEVEL}"
 )
 
-if (CUDA_BACKEND)
+if(CUDA_BACKEND)
   set(RAFT_CUSOLVER_DEPENDENCY CUDA::cusolver${_ctk_static_suffix})
   set(RAFT_CUBLAS_DEPENDENCY CUDA::cublas${_ctk_static_suffix})
   set(RAFT_CURAND_DEPENDENCY CUDA::curand${_ctk_static_suffix})
@@ -291,7 +294,7 @@ else()
   find_package(hipblaslt CONFIG PATHS "/opt/rocm/")
   find_package(hiprand CONFIG PATHS "/opt/rocm/")
   find_package(hipsparse CONFIG PATHS "/opt/rocm/")
-  #NOTE(HIP/AMD): BLAS and LAPACK are needed for lapack_hip.hpp
+  # NOTE(HIP/AMD): BLAS and LAPACK are needed for lapack_hip.hpp
   find_package(BLAS REQUIRED)
   find_package(LAPACK REQUIRED)
 
@@ -304,10 +307,14 @@ else()
   set(RAFT_LAPACK_DEPENDENCY ${LAPACK_LIBRARIES}${_ctk_static_suffix})
 endif()
 
-
-set(RAFT_CTK_MATH_DEPENDENCIES ${RAFT_CUBLAS_DEPENDENCY}  ${RAFT_CUBLASLT_DEPENDENCY}
-                               ${RAFT_CUSOLVER_DEPENDENCY} ${RAFT_CUSPARSE_DEPENDENCY}
-                               ${RAFT_CURAND_DEPENDENCY} ${RAFT_BLAS_DEPENDENCY} ${RAFT_LAPACK_DEPENDENCY}
+set(RAFT_CTK_MATH_DEPENDENCIES
+    ${RAFT_CUBLAS_DEPENDENCY}
+    ${RAFT_CUBLASLT_DEPENDENCY}
+    ${RAFT_CUSOLVER_DEPENDENCY}
+    ${RAFT_CUSPARSE_DEPENDENCY}
+    ${RAFT_CURAND_DEPENDENCY}
+    ${RAFT_BLAS_DEPENDENCY}
+    ${RAFT_LAPACK_DEPENDENCY}
 )
 
 # Endian detection
@@ -337,7 +344,7 @@ endif()
 
 if(RAFT_NVTX)
   # This enables NVTX within the project with no option to disable it downstream.
-  if (CUDA_BACKEND)
+  if(CUDA_BACKEND)
     target_link_libraries(raft INTERFACE CUDA::nvtx3)
   else()
     target_link_libraries(raft INTERFACE roctx64)
@@ -375,7 +382,6 @@ if(TARGET raft_compiled AND (NOT TARGET raft::compiled))
 endif()
 
 set_target_properties(raft_compiled PROPERTIES EXPORT_NAME compiled)
-
 
 if(RAFT_COMPILE_LIBRARY)
   add_library(
