@@ -37,6 +37,7 @@
 
 #include <raft/core/math.hpp>
 #include <raft/distance/distance_types.hpp>
+#include <raft/util/cudart_utils.hpp>
 
 #ifdef __HIP_PLATFORM_AMD__
 #include <hipcub/hipcub.hpp>
@@ -45,8 +46,6 @@ namespace cub = hipcub;
 #include <cub/cub.cuh>
 #include <cuda_fp16.h>
 #endif
-
-#include <cuda_pipeline.h>
 
 namespace raft {
 namespace sparse {
@@ -57,13 +56,19 @@ namespace detail {
  * Computes the maximum number of columns that can be stored
  * in shared memory in dense form with the given block size
  * and precision.
+ * The original function signature was: "inline int max_cols_per_block()" which assumed that the
+ * warp/wavefront size is 32. However on the AMD/HIP platform this is a run time property that
+ * must be queried for the current device. This is why the function signature is being changed to
+ * always accept a device ID.
+ * @param device_id Current device ID
  * @return the maximum number of columns that can be stored in smem
  */
 template <typename value_idx, typename value_t, int tpb = 1024>
-inline int max_cols_per_block()
+inline int max_cols_per_block(int device_id)
 {
   // max cols = (total smem available - cub reduction smem)
-  return (raft::getSharedMemPerBlock() - ((tpb / raft::warp_size()) * sizeof(value_t))) /
+  return (raft::getSharedMemPerBlock() -
+          ((tpb / raft::host_warp_size(device_id)) * sizeof(value_t))) /
          sizeof(value_t);
 }
 
@@ -102,7 +107,9 @@ RAFT_KERNEL faster_dot_on_csr_kernel(dot_t* __restrict__ dot,
 
       dot_t l_dot_ = 0.0;
       for (value_idx k = vec_id; k < dim; k += blockDim.x) {
+#ifndef __HIP_PLATFORM_AMD__
         asm("prefetch.global.L2 [%0];" ::"l"(B_col + k + blockDim.x));
+#endif
         if constexpr ((std::is_same_v<dot_t, float> && std::is_same_v<value_t, half>)) {
           l_dot_ += __half2float(s_A[k]) * __half2float(__ldcg(B_col + k));
         } else {

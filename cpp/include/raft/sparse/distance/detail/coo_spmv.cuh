@@ -35,14 +35,15 @@
 
 #pragma once
 
-#include "../../csr.hpp"
-#include "../../detail/utils.h"
 #include "common.hpp"
 #include "coo_spmv_strategies/dense_smem_strategy.cuh"
 #include "coo_spmv_strategies/hash_strategy.cuh"
 
 #include <raft/core/resource/cuda_stream.hpp>
+#include <raft/core/resource/device_id.hpp>
+#include <raft/sparse/csr.hpp>
 #include <raft/sparse/detail/cusparse_wrappers.h>
+#include <raft/sparse/detail/utils.h>
 #include <raft/util/cuda_utils.cuh>
 #include <raft/util/cudart_utils.hpp>
 
@@ -50,11 +51,11 @@
 #include <raft/cusparse.h>
 #else
 #include <cusparse_v2.h>
+
+#include <nvfunctional>
 #endif
 
 #include <limits.h>
-
-#include <nvfunctional>
 
 namespace raft {
 namespace sparse {
@@ -135,7 +136,10 @@ inline void balanced_coo_pairwise_generalized_spmv(
   uint64_t n = (uint64_t)sizeof(value_t) * (uint64_t)config_.a_nrows * (uint64_t)config_.b_nrows;
   RAFT_CUDA_TRY(cudaMemsetAsync(out_dists, 0, n, resource::get_cuda_stream(config_.handle)));
 
-  int max_cols = max_cols_per_block<value_idx, value_t>();
+  // Note that max_cols is computed based on the current device that's set. We use
+  // raft::resource::get_device_id to query for the current device.
+  int max_cols =
+    max_cols_per_block<value_idx, value_t>(raft::resource::get_device_id(config_.handle));
 
   if (max_cols > config_.a_ncols) {
     dense_smem_strategy<value_idx, value_t, threads_per_block> strategy(config_);
@@ -218,7 +222,10 @@ inline void balanced_coo_pairwise_generalized_spmv_rev(
   int chunk_size = 500000)
 {
   // try dense first
-  int max_cols = max_cols_per_block<value_idx, value_t>();
+  // Note that max_cols is computed based on the current device that's set. We use
+  // raft::resource::get_device_id to query for the current device.
+  int max_cols =
+    max_cols_per_block<value_idx, value_t>(raft::resource::get_device_id(config_.handle));
 
   if (max_cols > config_.b_ncols) {
     dense_smem_strategy<value_idx, value_t, threads_per_block> strategy(config_);

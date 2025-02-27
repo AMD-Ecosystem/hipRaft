@@ -65,7 +65,7 @@ inline int block_dim(value_idx ncols)
 }
 
 // add similar semantics for __match_any_sync pre-volta (SM_70)
-#if __CUDA_ARCH__ < 700
+#if __CUDA_ARCH__ < 700 and !defined(__HIP_PLATFORM_AMD__)
 /**
  * Returns a warp-level mask with 1's for all the threads
  * in the current warp that have the same key.

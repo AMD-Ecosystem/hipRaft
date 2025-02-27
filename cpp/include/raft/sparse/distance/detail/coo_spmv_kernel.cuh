@@ -35,10 +35,20 @@
 
 #pragma once
 
+#ifdef __HIP_PLATFORM_AMD__
+#include <raft/util/warp_primitives.cuh>
+
+#include <hipcub/block/block_load.hpp>
+#include <hipcub/block/block_radix_sort.hpp>
+#include <hipcub/block/block_store.hpp>
+#include <hipcub/hipcub.hpp>
+namespace cub = hipcub;
+#else
 #include <cub/block/block_load.cuh>
 #include <cub/block/block_radix_sort.cuh>
 #include <cub/block/block_store.cuh>
 #include <cub/cub.cuh>
+#endif
 
 namespace raft {
 namespace sparse {
@@ -207,7 +217,7 @@ RAFT_KERNEL balanced_coo_generalized_spmv_kernel(strategy_t strategy,
     if (__any_sync(LANE_MASK_ALL, diff_rows)) {
       // grab the threads currently participating in loops.
       // because any other threads should have returned already.
-      unsigned int peer_group = __match_any_sync(LANE_MASK_ALL, cur_row_b);
+      unsigned int peer_group = __match_any_sync<bitmask_type, value_t>(LANE_MASK_ALL, cur_row_b);
       bool is_leader          = get_lowest_peer(peer_group) == lane_id;
       value_t v               = warp_red.HeadSegmentedReduce(c, is_leader, accum_func);
 

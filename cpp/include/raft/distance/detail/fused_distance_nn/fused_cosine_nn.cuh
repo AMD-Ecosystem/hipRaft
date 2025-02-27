@@ -14,12 +14,33 @@
  * limitations under the License.
  */
 
+/*
+ * Modifications Copyright (c) 2025 Advanced Micro Devices, Inc.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
 #pragma once
 
 #include <raft/core/kvp.hpp>                             // raft::KeyValuePair
 #include <raft/core/operators.hpp>                       // raft::identity_op
 #include <raft/distance/detail/distance_ops/cosine.cuh>  // ops::l2_exp_distance_op
+#ifndef __HIP_PLATFORM_AMD__
 #include <raft/distance/detail/fused_distance_nn/cutlass_base.cuh>
+#endif
 #include <raft/distance/detail/fused_distance_nn/helper_structs.cuh>
 #include <raft/distance/detail/fused_distance_nn/simt_kernel.cuh>
 #include <raft/distance/detail/pairwise_distance_base.cuh>  // PairwiseDistances
@@ -76,7 +97,7 @@ void fusedCosineNN(OutT* min,
                                       KVPReduceOpT,
                                       decltype(distance_op),
                                       decltype(fin_op)>;
-
+#ifndef __HIP_PLATFORM_AMD__
   // Get pointer to fp32 SIMT kernel to determine the runtime architecture of the
   // current system. Other methods to determine the architecture (that do not
   // require a pointer) can be error prone. See:
@@ -121,6 +142,7 @@ void fusedCosineNN(OutT* min,
                                          pairRedOp,
                                          stream);
   } else {
+#endif
     // If device less than SM_80, use fp32 SIMT kernel.
     constexpr size_t shmemSize = P::SmemSize + ((P::Mblk + P::Nblk) * sizeof(DataT));
     dim3 grid                  = launchConfigGenerator<P>(m, n, shmemSize, kernel);
@@ -128,7 +150,9 @@ void fusedCosineNN(OutT* min,
     kernel<<<grid, blk, shmemSize, stream>>>(
       min, x, y, xn, yn, m, n, k, maxVal, workspace, redOp, pairRedOp, distance_op, fin_op);
     RAFT_CUDA_TRY(cudaGetLastError());
+#ifndef __HIP_PLATFORM_AMD__
   }
+#endif
 }
 
 }  // namespace detail

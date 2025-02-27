@@ -73,6 +73,7 @@ using cudaStream_t                = hipStream_t;
 #define cudaStreamNonBlocking                          hipStreamNonBlocking
 #define cudaStreamPerThread                            hipStreamPerThread
 #define cudaSuccess                                    hipSuccess
+#define cudaFuncCachePreferShared                      hipFuncCachePreferShared
 
 // functions
 #define cudaDeviceGetAttribute                         hipDeviceGetAttribute

@@ -273,7 +273,7 @@ DI void logicalWarpReduceVector(T* acc, int lane_id, ReduceLambda reduce_op)
   // One step of the butterfly reduction, applied to each element of the vector.
 #pragma unroll
   for (int k = 0; k < vecWidth; k++) {
-    const T tmp = shfl_xor(acc[k], shflStride, logicalWarpSize);
+    const T tmp = shfl_xor(acc[k], shflStride, logicalWarpSize, __activemask());
     acc[k]      = reduce_op(acc[k], tmp);
   }
 
