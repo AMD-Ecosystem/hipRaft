@@ -35,7 +35,7 @@ ARGS=$*
 # scripts, and that this script resides in the repo dir!
 REPODIR=$(cd $(dirname $0); pwd)
 
-VALIDARGS="clean libraft docs tests template bench-prims --uninstall  -v -g -n --compile-cuda --allgpuarch --no-nvtx --show_depr_warn --incl-cache-stats --time -h"
+VALIDARGS="clean libraft docs tests template bench-prims --uninstall  -v -g -n --compile-cuda --compile-lib --compile-static-lib --allgpuarch --no-nvtx --show_depr_warn --incl-cache-stats --time -h"
 HELP="$0 [<target> ...] [<flag> ...] [--cmake-args=\"<args>\"] [--cache-tool=<tool>] [--limit-tests=<targets>] [--build-metrics=<filename>]
  where <target> is:
    clean            - remove all existing build artifacts and configuration (start over)
@@ -50,6 +50,8 @@ HELP="$0 [<target> ...] [<flag> ...] [--cmake-args=\"<args>\"] [--cache-tool=<to
    -g                          - build for debug
    -n                          - no install step
    --uninstall                 - uninstall files for specified targets which were built and installed prior
+   --compile-lib               - compile shared library for all components
+   --compile-static-lib        - compile static library for all components
    --compile-cuda              - compile for CUDA backend (default: HIP/AMD)
    --cpu-only                  - build CPU only components without HIP/CUDA. Applies to bench-ann only currently.
    --limit-tests               - semicolon-separated list of test executables to compile (e.g. NEIGHBORS_TEST;CLUSTER_TEST)
@@ -88,10 +90,7 @@ INSTALL_TARGET=install
 BUILD_REPORT_METRICS=""
 BUILD_REPORT_INCL_CACHE_STATS=OFF
 
-TEST_TARGETS=UTILS_TEST
-# TODO(HIP/AMD): Need to add support for tests
-#TEST_TARGETS="CORE_TEST;LABEL_TEST;LINALG_TEST;MATRIX_TEST;RANDOM_TEST;SOLVERS_TEST;SPARSE_TEST;STATS_TEST;UTILS_TEST"
-BENCH_TARGETS="CORE_BENCH;LINALG_BENCH;MATRIX_BENCH;SPARSE_BENCH;RANDOM_BENCH"
+TEST_TARGETS="CORE_TEST;LABEL_TEST;LINALG_TEST;MATRIX_TEST;RANDOM_TEST;SOLVERS_TEST;SPARSE_TEST;STATS_TEST;UTILS_TEST;RANDOM_SRC_TEST"
 
 CACHE_ARGS=""
 # TODO(HIP/AMD): Need to add support for NVTX
@@ -331,6 +330,7 @@ if hasArg tests || (( ${NUMARGS} == 0 )); then
           $CMAKE_TARGET == *"NEIGHBORS_ANN_IVF_TEST"* || \
           $CMAKE_TARGET == *"NEIGHBORS_ANN_NN_DESCENT_TEST"* || \
           $CMAKE_TARGET == *"NEIGHBORS_TEST"* || \
+          $CMAKE_TARGET == *"RANDOM_SRC_TEST"* || \
           $CMAKE_TARGET == *"SPARSE_DIST_TEST" || \
           $CMAKE_TARGET == *"SPARSE_NEIGHBORS_TEST"* || \
           $CMAKE_TARGET == *"STATS_TEST"* ]]; then

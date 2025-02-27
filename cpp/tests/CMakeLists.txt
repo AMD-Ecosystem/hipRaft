@@ -229,6 +229,11 @@ if(BUILD_TESTS)
     random/multi_variable_gaussian.cu
   )
 
+  ConfigureTest(
+    NAME RANDOM_SRC_TEST PATH src/random/rmat_rectangular_generator.cu LIB
+    EXPLICIT_INSTANTIATE_ONLY
+  )
+
   ConfigureTest(NAME SOLVERS_TEST PATH lap/lap.cu sparse/mst.cu LIB EXPLICIT_INSTANTIATE_ONLY)
 
   ConfigureTest(

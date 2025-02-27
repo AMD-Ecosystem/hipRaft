@@ -11,18 +11,18 @@
 # or implied. See the License for the specific language governing permissions and limitations under
 # the License.
 
-# Modifications Copyright (c) 2024 Advanced Micro Devices, Inc. Permission is hereby granted, free
-# of charge, to any person obtaining a copy of this software and associated documentation files (the
-# "Software"), to deal in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
-# and to permit persons to whom the Software is furnished to do so, subject to the following
-# conditions: The above copyright notice and this permission notice shall be included in all copies
-# or substantial portions of the Software. THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
-# KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-# FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-# BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-# OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-# THE SOFTWARE.
+# Modifications Copyright (c) 2024-2025 Advanced Micro Devices, Inc. Permission is hereby granted,
+# free of charge, to any person obtaining a copy of this software and associated documentation files
+# (the "Software"), to deal in the Software without restriction, including without limitation the
+# rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the
+# Software, and to permit persons to whom the Software is furnished to do so, subject to the
+# following conditions: The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software. THE SOFTWARE IS PROVIDED "AS IS", WITHOUT
+# WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR
+# THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 cmake_minimum_required(VERSION 3.26.4 FATAL_ERROR)
 
@@ -327,16 +327,20 @@ else()
 endif()
 
 if(RAFT_COMPILE_LIBRARY)
-  file(
-    WRITE "${CMAKE_CURRENT_BINARY_DIR}/fatbin.ld"
-    [=[
+  # Enabling fatbin.ld for hip by replacing the calls with their hip equivalents results in static
+  # initialization segfaults. If this becomes necssary, investigate enabling for HIP
+  if(CUDA_BACKEND)
+    file(
+      WRITE "${CMAKE_CURRENT_BINARY_DIR}/fatbin.ld"
+      [=[
 SECTIONS
 {
 .nvFatBinSegment : { *(.nvFatBinSegment) }
 .nv_fatbin : { *(.nv_fatbin) }
 }
 ]=]
-  )
+    )
+  endif()
 endif()
 
 # ##################################################################################################
@@ -386,15 +390,15 @@ set_target_properties(raft_compiled PROPERTIES EXPORT_NAME compiled)
 if(RAFT_COMPILE_LIBRARY)
   add_library(
     raft_objs OBJECT
-    src/linalg/detail/coalesced_reduction.cu
+    #src/linalg/detail/coalesced_reduction.cu
     src/raft_runtime/random/rmat_rectangular_generator_int64_double.cu
     src/raft_runtime/random/rmat_rectangular_generator_int64_float.cu
     src/raft_runtime/random/rmat_rectangular_generator_int_double.cu
     src/raft_runtime/random/rmat_rectangular_generator_int_float.cu
-    src/raft_runtime/solver/lanczos_solver_int64_double.cu
+    #[[src/raft_runtime/solver/lanczos_solver_int64_double.cu
     src/raft_runtime/solver/lanczos_solver_int64_float.cu
     src/raft_runtime/solver/lanczos_solver_int_double.cu
-    src/raft_runtime/solver/lanczos_solver_int_float.cu
+    src/raft_runtime/solver/lanczos_solver_int_float.cu]]
   )
   set_target_properties(
     raft_objs
@@ -439,8 +443,9 @@ if(RAFT_COMPILE_LIBRARY)
 
     # So consumers know when using libraft.so/libraft.a
     target_compile_definitions(${target} PUBLIC "RAFT_COMPILED")
-    # ensure CUDA symbols aren't relocated to the middle of the debug build binaries
-    target_link_options(${target} PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/fatbin.ld")
+    # ensure CUDA symbols aren't relocated to the middle of the debug build binaries Renable the
+    # next line if it becomes necessary target_link_options(${target} PRIVATE
+    # "${CMAKE_CURRENT_BINARY_DIR}/fatbin.ld")
   endforeach()
 endif()
 
@@ -600,16 +605,28 @@ Imported Targets:
 )
 
 set(code_string ${nvtx_export_string})
-
-string(
-  APPEND
-  code_string
-  [=[
+if(CUDA_BACKEND)
+  string(
+    APPEND
+    code_string
+    [=[
 if(compiled IN_LIST raft_FIND_COMPONENTS)
   enable_language(CUDA)
 endif()
 ]=]
-)
+  )
+else()
+  string(
+    APPEND
+    code_string
+    [=[
+if(compiled IN_LIST raft_FIND_COMPONENTS)
+  enable_language(HIP)
+endif()
+]=]
+  )
+endif()
+
 set(raft_components compiled distributed)
 set(raft_export_sets raft-compiled-exports raft-distributed-exports)
 if(TARGET raft_lib)
