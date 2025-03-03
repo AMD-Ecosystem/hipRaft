@@ -29,6 +29,7 @@
 #include <raft/neighbors/detail/faiss_select/Comparators.cuh>
 #include <raft/neighbors/detail/faiss_select/MergeNetworkBlock.cuh>
 #include <raft/neighbors/detail/faiss_select/MergeNetworkWarp.cuh>
+#include <raft/util/cuda_dev_essentials.cuh>
 #include <raft/util/cuda_utils.cuh>
 
 namespace raft::neighbors::detail::faiss_select {
@@ -98,7 +99,6 @@ template <typename K,
           int NumThreadQ,
           int ThreadsPerBlock>
 struct BlockSelect {
-  static constexpr int kNumWarps          = ThreadsPerBlock / WarpSize;
   static constexpr int kTotalWarpSortSize = NumWarpQ;
 
   __device__ inline BlockSelect(K initKVal, V initVVal, K* smemK, V* smemV, int k)
@@ -155,7 +155,7 @@ struct BlockSelect {
   {
     bool needSort = (numVals == NumThreadQ);
 
-#if CUDA_VERSION >= 9000
+#if CUDA_VERSION >= 9000 or defined(__HIP_PLATFORM_AMD__)
     needSort = __any_sync(LANE_MASK_ALL, needSort);
 #else
     needSort = __any(needSort);
@@ -194,8 +194,14 @@ struct BlockSelect {
 
     // Sort all of the per-thread queues
     warpSortAnyRegisters<K, V, NumThreadQ, !Dir, Comp>(threadK, threadV);
-
-    constexpr int kNumWarpQRegisters = NumWarpQ / WarpSize;
+    // In some cases `BlockSelect` is instantiated with NumWarpQ being less than 64. In this
+    // case(when the WarpSize == 64) we don't want the instantiation to fail as kNumWarpQRegisters
+    // would end up being 0. `K warpKRegisters[kNumWarpQRegisters];` would then be an incorrect
+    // declaration of an array of zero size. By changing the expression from "NumWarpQ / WarpSize"
+    // to "std::max(1, NumWarpQ / WarpSize)" we ensure that BlockSelect can be instantiated even
+    // when NumWarpQ < WarpSize. It's then upto the host code to dispatch to the right version of
+    // the templated kernel based on the warp size queried at runtime.
+    constexpr int kNumWarpQRegisters = std::max(1, NumWarpQ / WarpSize);
     K warpKRegisters[kNumWarpQRegisters];
     V warpVRegisters[kNumWarpQRegisters];
 
@@ -244,6 +250,7 @@ struct BlockSelect {
     // All warp queues are contiguous in smem.
     // Now, we have kNumWarps lists of NumWarpQ elements.
     // This is a power of 2.
+    constexpr auto kNumWarps = ThreadsPerBlock / WarpSize;
     FinalBlockMerge<kNumWarps, ThreadsPerBlock, K, V, NumWarpQ, Dir, Comp>::merge(sharedK, sharedV);
 
     // The block-wide merge has a trailing syncthreads
@@ -281,8 +288,6 @@ struct BlockSelect {
 /// Specialization for k == 1 (NumWarpQ == 1)
 template <typename K, typename V, bool Dir, typename Comp, int NumThreadQ, int ThreadsPerBlock>
 struct BlockSelect<K, V, Dir, Comp, 1, NumThreadQ, ThreadsPerBlock> {
-  static constexpr int kNumWarps = ThreadsPerBlock / WarpSize;
-
   __device__ inline BlockSelect(K initK, V initV, K* smemK, V* smemV, int k)
     : threadK(initK), threadV(initV), sharedK(smemK), sharedV(smemV)
   {
@@ -329,9 +334,9 @@ struct BlockSelect<K, V, Dir, Comp, 1, NumThreadQ, ThreadsPerBlock> {
     // first thread in the block perform the reduction across warps is
     // faster
     if (threadIdx.x == 0) {
-      threadK = sharedK[0];
-      threadV = sharedV[0];
-
+      threadK                  = sharedK[0];
+      threadV                  = sharedV[0];
+      constexpr auto kNumWarps = ThreadsPerBlock / WarpSize;
 #pragma unroll
       for (int i = 1; i < kNumWarps; ++i) {
         K k = sharedK[i];
@@ -375,7 +380,14 @@ template <typename K,
           int NumThreadQ,
           int ThreadsPerBlock>
 struct WarpSelect {
-  static constexpr int kNumWarpQRegisters = NumWarpQ / WarpSize;
+  // In some cases `WarpSelect` is instantiated with NumWarpQ being less than 64. In this case(when
+  // the WarpSize == 64) we don't want the instantiation to fail as kNumWarpQRegisters would end up
+  // being 0. `K warpKRegisters[kNumWarpQRegisters];` would then be an incorrect declaration of an
+  // array of zero size. By changing the expression from "NumWarpQ / WarpSize" to "std::max(1,
+  // NumWarpQ / WarpSize)" we ensure that WarpSelect can be instantiated even when NumWarpQ <
+  // WarpSize. It's then upto the host code to dispatch to the right version of the templated kernel
+  // based on the warp size queried at runtime.
+  static __device__ constexpr int kNumWarpQRegisters = std::max(1, NumWarpQ / WarpSize);
 
   __device__ inline WarpSelect(K initKVal, V initVVal, int k)
     : initK(initKVal), initV(initVVal), numVals(0), warpKTop(initKVal), kLane((k - 1) % WarpSize)
@@ -418,7 +430,7 @@ struct WarpSelect {
   {
     bool needSort = (numVals == NumThreadQ);
 
-#if CUDA_VERSION >= 9000
+#if CUDA_VERSION >= 9000 or defined(__HIP_PLATFORM_AMD__)
     needSort = __any_sync(LANE_MASK_ALL, needSort);
 #else
     needSort = __any(needSort);
@@ -520,8 +532,6 @@ struct WarpSelect {
 /// Specialization for k == 1 (NumWarpQ == 1)
 template <typename K, typename V, bool Dir, typename Comp, int NumThreadQ, int ThreadsPerBlock>
 struct WarpSelect<K, V, Dir, Comp, 1, NumThreadQ, ThreadsPerBlock> {
-  static constexpr int kNumWarps = ThreadsPerBlock / WarpSize;
-
   __device__ inline WarpSelect(K initK, V initV, int k) : threadK(initK), threadV(initV) {}
 
   __device__ inline void addThreadQ(K k, V v)

@@ -151,7 +151,14 @@ struct KeyValueBlockSelect {
     // Sort all of the per-thread queues
     warpSortAnyRegisters<K, KeyValuePair<K, V>, NumThreadQ, !Dir, Comp>(threadK, threadV);
 
-    constexpr int kNumWarpQRegisters = NumWarpQ / WarpSize;
+    // In some cases `KeyValueBlockSelect` is instantiated with NumWarpQ being less than 64. In this
+    // case(when the WarpSize == 64) we don't want the instantiation to fail as kNumWarpQRegisters
+    // would end up being 0. `K warpKRegisters[kNumWarpQRegisters];` would then be an incorrect
+    // declaration of an array of zero size. By changing the expression from "NumWarpQ / WarpSize"
+    // to "std::max(1, NumWarpQ / WarpSize)" we ensure that KeyValueBlockSelect can be instantiated
+    // even when NumWarpQ < WarpSize. It's then upto the host code to dispatch to the right version
+    // of the templated kernel based on the warp size queried at runtime.
+    constexpr int kNumWarpQRegisters = std::max(1, NumWarpQ / WarpSize);
     K warpKRegisters[kNumWarpQRegisters];
     KeyValuePair<K, V> warpVRegisters[kNumWarpQRegisters];
 

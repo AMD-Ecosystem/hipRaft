@@ -138,8 +138,12 @@ struct with_mapped_memory_t {
   {
     int dev_id, readonly_supported;
     RAFT_CUDA_TRY(cudaGetDevice(&dev_id));
+#ifdef __HIP_PLATFORM_AMD__
+    readonly_supported = false;
+#else
     RAFT_CUDA_TRY(cudaDeviceGetAttribute(
       &readonly_supported, cudaDevAttrHostRegisterReadOnlySupported, dev_id));
+#endif
     if (readonly_supported) {
       return cudaHostRegisterMapped | cudaHostRegisterReadOnly;
     } else {

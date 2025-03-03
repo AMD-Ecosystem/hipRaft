@@ -25,3 +25,4 @@
 
 #define CUDART_INF_F HIP_INF_F
 #define CUDART_INF   HIP_INF
+#define CUDART_PI_F  HIP_PI_F

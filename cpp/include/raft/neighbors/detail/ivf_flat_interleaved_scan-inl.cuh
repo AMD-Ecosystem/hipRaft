@@ -44,9 +44,12 @@
 #include <raft/neighbors/sample_filter_types.hpp>
 #include <raft/spatial/knn/detail/ann_utils.cuh>
 #include <raft/util/cuda_rt_essentials.hpp>  // RAFT_CUDA_TRY
+#include <raft/util/cudart_utils.hpp>
 #include <raft/util/integer_utils.hpp>
 #include <raft/util/pow2_utils.cuh>
 #include <raft/util/vectorized.cuh>
+
+#include <cstdint>
 
 #ifdef __HIP_PLATFORM_AMD__
 #include <raft/util/device_loads_stores_hip.cuh>
@@ -911,11 +914,13 @@ void launch_kernel(Lambda lambda,
                                                    PostLambda>;
   const int max_query_smem = 16384;
   int query_smem_elems =
-    std::min<int>(max_query_smem / sizeof(T), Pow2<Veclen * WarpSize>::roundUp(index.dim()));
+    raft::host_warp_size(stream) == 32
+      ? std::min<int>(max_query_smem / sizeof(T), Pow2<Veclen * 32>::roundUp(index.dim()))
+      : std::min<int>(max_query_smem / sizeof(T), Pow2<Veclen * 64>::roundUp(index.dim()));
   int smem_size = query_smem_elems * sizeof(T);
 
   if constexpr (Capacity > 0) {
-    constexpr int kSubwarpSize = std::min<int>(Capacity, WarpSize);
+    int const kSubwarpSize = std::min<int>(Capacity, host_warp_size(stream));
     auto block_merge_mem =
       raft::matrix::detail::select::warpsort::calc_smem_size_for_block_wide<float, IdxT>(
         kThreadsPerBlock / kSubwarpSize, k);
@@ -984,8 +989,29 @@ struct euclidean_dist<Veclen, uint8_t, uint32_t> {
   __device__ __forceinline__ void operator()(uint32_t& acc, uint32_t x, uint32_t y)
   {
     if constexpr (Veclen > 1) {
-      const auto diff = __vabsdiffu4(x, y);
-      acc             = dp4a(diff, diff, acc);
+      const auto diff = [=]() {
+#ifdef __HIP_PLATFORM_AMD__
+        // Reimplement:
+        // https://docs.nvidia.com/cuda/cuda-math-api/cuda_math_api/group__CUDA__MATH__INTRINSIC__SIMD.html#_CPPv412__vabsdiffu4jj
+        // Splits 4 bytes of each argument into 4 parts, each consisting of 1 byte.
+        // For corresponding parts function computes absolute difference. Partial results are
+        // recombined and returned as unsigned int.
+        static_assert(sizeof(uchar4) == sizeof(uint32_t));
+        uchar4 ux = *reinterpret_cast<const uchar4*>(&x);
+        uchar4 uy = *reinterpret_cast<const uchar4*>(&y);
+
+        uchar4 diff;
+        diff.x = __builtin_abs(ux.x - uy.x);
+        diff.y = __builtin_abs(ux.y - uy.y);
+        diff.z = __builtin_abs(ux.z - uy.z);
+        diff.w = __builtin_abs(ux.w - uy.w);
+
+        return *reinterpret_cast<uint32_t*>(&diff);
+#else
+        return __vabsdiffu4(x, y);
+#endif
+      }();
+      acc = dp4a(diff, diff, acc);
     } else {
       const auto diff = __usad(x, y, 0u);
       acc += diff * diff;
@@ -1002,8 +1028,29 @@ struct euclidean_dist<Veclen, int8_t, int32_t> {
       // between two int8 numbers can be greater than 127 and therefore represented as a negative
       // number in int8. Casting from int8 to int32 would yield incorrect results, while casting
       // from uint8 to uint32 is correct.
-      const auto diff = __vabsdiffs4(x, y);
-      acc             = dp4a(diff, diff, static_cast<uint32_t>(acc));
+      const auto diff = [=]() {
+#ifdef __HIP_PLATFORM_AMD__
+        // Reimplement:
+        // https://docs.nvidia.com/cuda/cuda-math-api/cuda_math_api/group__CUDA__MATH__INTRINSIC__SIMD.html#_CPPv412__vabsdiffs4jj
+        // Splits 4 bytes of each argument into 4 parts, each consisting of 1 byte.
+        // For corresponding parts function computes absolute difference. Partial results are
+        // recombined and returned as unsigned int.
+        static_assert(sizeof(char4) == sizeof(int32_t));
+        char4 sx = *reinterpret_cast<const char4*>(&x);
+        char4 sy = *reinterpret_cast<const char4*>(&y);
+
+        uchar4 diff;
+        diff.x = abs(sx.x - sy.x);
+        diff.y = abs(sx.y - sy.y);
+        diff.z = abs(sx.z - sy.z);
+        diff.w = abs(sx.w - sy.w);
+
+        return *reinterpret_cast<uint32_t*>(&diff);
+#else
+        return __vabsdiffs4(x, y);
+#endif
+      }();
+      acc = dp4a(diff, diff, static_cast<uint32_t>(acc));
     } else {
       const auto diff = x - y;
       acc += diff * diff;

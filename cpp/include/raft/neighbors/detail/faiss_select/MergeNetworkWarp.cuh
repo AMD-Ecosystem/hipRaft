@@ -169,7 +169,7 @@ struct BitonicMergeStep<K, V, 1, Dir, Comp, Low, true> {
   static inline __device__ void merge(K k[1], V v[1])
   {
     // Use warp shuffles
-    warpBitonicMergeLE16<K, V, 16, Dir, Comp, true>(k[0], v[0]);
+    warpBitonicMergeLE16<K, V, WarpSize / 2, Dir, Comp, true>(k[0], v[0]);
   }
 };
 
@@ -524,6 +524,7 @@ struct BitonicSortStep<K, V, 1, Dir, Comp> {
     warpBitonicMergeLE16<K, V, 4, Dir, Comp, false>(k[0], v[0]);
     warpBitonicMergeLE16<K, V, 8, Dir, Comp, false>(k[0], v[0]);
     warpBitonicMergeLE16<K, V, 16, Dir, Comp, false>(k[0], v[0]);
+    if constexpr (WarpSize == 64) { warpBitonicMergeLE16<K, V, 32, Dir, Comp, false>(k[0], v[0]); }
   }
 };
 

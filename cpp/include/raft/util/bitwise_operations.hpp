@@ -21,6 +21,7 @@
 // SOFTWARE.
 #pragma once
 
+#include <cstdint>
 #include <type_traits>
 #ifdef __HIP_PLATFORM_AMD__
 #include <raft/cuda_runtime.h>
@@ -115,6 +116,74 @@ template <>
 __device__ inline int __FFS<uint64_t>(uint64_t v)
 {
   return __ffsll(static_cast<unsigned long long int>(v));
+}
+
+template <typename T>
+__device__ T __BREV(T v)
+{
+  static_assert(!std::is_same_v<T, T>, "Invalid instantiation");
+}
+
+template <>
+__device__ inline int32_t __BREV<int32_t>(int32_t v)
+{
+  static_assert(sizeof(int32_t) == sizeof(unsigned int));
+  return __brev(static_cast<unsigned int>(v));
+}
+
+template <>
+__device__ inline int64_t __BREV<int64_t>(int64_t v)
+{
+  static_assert(sizeof(int64_t) == sizeof(unsigned long long int));
+  return __brevll(static_cast<unsigned long long int>(v));
+}
+
+template <>
+__device__ inline uint32_t __BREV<uint32_t>(uint32_t v)
+{
+  static_assert(sizeof(uint32_t) == sizeof(unsigned int));
+  return __brev(static_cast<unsigned int>(v));
+}
+
+template <>
+__device__ inline uint64_t __BREV<uint64_t>(uint64_t v)
+{
+  static_assert(sizeof(uint64_t) == sizeof(unsigned long long int));
+  return __brevll(static_cast<unsigned long long int>(v));
+}
+
+template <typename T>
+__device__ int __CLZ(T v)
+{
+  static_assert(!std::is_same_v<T, T>, "Invalid instantiation");
+}
+
+template <>
+__device__ inline int __CLZ<int32_t>(int32_t v)
+{
+  static_assert(sizeof(int32_t) == sizeof(int));
+  return __clz(static_cast<unsigned int>(v));
+}
+
+template <>
+__device__ inline int __CLZ<int64_t>(int64_t v)
+{
+  static_assert(sizeof(int64_t) == sizeof(long long int));
+  return __clzll(static_cast<long long int>(v));
+}
+
+template <>
+__device__ inline int __CLZ<uint32_t>(uint32_t v)
+{
+  static_assert(sizeof(uint32_t) == sizeof(int));
+  return __clz(static_cast<int>(v));
+}
+
+template <>
+__device__ inline int __CLZ<uint64_t>(uint64_t v)
+{
+  static_assert(sizeof(uint64_t) == sizeof(long long int));
+  return __clzll(static_cast<long long int>(v));
 }
 
 }  // namespace raft

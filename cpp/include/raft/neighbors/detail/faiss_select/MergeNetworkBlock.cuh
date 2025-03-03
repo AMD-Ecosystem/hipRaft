@@ -127,9 +127,16 @@ inline __device__ void blockMergeSmall(K* listK, V* listV)
   }
 }
 
+#ifdef __HIP_PLATFORM_AMD__
+#define DISABLE_OPTIMIZATIONS __attribute__((optnone))
+#else
+#endif
+
 // Merge pairs of sorted lists larger than blockDim.x (NumThreads)
+// Note that optimizations for this function have been disabled.
+// See https://github.com/AMD-AI/raft/issues/49
 template <int NumThreads, typename K, typename V, int L, bool Dir, typename Comp, bool FullMerge>
-inline __device__ void blockMergeLarge(K* listK, V* listV)
+DISABLE_OPTIMIZATIONS inline __device__ void blockMergeLarge(K* listK, V* listV)
 {
   static_assert(utils::isPowerOf2(L), "L must be a power-of-2");
   static_assert(L >= WarpSize, "merge list size must be >= 32");
@@ -295,5 +302,7 @@ inline __device__ void blockMerge(K* listK, V* listV)
 
   BlockMerge<NumThreads, K, V, N, L, Dir, Comp, kSmallerThanBlock, FullMerge>::merge(listK, listV);
 }
+
+#undef DISABLE_OPTIMIZATIONS
 
 }  // namespace raft::neighbors::detail::faiss_select

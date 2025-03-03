@@ -85,8 +85,12 @@ inline constexpr bool is_multiple_v = is_multiple<LargeT, UnitT>::value;
 /** apply a warp-wide fence (useful from Volta+ archs) */
 DI void warpFence()
 {
+#ifdef __HIP_PLATFORM_AMD__
+  hip_warp_primitives::__syncwarp();
+#else
 #if __CUDA_ARCH__ >= 700
   __syncwarp();
+#endif
 #endif
 }
 

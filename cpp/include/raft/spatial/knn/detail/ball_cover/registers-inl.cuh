@@ -44,6 +44,8 @@
 #include <raft/core/resource/thrust_policy.hpp>
 #include <raft/neighbors/detail/faiss_select/key_value_block_select.cuh>
 #include <raft/util/cuda_utils.cuh>
+#include <raft/util/cudart_utils.hpp>
+#include <raft/util/warp_primitives.cuh>
 
 #include <thrust/count.h>
 #include <thrust/fill.h>
@@ -52,6 +54,7 @@
 #include <limits.h>
 
 #include <cstdint>
+#include <limits>
 
 namespace raft {
 namespace spatial {
@@ -502,6 +505,7 @@ RAFT_KERNEL block_rbc_kernel_eps_dense(const value_t* X_reordered,
                                        bool* adj,
                                        value_idx* vd)
 {
+  using mask_type         = std::conditional<raft::warp_size() == 32, uint32_t, uint64_t>::type;
   constexpr int num_warps = tpb / WarpSize;
 
   // process 1 query per warp
@@ -531,22 +535,28 @@ RAFT_KERNEL block_rbc_kernel_eps_dense(const value_t* X_reordered,
                                      ? static_cast<int>(lane_R_dist_sq <= squared(eps + R_radius[lane_k]))
                                      : 0;
 
-    int lane_mask = raft::ballot(lane_check);
+    mask_type lane_mask = raft::ballot(lane_check);
     if (lane_mask == 0) continue;
 
-    // reverse to use __clz instead of __ffs
-    lane_mask = __brev(lane_mask);
+    // reverse to use __CLZ instead of __ffs
+    lane_mask = __BREV(lane_mask);
     do {
       // look for next k_offset
-      const uint32_t k_offset = __clz(lane_mask);
+      const uint32_t k_offset = __CLZ(lane_mask);
 
       const uint32_t cur_k = cur_k0 + k_offset;
 
       // The whole warp should iterate through the elements in the current R
       const value_idx R_start_offset = R_indptr[cur_k];
 
-      // update lane_mask for next iteration - erase bits up to k_offset
-      lane_mask &= (0x7fffffff >> k_offset);
+// update lane_mask for next iteration - erase bits up to k_offset
+// Note the expression "~(static_cast<mask_type>(1) << (WarpSize - 1))" is
+// all the bits, except the MSB set to 1.
+#ifdef __HIP_DEVICE_COMPILE__
+      static_assert(WarpSize - 1 < sizeof(mask_type) * 8,
+                    "Attempting to shift beyond the width of mask_type");
+#endif
+      lane_mask &= ((~(static_cast<mask_type>(1) << (WarpSize - 1))) >> k_offset);
 
       const uint32_t R_size = R_indptr[cur_k + 1] - R_start_offset;
 
@@ -622,11 +632,12 @@ RAFT_KERNEL block_rbc_kernel_eps_csr_pass(const value_t* X_reordered,
                                           value_idx* adj_ia,
                                           value_idx* adj_ja)
 {
+  using mask_type         = std::conditional<raft::warp_size() == 32, uint32_t, uint64_t>::type;
   constexpr int num_warps = tpb / WarpSize;
 
   // process 1 query per warp
-  const uint32_t lid      = raft::laneId();
-  const uint32_t lid_mask = (1 << lid) - 1;
+  const uint32_t lid       = raft::laneId();
+  const mask_type lid_mask = (static_cast<mask_type>(1) << lid) - 1;
 
   // this should help the compiler to prevent branches
   const int query_id = raft::shfl(blockIdx.x * num_warps + (threadIdx.x / WarpSize), 0);
@@ -658,22 +669,28 @@ RAFT_KERNEL block_rbc_kernel_eps_csr_pass(const value_t* X_reordered,
                                      ? static_cast<int>(lane_R_dist_sq <= squared(eps + R_radius[lane_k]))
                                      : 0;
 
-    int lane_mask = raft::ballot(lane_check);
+    mask_type lane_mask = raft::ballot(lane_check);
     if (lane_mask == 0) continue;
 
-    // reverse to use __clz instead of __ffs
-    lane_mask = __brev(lane_mask);
+    // reverse to use __CLZ instead of __ffs
+    lane_mask = __BREV(lane_mask);
     do {
       // look for next k_offset
-      const uint32_t k_offset = __clz(lane_mask);
+      const uint32_t k_offset = __CLZ(lane_mask);
 
       const uint32_t cur_k = cur_k0 + k_offset;
 
       // The whole warp should iterate through the elements in the current R
       const value_idx R_start_offset = R_indptr[cur_k];
 
-      // update lane_mask for next iteration - erase bits up to k_offset
-      lane_mask &= (0x7fffffff >> k_offset);
+// update lane_mask for next iteration - erase bits up to k_offset
+// Note the expression "~(static_cast<mask_type>(1) << (WarpSize - 1))" is
+// all the bits, except the MSB set to 1.
+#ifdef __HIP_DEVICE_COMPILE__
+      static_assert(WarpSize - 1 < sizeof(mask_type) * 8,
+                    "Attempting to shift beyond the width of mask_type");
+#endif
+      lane_mask &= ((~(static_cast<mask_type>(1) << (WarpSize - 1))) >> k_offset);
 
       const uint32_t R_size = R_indptr[cur_k + 1] - R_start_offset;
 
@@ -694,7 +711,7 @@ RAFT_KERNEL block_rbc_kernel_eps_csr_pass(const value_t* X_reordered,
           (i < R_size) ? dfunc(x_ptr, y_ptr, n_cols) : std::numeric_limits<value_idx>::max();
         const bool in_range = (dist <= eps2);
         if constexpr (write_pass) {
-          const int mask = raft::ballot(in_range);
+          const mask_type mask = raft::ballot(in_range);
           if (in_range) {
             const uint32_t index   = R_1nn_cols[R_start_offset + i];
             const uint32_t row_pos = __POPC(mask & lid_mask);
@@ -717,7 +734,7 @@ RAFT_KERNEL block_rbc_kernel_eps_csr_pass(const value_t* X_reordered,
         const value_t dist          = dfunc(x_ptr, y_ptr, n_cols);
         const bool in_range         = (dist <= eps2);
         if constexpr (write_pass) {
-          const int mask = raft::ballot(in_range);
+          const mask_type mask = raft::ballot(in_range);
           if (in_range) {
             const uint32_t index   = R_1nn_cols[R_start_offset + i0 + lid];
             const uint32_t row_pos = __POPC(mask & lid_mask);
@@ -763,11 +780,12 @@ RAFT_KERNEL __launch_bounds__(tpb)
                                    value_idx* __restrict__ adj_ia,
                                    value_idx* adj_ja)
 {
+  using mask_type         = std::conditional<raft::warp_size() == 32, uint32_t, uint64_t>::type;
   constexpr int num_warps = tpb / WarpSize;
 
   // process 1 query per warp
-  const uint32_t lid      = raft::laneId();
-  const uint32_t lid_mask = (1 << lid) - 1;
+  const uint32_t lid       = raft::laneId();
+  const mask_type lid_mask = (static_cast<mask_type>(1) << lid) - 1;
 
   // this should help the compiler to prevent branches
   const int query_id = raft::shfl(blockIdx.x * num_warps + (threadIdx.x / WarpSize), 0);
@@ -804,14 +822,14 @@ RAFT_KERNEL __launch_bounds__(tpb)
                                      ? static_cast<int>(lane_R_dist_sq <= squared(eps + R_radius[lane_k]))
                                      : 0;
 
-    int lane_mask = raft::ballot(lane_check);
+    mask_type lane_mask = raft::ballot(lane_check);
     if (lane_mask == 0) continue;
 
-    // reverse to use __clz instead of __ffs
-    lane_mask = __brev(lane_mask);
+    // reverse to use __CLZ instead of __ffs
+    lane_mask = __BREV(lane_mask);
     do {
       // look for next k_offset
-      const uint32_t k_offset = __clz(lane_mask);
+      const uint32_t k_offset = __CLZ(lane_mask);
 
       const uint32_t cur_k = cur_k0 + k_offset;
 
@@ -819,7 +837,13 @@ RAFT_KERNEL __launch_bounds__(tpb)
       const value_idx R_start_offset = R_indptr[cur_k];
 
       // update lane_mask for next iteration - erase bits up to k_offset
-      lane_mask &= (0x7fffffff >> k_offset);
+      // Note the expression "~(static_cast<mask_type>(1) << (WarpSize - 1))" is
+      // all the bits, except the MSB set to 1.
+#ifdef __HIP_DEVICE_COMPILE__
+      static_assert(WarpSize - 1 < sizeof(mask_type) * 8,
+                    "Attempting to shift beyond the width of mask_type");
+#endif
+      lane_mask &= ((~(static_cast<mask_type>(1) << (WarpSize - 1))) >> k_offset);
 
       const uint32_t R_size = R_indptr[cur_k + 1] - R_start_offset;
 
@@ -840,7 +864,7 @@ RAFT_KERNEL __launch_bounds__(tpb)
           (i < R_size) ? dfunc(local_x_ptr, y_ptr, dim) : std::numeric_limits<value_idx>::max();
         const bool in_range = (dist <= eps2);
         if constexpr (write_pass) {
-          const int mask = raft::ballot(in_range);
+          const mask_type mask = raft::ballot(in_range);
           if (in_range) {
             const uint32_t index   = R_1nn_cols[R_start_offset + i];
             const uint32_t row_pos = __POPC(mask & lid_mask);
@@ -863,7 +887,7 @@ RAFT_KERNEL __launch_bounds__(tpb)
         const value_t dist          = dfunc(local_x_ptr, y_ptr, dim);
         const bool in_range         = (dist <= eps2);
         if constexpr (write_pass) {
-          const int mask = raft::ballot(in_range);
+          const mask_type mask = raft::ballot(in_range);
           if (in_range) {
             const uint32_t index   = R_1nn_cols[R_start_offset + i0 + lid];
             const uint32_t row_pos = __POPC(mask & lid_mask);
@@ -907,11 +931,12 @@ RAFT_KERNEL block_rbc_kernel_eps_max_k(const value_t* X_reordered,
                                        const value_int max_k,
                                        value_idx* tmp)
 {
+  using mask_type         = std::conditional<raft::warp_size() == 32, uint32_t, uint64_t>::type;
   constexpr int num_warps = tpb / WarpSize;
 
   // process 1 query per warp
-  const uint32_t lid      = raft::laneId();
-  const uint32_t lid_mask = (1 << lid) - 1;
+  const uint32_t lid       = raft::laneId();
+  const mask_type lid_mask = (static_cast<mask_type>(1) << lid) - 1;
 
   // this should help the compiler to prevent branches
   const int query_id = raft::shfl(blockIdx.x * num_warps + (threadIdx.x / WarpSize), 0);
@@ -937,22 +962,28 @@ RAFT_KERNEL block_rbc_kernel_eps_max_k(const value_t* X_reordered,
                                      ? static_cast<int>(lane_R_dist_sq <= squared(eps + R_radius[lane_k]))
                                      : 0;
 
-    int lane_mask = raft::ballot(lane_check);
+    mask_type lane_mask = raft::ballot(lane_check);
     if (lane_mask == 0) continue;
 
-    // reverse to use __clz instead of __ffs
-    lane_mask = __brev(lane_mask);
+    // reverse to use __CLZ instead of __ffs
+    lane_mask = __BREV(lane_mask);
     do {
       // look for next k_offset
-      const uint32_t k_offset = __clz(lane_mask);
+      const uint32_t k_offset = __CLZ(lane_mask);
 
       const uint32_t cur_k = cur_k0 + k_offset;
 
       // The whole warp should iterate through the elements in the current R
       const value_idx R_start_offset = R_indptr[cur_k];
 
-      // update lane_mask for next iteration - erase bits up to k_offset
-      lane_mask &= (0x7fffffff >> k_offset);
+// update lane_mask for next iteration - erase bits up to k_offset
+// Note the expression "~(static_cast<mask_type>(1) << (WarpSize - 1))" is
+// all the bits, except the MSB set to 1.
+#ifdef __HIP_DEVICE_COMPILE__
+      static_assert(WarpSize - 1 < sizeof(mask_type) * 8,
+                    "Attempting to shift beyond the width of mask_type");
+#endif
+      lane_mask &= ((~(static_cast<mask_type>(1) << (WarpSize - 1))) >> k_offset);
 
       const uint32_t R_size = R_indptr[cur_k + 1] - R_start_offset;
 
@@ -971,8 +1002,8 @@ RAFT_KERNEL block_rbc_kernel_eps_max_k(const value_t* X_reordered,
           limit < R_size ? R_1nn_dists[R_start_offset + limit] : cur_R_dist;
         const value_t dist =
           (i < R_size) ? dfunc(x_ptr, y_ptr, n_cols) : std::numeric_limits<value_idx>::max();
-        const bool in_range = (dist <= eps2);
-        const int mask      = raft::ballot(in_range);
+        const bool in_range  = (dist <= eps2);
+        const mask_type mask = raft::ballot(in_range);
         if (in_range) {
           auto row_pos = column_count + __POPC(mask & lid_mask);
           // we still continue to look for more hits to return valid vd
@@ -994,7 +1025,7 @@ RAFT_KERNEL block_rbc_kernel_eps_max_k(const value_t* X_reordered,
         const value_t min_warp_dist = R_1nn_dists[R_start_offset + i0];
         const value_t dist          = dfunc(x_ptr, y_ptr, n_cols);
         const bool in_range         = (dist <= eps2);
-        const int mask              = raft::ballot(in_range);
+        const mask_type mask        = raft::ballot(in_range);
         if (in_range) {
           auto row_pos = column_count + __POPC(mask & lid_mask);
           // we still continue to look for more hits to return valid vd
@@ -1052,7 +1083,7 @@ void rbc_low_dim_pass_one(raft::resources const& handle,
                           float weight,
                           value_int* dists_counter)
 {
-  if (k <= 32)
+  if (k <= 32 && raft::host_warp_size(resource::get_cuda_stream(handle)) == 32)
     block_rbc_kernel_registers<value_idx, value_t, 32, 2, 128, dims, value_int>
       <<<n_query_rows, 128, 0, resource::get_cuda_stream(handle)>>>(
         index.get_X_reordered().data_handle(),
@@ -1073,7 +1104,7 @@ void rbc_low_dim_pass_one(raft::resources const& handle,
         weight);
 
   else if (k <= 64)
-    block_rbc_kernel_registers<value_idx, value_t, 64, 3, 128, 2, value_int>
+    block_rbc_kernel_registers<value_idx, value_t, 64, 3, 128, dims, value_int>
       <<<n_query_rows, 128, 0, resource::get_cuda_stream(handle)>>>(
         index.get_X_reordered().data_handle(),
         query,
@@ -1213,7 +1244,7 @@ void rbc_low_dim_pass_two(raft::resources const& handle,
       bitset.data(),
       weight);
 
-  if (k <= 32)
+  if (k <= 32 && raft::host_warp_size(resource::get_cuda_stream(handle)) == 32)
     compute_final_dists_registers<value_idx,
                                   value_t,
                                   value_int,
@@ -1432,6 +1463,8 @@ void rbc_eps_pass(raft::resources const& handle,
                   value_idx* adj_ja,
                   value_idx* vd)
 {
+  auto stream    = resource::get_cuda_stream(handle);
+  auto grid_size = raft::ceildiv<value_int>(n_query_rows, 64 / host_warp_size(stream));
   // if max_k == nullptr we are either pass 1 or pass 2
   if (max_k == nullptr) {
     if (adj_ja == nullptr) {
@@ -1439,58 +1472,55 @@ void rbc_eps_pass(raft::resources const& handle,
       value_idx* vd_ptr = (vd != nullptr) ? vd : adj_ia;
       if (index.n == 2) {
         block_rbc_kernel_eps_csr_pass_xd<value_idx, value_t, false, 64, 2, value_int>
-          <<<raft::ceildiv<value_int>(n_query_rows, 2), 64, 0, resource::get_cuda_stream(handle)>>>(
-            index.get_X_reordered().data_handle(),
-            query,
-            n_query_rows,
-            index.n,
-            R,
-            index.m,
-            eps,
-            index.n_landmarks,
-            index.get_R_indptr().data_handle(),
-            index.get_R_1nn_cols().data_handle(),
-            index.get_R_1nn_dists().data_handle(),
-            index.get_R_radius().data_handle(),
-            dfunc,
-            vd_ptr,
-            nullptr);
+          <<<grid_size, 64, 0, stream>>>(index.get_X_reordered().data_handle(),
+                                         query,
+                                         n_query_rows,
+                                         index.n,
+                                         R,
+                                         index.m,
+                                         eps,
+                                         index.n_landmarks,
+                                         index.get_R_indptr().data_handle(),
+                                         index.get_R_1nn_cols().data_handle(),
+                                         index.get_R_1nn_dists().data_handle(),
+                                         index.get_R_radius().data_handle(),
+                                         dfunc,
+                                         vd_ptr,
+                                         nullptr);
       } else if (index.n == 3) {
         block_rbc_kernel_eps_csr_pass_xd<value_idx, value_t, false, 64, 3, value_int>
-          <<<raft::ceildiv<value_int>(n_query_rows, 2), 64, 0, resource::get_cuda_stream(handle)>>>(
-            index.get_X_reordered().data_handle(),
-            query,
-            n_query_rows,
-            index.n,
-            R,
-            index.m,
-            eps,
-            index.n_landmarks,
-            index.get_R_indptr().data_handle(),
-            index.get_R_1nn_cols().data_handle(),
-            index.get_R_1nn_dists().data_handle(),
-            index.get_R_radius().data_handle(),
-            dfunc,
-            vd_ptr,
-            nullptr);
+          <<<grid_size, 64, 0, stream>>>(index.get_X_reordered().data_handle(),
+                                         query,
+                                         n_query_rows,
+                                         index.n,
+                                         R,
+                                         index.m,
+                                         eps,
+                                         index.n_landmarks,
+                                         index.get_R_indptr().data_handle(),
+                                         index.get_R_1nn_cols().data_handle(),
+                                         index.get_R_1nn_dists().data_handle(),
+                                         index.get_R_radius().data_handle(),
+                                         dfunc,
+                                         vd_ptr,
+                                         nullptr);
       } else {
         block_rbc_kernel_eps_csr_pass<value_idx, value_t, false, 64, value_int>
-          <<<raft::ceildiv<value_int>(n_query_rows, 2), 64, 0, resource::get_cuda_stream(handle)>>>(
-            index.get_X_reordered().data_handle(),
-            query,
-            n_query_rows,
-            index.n,
-            R,
-            index.m,
-            eps,
-            index.n_landmarks,
-            index.get_R_indptr().data_handle(),
-            index.get_R_1nn_cols().data_handle(),
-            index.get_R_1nn_dists().data_handle(),
-            index.get_R_radius().data_handle(),
-            dfunc,
-            vd_ptr,
-            nullptr);
+          <<<grid_size, 64, 0, stream>>>(index.get_X_reordered().data_handle(),
+                                         query,
+                                         n_query_rows,
+                                         index.n,
+                                         R,
+                                         index.m,
+                                         eps,
+                                         index.n_landmarks,
+                                         index.get_R_indptr().data_handle(),
+                                         index.get_R_1nn_cols().data_handle(),
+                                         index.get_R_1nn_dists().data_handle(),
+                                         index.get_R_radius().data_handle(),
+                                         dfunc,
+                                         vd_ptr,
+                                         nullptr);
       }
 
       thrust::exclusive_scan(resource::get_thrust_policy(handle),
@@ -1503,84 +1533,81 @@ void rbc_eps_pass(raft::resources const& handle,
       // pass 2 -> fill in adj_ja
       if (index.n == 2) {
         block_rbc_kernel_eps_csr_pass_xd<value_idx, value_t, true, 64, 2, value_int>
-          <<<raft::ceildiv<value_int>(n_query_rows, 2), 64, 0, resource::get_cuda_stream(handle)>>>(
-            index.get_X_reordered().data_handle(),
-            query,
-            n_query_rows,
-            index.n,
-            R,
-            index.m,
-            eps,
-            index.n_landmarks,
-            index.get_R_indptr().data_handle(),
-            index.get_R_1nn_cols().data_handle(),
-            index.get_R_1nn_dists().data_handle(),
-            index.get_R_radius().data_handle(),
-            dfunc,
-            adj_ia,
-            adj_ja);
+          <<<grid_size, 64, 0, stream>>>(index.get_X_reordered().data_handle(),
+                                         query,
+                                         n_query_rows,
+                                         index.n,
+                                         R,
+                                         index.m,
+                                         eps,
+                                         index.n_landmarks,
+                                         index.get_R_indptr().data_handle(),
+                                         index.get_R_1nn_cols().data_handle(),
+                                         index.get_R_1nn_dists().data_handle(),
+                                         index.get_R_radius().data_handle(),
+                                         dfunc,
+                                         adj_ia,
+                                         adj_ja);
       } else if (index.n == 3) {
         block_rbc_kernel_eps_csr_pass_xd<value_idx, value_t, true, 64, 3, value_int>
-          <<<raft::ceildiv<value_int>(n_query_rows, 2), 64, 0, resource::get_cuda_stream(handle)>>>(
-            index.get_X_reordered().data_handle(),
-            query,
-            n_query_rows,
-            index.n,
-            R,
-            index.m,
-            eps,
-            index.n_landmarks,
-            index.get_R_indptr().data_handle(),
-            index.get_R_1nn_cols().data_handle(),
-            index.get_R_1nn_dists().data_handle(),
-            index.get_R_radius().data_handle(),
-            dfunc,
-            adj_ia,
-            adj_ja);
+          <<<grid_size, 64, 0, stream>>>(index.get_X_reordered().data_handle(),
+                                         query,
+                                         n_query_rows,
+                                         index.n,
+                                         R,
+                                         index.m,
+                                         eps,
+                                         index.n_landmarks,
+                                         index.get_R_indptr().data_handle(),
+                                         index.get_R_1nn_cols().data_handle(),
+                                         index.get_R_1nn_dists().data_handle(),
+                                         index.get_R_radius().data_handle(),
+                                         dfunc,
+                                         adj_ia,
+                                         adj_ja);
       } else {
+        auto stream = resource::get_cuda_stream(handle);
         block_rbc_kernel_eps_csr_pass<value_idx, value_t, true, 64, value_int>
-          <<<raft::ceildiv<value_int>(n_query_rows, 2), 64, 0, resource::get_cuda_stream(handle)>>>(
-            index.get_X_reordered().data_handle(),
-            query,
-            n_query_rows,
-            index.n,
-            R,
-            index.m,
-            eps,
-            index.n_landmarks,
-            index.get_R_indptr().data_handle(),
-            index.get_R_1nn_cols().data_handle(),
-            index.get_R_1nn_dists().data_handle(),
-            index.get_R_radius().data_handle(),
-            dfunc,
-            adj_ia,
-            adj_ja);
+          <<<grid_size, 64, 0, stream>>>(index.get_X_reordered().data_handle(),
+                                         query,
+                                         n_query_rows,
+                                         index.n,
+                                         R,
+                                         index.m,
+                                         eps,
+                                         index.n_landmarks,
+                                         index.get_R_indptr().data_handle(),
+                                         index.get_R_1nn_cols().data_handle(),
+                                         index.get_R_1nn_dists().data_handle(),
+                                         index.get_R_radius().data_handle(),
+                                         dfunc,
+                                         adj_ia,
+                                         adj_ja);
       }
     }
   } else {
+    auto stream        = resource::get_cuda_stream(handle);
     value_int max_k_in = *max_k;
     value_idx* vd_ptr  = (vd != nullptr) ? vd : adj_ia;
 
-    rmm::device_uvector<value_idx> tmp(n_query_rows * max_k_in, resource::get_cuda_stream(handle));
-
+    rmm::device_uvector<value_idx> tmp(n_query_rows * max_k_in, stream);
     block_rbc_kernel_eps_max_k<value_idx, value_t, 64, value_int>
-      <<<raft::ceildiv<value_int>(n_query_rows, 2), 64, 0, resource::get_cuda_stream(handle)>>>(
-        index.get_X_reordered().data_handle(),
-        query,
-        n_query_rows,
-        index.n,
-        R,
-        index.m,
-        eps,
-        index.n_landmarks,
-        index.get_R_indptr().data_handle(),
-        index.get_R_1nn_cols().data_handle(),
-        index.get_R_1nn_dists().data_handle(),
-        index.get_R_radius().data_handle(),
-        dfunc,
-        vd_ptr,
-        max_k_in,
-        tmp.data());
+      <<<grid_size, 64, 0, stream>>>(index.get_X_reordered().data_handle(),
+                                     query,
+                                     n_query_rows,
+                                     index.n,
+                                     R,
+                                     index.m,
+                                     eps,
+                                     index.n_landmarks,
+                                     index.get_R_indptr().data_handle(),
+                                     index.get_R_1nn_cols().data_handle(),
+                                     index.get_R_1nn_dists().data_handle(),
+                                     index.get_R_radius().data_handle(),
+                                     dfunc,
+                                     vd_ptr,
+                                     max_k_in,
+                                     tmp.data());
 
     value_int actual_max = thrust::reduce(resource::get_thrust_policy(handle),
                                           vd_ptr,
@@ -1602,9 +1629,15 @@ void rbc_eps_pass(raft::resources const& handle,
     thrust::exclusive_scan(
       resource::get_thrust_policy(handle), vd_ptr, vd_ptr + n_query_rows + 1, adj_ia, (value_idx)0);
 
-    block_rbc_kernel_eps_max_k_copy<value_idx, 32, value_int>
-      <<<n_query_rows, 32, 0, resource::get_cuda_stream(handle)>>>(
-        max_k_in, adj_ia, tmp.data(), adj_ja);
+    if (raft::host_warp_size(resource::get_cuda_stream(handle)) == 32) {
+      block_rbc_kernel_eps_max_k_copy<value_idx, 32, value_int>
+        <<<n_query_rows, 32, 0, resource::get_cuda_stream(handle)>>>(
+          max_k_in, adj_ia, tmp.data(), adj_ja);
+    } else {
+      block_rbc_kernel_eps_max_k_copy<value_idx, 64, value_int>
+        <<<n_query_rows, 64, 0, resource::get_cuda_stream(handle)>>>(
+          max_k_in, adj_ia, tmp.data(), adj_ja);
+    }
 
     // return 'new' max-k
     *max_k = actual_max;

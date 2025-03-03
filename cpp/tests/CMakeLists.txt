@@ -377,96 +377,96 @@ if(BUILD_TEST_SUITE)
 
   list(APPEND EXT_HEADER_TEST_SOURCES ext_headers/raft_core_logger.cpp)
 
-  #  Test that the split headers compile in isolation with:
+  # Test that the split headers compile in isolation with:
   #
-  #  * EXT_HEADERS_TEST_COMPILED_EXPLICIT: RAFT_COMPILED, RAFT_EXPLICIT_INSTANTIATE_ONLY defined
-  #  * EXT_HEADERS_TEST_COMPILED_IMPLICIT: RAFT_COMPILED defined
-  #  * EXT_HEADERS_TEST_IMPLICIT:          no macros defined.
-   ConfigureTest(
-     NAME EXT_HEADERS_TEST_COMPILED_EXPLICIT PATH ${EXT_HEADER_TEST_SOURCES} LIB
-     EXPLICIT_INSTANTIATE_ONLY
-   )
-   ConfigureTest(NAME EXT_HEADERS_TEST_COMPILED_IMPLICIT PATH ${EXT_HEADER_TEST_SOURCES} LIB)
-   ConfigureTest(NAME EXT_HEADERS_TEST_IMPLICIT PATH ${EXT_HEADER_TEST_SOURCES})
+  # * EXT_HEADERS_TEST_COMPILED_EXPLICIT: RAFT_COMPILED, RAFT_EXPLICIT_INSTANTIATE_ONLY defined
+  # * EXT_HEADERS_TEST_COMPILED_IMPLICIT: RAFT_COMPILED defined
+  # * EXT_HEADERS_TEST_IMPLICIT:          no macros defined.
+  ConfigureTest(
+    NAME EXT_HEADERS_TEST_COMPILED_EXPLICIT PATH ${EXT_HEADER_TEST_SOURCES} LIB
+    EXPLICIT_INSTANTIATE_ONLY
+  )
+  ConfigureTest(NAME EXT_HEADERS_TEST_COMPILED_IMPLICIT PATH ${EXT_HEADER_TEST_SOURCES} LIB)
+  ConfigureTest(NAME EXT_HEADERS_TEST_IMPLICIT PATH ${EXT_HEADER_TEST_SOURCES})
 
-   ConfigureTest(NAME LABEL_TEST PATH label/label.cu label/merge_labels.cu)
-
-   ConfigureTest(
-     NAME
-     MATRIX_TEST
-     PATH
-     matrix/argmax.cu
-     matrix/argmin.cu
-     matrix/columnSort.cu
-     matrix/diagonal.cu
-     matrix/gather.cu
-     matrix/scatter.cu
-     matrix/eye.cu
-     matrix/linewise_op.cu
-     matrix/math.cu
-     matrix/matrix.cu
-     matrix/norm.cu
-     matrix/reverse.cu
-     matrix/sample_rows.cu
-     matrix/slice.cu
-     matrix/triangular.cu
-     sparse/spectral_matrix.cu
-     LIB
-     EXPLICIT_INSTANTIATE_ONLY
-   )
-
-   ConfigureTest(NAME MATRIX_SELECT_TEST PATH matrix/select_k.cu LIB EXPLICIT_INSTANTIATE_ONLY)
-
-   ConfigureTest(
-     NAME MATRIX_SELECT_LARGE_TEST PATH matrix/select_large_k.cu LIB EXPLICIT_INSTANTIATE_ONLY
-   )
-
-   ConfigureTest(
-     NAME
-     RANDOM_TEST
-     PATH
-     random/make_blobs.cu
-     random/make_regression.cu
-     random/multi_variable_gaussian.cu
-      random/rng_pcg_host_api.cu
-     random/permute.cu
-     random/rng.cu
-     random/rng_discrete.cu
-     random/rng_int.cu
-     random/rmat_rectangular_generator.cu
-     random/sample_without_replacement.cu
-     random/excess_sampling.cu
-   )
+  ConfigureTest(NAME LABEL_TEST PATH label/label.cu label/merge_labels.cu)
 
   ConfigureTest(
-      NAME SOLVERS_TEST PATH linalg/eigen_solvers.cu lap/lap.cu sparse/mst.cu
-      sparse/solver/lanczos.cu LIB EXPLICIT_INSTANTIATE_ONLY
+    NAME
+    MATRIX_TEST
+    PATH
+    matrix/argmax.cu
+    matrix/argmin.cu
+    matrix/columnSort.cu
+    matrix/diagonal.cu
+    matrix/gather.cu
+    matrix/scatter.cu
+    matrix/eye.cu
+    matrix/linewise_op.cu
+    matrix/math.cu
+    matrix/matrix.cu
+    matrix/norm.cu
+    matrix/reverse.cu
+    matrix/sample_rows.cu
+    matrix/slice.cu
+    matrix/triangular.cu
+    sparse/spectral_matrix.cu
+    LIB
+    EXPLICIT_INSTANTIATE_ONLY
   )
 
-   ConfigureTest(
-     NAME
-     SPARSE_TEST
-     PATH
-     sparse/add.cu
-     sparse/convert_coo.cu
-     sparse/convert_csr.cu
-     sparse/csr_row_slice.cu
-     sparse/csr_to_dense.cu
-     sparse/csr_transpose.cu
-     sparse/degree.cu
-     sparse/filter.cu
-     sparse/norm.cu
-     sparse/normalize.cu
-     sparse/masked_matmul.cu
-     sparse/reduce.cu
-     sparse/row_op.cu
-     sparse/sddmm.cu
-     sparse/select_k_csr.cu
-     sparse/sort.cu
-     sparse/spgemmi.cu
-     sparse/spmm.cu
-     sparse/symmetrize.cu
-   )
+  ConfigureTest(NAME MATRIX_SELECT_TEST PATH matrix/select_k.cu LIB EXPLICIT_INSTANTIATE_ONLY)
+
+  ConfigureTest(
+    NAME MATRIX_SELECT_LARGE_TEST PATH matrix/select_large_k.cu LIB EXPLICIT_INSTANTIATE_ONLY
+  )
+
+  ConfigureTest(
+    NAME
+    RANDOM_TEST
+    PATH
+    random/make_blobs.cu
+    random/make_regression.cu
+    random/multi_variable_gaussian.cu
+    random/rng_pcg_host_api.cu
+    random/permute.cu
+    random/rng.cu
+    random/rng_discrete.cu
+    random/rng_int.cu
+    random/rmat_rectangular_generator.cu
+    random/sample_without_replacement.cu
+    random/excess_sampling.cu
+  )
+
+  ConfigureTest(
+    NAME SOLVERS_TEST PATH linalg/eigen_solvers.cu lap/lap.cu sparse/mst.cu
+    sparse/solver/lanczos.cu LIB EXPLICIT_INSTANTIATE_ONLY
+  )
+
+  ConfigureTest(
+    NAME
+    SPARSE_TEST
+    PATH
+    sparse/add.cu
+    sparse/convert_coo.cu
+    sparse/convert_csr.cu
+    sparse/csr_row_slice.cu
+    sparse/csr_to_dense.cu
+    sparse/csr_transpose.cu
+    sparse/degree.cu
+    sparse/filter.cu
+    sparse/norm.cu
+    sparse/normalize.cu
+    sparse/masked_matmul.cu
+    sparse/reduce.cu
+    sparse/row_op.cu
+    sparse/sddmm.cu
+    sparse/select_k_csr.cu
+    sparse/sort.cu
+    sparse/spgemmi.cu
+    sparse/spmm.cu
+    sparse/symmetrize.cu
+  )
 
   ConfigureTest(
     NAME

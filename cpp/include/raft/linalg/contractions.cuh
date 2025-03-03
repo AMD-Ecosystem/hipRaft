@@ -13,6 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/*
+ * Modifications Copyright (c) 2025 Advanced Micro Devices, Inc.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 #ifndef __CONTRACTIONS_H
 #define __CONTRACTIONS_H
 
@@ -197,18 +215,34 @@ struct Policy4x4Skinny<double, _veclen> {
  * @defgroup Policy2x8 16 elements per thread Policy with k-block = 16
  * @{
  */
-template <typename DataT, int _veclen = 1>
+template <typename DataT, int _warp_size, int _veclen = 1>
 struct Policy2x8 {};
 
-template <int _veclen>
-struct Policy2x8<float, _veclen> {
-  typedef KernelPolicy<float, _veclen, 16, 2, 8, 8, 32> Policy;
+template <int _warp_size, int _veclen>
+struct Policy2x8<float, _warp_size, _veclen> {
+  static_assert(_warp_size == 32 || _warp_size == 64);
+  static constexpr int Kblk = _warp_size / 2;
+  static constexpr int Tc   = _warp_size;
+  static constexpr int Cpt =
+    _warp_size == 64
+      ? 2
+      : 8;  // Cpt affects register pressure. Reduce the number of cols a thread works on when on
+            // wave64. Having it be 8 leads to a failure to launch the kernel.
+  typedef KernelPolicy<float, _veclen, Kblk, 2, Cpt, 8, Tc> Policy;
 };
 
-template <int _veclen>
-struct Policy2x8<double, _veclen> {
+template <int _warp_size, int _veclen>
+struct Policy2x8<double, _warp_size, _veclen> {
+  static_assert(_warp_size == 32 || _warp_size == 64);
+  static constexpr int Kblk = _warp_size;
+  static constexpr int Tc   = _warp_size;
+  static constexpr int Cpt =
+    _warp_size == 64
+      ? 1
+      : 2;  // Cpt affects register pressure. Reduce the number of cols a thread works on when on
+            // wave64. Having it be 8 leads to a failure to launch the kernel.
   // this is not used just for keeping compiler happy.
-  typedef KernelPolicy<double, _veclen, 32, 1, 2, 8, 32> Policy;
+  typedef KernelPolicy<double, _veclen, Kblk, 1, Cpt, 8, Tc> Policy;
 };
 
 template <int _veclen>
