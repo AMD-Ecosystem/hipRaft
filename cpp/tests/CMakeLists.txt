@@ -318,6 +318,10 @@ if(BUILD_TESTS)
     NAME NEIGHBORS_TEST PATH neighbors/haversine.cu neighbors/ball_cover.cu
     neighbors/epsilon_neighborhood.cu LIB EXPLICIT_INSTANTIATE_ONLY
   )
+  ConfigureTest(
+    NAME NEIGHBORS_UTILS_TEST PATH neighbors/merge_network_warp.cu neighbors/faiss_select.cu
+    neighbors/block_select.cu
+  )
 
 endif()
 
@@ -328,20 +332,10 @@ if(BUILD_TEST_SUITE)
     set_source_files_properties(${CUDA_TEST_SOURCES} PROPERTIES LANGUAGE HIP)
   endif()
 
-
-   ConfigureTest(
-    NAME
-    CLUSTER_TEST
-    PATH
-    cluster/kmeans.cu
-    cluster/kmeans_balanced.cu
-    cluster/kmeans_find_k.cu
-    cluster/cluster_solvers.cu
-    cluster/linkage.cu
-    cluster/spectral.cu
-    LIB
-    EXPLICIT_INSTANTIATE_ONLY
-   )
+  ConfigureTest(
+    NAME CLUSTER_TEST PATH cluster/kmeans.cu cluster/kmeans_balanced.cu cluster/kmeans_find_k.cu
+    cluster/cluster_solvers.cu cluster/linkage.cu cluster/spectral.cu LIB EXPLICIT_INSTANTIATE_ONLY
+  )
 
   ConfigureTest(
     NAME
