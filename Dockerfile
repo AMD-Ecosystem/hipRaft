@@ -89,6 +89,8 @@ RUN DEBIAN_FRONTEND=noninteractive amdgpu-install -y \
     rm amdgpu-install_${ROCM}.60301-1_all.deb
 
 ENV CMAKE_PREFIX_PATH="/opt/rocm/lib/cmake"
+ENV RAPIDS_CMAKE_BRANCH="feat/25.04-logger"
+ENV RAPIDS_CMAKE_URL="https://${GITHUB_PASS}@github.com/AMD-AI/ROCmDS-cmake"
 
 WORKDIR /third_party_builds
 

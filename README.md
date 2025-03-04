@@ -302,6 +302,15 @@ If you want to build an image on a different version of Ubuntu, use an
 additional build arg: `--build-arg UBUNTU=<22.04|24.04>`. Nobel and Jammy
 are the only supported Ubuntu distros.
 
+[!IMPORTANT]
+RAFT currently depends on the rocmds-logger. This is not yet public, which means RAFT must point towards an
+internal ROCmDS-cmake repository to correctly consume the logger. If you are building outside of the docker image which
+has the correct environment variables initialized, make sure to set the following:
+```bash
+export RAPIDS_CMAKE_BRANCH=feat/25.04-logger
+export RAPIDS_CMAKE_URL=https://<GITHUB_PASS>@github.com/AMD-AI/ROCmDS-cmake
+```
+
 ## Contributing
 
 If you are interested in contributing to the RAFT project, please read our [Contributing guidelines](docs/source/contributing.md). Refer to the [Developer Guide](docs/source/developer_guide.md) for details on the developer guidelines, workflows, and principals.
