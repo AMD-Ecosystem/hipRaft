@@ -229,11 +229,6 @@ if(BUILD_TESTS)
     random/multi_variable_gaussian.cu
   )
 
-  ConfigureTest(
-    NAME RANDOM_SRC_TEST PATH src/random/rmat_rectangular_generator.cu LIB
-    EXPLICIT_INSTANTIATE_ONLY
-  )
-
   ConfigureTest(NAME SOLVERS_TEST PATH lap/lap.cu sparse/mst.cu LIB EXPLICIT_INSTANTIATE_ONLY)
 
   ConfigureTest(
@@ -318,10 +313,8 @@ if(BUILD_TESTS)
     NAME NEIGHBORS_TEST PATH neighbors/haversine.cu neighbors/ball_cover.cu
     neighbors/epsilon_neighborhood.cu LIB EXPLICIT_INSTANTIATE_ONLY
   )
-  ConfigureTest(
-    NAME NEIGHBORS_UTILS_TEST PATH neighbors/merge_network_warp.cu neighbors/faiss_select.cu
-    neighbors/block_select.cu
-  )
+
+  add_subdirectory(amd)
 
 endif()
 

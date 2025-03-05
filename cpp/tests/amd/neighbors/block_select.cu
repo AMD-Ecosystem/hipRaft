@@ -20,7 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "../test_utils.cuh"
+#include "../../test_utils.cuh"
 
 #include <raft/neighbors/detail/faiss_select/Comparators.cuh>
 #include <raft/neighbors/detail/faiss_select/Select.cuh>
