@@ -264,20 +264,34 @@ struct SelectK  // NOLINT
 
     // If the dists (keys) are the same, different corresponding ids may end up in the selection
     // due to non-deterministic nature of some implementations.
-    auto compare_ids = [this](const IdxT& i, const IdxT& j) {
+    auto compare_ids = [this](size_t batch_index, const IdxT& i, const IdxT& j) {
       if (i == j) return true;
       auto& in_ids   = ref.get_in_ids();
       auto& in_dists = ref.get_in_dists();
-      auto ix_i = static_cast<int64_t>(std::find(in_ids.begin(), in_ids.end(), i) - in_ids.begin());
-      auto ix_j = static_cast<int64_t>(std::find(in_ids.begin(), in_ids.end(), j) - in_ids.begin());
+      // Recover index in the original input list which is of size spec.batch_size * spec.len
+      /*
+            0 <= i < spec.len
+            0 <= j < spec.len
+            in_inds = [                        # An array of size spec.len * spec.batch_size
+              0, 1, 2, ..    (spec.len - 1),   # Batch:0
+              0, 1, 2, ..    (spec.len - 1),   # Batch:1
+              0, 1, 2, ..    (spec.len - 1),   # Batch:2
+              ...
+              0, 1, 2, ..    (spec.len - 1)    # Batch:spec.batch_size - 1
+            ]
+      */
+      auto ix_i      = spec.len * batch_index + i;
+      auto ix_j      = spec.len * batch_index + j;
       auto forgive_i = forgive_algo(ref.algo, i);
       auto forgive_j = forgive_algo(res.algo, j);
       // Some algorithms return invalid indices in special cases.
       // TODO: https://github.com/rapidsai/raft/issues/1822
       if (static_cast<size_t>(ix_i) >= in_ids.size()) return forgive_i;
       if (static_cast<size_t>(ix_j) >= in_ids.size()) return forgive_j;
-      auto dist_i = in_dists[ix_i];
-      auto dist_j = in_dists[ix_j];
+      // Note in our case in_ids[ix_i] == ix_i and in_ids[ix_j] == ix_j, because of the way the
+      // indices are generated. Extract the corresponding distance/value entries.
+      auto dist_i = in_dists[spec.len * batch_index + in_ids[ix_i]];
+      auto dist_j = in_dists[spec.len * batch_index + in_ids[ix_j]];
       if (dist_i == dist_j) return true;
       const auto bound = spec.select_min ? raft::upper_bound<KeyT>() : raft::lower_bound<KeyT>();
       if (forgive_i && dist_i == bound) return true;
@@ -287,7 +301,17 @@ struct SelectK  // NOLINT
                 << "res[" << ix_j << "] = " << dist_j << std::endl;
       return false;
     };
-    ASSERT_TRUE(hostVecMatch(ref.get_out_ids(), res.get_out_ids(), compare_ids));
+    // Compare indices
+    auto const& ref_indices = ref.get_out_ids();
+    auto const& res_indices = res.get_out_ids();
+    for (size_t batch_index = 0; batch_index < spec.batch_size; ++batch_index) {
+      for (size_t top_index = 0; top_index < spec.k; ++top_index) {
+        ASSERT_TRUE(compare_ids(batch_index,
+                                ref_indices[batch_index * spec.k + top_index],
+                                res_indices[batch_index * spec.k + top_index]))
+          << "Index comparison failed";
+      }
+    }
   }
 
   auto forgive_algo(const std::optional<SelectAlgo>& algo, IdxT ix) const -> bool
@@ -296,6 +320,9 @@ struct SelectK  // NOLINT
     switch (algo.value()) {
       // not sure which algo this is.
       case SelectAlgo::kAuto: return true;
+      case raft::matrix::SelectAlgo::kRadix8bits: return true;
+      case raft::matrix::SelectAlgo::kRadix11bits: return true;
+      case raft::matrix::SelectAlgo::kRadix11bitsExtraPass: return true;
       // warp-sort-based algos currently return zero index for inf distances.
       case SelectAlgo::kWarpAuto:
       case SelectAlgo::kWarpImmediate:
