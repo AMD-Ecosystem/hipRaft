@@ -294,9 +294,15 @@ else()
   find_package(hipblaslt CONFIG PATHS "/opt/rocm/")
   find_package(hiprand CONFIG PATHS "/opt/rocm/")
   find_package(hipsparse CONFIG PATHS "/opt/rocm/")
+  find_package(rccl CONFIG PATHS "/opt/rocm/")
   # NOTE(HIP/AMD): BLAS and LAPACK are needed for lapack_hip.hpp
   find_package(BLAS REQUIRED)
   find_package(LAPACK REQUIRED)
+  find_package(MPI)
+  find_package(ucx 1.15.0)
+  if(TARGET ucx::ucs)
+    include(../python/raft-dask/cmake/thirdparty/get_ucxx.cmake)
+  endif()
 
   set(RAFT_CUSOLVER_DEPENDENCY hipsolver${_ctk_static_suffix})
   set(RAFT_CUBLAS_DEPENDENCY hipblas${_ctk_static_suffix})
@@ -328,7 +334,7 @@ endif()
 
 if(RAFT_COMPILE_LIBRARY)
   # Enabling fatbin.ld for hip by replacing the calls with their hip equivalents results in static
-  # initialization segfaults. If this becomes necssary, investigate enabling for HIP
+  # initialization segfaults. If this becomes necessary, investigate enabling for HIP
   if(CUDA_BACKEND)
     file(
       WRITE "${CMAKE_CURRENT_BINARY_DIR}/fatbin.ld"
@@ -390,7 +396,7 @@ set_target_properties(raft_compiled PROPERTIES EXPORT_NAME compiled)
 if(RAFT_COMPILE_LIBRARY)
   add_library(
     raft_objs OBJECT
-    #src/linalg/detail/coalesced_reduction.cu
+    # src/linalg/detail/coalesced_reduction.cu
     src/raft_runtime/random/rmat_rectangular_generator_int64_double.cu
     src/raft_runtime/random/rmat_rectangular_generator_int64_float.cu
     src/raft_runtime/random/rmat_rectangular_generator_int_double.cu
@@ -485,13 +491,20 @@ endif()
 
 set_target_properties(raft_distributed PROPERTIES EXPORT_NAME distributed)
 
-rapids_find_generate_module(
-  NCCL
-  HEADER_NAMES nccl.h
-  LIBRARY_NAMES nccl
-  BUILD_EXPORT_SET raft-distributed-exports
-  INSTALL_EXPORT_SET raft-distributed-exports
-)
+if(CUDA_BACKEND)
+  rapids_find_generate_module(
+    NCCL
+    HEADER_NAMES nccl.h
+    LIBRARY_NAMES nccl
+    BUILD_EXPORT_SET raft-distributed-exports
+    INSTALL_EXPORT_SET raft-distributed-exports
+  )
+  rapids_export_package(BUILD NCCL raft-distributed-exports)
+  rapids_export_package(INSTALL NCCL raft-distributed-exports)
+else()
+  rapids_export_package(BUILD rccl raft-distributed-exports)
+  rapids_export_package(INSTALL rccl raft-distributed-exports)
+endif()
 
 rapids_export_package(
   BUILD ucxx raft-distributed-exports COMPONENTS ucxx python GLOBAL_TARGETS ucxx::ucxx ucxx::python
@@ -500,14 +513,15 @@ rapids_export_package(
   INSTALL ucxx raft-distributed-exports COMPONENTS ucxx python GLOBAL_TARGETS ucxx::ucxx
                                                                               ucxx::python
 )
-rapids_export_package(BUILD NCCL raft-distributed-exports)
-rapids_export_package(INSTALL NCCL raft-distributed-exports)
 
 # ucx is a requirement for raft_distributed, but its config is not safe to be found multiple times,
 # so rather than exporting a package dependency on it above we rely on consumers to find it
 # themselves. Once https://github.com/rapidsai/ucxx/issues/173 is resolved we can export it above
 # again.
-target_link_libraries(raft_distributed INTERFACE ucx::ucp ucxx::ucxx NCCL::NCCL)
+target_link_libraries(
+  raft_distributed INTERFACE ucx::ucs ucx::ucp ucxx::ucxx
+                             $<IF:$<BOOL:${CUDA_BACKEND}>,NCCL::NCCL,roc::rccl>
+)
 
 # ##################################################################################################
 # * install targets-----------------------------------------------------------

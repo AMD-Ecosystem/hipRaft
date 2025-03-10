@@ -31,8 +31,8 @@ from pathlib import Path
 
 
 # To be updated every time we pull in upstream changes.
-# See: https://github.com/AMD-AI/raft/commit/8ef71de26b01458f02f36ad96c1b3017cf985cc5
-BASE_COMMIT_HASH = "8ef71de26b01458f02f36ad96c1b3017cf985cc5"
+# See: https://github.com/AMD-AI/raft/commit/7af57c3936313ecb5fab8dc0d758a26eb8f533ca # pragma: allowlist-secret
+BASE_COMMIT_HASH = "7af57c3936313ecb5fab8dc0d758a26eb8f533ca" # pragma: allowlist-secret
 
 CURRENT_YEAR = str(datetime.now().year)
 BASE_PATTERN = "Advanced Micro Devices"

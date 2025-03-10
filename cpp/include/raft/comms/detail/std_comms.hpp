@@ -50,7 +50,11 @@
 #endif
 #include <thrust/iterator/zip_iterator.h>
 
+#ifdef __HIP_PLATFORM_AMD__
+#include <rccl/rccl.h>
+#else
 #include <nccl.h>
+#endif
 #include <stdlib.h>
 #include <time.h>
 #include <ucp/api/ucp.h>
