@@ -100,6 +100,8 @@ RUN  git config --global credential.helper store && \
      wget -q https://github.com/openucx/ucx/releases/download/v1.17.0/ucx-1.17.0.tar.gz && \
      wget -q https://download.open-mpi.org/release/open-mpi/v5.0/openmpi-5.0.6.tar.bz2
 
+RUN cd rocPRIM; mkdir build; cd build; CXX=hipcc cmake -G Ninja -DONLY_INSTALL=ON ..; ninja; ninja install
+
 RUN tar xzf ucx-1.17.0.tar.gz && \
     cd ucx-1.17.0 && \
     ./contrib/configure-release --prefix=/usr --with-rocm=/opt/rocm && \
