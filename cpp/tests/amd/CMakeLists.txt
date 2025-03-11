@@ -26,6 +26,11 @@ if(BUILD_TESTS)
     NAME NEIGHBORS_UTILS_TEST PATH neighbors/merge_network_warp.cu neighbors/faiss_select.cu
     neighbors/block_select.cu
   )
+
+  ConfigureTest(
+        NAME SRC_LINALG_TEST PATH src_linalg/coalasced_reduction.cu LIB EXPLICIT_INSTANTIATE_ONLY
+  )
+
   if(TARGET ucx::ucp
      AND TARGET ucx::ucs
      AND DEFINED MPI_FOUND
