@@ -15,7 +15,7 @@
  */
 
 /*
- * Modifications Copyright (c) 2024 Advanced Micro Devices, Inc.
+ * Modifications Copyright (c) 2024-2025 Advanced Micro Devices, Inc.
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -75,7 +75,6 @@
 #include <raft/sparse/detail/cusparse_wrappers.h>
 #include <raft/sparse/linalg/detail/cusparse_utils.hpp>
 #include <raft/sparse/solver/lanczos_types.hpp>
-#include <raft/spectral/detail/lapack.hpp>
 #include <raft/spectral/detail/warn_dbg.hpp>
 #include <raft/spectral/matrix_wrappers.hpp>
 #include <raft/util/cudart_utils.hpp>
@@ -83,6 +82,7 @@
 #ifdef __HIP_PLATFORM_AMD__
 #include <raft/cuda_runtime.h>
 #include <raft/curand.h>
+#include <raft/cusparse.h>
 #include <raft/spectral/detail/lapack_hip.hpp>
 #else
 #include <raft/spectral/detail/lapack.hpp>
@@ -91,8 +91,8 @@
 
 #include <cublasLt.h>
 #include <curand.h>
-#endif
 #include <cusparse.h>
+#endif
 #include <sys/types.h>
 
 #include <algorithm>

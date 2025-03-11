@@ -229,7 +229,8 @@ if(BUILD_TESTS)
     random/multi_variable_gaussian.cu
   )
 
-  ConfigureTest(NAME SOLVERS_TEST PATH lap/lap.cu sparse/mst.cu LIB EXPLICIT_INSTANTIATE_ONLY)
+  ConfigureTest(NAME SOLVERS_TEST PATH linalg/eigen_solvers.cu lap/lap.cu sparse/mst.cu
+          sparse/solver/lanczos.cu LIB EXPLICIT_INSTANTIATE_ONLY)
 
   ConfigureTest(
     NAME

@@ -120,6 +120,7 @@ using cudaStream_t                = hipStream_t;
 #define cudaOccupancyMaxPotentialBlockSizeVariableSMem hipOccupancyMaxPotentialBlockSizeVariableSMem
 #define cudaPeekAtLastError                            hipPeekAtLastError
 #define cudaPointerGetAttributes                       hipPointerGetAttributes
+#define cudaRuntimeGetVersion                          hipRuntimeGetVersion
 #define cudaSetDevice                                  hipSetDevice
 #define cudaStreamCreate                               hipStreamCreate
 #define cudaStreamCreateWithFlags                      hipStreamCreateWithFlags
