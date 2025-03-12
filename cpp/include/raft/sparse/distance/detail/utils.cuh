@@ -42,6 +42,8 @@
 #ifdef __HIP_PLATFORM_AMD__
 #include <hipcub/hipcub.hpp>
 namespace cub = hipcub;
+#include <raft/amd_warp_primitives.h>
+using namespace hip_warp_primitives;
 #else
 #include <cub/cub.cuh>
 #include <cuda_fp16.h>
@@ -121,7 +123,13 @@ RAFT_KERNEL faster_dot_on_csr_kernel(dot_t* __restrict__ dot,
       __shared__ typename WarpReduce::TempStorage temp_storage;
       dot_t warp_sum = WarpReduce(temp_storage).Sum(l_dot_);
 
-      if (lane_id == 0) { atomicAdd_block(dot + dot_id, warp_sum); }
+      if (lane_id == 0) {
+#ifdef __HIP_PLATFORM_AMD__
+        atomicAdd(dot + dot_id, warp_sum);
+#else
+        atomicAdd_block(dot + dot_id, warp_sum);
+#endif
+      }
     }
   }
 }

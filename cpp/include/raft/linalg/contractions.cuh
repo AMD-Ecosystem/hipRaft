@@ -245,9 +245,17 @@ struct Policy2x8<double, _warp_size, _veclen> {
   typedef KernelPolicy<double, _veclen, Kblk, 1, Cpt, 8, Tc> Policy;
 };
 
-template <int _veclen>
-struct Policy2x8<half, _veclen> {
-  typedef KernelPolicy<half, _veclen, 16, 2, 8, 8, 32> Policy;
+template <int _warp_size, int _veclen>
+struct Policy2x8<half, _warp_size, _veclen> {
+  static_assert(_warp_size == 32 || _warp_size == 64);
+  static constexpr int Kblk = _warp_size / 2;
+  static constexpr int Tc   = _warp_size;
+  static constexpr int Cpt =
+    _warp_size == 64
+      ? 2
+      : 8;  // Cpt affects register pressure. Reduce the number of cols a thread works on when on
+            // wave64. Having it be 8 leads to a failure to launch the kernel.
+  typedef KernelPolicy<half, _veclen, Kblk, 2, Cpt, 8, Tc> Policy;
 };
 
 /** @} */

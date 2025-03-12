@@ -15,7 +15,7 @@
  */
 
 /*
- * Modifications Copyright (c) 2024 Advanced Micro Devices, Inc.
+ * Modifications Copyright (c) 2024-2025 Advanced Micro Devices, Inc.
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -59,6 +59,7 @@
 #define CUDA_VER_12_4_UP (CUDART_VERSION >= 12040)
 #if defined(__HIP_PLATFORM_AMD__)
 #undef CUDA_VER_10_1_UP
+#undef CUDA_VER_12_4_UP
 // The selection of what subset of cusparse API's are made available is based on pre-processor logic
 // around whether "CUDA_VER_10_1_UP" or "CUDA_VER_12_4_UP" is defined or not. When compiling with
 // the HIP/AMD toolchain we force the latest version of the cuparse API's as these are known to be

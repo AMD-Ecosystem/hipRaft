@@ -61,6 +61,12 @@ __device__ inline int __thread_rank(lane_mask mask)
   return cooperative_groups::internal::coalesced_group::masked_bit_count(mask, 0);
 }
 
+template <typename T>
+__device__ T __ldcg(const T* ptr)
+{
+  return rocprim::thread_load<rocprim::cache_load_modifier::load_cg>(const_cast<T*>(ptr));
+}
+
 __device__ inline unsigned int __mask_size(lane_mask mask) { return raft::__POPC(mask); }
 
 __device__ inline int __thread_rank_to_lane_id(lane_mask mask, int i)
