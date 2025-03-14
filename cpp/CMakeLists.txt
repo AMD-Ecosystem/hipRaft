@@ -222,16 +222,6 @@ include(${rapids-cmake-dir}/cpm/rocmds_logger.cmake)
 rapids_cpm_rocmds_logger(BUILD_EXPORT_SET raft-exports INSTALL_EXPORT_SET raft-exports)
 create_logger_macros(RAFT "raft::default_logger()" include/raft/core)
 
-if(TARGET spdlog_header_only)
-  install(TARGETS spdlog_header_only EXPORT rmm-exports)
-else()
-  message(
-    FATAL_ERROR
-      "Target spdlog_header_only not found. This must be added to the rmm-export list until rmm has been
-                       updated to use the new rocmds-logger"
-  )
-endif()
-
 # CCCL before rmm/cuco so we get the right version of CCCL
 include(cmake/thirdparty/get_cccl.cmake)
 

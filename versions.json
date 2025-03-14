@@ -3,7 +3,7 @@
       "hipmm" : {
           "version" : "${rapids-cmake-version}",
           "git_url" : "https://$ENV{GITHUB_PASS}@github.com/AMD-AI/hipmm",
-          "git_tag" : "feat/fixes_for_wip-24.06"
+          "git_tag" : "feat/gpinkert/fixes_for_wip-24.06-rocmds-logger"
       }
   }
 }
