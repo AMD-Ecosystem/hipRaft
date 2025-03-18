@@ -186,4 +186,29 @@ __device__ inline int __CLZ<uint64_t>(uint64_t v)
   return __clzll(static_cast<long long int>(v));
 }
 
+template <>
+__device__ inline int __CLZ<unsigned long long>(unsigned long long v)
+{
+  static_assert(sizeof(unsigned long long) == sizeof(long long int));
+  return __clzll(static_cast<long long int>(v));
+}
+
+template <typename T>
+__device__ int32_t __FNS(T mask, uint32_t base, int32_t offset)
+{
+  static_assert(!std::is_same_v<T, T>, "Invalid instantiation");
+}
+
+template <>
+__device__ int32_t __FNS<uint32_t>(uint32_t mask, uint32_t base, int32_t offset)
+{
+  return __fns32(mask, base, offset);
+}
+
+template <>
+__device__ int32_t __FNS<uint64_t>(uint64_t mask, uint32_t base, int32_t offset)
+{
+  return __fns64(mask, base, offset);
+}
+
 }  // namespace raft

@@ -14,9 +14,32 @@
  * limitations under the License.
  */
 
+// MIT License
+//
+// Copyright (c) 2025 Advanced Micro Devices, Inc.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
 #pragma once
 
 #include <raft/core/logger_macros.hpp>
+#include <raft/util/cudart_utils.hpp>
 
 #include <rapids_logger/logger.hpp>
 
@@ -66,12 +89,12 @@ inline rapids_logger::logger& default_logger()
 }  // namespace raft
 
 #if (RAFT_LOG_ACTIVE_LEVEL <= RAPIDS_LOGGER_LOG_LEVEL_TRACE)
-#define RAFT_LOG_TRACE_VEC(ptr, len)                                             \
-  do {                                                                           \
-    std::stringstream ss;                                                        \
-    ss << raft::detail::format("%s:%d ", __FILE__, __LINE__);                    \
-    print_vector(#ptr, ptr, len, ss);                                            \
-    raft::default_logger().log(RAPIDS_LOGGER_LOG_LEVEL_TRACE, ss.str().c_str()); \
+#define RAFT_LOG_TRACE_VEC(ptr, len)                                                \
+  do {                                                                              \
+    std::stringstream ss;                                                           \
+    ss << __FILE__ << ':' << __LINE__ << ' ';                                       \
+    raft::print_vector(#ptr, ptr, len, ss);                                         \
+    raft::default_logger().log(rapids_logger::level_enum::trace, ss.str().c_str()); \
   } while (0)
 #else
 #define RAFT_LOG_TRACE_VEC(ptr, len) void(0)
