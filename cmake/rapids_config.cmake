@@ -1,5 +1,5 @@
 # =============================================================================
-# Copyright (c) 2018-2024, NVIDIA CORPORATION.
+# Copyright (c) 2018-2025, NVIDIA CORPORATION.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
 # in compliance with the License. You may obtain a copy of the License at
@@ -27,7 +27,7 @@
 
 # cmake-lint: disable=W0106
 
-file(READ "${CMAKE_CURRENT_LIST_DIR}/VERSION" _rapids_version)
+file(READ "${CMAKE_CURRENT_LIST_DIR}/../VERSION" _rapids_version)
 if(_rapids_version MATCHES [[^([0-9][0-9])\.([0-9][0-9])\.([0-9][0-9])]])
   set(RAPIDS_VERSION_MAJOR "${CMAKE_MATCH_1}")
   set(RAPIDS_VERSION_MINOR "${CMAKE_MATCH_2}")
@@ -42,49 +42,5 @@ else()
   )
 endif()
 
-set(RAPIDS_CMAKE_MODULE_PATH
-    $ENV{RAPIDS_CMAKE_MODULE_PATH}
-    CACHE FILEPATH "Announce that ROCmDS-CMake is available via the provided module path."
-)
-if(NOT "${RAPIDS_CMAKE_MODULE_PATH}" STREQUAL "")
-  # If RAPIDS_CMAKE_MODULE_PATH is set we want to use ROCmDS-CMake that's available in that path.
-  list(APPEND CMAKE_MODULE_PATH "${RAPIDS_CMAKE_MODULE_PATH}")
-  include(rapids-cmake)
-  return()
-endif()
-
-if(NOT EXISTS "${CMAKE_CURRENT_BINARY_DIR}/RAFT_RAPIDS-${RAPIDS_VERSION_MAJOR_MINOR}.cmake")
-  if(DEFINED ENV{RAPIDS_CMAKE_SCRIPT_REPO})
-    set(RAPIDS_CMAKE_SCRIPT_REPO "$ENV{RAPIDS_CMAKE_SCRIPT_REPO}")
-  else()
-    set(RAPIDS_CMAKE_SCRIPT_REPO ROCm-DS/ROCmDS-CMake)
-  endif()
-  if(DEFINED ENV{RAPIDS_CMAKE_SCRIPT_BRANCH})
-    set(RAPIDS_CMAKE_SCRIPT_BRANCH "$ENV{RAPIDS_CMAKE_SCRIPT_BRANCH}")
-  else()
-    set(RAPIDS_CMAKE_SCRIPT_BRANCH release/rocmds-25.10)
-  endif()
-  set(URL
-      "https://raw.githubusercontent.com/${RAPIDS_CMAKE_SCRIPT_REPO}/${RAPIDS_CMAKE_SCRIPT_BRANCH}/RAPIDS.cmake"
-  )
-  file(DOWNLOAD ${URL} "${CMAKE_CURRENT_BINARY_DIR}/RAFT_RAPIDS-${RAPIDS_VERSION_MAJOR_MINOR}.cmake"
-       STATUS DOWNLOAD_STATUS
-  )
-  list(GET DOWNLOAD_STATUS 0 STATUS_CODE)
-  list(GET DOWNLOAD_STATUS 1 ERROR_MESSAGE)
-
-  if(${STATUS_CODE} EQUAL 0)
-    message(STATUS "Downloaded 'RAFT_RAPIDS-${RAPIDS_VERSION_MAJOR_MINOR}.cmake' successfully!")
-  else()
-    file(REMOVE ${CMAKE_CURRENT_BINARY_DIR}/RAFT_RAPIDS-${RAPIDS_VERSION_MAJOR_MINOR}.cmake)
-    message(
-      FATAL_ERROR
-        "Failed to download RAFT_RAPIDS-${RAPIDS_VERSION_MAJOR_MINOR}.cmake'. URL: ${URL}, Reason: ${ERROR_MESSAGE}"
-    )
-    message(
-      FATAL_ERROR
-        "Failed to download 'RAFT_RAPIDS-${RAPIDS_VERSION_MAJOR_MINOR}.cmake'. Reason: ${ERROR_MESSAGE}"
-    )
-  endif()
-endif()
-include("${CMAKE_CURRENT_BINARY_DIR}/RAFT_RAPIDS-${RAPIDS_VERSION_MAJOR_MINOR}.cmake")
+set(rapids-cmake-version "${RAPIDS_VERSION_MAJOR_MINOR}")
+include("${CMAKE_CURRENT_LIST_DIR}/RAPIDS.cmake")

@@ -28,7 +28,7 @@ cmake_minimum_required(VERSION 3.30.4 FATAL_ERROR)
 
 option(CUDA_BACKEND "Build for CUDA devices. Default configuration builds for AMD devices." OFF)
 
-include(../../rapids_config.cmake)
+include(../../cmake/rapids_config.cmake)
 
 set(CMAKE_USER_MAKE_RULES_OVERRIDE "${CMAKE_CURRENT_LIST_DIR}/../../overrides.cmake")
 set(lang_list "CXX")
