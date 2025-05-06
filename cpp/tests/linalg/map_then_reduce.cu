@@ -55,6 +55,11 @@ template <typename InType, typename OutType, typename MapOp>
 RAFT_KERNEL naiveMapReduceKernel(OutType* out, const InType* in, size_t len, MapOp map)
 {
   int idx = threadIdx.x + blockIdx.x * blockDim.x;
+  // (HIP/AMD) We cannot assume that the memory location pointed by "out" has been zero'ed out like
+  // on the NV platform. We assign the first thread to zero it out and then announce this to all the
+  // other threads using the threadfence_system call.
+  if (idx == 0) { *out = OutType(0.0); }
+  __threadfence_system();
   if (idx < len) { raft::myAtomicAdd(out, (OutType)map(in[idx])); }
 }
 
@@ -88,7 +93,7 @@ void mapReduceLaunch(
   OutType* out_ref, OutType* out, const InType* in, size_t len, cudaStream_t stream)
 {
   naiveMapReduce(out_ref, in, len, raft::identity_op{}, stream);
-  mapThenSumReduce(out, len, raft::identity_op{}, 0, in);
+  mapThenSumReduce(out, len, raft::identity_op{}, stream, in);
 }
 
 template <typename InType, typename OutType>
@@ -127,20 +132,16 @@ const std::vector<MapReduceInputs<float>> inputsf = {{0.001f, 1024 * 1024, 1234U
 typedef MapReduceTest<float, float> MapReduceTestFF;
 TEST_P(MapReduceTestFF, Result)
 {
-  if (std::string(::testing::UnitTest::GetInstance()->current_test_info()->name()) == "Result/0") {
-    // See issue: https://github.com/AMD-AI/raft/issues/8
-    GTEST_SKIP() << "Known failure\n";
-  }
-  ASSERT_TRUE(devArrMatch(
-    out_ref.data(), out.data(), params.len, CompareApprox<float>(params.tolerance), stream));
+  ASSERT_TRUE(
+    devArrMatch(out_ref.data(), out.data(), 1, CompareApprox<float>(params.tolerance), stream));
 }
 INSTANTIATE_TEST_SUITE_P(MapReduceTests, MapReduceTestFF, ::testing::ValuesIn(inputsf));
 
 typedef MapReduceTest<float, double> MapReduceTestFD;
 TEST_P(MapReduceTestFD, Result)
 {
-  ASSERT_TRUE(devArrMatch(
-    out_ref.data(), out.data(), params.len, CompareApprox<double>(params.tolerance), stream));
+  ASSERT_TRUE(
+    devArrMatch(out_ref.data(), out.data(), 1, CompareApprox<double>(params.tolerance), stream));
 }
 INSTANTIATE_TEST_SUITE_P(MapReduceTests, MapReduceTestFD, ::testing::ValuesIn(inputsf));
 
@@ -148,8 +149,8 @@ const std::vector<MapReduceInputs<double>> inputsd = {{0.000001, 1024 * 1024, 12
 typedef MapReduceTest<double, double> MapReduceTestDD;
 TEST_P(MapReduceTestDD, Result)
 {
-  ASSERT_TRUE(devArrMatch(
-    out_ref.data(), out.data(), params.len, CompareApprox<double>(params.tolerance), stream));
+  ASSERT_TRUE(
+    devArrMatch(out_ref.data(), out.data(), 1, CompareApprox<double>(params.tolerance), stream));
 }
 INSTANTIATE_TEST_SUITE_P(MapReduceTests, MapReduceTestDD, ::testing::ValuesIn(inputsd));
 

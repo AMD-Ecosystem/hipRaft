@@ -14,6 +14,23 @@
  * limitations under the License.
  */
 
+// Modifications Copyright (c) 2025 Advanced Micro Devices, Inc.
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+
 #include "../test_utils.cuh"
 
 #include <raft/core/resource/cuda_stream.hpp>
@@ -166,7 +183,9 @@ TEST(Raft, EigStream)
   auto eig_vectors_stream =
     raft::make_device_matrix<float, std::uint32_t, raft::col_major>(handle, n_rows, n_rows);
   auto eig_vals_stream = raft::make_device_vector<float, std::uint32_t>(handle, n_rows);
-
+  raft::random::RngState r(0);
+  // (HIP/AMD) Random initialize "cov_matrix" to allow the underlying solver call to converge.
+  uniform(handle, r, cov_matrix_stream.data_handle(), n_rows * n_rows, -1.0f, 1.0f);
   raft::linalg::eig_dc(handle,
                        raft::make_const_mdspan(cov_matrix_stream.view()),
                        eig_vectors_stream.view(),

@@ -50,6 +50,8 @@
 
 #include <gtest/gtest.h>
 
+#include <type_traits>
+
 namespace raft::random {
 
 template <typename T>
@@ -67,6 +69,15 @@ class MakeRegressionTest : public ::testing::TestWithParam<MakeRegressionInputs<
  protected:
   void SetUp() override
   {
+    if constexpr (std::is_same_v<T, double>) {
+      // (HIP/AMD): hipblasLtMatmul does not support HIP_R_64F. See
+      // https://rocm.docs.amd.com/projects/hipBLASLt/en/docs-6.4.0/api-reference.html#hipblasltmatmul
+      // We're calling GTEST_SKIP() in the SetUp() function as opposed to the test body to skip all
+      // the unneccasary test setup.
+      GTEST_SKIP() << "hipblasLtMatmul does not support HIP_R_64F. "
+                      "https://rocm.docs.amd.com/projects/hipBLASLt/en/docs-6.4.0/"
+                      "api-reference.html#hipblasltmatmul";
+    }
     // Noise must be zero to compare the actual and expected values
     T noise = (T)0.0, tail_strength = (T)0.5;
 
@@ -181,9 +192,6 @@ const std::vector<MakeRegressionInputs<double>> inputsd_t = {
 
 TEST_P(MakeRegressionTestD, Result)
 {
-  GTEST_SKIP() << "hipblasLtMatmul does not support HIP_R_64F. "
-                  "https://rocm.docs.amd.com/projects/hipBLASLt/en/docs-6.2.1/"
-                  "api-reference.html#hipblasltmatmul";
   ASSERT_TRUE(match(params.n_targets * (params.n_features - params.n_informative),
                     zero_count,
                     raft::Compare<int>()));
@@ -310,9 +318,6 @@ using MakeRegressionMdspanTestD = MakeRegressionTest<double>;
 
 TEST_P(MakeRegressionMdspanTestD, Result)
 {
-  GTEST_SKIP() << "hipblasLtMatmul does not support HIP_R_64F. "
-                  "https://rocm.docs.amd.com/projects/hipBLASLt/en/docs-6.2.1/"
-                  "api-reference.html#hipblasltmatmul";
   ASSERT_TRUE(match(params.n_targets * (params.n_features - params.n_informative),
                     zero_count,
                     raft::Compare<int>()));

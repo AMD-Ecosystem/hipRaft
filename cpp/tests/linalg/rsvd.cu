@@ -85,9 +85,6 @@ class RsvdTest : public ::testing::TestWithParam<RsvdInputs<T>> {
 
   void SetUp() override
   {
-    raft::resources handle;
-    stream = resource::get_cuda_stream(handle);
-
     params = ::testing::TestWithParam<RsvdInputs<T>>::GetParam();
     // rSVD seems to be very sensitive to the random number sequence as well!
     raft::random::RngState r(params.seed, raft::random::GenPC);
@@ -97,6 +94,13 @@ class RsvdTest : public ::testing::TestWithParam<RsvdInputs<T>> {
 
     T mu = 0.0, sigma = 1.0;
     A.resize(m * n, stream);
+    //(HIP/AMD) rmm::device_vector::resize() only reserves memory – it does not zero‑initialise it.
+    // This behaviour is different on the Nvidia platform as uninitilized reads from global memory
+    // in CUDA seems to always return zero for every byte. See: https://godbolt.org/z/shd96j368 The
+    // code in the following "else" branch was unintentionally relying on this undefined behaviour.
+    // Because len_redundant (=0.75 mn) is larger than len_informative (=0.25 mn), the copy reads
+    // past the portion that was initialised by normal().
+    EXPECT_EQ(cudaMemsetAsync(A.data(), 0, m * n * sizeof(T), stream), cudaSuccess);
     if (params.tolerance > 1) {  // Sanity check
       ASSERT(m == 3, "This test only supports mxn=3x2!");
       ASSERT(m * n == 6, "This test only supports mxn=3x2!");
@@ -173,7 +177,8 @@ class RsvdTest : public ::testing::TestWithParam<RsvdInputs<T>> {
   }
 
  protected:
-  cudaStream_t stream = 0;
+  raft::resources handle;
+  rmm::cuda_stream_view stream = resource::get_cuda_stream(handle);
   RsvdInputs<T> params;
   rmm::device_uvector<T> A, U, S, V, left_eig_vectors_ref, right_eig_vectors_ref, sing_vals_ref;
 };
@@ -293,12 +298,6 @@ TEST_P(RsvdSanityCheckRightVecD, Result)
 typedef RsvdTest<float> RsvdTestSquareMatrixNormF;
 TEST_P(RsvdTestSquareMatrixNormF, Result)
 {
-  if (std::string(::testing::UnitTest::GetInstance()->current_test_info()->name()) == "Result/0") {
-    // See issue: https://github.com/AMD-AI/raft/issues/8
-    GTEST_SKIP() << "Known failure\n";
-  }
-  raft::resources handle;
-
   ASSERT_TRUE(raft::linalg::evaluateSVDByL2Norm(handle,
                                                 A.data(),
                                                 U.data(),
@@ -314,8 +313,6 @@ TEST_P(RsvdTestSquareMatrixNormF, Result)
 typedef RsvdTest<double> RsvdTestSquareMatrixNormD;
 TEST_P(RsvdTestSquareMatrixNormD, Result)
 {
-  raft::resources handle;
-
   ASSERT_TRUE(raft::linalg::evaluateSVDByL2Norm(handle,
                                                 A.data(),
                                                 U.data(),
