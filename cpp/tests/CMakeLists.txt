@@ -217,6 +217,7 @@ if(BUILD_TESTS)
     matrix/diagonal.cu
     matrix/gather.cu
     matrix/scatter.cu
+    matrix/shift.cu
     matrix/eye.cu
     matrix/linewise_op.cu
     matrix/math.cu
