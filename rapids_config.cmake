@@ -12,7 +12,7 @@
 # the License.
 # =============================================================================
 
-# Modifications Copyright (c) 2024-25 Advanced Micro Devices, Inc. Permission is hereby granted,
+# Modifications Copyright (c) 2024-2025 Advanced Micro Devices, Inc. Permission is hereby granted,
 # free of charge, to any person obtaining a copy of this software and associated documentation files
 # (the "Software"), to deal in the Software without restriction, including without limitation the
 # rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the
@@ -40,14 +40,25 @@ else()
   )
 endif()
 
+set(RAPIDS_CMAKE_MODULE_PATH
+    $ENV{RAPIDS_CMAKE_MODULE_PATH}
+    CACHE FILEPATH "Announce that ROCmDS-CMake is available via the provided module path."
+)
+if(NOT "${RAPIDS_CMAKE_MODULE_PATH}" STREQUAL "")
+  # If RAPIDS_CMAKE_MODULE_PATH is set we want to use ROCmDS-CMake that's available in that path.
+  list(APPEND CMAKE_MODULE_PATH "${RAPIDS_CMAKE_MODULE_PATH}")
+  include(rapids-cmake)
+  return()
+endif()
+
 if(NOT EXISTS "${CMAKE_CURRENT_BINARY_DIR}/RAFT_RAPIDS-${RAPIDS_VERSION_MAJOR_MINOR}.cmake")
   if(DEFINED ENV{RAPIDS_CMAKE_SCRIPT_BRANCH})
     set(RAPIDS_CMAKE_SCRIPT_BRANCH "$ENV{RAPIDS_CMAKE_SCRIPT_BRANCH}")
   else()
-    set(RAPIDS_CMAKE_SCRIPT_BRANCH branch-24.06)
+    set(RAPIDS_CMAKE_SCRIPT_BRANCH release/1.0.x)
   endif()
   set(URL
-      "https://raw.githubusercontent.com/ROCm/rapids-cmake/${RAPIDS_CMAKE_SCRIPT_BRANCH}/RAPIDS.cmake"
+      "https://raw.githubusercontent.com/ROCm-DS/ROCmDS-CMake/${RAPIDS_CMAKE_SCRIPT_BRANCH}/RAPIDS.cmake"
   )
   file(DOWNLOAD ${URL} "${CMAKE_CURRENT_BINARY_DIR}/RAFT_RAPIDS-${RAPIDS_VERSION_MAJOR_MINOR}.cmake"
        STATUS DOWNLOAD_STATUS
@@ -58,9 +69,11 @@ if(NOT EXISTS "${CMAKE_CURRENT_BINARY_DIR}/RAFT_RAPIDS-${RAPIDS_VERSION_MAJOR_MI
   if(${STATUS_CODE} EQUAL 0)
     message(STATUS "Downloaded 'RAFT_RAPIDS-${RAPIDS_VERSION_MAJOR_MINOR}.cmake' successfully!")
   else()
-    file(REMOVE ${CMAKE_CURRENT_BINARY_DIR}/HIPDF_RAPIDS.cmake)
-    # for debuging: message(FATAL_ERROR "Failed to download
-    # 'RAFT_RAPIDS-${RAPIDS_VERSION_MAJOR_MINOR}.cmake'. URL: ${URL}, Reason: ${ERROR_MESSAGE}")
+    file(REMOVE ${CMAKE_CURRENT_BINARY_DIR}/RAFT_RAPIDS-${RAPIDS_VERSION_MAJOR_MINOR}.cmake)
+    message(
+      FATAL_ERROR
+        "Failed to download RAFT_RAPIDS-${RAPIDS_VERSION_MAJOR_MINOR}.cmake'. URL: ${URL}, Reason: ${ERROR_MESSAGE}"
+    )
     message(
       FATAL_ERROR
         "Failed to download 'RAFT_RAPIDS-${RAPIDS_VERSION_MAJOR_MINOR}.cmake'. Reason: ${ERROR_MESSAGE}"

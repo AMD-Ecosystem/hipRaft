@@ -111,6 +111,10 @@ BUILD_ABI=${BUILD_ABI:=ON}
 # Default to Ninja if generator is not specified
 export CMAKE_GENERATOR="${CMAKE_GENERATOR:=Ninja}"
 
+# TODO: (HIP/AMD) Remove the following 2 exports once we have a 25.02 based ROCmDS-cmake branch with the RAPIDS-Logger changes.
+export RAPIDS_CMAKE_BRANCH=feat/25.04-logger
+export RAPIDS_CMAKE_URL=https://${GITHUB_PASS}@github.com/AMD-AI/ROCmDS-cmake
+
 function hasArg {
     (( ${NUMARGS} != 0 )) && (echo " ${ARGS} " | grep -q " $1 ")
 }
