@@ -42,6 +42,8 @@ namespace cub = hipcub;
 
 #include <raft/util/cuda_utils.cuh>
 
+#include <cub/cub.cuh>
+
 namespace raft {
 namespace linalg {
 namespace detail {
