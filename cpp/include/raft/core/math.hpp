@@ -406,8 +406,8 @@ RAFT_INLINE_FUNCTION auto max(const T1& x, const T2& y)
 #if defined(__CUDA_ARCH__) || defined(__HIP_DEVICE_COMPILE__)
   // Combinations of types supported by the CUDA Math API
   if constexpr ((std::is_integral_v<T1> && std::is_integral_v<T2> && std::is_same_v<T1, T2>) ||
-                ((std::is_same_v<T1, float> || std::is_same_v<T1, double>)&&(
-                  std::is_same_v<T2, float> || std::is_same_v<T2, double>))) {
+                ((std::is_same_v<T1, float> || std::is_same_v<T1, double>) &&
+                 (std::is_same_v<T2, float> || std::is_same_v<T2, double>))) {
     return ::max(x, y);
   } else if constexpr (std::is_same_v<T1, float> && std::is_same_v<T2, __half>) {
     const float f_y = __half2float(y);
@@ -542,8 +542,8 @@ RAFT_INLINE_FUNCTION auto min(const T1& x, const T2& y)
 #if defined(__CUDA_ARCH__) || defined(__HIP_DEVICE_COMPILE__)
   // Combinations of types supported by the CUDA Math API
   if constexpr ((std::is_integral_v<T1> && std::is_integral_v<T2> && std::is_same_v<T1, T2>) ||
-                ((std::is_same_v<T1, float> || std::is_same_v<T1, double>)&&(
-                  std::is_same_v<T2, float> || std::is_same_v<T2, double>))) {
+                ((std::is_same_v<T1, float> || std::is_same_v<T1, double>) &&
+                 (std::is_same_v<T2, float> || std::is_same_v<T2, double>))) {
     return ::min(x, y);
   }
   // Else, check that the types are the same and provide a generic implementation
