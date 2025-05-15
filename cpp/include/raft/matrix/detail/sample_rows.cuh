@@ -55,6 +55,7 @@ template <typename T, typename IdxT = int64_t>
 void sample_rows(raft::resources const& res,
                  random::RngState random_state,
                  const T* input,
+                 IdxT ld,
                  IdxT n_rows_input,
                  raft::device_matrix_view<T, IdxT> output)
 {
@@ -68,10 +69,11 @@ void sample_rows(raft::resources const& res,
   RAFT_CUDA_TRY(cudaPointerGetAttributes(&attr, input));
   T* ptr = reinterpret_cast<T*>(attr.devicePointer);
   if (ptr != nullptr) {
-    raft::matrix::gather(res,
-                         raft::make_device_matrix_view<const T, IdxT>(ptr, n_rows_input, n_dim),
-                         raft::make_const_mdspan(train_indices.view()),
-                         output);
+    raft::matrix::gather(
+      res,
+      raft::make_device_strided_matrix_view<const T, IdxT>(ptr, n_rows_input, n_dim, ld),
+      raft::make_const_mdspan(train_indices.view()),
+      output);
   } else {
 #ifdef __HIP_PLATFORM_AMD__
     // (HIP/AMD) In the code path below when the input dataset is on the host, raft::matrix::gather
@@ -86,24 +88,37 @@ void sample_rows(raft::resources const& res,
     hipDeviceProp_t device_prop{};
     RAFT_CUDA_TRY(hipGetDeviceProperties(&device_prop, current_device));
     if (device_prop.unifiedAddressing) {
-      rmm::device_uvector<T> backing_storage(n_rows_input * n_dim,
+      rmm::device_uvector<T> backing_storage(n_rows_input * ld,
                                              raft::resource::get_cuda_stream(res),
                                              raft::resource::get_large_workspace_resource(res));
       raft::copy(
-        backing_storage.data(), input, n_rows_input * n_dim, raft::resource::get_cuda_stream(res));
+        backing_storage.data(), input, n_rows_input * ld, raft::resource::get_cuda_stream(res));
       auto device_dataset =
-        raft::make_device_matrix_view<const T, IdxT>(backing_storage.data(), n_rows_input, n_dim);
+        raft::make_device_strided_matrix_view<const T, IdxT>(backing_storage.data(), n_rows_input, n_dim, ld);
       raft::matrix::gather(
         res, device_dataset, raft::make_const_mdspan(train_indices.view()), output);
     } else {
       // (HIP/AMD) Not using unified addressing, should be safe to use the host path
-      auto dataset = raft::make_host_matrix_view<const T, IdxT>(input, n_rows_input, n_dim);
+      auto dataset =
+        raft::make_host_strided_matrix_view<const T, IdxT>(input, n_rows_input, n_dim, ld);
       raft::matrix::detail::gather(res, dataset, make_const_mdspan(train_indices.view()), output);
     }
 #else
-    auto dataset = raft::make_host_matrix_view<const T, IdxT>(input, n_rows_input, n_dim);
+    auto dataset =
+      raft::make_host_strided_matrix_view<const T, IdxT>(input, n_rows_input, n_dim, ld);
     raft::matrix::detail::gather(res, dataset, make_const_mdspan(train_indices.view()), output);
 #endif
   }
+}
+
+template <typename T, typename IdxT = int64_t>
+void sample_rows(raft::resources const& res,
+                 random::RngState random_state,
+                 const T* input,
+                 IdxT n_rows_input,
+                 raft::device_matrix_view<T, IdxT> output)
+{
+  IdxT n_dim = output.extent(1);
+  sample_rows<T, IdxT>(res, random_state, input, n_dim, n_rows_input, output);
 }
 }  // namespace raft::matrix::detail
