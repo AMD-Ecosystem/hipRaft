@@ -268,7 +268,7 @@ You can find an example [RAFT project template](cpp/template/README.md) in the `
 
 ## Building
 
-These are the instructions for building RAFT for AMD GPUs with rocM 6.3.1 and
+These are the instructions for building RAFT for AMD GPUs with rocM 6.4.0 and
 Ubuntu 24.04 on a Docker image. A DockerFile has been provided for users to build
 their own containers which will be setup to build RAFT out of the box. Make sure
 to pass your token to the GITHUB_PASS build arg, rather than your password. These
