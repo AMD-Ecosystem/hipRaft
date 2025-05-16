@@ -81,6 +81,7 @@
 #define cusparseCreate                    hipsparseCreate
 #define cusparseCreateMatDescr            hipsparseCreateMatDescr
 #define cusparseCreateIdentityPermutation hipsparseCreateIdentityPermutation
+#define cusparseCreateSpVec               hipsparseCreateSpVec
 #define cusparseCsr2cscEx2                hipsparseCsr2cscEx2
 #define cusparseCsr2cscEx2_bufferSize     hipsparseCsr2cscEx2_bufferSize
 #define cusparseDcsr2dense                hipsparseDcsr2dense
