@@ -1653,7 +1653,7 @@ void lanczos_aux(raft::resources const& handle,
     raft::linalg::axpy(handle, n, &mone, vv.data_handle(), 1, u.data_handle(), 1, stream);
 
     raft::linalg::gemv(handle,
-                       CUBLAS_OP_T,
+                       true,
                        n,
                        i + 1,
                        &one,
@@ -1667,7 +1667,7 @@ void lanczos_aux(raft::resources const& handle,
                        stream);
 
     raft::linalg::gemv(handle,
-                       CUBLAS_OP_N,
+                       false,
                        n,
                        i + 1,
                        &mone,
@@ -1971,7 +1971,7 @@ auto lanczos_smallest(
     raft::copy(vec_dev.data_handle(), vec.data(), 2, stream);
 
     raft::linalg::gemv(handle,
-                       CUBLAS_OP_N,
+                       false,
                        three,
                        two,
                        &one,
@@ -1985,7 +1985,7 @@ auto lanczos_smallest(
                        stream);
 
     raft::linalg::gemv(handle,
-                       CUBLAS_OP_N,
+                       false,
                        n,
                        nEigVecs,
                        &one,

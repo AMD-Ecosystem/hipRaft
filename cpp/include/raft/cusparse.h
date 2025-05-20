@@ -1,6 +1,6 @@
 // MIT License
 //
-// Copyright (c) 2023 Advanced Micro Devices, Inc.
+// Copyright (c) 2024-2025 Advanced Micro Devices, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -99,6 +99,7 @@
 #define cusparseScsrmv                    hipsparseScsrmv
 #define cusparseSetPointerMode            hipsparseSetPointerMode
 #define cusparseSetStream                 hipsparseSetStream
+#define cusparseCreateSpVec               hipsparseCreateSpVec
 #define cusparseSgemmi                    hipsparseSgemmi
 #define cusparseSpMV_preprocess           hipsparseSpMV_preprocess
 #define cusparseXcoo2csr                  hipsparseXcoo2csr

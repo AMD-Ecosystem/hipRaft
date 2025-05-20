@@ -449,8 +449,12 @@ template <typename T>
 RAFT_DEVICE_INLINE_FUNCTION typename std::enable_if_t<std::is_same_v<T, __half>, __half> max(T x,
                                                                                              T y)
 {
-#if (__CUDA_ARCH__ >= 530) || defined(__HIP_DEVICE_COMPILE__)
+#if (__CUDA_ARCH__ >= 530) || defined(__HIP_PLATFORM_AMD__)
+#ifdef __HIP_PLATFORM_AMD__
+  return __hmax(x, y);
+#else
   return ::__hmax(x, y);
+#endif
 #else
   // Fail during template instantiation if the compute capability doesn't support this operation
   static_assert(sizeof(T) != sizeof(T), "__half is only supported on __CUDA_ARCH__ >= 530");

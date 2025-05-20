@@ -477,16 +477,34 @@ struct __half_constexpr : __half {  // NOLINT
 };
 }  // namespace
 
+static constexpr uint16_t kHalfLowerBoundAsUint16 = 0xfc00u;
+static constexpr uint16_t kHalfUpperBoundAsUint16 = 0x7c00u;
+
 template <>
 constexpr inline auto lower_bound<half>() -> half
 {
-  return static_cast<half>(__half_constexpr{0xfc00u});
+  return static_cast<half>(__half_constexpr{kHalfLowerBoundAsUint16});
 }
 
 template <>
 constexpr inline auto upper_bound<half>() -> half
 {
-  return static_cast<half>(__half_constexpr{0x7c00u});
+  return static_cast<half>(__half_constexpr{kHalfUpperBoundAsUint16});
+}
+
+template <typename DeviceType, typename HostType>
+__device__ DeviceType convert_to_device_type(HostType value)
+{
+  // The device and host type are the same
+  return value;
+}
+
+template <>
+__device__ half convert_to_device_type<half, uint16_t>(uint16_t value)
+{
+  __half_raw raw;
+  raw.x = value;
+  return half(raw);
 }
 
 }  // namespace raft

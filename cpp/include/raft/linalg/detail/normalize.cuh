@@ -197,10 +197,19 @@ void coalesced_normalize(Type* out,
     } else if (D <= IdxType(16)) {
       coalesced_normalize_thin<NormalizeThinPolicy<16, 8>>(
         out, in, D, N, init, stream, main_op, reduce_op, fin_op, eps);
-    } else {
+    } else if (D <= IdxType(32)) {
       coalesced_normalize_thin<NormalizeThinPolicy<32, 4>>(
         out, in, D, N, init, stream, main_op, reduce_op, fin_op, eps);
+    } else {
+      if (raft::host_warp_size(stream) == 32) {
+        coalesced_normalize_thin<NormalizeThinPolicy<32, 4>>(
+          out, in, D, N, init, stream, main_op, reduce_op, fin_op, eps);
+      } else {
+        coalesced_normalize_thin<NormalizeThinPolicy<64, 2>>(
+          out, in, D, N, init, stream, main_op, reduce_op, fin_op, eps);
+      }
     }
+
   } else {
     coalesced_normalize_medium<256>(out, in, D, N, init, stream, main_op, reduce_op, fin_op, eps);
   }

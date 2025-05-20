@@ -172,7 +172,19 @@ class warp_sort {
    *  The `empty` value for the chosen binary operation,
    *  i.e. `Ascending ? upper_bound<T>() : lower_bound<T>()`.
    */
-  static constexpr T kDummy = Ascending ? upper_bound<T>() : lower_bound<T>();
+  static constexpr auto kDummy = []() {
+#ifdef __HIP_PLATFORM_AMD__
+    if constexpr (std::is_same_v<T, half>) {
+      return Ascending ? raft::kHalfLowerBoundAsUint16 : kHalfUpperBoundAsUint16;
+    } else {
+      return Ascending ? upper_bound<T>() : lower_bound<T>();
+    }
+#else
+    return Ascending ? upper_bound<T>() : lower_bound<T>();
+#endif
+  }();
+  using kDummyType = decltype(kDummy);
+
   /** Width of the subwarp. */
   static constexpr int kWarpWidth = std::min<int>(Capacity, WarpSize);
   /** The number of elements to select. */
@@ -835,7 +847,10 @@ __launch_bounds__(256) RAFT_KERNEL block_kernel(const T* in,
   const IdxT stride         = gridDim.x * blockDim.x;
   const IdxT per_thread_lim = l_len + laneId();
   for (IdxT i = threadIdx.x + blockIdx.x * blockDim.x; i < per_thread_lim; i += stride) {
-    queue.add(i < l_len ? __ldcs(in + i) : WarpSortClass<Capacity, Ascending, T, IdxT>::kDummy,
+    using DummyType = typename WarpSortClass<Capacity, Ascending, T, IdxT>::kDummyType;
+    queue.add(i < l_len ? __ldcs(in + i)
+                        : convert_to_device_type<T, DummyType>(
+                            WarpSortClass<Capacity, Ascending, T, IdxT>::kDummy),
               (i < l_len && in_idx != nullptr) ? __ldcs(in_idx + i) : i);
   }
 

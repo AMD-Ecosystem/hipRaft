@@ -14,6 +14,25 @@
  * limitations under the License.
  */
 
+/*
+ * Modifications Copyright (c) 2025 Advanced Micro Devices, Inc.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
 #pragma once
 
 #include <raft/core/detail/macros.hpp>
@@ -215,12 +234,13 @@ class bitonic {
       KeyT& key = keys[i];
       for (int stride = (warp_width >> 1); stride > 0; stride >>= 1) {
         const bool is_second = lane & stride;
-        const KeyT other     = shfl_xor(key, stride, warp_width);
+        const KeyT other     = shfl_xor(key, stride, warp_width, __activemask());
         const bool do_assign = (ascending != is_second) ? key > other : key < other;
 
         conditional_assign(do_assign, key, other);
         // NB: don't put shfl_xor in a conditional; it must be called by all threads in a warp.
-        (conditional_assign(do_assign, payloads[i], shfl_xor(payloads[i], stride, warp_width)),
+        (conditional_assign(
+           do_assign, payloads[i], shfl_xor(payloads[i], stride, warp_width, __activemask())),
          ...);
       }
     }

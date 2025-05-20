@@ -35,6 +35,9 @@
 
 #pragma once
 
+#ifdef __HIP_PLATFORM_AMD__
+#include <hip/amd_detail/amd_warp_sync_functions.h>
+#endif
 #include <raft/core/cudart_utils.hpp>
 #include <raft/core/operators.hpp>
 #include <raft/util/cuda_dev_essentials.cuh>
@@ -46,7 +49,7 @@ namespace raft {
 
 /**
  * @brief Logical-warp-level reduction
- * @tparam logicalWarpSize Logical warp size (2, 4, 8, 16 or 32)
+ * @tparam logicalWarpSize Logical warp size (2, 4, 8, 16, 32 or 64)
  * @tparam T Value type to be reduced
  * @tparam ReduceLambda Reduction operation type
  * @param val input value
@@ -58,7 +61,7 @@ DI T logicalWarpReduce(T val, ReduceLambda reduce_op)
 {
 #pragma unroll
   for (int i = logicalWarpSize / 2; i > 0; i >>= 1) {
-    const T tmp = shfl_xor(val, i, logicalWarpSize);
+    const T tmp = shfl_xor(val, i, logicalWarpSize, ::__activemask());
     val         = reduce_op(val, tmp);
   }
   return val;
