@@ -24,19 +24,43 @@
 #include <hiprand/hiprand.h>
 
 // types
+#ifndef curandGenerator_t
 #define curandGenerator_t hiprandGenerator_t
-#define curandStatus_t    hiprandStatus_t
+#endif
+#ifndef curandStatus_t
+#define curandStatus_t hiprandStatus_t
+#endif
 
 // macros, constants, enums
-#define CURAND_RNG_PSEUDO_DEFAULT       HIPRAND_RNG_PSEUDO_DEFAULT
-#define CURAND_STATUS_SUCCESS           HIPRAND_STATUS_SUCCESS
+#ifndef CURAND_RNG_PSEUDO_DEFAULT
+#define CURAND_RNG_PSEUDO_DEFAULT HIPRAND_RNG_PSEUDO_DEFAULT
+#endif
+#ifndef CURAND_STATUS_SUCCESS
+#define CURAND_STATUS_SUCCESS HIPRAND_STATUS_SUCCESS
+#endif
+#ifndef CURAND_RNG_PSEUDO_PHILOX4_32_10
 #define CURAND_RNG_PSEUDO_PHILOX4_32_10 HIPRAND_RNG_PSEUDO_PHILOX4_32_10
+#endif
 
 // functions
-#define curandCreateGenerator              hiprandCreateGenerator
-#define curandDestroyGenerator             hiprandDestroyGenerator
-#define curandGenerateNormal               hiprandGenerateNormal
-#define curandGenerateNormalDouble         hiprandGenerateNormalDouble
+#ifndef curandCreateGenerator
+#define curandCreateGenerator hiprandCreateGenerator
+#endif
+#ifndef curandDestroyGenerator
+#define curandDestroyGenerator hiprandDestroyGenerator
+#endif
+#ifndef curandGenerateNormal
+#define curandGenerateNormal hiprandGenerateNormal
+#endif
+#ifndef curandGenerateNormalDouble
+#define curandGenerateNormalDouble hiprandGenerateNormalDouble
+#endif
+#ifndef curandSetPseudoRandomGeneratorSeed
 #define curandSetPseudoRandomGeneratorSeed hiprandSetPseudoRandomGeneratorSeed
-#define curandGenerateUniform              hiprandGenerateUniform
-#define curandGenerateUniformDouble        hiprandGenerateUniformDouble
+#endif
+#ifndef curandGenerateUniform
+#define curandGenerateUniform hiprandGenerateUniform
+#endif
+#ifndef curandGenerateUniformDouble
+#define curandGenerateUniformDouble hiprandGenerateUniformDouble
+#endif

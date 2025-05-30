@@ -24,9 +24,17 @@
 #include <thrust/execution_policy.h>
 
 #ifdef __HIP_PLATFORM_AMD__
-#define THRUST_EXECUTION_POLICY                       thrust::hip_rocprim::par
+#ifndef THRUST_EXECUTION_POLICY
+#define THRUST_EXECUTION_POLICY thrust::hip_rocprim::par
+#endif
+#ifndef THRUST_CUDA_CUB_EXECUTE_ON_STREAM_NOSYNC_BASE
 #define THRUST_CUDA_CUB_EXECUTE_ON_STREAM_NOSYNC_BASE thrust::hip_rocprim
+#endif
 #else
-#define THRUST_EXECUTION_POLICY                       thrust::cuda::par
+#ifndef THRUST_EXECUTION_POLICY
+#define THRUST_EXECUTION_POLICY thrust::cuda::par
+#endif
+#ifndef THRUST_CUDA_CUB_EXECUTE_ON_STREAM_NOSYNC_BASE
 #define THRUST_CUDA_CUB_EXECUTE_ON_STREAM_NOSYNC_BASE thrust::cuda_cub
+#endif
 #endif

@@ -23,4 +23,6 @@
 
 #include <hip/hip_bf16.h>
 
+#ifndef nv_bfloat16
 #define nv_bfloat16 __hip_bfloat16
+#endif

@@ -24,28 +24,68 @@
 #include <hipblaslt/hipblaslt.h>
 
 // types
-#define cublasLtHandle_t                hipblasLtHandle_t
-#define cublasLtMatrixLayout_t          hipblasLtMatrixLayout_t
-#define cublasLtMatmulDesc_t            hipblasLtMatmulDesc_t
+#ifndef cublasLtHandle_t
+#define cublasLtHandle_t hipblasLtHandle_t
+#endif
+#ifndef cublasLtMatrixLayout_t
+#define cublasLtMatrixLayout_t hipblasLtMatrixLayout_t
+#endif
+#ifndef cublasLtMatmulDesc_t
+#define cublasLtMatmulDesc_t hipblasLtMatmulDesc_t
+#endif
+#ifndef cublasLtMatmulHeuristicResult_t
 #define cublasLtMatmulHeuristicResult_t hipblasLtMatmulHeuristicResult_t
-#define cublasLtMatmulPreference_t      hipblasLtMatmulPreference_t
+#endif
+#ifndef cublasLtMatmulPreference_t
+#define cublasLtMatmulPreference_t hipblasLtMatmulPreference_t
+#endif
 
+#ifndef cudaDataType
 #define cudaDataType hipDataType
+#endif
 
 // macros
+#ifndef CUBLASLT_MATMUL_DESC_POINTER_MODE
 #define CUBLASLT_MATMUL_DESC_POINTER_MODE HIPBLASLT_MATMUL_DESC_POINTER_MODE
-#define CUBLASLT_MATMUL_DESC_TRANSA       HIPBLASLT_MATMUL_DESC_TRANSA
-#define CUBLASLT_MATMUL_DESC_TRANSB       HIPBLASLT_MATMUL_DESC_TRANSB
+#endif
+#ifndef CUBLASLT_MATMUL_DESC_TRANSA
+#define CUBLASLT_MATMUL_DESC_TRANSA HIPBLASLT_MATMUL_DESC_TRANSA
+#endif
+#ifndef CUBLASLT_MATMUL_DESC_TRANSB
+#define CUBLASLT_MATMUL_DESC_TRANSB HIPBLASLT_MATMUL_DESC_TRANSB
+#endif
 
 // functions
-#define cublasLtCreate                  hipblasLtCreate
-#define cublasLtDestroy                 hipblasLtDestroy
-#define cublasLtMatrixLayoutCreate      hipblasLtMatrixLayoutCreate
-#define cublasLtMatrixLayoutDestroy     hipblasLtMatrixLayoutDestroy
-#define cublasLtMatmulDescCreate        hipblasLtMatmulDescCreate
-#define cublasLtMatmulDescDestroy       hipblasLtMatmulDescDestroy
-#define cublasLtMatmulPreferenceCreate  hipblasLtMatmulPreferenceCreate
-#define cublasLtMatmulAlgoGetHeuristic  hipblasLtMatmulAlgoGetHeuristic
+#ifndef cublasLtCreate
+#define cublasLtCreate hipblasLtCreate
+#endif
+#ifndef cublasLtDestroy
+#define cublasLtDestroy hipblasLtDestroy
+#endif
+#ifndef cublasLtMatrixLayoutCreate
+#define cublasLtMatrixLayoutCreate hipblasLtMatrixLayoutCreate
+#endif
+#ifndef cublasLtMatrixLayoutDestroy
+#define cublasLtMatrixLayoutDestroy hipblasLtMatrixLayoutDestroy
+#endif
+#ifndef cublasLtMatmulDescCreate
+#define cublasLtMatmulDescCreate hipblasLtMatmulDescCreate
+#endif
+#ifndef cublasLtMatmulDescDestroy
+#define cublasLtMatmulDescDestroy hipblasLtMatmulDescDestroy
+#endif
+#ifndef cublasLtMatmulPreferenceCreate
+#define cublasLtMatmulPreferenceCreate hipblasLtMatmulPreferenceCreate
+#endif
+#ifndef cublasLtMatmulAlgoGetHeuristic
+#define cublasLtMatmulAlgoGetHeuristic hipblasLtMatmulAlgoGetHeuristic
+#endif
+#ifndef cublasLtMatmulPreferenceDestroy
 #define cublasLtMatmulPreferenceDestroy hipblasLtMatmulPreferenceDestroy
-#define cublasLtMatmulDescSetAttribute  hipblasLtMatmulDescSetAttribute
-#define cublasLtMatmul                  hipblasLtMatmul
+#endif
+#ifndef cublasLtMatmulDescSetAttribute
+#define cublasLtMatmulDescSetAttribute hipblasLtMatmulDescSetAttribute
+#endif
+#ifndef cublasLtMatmul
+#define cublasLtMatmul hipblasLtMatmul
+#endif

@@ -23,6 +23,12 @@
 
 #include <hip/hip_math_constants.h>
 
+#ifndef CUDART_INF_F
 #define CUDART_INF_F HIP_INF_F
-#define CUDART_INF   HIP_INF
-#define CUDART_PI_F  HIP_PI_F
+#endif
+#ifndef CUDART_INF
+#define CUDART_INF HIP_INF
+#endif
+#ifndef CUDART_PI_F
+#define CUDART_PI_F HIP_PI_F
+#endif

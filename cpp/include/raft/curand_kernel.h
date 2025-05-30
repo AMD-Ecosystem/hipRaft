@@ -29,5 +29,9 @@
 // macros, constants
 
 // functions
-#define curand      hiprand
+#ifndef curand
+#define curand hiprand
+#endif
+#ifndef curand_init
 #define curand_init hiprand_init
+#endif
