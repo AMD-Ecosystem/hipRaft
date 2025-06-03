@@ -353,7 +353,6 @@ if hasArg tests || (( ${NUMARGS} == 0 )); then
           $CMAKE_TARGET == *"NEIGHBORS_ANN_BRUTE_FORCE_TEST"* || \
           $CMAKE_TARGET == *"NEIGHBORS_ANN_CAGRA_TEST"* || \
           $CMAKE_TARGET == *"NEIGHBORS_ANN_IVF_TEST"* || \
-          $CMAKE_TARGET == *"NEIGHBORS_ANN_NN_DESCENT_TEST"* || \
           $CMAKE_TARGET == *"NEIGHBORS_TEST"* || \
           $CMAKE_TARGET == *"RANDOM_SRC_TEST"* || \
           $CMAKE_TARGET == *"SPARSE_DIST_TEST" || \
