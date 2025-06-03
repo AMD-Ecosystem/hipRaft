@@ -45,14 +45,12 @@ from cuda.ccuda cimport cudaStream_t
 # from cuda.bindings.cyruntime cimport cudaStream_t
 from libc.stdint cimport uintptr_t
 
-from rmm._lib.cuda_stream_view cimport cuda_stream_per_thread, cuda_stream_view
+from rmm.librmm.cuda_stream_view cimport (
+    cuda_stream_per_thread,
+    cuda_stream_view,
+)
 
 from .cuda cimport Stream
-
-# Once hipmm has been updated to version 25.02, remove the two lines below and
-# uncomment the line below and remove the line below that
-
-# from rmm.librmm.cuda_stream_view cimport (
 
 from .cuda import CudaRuntimeError
 

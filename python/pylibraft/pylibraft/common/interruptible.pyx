@@ -47,13 +47,9 @@ from cuda.ccuda cimport cudaStream_t
 # from cuda.bindings.cyruntime cimport cudaStream_t
 from cython.operator cimport dereference
 
-# Once hipMM has been updated to version 25.02, remove the line below
-# and uncomment the line under it
-from rmm._lib.cuda_stream_view cimport cuda_stream_view
+from rmm.librmm.cuda_stream_view cimport cuda_stream_view
 
 from .cuda cimport Stream
-
-# from rmm.librmm.cuda_stream_view cimport cuda_stream_view
 
 
 @contextlib.contextmanager
