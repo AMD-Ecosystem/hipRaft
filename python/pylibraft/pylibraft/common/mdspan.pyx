@@ -18,6 +18,28 @@
 # cython: embedsignature = True
 # cython: language_level = 3
 
+# MIT License
+#
+# Modifications Copyright (c) 2025 Advanced Micro Devices, Inc.
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 import io
 
 import numpy as np
@@ -200,14 +222,14 @@ cdef device_matrix_view[int64_t, int64_t, row_major] \
         <int64_t*><uintptr_t>cai.data, shape[0], shape[1])
 
 
-cdef device_matrix_view[const_float, int64_t, row_major] \
+cdef device_matrix_view[const_float_t, int64_t, row_major] \
         get_const_dmv_float(cai, check_shape) except *:
     if cai.dtype != np.float32:
         raise TypeError("dtype %s not supported" % cai.dtype)
     if check_shape and len(cai.shape) != 2:
         raise ValueError("Expected a 2D array, got %d D" % len(cai.shape))
     shape = (cai.shape[0], cai.shape[1] if len(cai.shape) == 2 else 1)
-    return make_device_matrix_view[const_float, int64_t, row_major](
+    return make_device_matrix_view[const_float_t, int64_t, row_major](
         <const float*><uintptr_t>cai.data, shape[0], shape[1])
 
 
@@ -317,14 +339,14 @@ cdef host_matrix_view[uint64_t, int64_t, row_major] \
         <uint64_t*><uintptr_t>cai.data, shape[0], shape[1])
 
 
-cdef host_matrix_view[const_float, int64_t, row_major] \
+cdef host_matrix_view[const_float_t, int64_t, row_major] \
         get_const_hmv_float(cai, check_shape) except *:
     if cai.dtype != np.float32:
         raise TypeError("dtype %s not supported" % cai.dtype)
     if check_shape and len(cai.shape) != 2:
         raise ValueError("Expected a 2D array, got %d D" % len(cai.shape))
     shape = (cai.shape[0], cai.shape[1] if len(cai.shape) == 2 else 1)
-    return make_host_matrix_view[const_float, int64_t, row_major](
+    return make_host_matrix_view[const_float_t, int64_t, row_major](
         <const float*><uintptr_t>cai.data, shape[0], shape[1])
 
 
