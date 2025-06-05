@@ -22,7 +22,7 @@
       "installcuRAND": true,
       "installcuSPARSE": true
     },
-    "ghcr.io/rapidsai/devcontainers/features/rapids-build-utils:25.4": {}
+    "ghcr.io/rapidsai/devcontainers/features/rapids-build-utils:25.6": {}
   },
   "overrideFeatureInstallOrder": [
     "ghcr.io/rapidsai/devcontainers/features/ucx",
