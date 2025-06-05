@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 #pragma once
+#include <raft/core/logger.hpp>
 #include <raft/distance/distance_types.hpp>
 #include <raft/random/rng_state.hpp>
-
-#include <rapids_logger/logger.hpp>
 
 namespace raft::cluster {
 
@@ -83,7 +82,7 @@ struct KMeansParams : kmeans_base_params {
   /**
    * verbosity level.
    */
-  rapids_logger::level_enum verbosity = rapids_logger::level_enum::info;
+  level_enum verbosity = level_enum::info;
 
   /**
    * Seed to the random number generator.

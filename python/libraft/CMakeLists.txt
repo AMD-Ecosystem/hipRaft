@@ -55,19 +55,6 @@ endif()
 
 unset(raft_FOUND)
 
-# (HIP/AMD): Temporary WAR until we can have rocmds-logger pip packages. The following ensures that
-# librapids-logger.so is force bundled into the libraft wheel.
-include(ExternalProject)
-ExternalProject_Add(
-  rocmds-logger
-  DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
-  GIT_REPOSITORY https://$ENV{GITHUB_PASS}@github.com/AMD-AI/rocmds-logger.git
-  GIT_TAG raft-logger-stable
-  GIT_SHALLOW 1
-  CMAKE_GENERATOR Ninja
-  CMAKE_ARGS "-DBUILD_TESTS=OFF" "-DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}"
-)
-
 # --- CUDA --- #
 set(CUDA_STATIC_RUNTIME OFF) # No static linking with HIP, HIP must be installed
 set(CUDA_STATIC_MATH_LIBRARIES OFF) # No static linking with HIP, HIP must be installed

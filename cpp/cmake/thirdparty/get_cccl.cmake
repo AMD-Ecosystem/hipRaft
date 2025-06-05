@@ -31,33 +31,8 @@
 
 # Use CPM to find or clone CCCL
 function(find_and_configure_cccl)
-  if(CUDA_BACKEND)
-    include(${rapids-cmake-dir}/cpm/cccl.cmake)
-    rapids_cpm_cccl(BUILD_EXPORT_SET raft-exports INSTALL_EXPORT_SET raft-exports)
-  else()
-    # TODO(HIP/AMD): simply further when CCCL is available on AMD and configurable in
-    # rapids-cmake
-    add_library(CCCL INTERFACE) # Dummy interface library
-    add_library(CCCL::CCCL ALIAS CCCL)
-    install(
-      TARGETS CCCL
-      DESTINATION ${lib_dir}
-      EXPORT raft-exports
-    )
-
-    include(${rapids-cmake-dir}/cpm/rocthrust.cmake)
-    rapids_cpm_rocthrust(BUILD_EXPORT_SET raft-exports INSTALL_EXPORT_SET raft-exports)
-
-
-    include(${rapids-cmake-dir}/cpm/libhipcxx.cmake)
-    rapids_cpm_libhipcxx(BUILD_EXPORT_SET raft-exports INSTALL_EXPORT_SET raft-exports)
-    add_library(CCCL::libhipcxx ALIAS _libhipcxx_libhipcxx)
-
-    # TODO(HIP/AMD): it would be good to configure hipcub with rapids-cmake, too.
-    find_package(hipcub REQUIRED CONFIG PATHS "/opt/rocm/hipcub")
-    add_library(CCCL::CUB ALIAS hip::hipcub)
-    # TODO(HIP/AMD): add CUB to raft-exports?
-  endif()
+  include(${rapids-cmake-dir}/cpm/cccl.cmake)
+  rapids_cpm_cccl(BUILD_EXPORT_SET raft-exports INSTALL_EXPORT_SET raft-exports)
 endfunction()
 
 find_and_configure_cccl()

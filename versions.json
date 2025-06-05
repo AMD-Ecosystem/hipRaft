@@ -1,9 +1,24 @@
 {
-  "packages" : {
-      "hipmm" : {
-          "version" : "${rapids-cmake-version}",
-          "git_url" : "https://$ENV{GITHUB_PASS}@github.com/AMD-AI/hipmm",
-          "git_tag" : "feat/gpinkert/branch-24.06-rocmds-logger"
-      }
+  "packages": {
+    "hipmm": {
+      "version": "${rapids-cmake-version}",
+      "git_url": "https://$ENV{GITHUB_PASS}@github.com/AMD-AI/hipmm",
+      "git_tag": "amd-integration/3.0.x"
+    },
+    "rocmds_logger": {
+      "version": "0.1.0",
+      "git_url": "https://$ENV{GITHUB_PASS}@github.com/AMD-AI/rocmds-logger",
+      "git_tag": "amd-integration/1.0.x"
+    },
+    "libhipcxx" : {
+      "version" : "2.2.0",
+      "git_url" : "https://$ENV{GITHUB_PASS}@github.com/AMD-AI/libhipcxx",
+      "git_tag" : "dev_aiss/moberste/upgrade_cccl_2_7_copyright_fix"
+    },
+    "hipco" : {
+      "version" : "0.2.0",
+      "git_url" : "https://$ENV{GITHUB_PASS}@github.com/AMD-AI/hipCollections",
+      "git_tag" : "feat/moberste/upgrade_nvidia_25.02_copyright_fix"
+    }
   }
 }
