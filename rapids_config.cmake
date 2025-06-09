@@ -52,30 +52,6 @@ if(NOT "${RAPIDS_CMAKE_MODULE_PATH}" STREQUAL "")
 endif()
 
 if(NOT EXISTS "${CMAKE_CURRENT_BINARY_DIR}/RAFT_RAPIDS-${RAPIDS_VERSION_MAJOR_MINOR}.cmake")
-  # ################################################################################################
-  # The following overrides are to be removed once the GA target ROCmDS-cmake branch is made public.
-  # cmake-format: off
-  # For now we need to set the following environment variables so that downstream CMake scripts all pull from a consistent location.
-  #   - RAPIDS_CMAKE_SCRIPT_BRANCH: Which branch of the public ROCmDS-cmake git repository to pull the entrypoint RAPIDS.cmake script from.
-  #   - RAPIDS_CMAKE_URL:           URL to the internal ROCmDS-cmake git repository
-  #   - RAPIDS_CMAKE_BRANCH:        ROCmDS-cmake branch to use.
-  # cmake-format: on
-  set(ENV{RAPIDS_CMAKE_SCRIPT_BRANCH} release/1.0.x)
-  if(NOT DEFINED ENV{RAPIDS_CMAKE_BRANCH})
-    set(BRANCH "amd-integration/2.0.x")
-    message(STATUS "Setting \"RAPIDS_CMAKE_BRANCH\" environment variable to ${BRANCH}")
-    set(ENV{RAPIDS_CMAKE_BRANCH} ${BRANCH})
-  endif()
-  if(NOT DEFINED ENV{RAPIDS_CMAKE_URL})
-    if(NOT DEFINED ENV{GITHUB_PASS})
-      message(
-        FATAL_ERROR "Please set the \"GITHUB_PASS\" environment variable with your Github API key"
-      )
-    endif()
-    message(STATUS "Setting the \"RAPIDS_CMAKE_URL\" environment variable")
-    set(ENV{RAPIDS_CMAKE_URL} https://$ENV{GITHUB_PASS}@github.com/AMD-AI/ROCmDS-cmake)
-  endif()
-  # ################################################################################################
   if(DEFINED ENV{RAPIDS_CMAKE_SCRIPT_BRANCH})
     set(RAPIDS_CMAKE_SCRIPT_BRANCH "$ENV{RAPIDS_CMAKE_SCRIPT_BRANCH}")
   else()

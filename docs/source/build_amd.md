@@ -112,10 +112,12 @@ Set the Github personal access token(`GITHUB_PASS`). Note `GITHUB_PASS` should b
 export GITHUB_PASS=<GITHUB_PERSONAL_ACCESS_TOKEN>
 ```
 
-hipRAFT currently depends on custom branch of [`rocmds-logger`](https://github.com/AMD-AI/rocmds-logger) and as a result we need a custom branch of `ROCmDS-cmake` to pull this specific version of `rocmds-logger`. The following environment variables help select this specific version of `ROCmDS-cmake`:
+The following environment variables need to be set to select the version of `ROCmDS-cmake` that's scheduled to be released for General Availability.
+
 ```bash
-export RAPIDS_CMAKE_BRANCH=feat/25.04-logger
-export RAPIDS_CMAKE_URL=https://${GITHUB_PASS}@github.com/AMD-AI/ROCmDS-cmake
+export RAPIDS_CMAKE_SCRIPT_BRANCH=release/1.0.x                               # Which branch of the public ROCmDS-cmake git repository to pull the entrypoint RAPIDS.cmake script from.
+export RAPIDS_CMAKE_URL=https://${GITHUB_PASS}@github.com/AMD-AI/ROCmDS-cmake # URL to the internal ROCmDS-cmake git repository
+export RAPIDS_CMAKE_BRANCH=amd-integration/2.0.x                              # ROCmDS-cmake branch to use.
 ```
 
 ## C++ library

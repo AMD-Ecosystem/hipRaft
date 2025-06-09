@@ -45,9 +45,10 @@ project(
 )
 
 # Check if raft is already available. If so, it is the user's responsibility to ensure that the
-# CMake package is also available at build time of the Python raft package. find_package(raft
-# "${RAPIDS_VERSION}") Note: On the AMD/HIP platform we want to force libraft.so into the libraft
-# wheel
+# CMake package is also available at build time of the Python raft package.
+# cmake-format: off
+# find_package(raft "${RAPIDS_VERSION}") Note: On the AMD/HIP platform we want to force libraft.so into the libraft wheel
+# cmake-format: on
 
 if(raft_FOUND)
   return()
