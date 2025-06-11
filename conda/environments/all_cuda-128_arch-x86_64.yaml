@@ -38,9 +38,9 @@ dependencies:
 - numpydoc
 - pre-commit
 - pydata-sphinx-theme
-- pylibraft==25.6.*
+- pylibraft==25.8.*,>=0.0.0a0
+- pytest
 - pytest-cov
-- pytest==7.*
 - rapids-build-backend>=0.3.0,<0.4.0.dev0
 - rapids-dask-dependency==25.6.*
 - rapids-logger==0.1.*
