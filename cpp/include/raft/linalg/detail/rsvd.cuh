@@ -13,7 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+/*
+ * Modifications Copyright (c) 2024-2025 Advanced Micro Devices, Inc.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 #pragma once
 
 #include <raft/core/resource/cublas_handle.hpp>
@@ -30,6 +47,7 @@
 #include <raft/matrix/slice.cuh>
 #include <raft/matrix/triangular.cuh>
 #include <raft/random/rng.cuh>
+#include <raft/thrust_execution_policy.h>
 #include <raft/util/cuda_utils.cuh>
 
 #include <algorithm>
@@ -377,6 +395,13 @@ void rsvdFixedRank(raft::resources const& handle,
         handle, Uhat_dup.data(), l, l, Uhat.data(), S_vec_tmp.data(), stream, tol, max_sweeps);
     else
       raft::linalg::eigDC(handle, Uhat_dup.data(), l, l, Uhat.data(), S_vec_tmp.data(), stream);
+    thrust::for_each(THRUST_EXECUTION_POLICY.on(stream),
+                     S_vec_tmp.data(),
+                     S_vec_tmp.data() + l,
+                     [] __device__(math_t & x) {
+                       if (x < 0 && std::abs(x) < math_t(1e-6))
+                         x = std::numeric_limits<math_t>::denorm_min();
+                     });
     raft::matrix::seqRoot(S_vec_tmp.data(), l, stream);
 
     auto S_vec_view = make_device_matrix_view<math_t, int, col_major>(S_vec, 1, k);
