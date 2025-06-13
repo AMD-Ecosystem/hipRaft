@@ -35,12 +35,13 @@ ARGS=$*
 # scripts, and that this script resides in the repo dir!
 REPODIR=$(cd $(dirname $0); pwd)
 
-VALIDARGS="clean libraft docs tests template bench-prims --uninstall  -v -g -n --compile-cuda --compile-lib --compile-static-lib --allgpuarch --no-nvtx --show_depr_warn --incl-cache-stats --time -h"
+VALIDARGS="clean libraft pylibraft docs tests template bench-prims --uninstall  -v -g -n --compile-cuda --compile-lib --compile-static-lib --allgpuarch --no-nvtx --show_depr_warn --incl-cache-stats --time -h"
 HELP="$0 [<target> ...] [<flag> ...] [--cmake-args=\"<args>\"] [--cache-tool=<tool>] [--limit-tests=<targets>] [--build-metrics=<filename>]
  where <target> is:
    clean            - remove all existing build artifacts and configuration (start over)
    libraft          - build the raft C++ code only. Also builds the C-wrapper library
                       around the C++ code.
+   pylibraft        - build the pylibraft Python package
    docs             - build the documentation
    tests            - build the tests
    bench-prims      - build micro-benchmarks for primitives
@@ -90,7 +91,7 @@ INSTALL_TARGET=install
 BUILD_REPORT_METRICS=""
 BUILD_REPORT_INCL_CACHE_STATS=OFF
 
-TEST_TARGETS="CORE_TEST;LABEL_TEST;LINALG_TEST;MATRIX_TEST;RANDOM_TEST;SOLVERS_TEST;SPARSE_TEST;STATS_TEST;UTILS_TEST;RUNTIME_RANDOM_TEST;NEIGHBORS_UTILS_TEST"
+TEST_TARGETS="CORE_TEST;SPARSE_TEST;LINALG_TEST;RANDOM_TEST;SOLVERS_TEST;STATS_TEST;MATRIX_TEST;MATRIX_SELECT_TEST;MATRIX_SELECT_LARGE_TEST;UTILS_TEST;LABEL_TEST;RUNTIME_RANDOM_TEST;NEIGHBORS_UTILS_TEST;SRC_LINALG_TEST"
 
 CACHE_ARGS=""
 # TODO(HIP/AMD): Need to add support for NVTX
@@ -110,10 +111,6 @@ BUILD_ABI=${BUILD_ABI:=ON}
 
 # Default to Ninja if generator is not specified
 export CMAKE_GENERATOR="${CMAKE_GENERATOR:=Ninja}"
-
-# TODO: (HIP/AMD) Remove the following 2 exports once we have a 25.02 based ROCmDS-cmake branch with the RAPIDS-Logger changes.
-export RAPIDS_CMAKE_BRANCH=feat/25.04-logger
-export RAPIDS_CMAKE_URL=https://${GITHUB_PASS}@github.com/AMD-AI/ROCmDS-cmake
 
 function hasArg {
     (( ${NUMARGS} != 0 )) && (echo " ${ARGS} " | grep -q " $1 ")
@@ -343,7 +340,7 @@ if hasArg tests || (( ${NUMARGS} == 0 )); then
     fi
 fi
 
-if hasArg bench-prims || (( ${NUMARGS} == 0 )); then
+if hasArg bench-prims; then
     BUILD_PRIMS_BENCH=ON
     CMAKE_TARGET="${CMAKE_TARGET};${PRIMS_BENCH_TARGETS}"
 
@@ -503,8 +500,12 @@ fi
 
 # Build and (optionally) install the pylibraft Python package
 if (( ${NUMARGS} == 0 )) || hasArg pylibraft; then
-    SKBUILD_CMAKE_ARGS="${SKBUILD_EXTRA_CMAKE_ARGS}" \
-        python -m pip install --no-build-isolation --no-deps --config-settings rapidsai.disable-cuda=true ${REPODIR}/python/pylibraft
+    # Build and install libraft pip package
+    SKBUILD_CMAKE_ARGS="-DCMAKE_CXX_COMPILER=hipcc;-DCMAKE_PREFIX_PATH=${INSTALL_PREFIX};${EXTRA_CMAKE_ARGS}" \
+        python -m pip install --no-build-isolation ${REPODIR}/python/libraft
+    # Build and install pylibraft pip package
+    SKBUILD_CMAKE_ARGS="-DCMAKE_CXX_COMPILER=hipcc;-DCMAKE_PREFIX_PATH=${INSTALL_PREFIX};${EXTRA_CMAKE_ARGS}" \
+        python -m pip install --no-build-isolation ${REPODIR}/python/pylibraft
 fi
 
 # Build and (optionally) install the raft-dask Python package

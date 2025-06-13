@@ -132,6 +132,7 @@ class rmat_lanczos_tests
 
   void Run()
   {
+#ifndef __HIP_PLATFORM_AMD__
     int runtimeVersion;
     cudaError_t result = cudaRuntimeGetVersion(&runtimeVersion);
 
@@ -141,20 +142,9 @@ class rmat_lanczos_tests
 
       // Skip gtests for CUDA 11.4.x and below because hard-coded results are causing issues.
       // See https://github.com/rapidsai/raft/issues/2519 for more information.
-
-      // (HIP/AMD)lanczos_compute_smallest_eigenvectors eventually calls hipsolverDnsyevd and fails
-      // to converge to a solution. Manually verified that the passed matrices are symmetric and
-      // contain valid values (no NaN's or inf). hipoSolverDn<type>syevj DOES converge to a
-      // solution, which should not be happening if hipsolverDnsyevd does NOT converge to a
-      // solution. Potentially a bug with hipsolverDnsyevd - currently communicating with the
-      // rocSparse team for more debugging info. Will create and link a ticket here once root cause
-      // has been determined. Since this test is disabled for certain versions of CUDA, disabling
-      // until further information has been removed.
-      // Update(05/06/2025): We're still seeing this issue on ROCm 6.4.0
-      if ((major == 11 && minor <= 4) || runtimeVersion <= 60342134 || runtimeVersion >= 60443482) {
-        GTEST_SKIP();
-      }
+      if ((major == 11 && minor <= 4)) { GTEST_SKIP(); }
     }
+#endif
 
     uint64_t n_edges   = sparsity * ((long long)(1 << r_scale) * (long long)(1 << c_scale));
     uint64_t n_nodes   = 1 << std::max(r_scale, c_scale);
@@ -313,6 +303,7 @@ class lanczos_tests : public ::testing::TestWithParam<lanczos_inputs<IndexType, 
 
   void Run()
   {
+#ifndef __HIP_PLATFORM_AMD__
     int runtimeVersion;
     cudaError_t result = cudaRuntimeGetVersion(&runtimeVersion);
 
@@ -322,17 +313,9 @@ class lanczos_tests : public ::testing::TestWithParam<lanczos_inputs<IndexType, 
 
       // Skip gtests for CUDA 11.4.x and below because hard-coded results are causing issues.
       // See https://github.com/rapidsai/raft/issues/2519 for more information.
-
-      // lanczos_compute_smallest_eigenvectors eventually calls hipsolverDnsyevd and fails to
-      // converge to a solution. Manually verified that the passed matrices are symmetric and
-      // contain valid values (no NaN's or inf). hipoSolverDn<type>syevj DOES converge to a
-      // solution, which should not be happening if hipsolverDnsyevd does NOT converge to a
-      // solution. Potentially a bug with hipsolverDnsyevd - currently communicating with the
-      // rocSparse team for more debugging info. Will create and link a ticket here once root cause
-      // has been determined. Since this test is disabled for certain versions of CUDA, disabling
-      // until further information has been removed.
-      if ((major == 11 && minor <= 4) || result <= 60342134) { GTEST_SKIP(); }
+      if ((major == 11 && minor <= 4)) { GTEST_SKIP(); }
     }
+#endif
 
     raft::random::uniform<ValueType>(handle, rng, v0.view(), 0, 1);
     std::tuple<IndexType, ValueType, IndexType> stats;

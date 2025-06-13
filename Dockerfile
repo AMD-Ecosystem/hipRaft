@@ -89,6 +89,11 @@ wget -q https://github.com/Kitware/CMake/releases/download/v4.0.1/cmake-4.0.1-li
 bash ./cmake-4.0.1-linux-x86_64.sh --skip-license --prefix=/usr/local
 EOT
 
+RUN <<EOT
+curl -Ls https://micro.mamba.pm/api/micromamba/linux-64/latest | tar -xvj bin/micromamba
+mv bin/micromamba /usr/local/bin/
+EOT
+
 
 ENV CMAKE_PREFIX_PATH="/opt/rocm/lib/cmake"
 ENV RAPIDS_CMAKE_BRANCH="feat/25.04-logger"

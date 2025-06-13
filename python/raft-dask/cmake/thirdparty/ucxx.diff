@@ -19,7 +19,21 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+diff --git a/cpp/CMakeLists.txt b/cpp/CMakeLists.txt
+index 3c2d3f6..5271281 100644
+--- a/cpp/CMakeLists.txt
++++ b/cpp/CMakeLists.txt
+@@ -274,6 +274,10 @@ targets:
+     ]=]
+ )
 
++if(TARGET conda_env)
++  install(TARGETS conda_env EXPORT ucxx-exports)
++endif()
++
+ rapids_export(
+   INSTALL ucxx
+   EXPORT_SET ucxx-exports ${_components_export_string}
 diff --git a/cpp/src/internal/request_am.cpp b/cpp/src/internal/request_am.cpp
 index d45dee6..b2b3750 100644
 --- a/cpp/src/internal/request_am.cpp

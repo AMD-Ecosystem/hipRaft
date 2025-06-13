@@ -22,28 +22,43 @@ if(DISABLE_DEPRECATION_WARNINGS)
   list(APPEND RAFT_GPU_FLAGS -Wno-deprecated-declarations -DRAFT_HIDE_DEPRECATION_WARNINGS)
 endif()
 
-# Be very strict when compiling with GCC as host compiler (and thus more lenient when compiling with
-# clang)
-if(CMAKE_COMPILER_IS_GNUCXX)
-  list(APPEND RAFT_CXX_FLAGS -Wall -Werror -Wno-unknown-pragmas -Wno-error=deprecated-declarations)
-  list(APPEND RAFT_GPU_FLAGS -Wall,-Werror,-Wno-error=deprecated-declarations)
-
-  # set warnings as errors if(CMAKE_CUDA_COMPILER_VERSION VERSION_GREATER_EQUAL 11.2.0)
-  list(APPEND RAFT_GPU_FLAGS -Werror=all-warnings)
-  # endif()
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  # TODO:(HIP/AMD) We want to prune the following warning disable lists.
+  list(APPEND CXX_WARNINGS_DISABLE_LIST -Wno-unused-result -Wno-unknown-pragmas
+       -Wno-macro-redefined -Wno-inconsistent-missing-override
+  )
+  list(
+    APPEND
+    GPU_WARNINGS_DISABLE_LIST
+    -Wno-unused-result
+    -Wno-unknown-pragmas
+    -Wno-macro-redefined
+    -Wno-inconsistent-missing-override
+    -Wno-reorder-ctor
+    -Wno-unused-variable
+    -Wno-unused-local-typedef
+    -Wno-unused-but-set-variable
+    -Wno-pass-failed
+    -Wno-unused-lambda-capture
+    -Wno-uninitialized
+    -Wno-unsequenced
+    -Wno-vla-cxx-extension
+    -Wno-mismatched-tags
+    -Wno-unused-private-field
+  )
+  list(APPEND RAFT_CXX_FLAGS -Wall -Werror ${CXX_WARNINGS_DISABLE_LIST})
+  list(APPEND RAFT_GPU_FLAGS -Wall -Werror ${GPU_WARNINGS_DISABLE_LIST})
 endif()
 
 # TODO(HIP/AMD): port this if(CUDA_LOG_COMPILE_TIME) list(APPEND RAFT_GPU_FLAGS
 # "--time=nvcc_compile_log.csv") endif()
 
-# list(APPEND RAFT_GPU_FLAGS --expt-extended-lambda --expt-relaxed-constexpr)
-list(APPEND RAFT_CXX_FLAGS "-DCUDA_API_PER_THREAD_DEFAULT_STREAM")
-list(APPEND RAFT_GPU_FLAGS "-DCUDA_API_PER_THREAD_DEFAULT_STREAM")
-# make sure we produce smallest binary size list(APPEND RAFT_GPU_FLAGS -Xfatbin=-compress-all)
+list(APPEND RAFT_CXX_FLAGS "-fgpu-default-stream=per-thread")
+list(APPEND RAFT_GPU_FLAGS "-fgpu-default-stream=per-thread")
 
-# Option to enable line info in CUDA device compilation to allow introspection when profiling /
-# memchecking
 if(CUDA_ENABLE_LINEINFO)
+  # Option to enable line info in CUDA device compilation to allow introspection when profiling /
+  # memchecking
   message(FATAL_ERROR "RAFT does not support line-number information for hip platform")
 endif()
 
@@ -53,6 +68,14 @@ endif()
 
 # Debug options
 if(CMAKE_BUILD_TYPE MATCHES Debug)
+  message(VERBOSE "RAFT: Building with debugging flags and optimizations off")
+  # Disable optimizations and enable debug symbols with additional GDB specific metadata.
+  list(APPEND RAFT_GPU_FLAGS -ggdb -O0)
+endif()
+
+# RelWithDebInfo options
+if(CMAKE_BUILD_TYPE MATCHES RelWithDebInfo)
   message(VERBOSE "RAFT: Building with debugging flags")
-  list(APPEND RAFT_GPU_FLAGS -g -rdynamic)
+  # Enable debug symbols with additional GDB specific metadata.
+  list(APPEND RAFT_GPU_FLAGS -ggdb)
 endif()

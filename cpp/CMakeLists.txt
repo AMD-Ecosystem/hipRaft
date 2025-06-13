@@ -412,6 +412,10 @@ if(RAFT_COMPILE_LIBRARY)
   )
 
   add_library(raft_lib SHARED $<TARGET_OBJECTS:raft_objs>)
+  # (HIP/AMD): To work around: https://gitlab.kitware.com/cmake/cmake/-/issues/21787 and set the
+  # right rpath to find libopenmp. Ideally linking against the OpenMP target should propagate the
+  # link time flags but it does not.
+  target_link_options(raft_lib PRIVATE $<$<BOOL:${OpenMP_FOUND}>:-fopenmp>)
 
   set(_raft_lib_targets raft_lib)
   if(NOT RAFT_COMPILE_DYNAMIC_ONLY)
