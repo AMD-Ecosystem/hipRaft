@@ -546,19 +546,12 @@ DI void block_copy(raft::device_span<T> dst, const raft::device_span<T> src)
 
 DI void stg(const int& reg, void* addr, bool guard)
 {
-  if (guard) {
-    auto offset = static_cast<uint64_t>(reinterpret_cast<uintptr_t>(addr));
-    asm volatile("global_store_dword %0, %1 off glc \n \t" : : "v"(offset), "v"(reg));
-  }
+  if (guard) { *reinterpret_cast<int*>(addr) = reg; }
 }
 
 DI void stg(const int64_t& reg, void* addr, bool guard)
 {
-  if (guard) {
-    auto offset = static_cast<uint64_t>(reinterpret_cast<uintptr_t>(addr));
-
-    asm volatile("global_store_dwordx2 %0, %1 off glc \n \t" : : "v"(offset), "v"(reg));
-  }
+  if (guard) { *reinterpret_cast<int64_t*>(addr) = reg; }
 }
 
 /** @} */
