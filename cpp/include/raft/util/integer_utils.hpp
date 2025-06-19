@@ -44,6 +44,7 @@
 
 #include <raft/core/detail/macros.hpp>
 
+#include <algorithm>
 #include <cstdint>
 #include <limits>
 #include <stdexcept>
