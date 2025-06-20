@@ -59,6 +59,7 @@ DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
         clangd \
         cmake-curses-gui \
         ssh \
+        rpm \
         ccache
 EOT
 

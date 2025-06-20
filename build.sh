@@ -35,7 +35,7 @@ ARGS=$*
 # scripts, and that this script resides in the repo dir!
 REPODIR=$(cd $(dirname $0); pwd)
 
-VALIDARGS="clean libraft pylibraft docs tests template bench-prims --uninstall  -v -g -n --compile-cuda --compile-lib --compile-static-lib --allgpuarch --no-nvtx --show_depr_warn --incl-cache-stats --time -h"
+VALIDARGS="clean libraft pylibraft docs tests template package bench-prims --uninstall  -v -g -n --compile-cuda --compile-lib --compile-static-lib --allgpuarch --no-nvtx --show_depr_warn --incl-cache-stats --time -h"
 HELP="$0 [<target> ...] [<flag> ...] [--cmake-args=\"<args>\"] [--cache-tool=<tool>] [--limit-tests=<targets>] [--build-metrics=<filename>]
  where <target> is:
    clean            - remove all existing build artifacts and configuration (start over)
@@ -318,6 +318,10 @@ if hasArg --compile-static-lib || (( ${NUMARGS} == 0 )); then
     CMAKE_TARGET="${CMAKE_TARGET};raft_lib_static"
 fi
 
+if hasArg package; then
+    CMAKE_TARGET="${CMAKE_TARGET};package"
+fi
+
 if hasArg tests || (( ${NUMARGS} == 0 )); then
     BUILD_TESTS=ON
     CMAKE_TARGET="${CMAKE_TARGET};${TEST_TARGETS}"
@@ -404,7 +408,7 @@ fi
 
 ################################################################################
 # Configure for building all C++ targets
-if (( ${NUMARGS} == 0 )) || hasArg libraft || hasArg docs || hasArg tests || hasArg bench-prims; then
+if (( ${NUMARGS} == 0 )) || hasArg libraft || hasArg docs || hasArg tests || hasArg bench-prims || hasArg package; then
     if (( ${BUILD_ALL_GPU_ARCH} == 0 )); then
         RAFT_CMAKE_CUDA_ARCHITECTURES="${RAFT_CMAKE_CUDA_ARCHITECTURES:-NATIVE}"
         if [[ "$RAFT_CMAKE_CUDA_ARCHITECTURES" == "NATIVE" ]]; then

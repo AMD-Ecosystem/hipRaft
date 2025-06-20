@@ -19,6 +19,7 @@ hipRAFT currently provides libraries for C++ and Python.
   - [Conda environment scripts](#conda-environment-scripts)
   - [Building and installing](#building-and-installing-pylibraft)
   - [Running the python tests](#running-the-python-tests)
+- [Packaging](#packaging)
 ------
 
 ### Tested on the following GPUs
@@ -308,4 +309,41 @@ libraft
 |   |-- librapids_logger.so
 |   `-- rapids
 `-- load.py
+```
+## Packaging
+
+### Packaging with build.sh
+
+The following command will generate a debian : `hipraft_<VERSION>_amd64.deb` in `<HIPRAFT_ROOT>/cpp/build`.
+
+```bash
+./build.sh libraft --compile-lib package
+```
+
+### Custom cpack generators
+
+To generate other types of packages like `tar` or `rpm` packages:
+
+```bash
+# Configure
+mkdir -p <HIPRAFT_ROOT>/cpp/build
+rm -rf <HIPRAFT_ROOT>/cpp/build/*
+cd <HIPRAFT_ROOT>/cpp/build
+cmake -S .. \
+      -G Ninja \
+      -B . \
+      -DCMAKE_INSTALL_PREFIX=install \
+      -DCMAKE_HIP_ARCHITECTURES=NATIVE \
+      -DCMAKE_BUILD_TYPE=Release \
+      -DCUDA_BACKEND=OFF \
+      -DRAFT_COMPILE_LIBRARY=ON \
+      -DBUILD_TESTS=OFF \
+      -DCMAKE_CXX_COMPILER=hipcc
+
+# Install to staging area
+ninja install
+
+# Invoke cpack to generate package
+cpack -G RPM # To generate a RPM package. hipraft-25.02.00-Linux.rpm will be created at <HIPRAFT_ROOT>/cpp/build.
+cpack -G TGZ # To generate a TGZ package. hipraft-25.02.00-Linux.tar.gz will be created at <HIPRAFT_ROOT>/cpp/build.
 ```

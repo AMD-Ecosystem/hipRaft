@@ -521,7 +521,6 @@ target_link_libraries(
 # * install targets-----------------------------------------------------------
 rapids_cmake_install_lib_dir(lib_dir)
 include(GNUInstallDirs)
-include(CPack)
 
 install(
   TARGETS raft
@@ -716,3 +715,22 @@ endif()
 if(BUILD_PRIMS_BENCH)
   add_subdirectory(bench/prims/)
 endif()
+
+# ##################################################################################################
+# * Packaging -----------------------------------------------------------------
+set(CPACK_PACKAGE_NAME
+    "hipraft"
+    CACHE STRING "Overwrite package name."
+)
+set(CPACK_GENERATOR "DEB")
+set(CPACK_PACKAGE_VENDOR "Advanced Micro Devices, Inc.")
+set(CPACK_DEBIAN_PACKAGE_MAINTAINER "${CPACK_PACKAGE_VENDOR}")
+set(CPACK_PACKAGE_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
+set(CPACK_PACKAGE_VERSION_MINOR ${PROJECT_VERSION_MINOR})
+set(CPACK_PACKAGE_VERSION_PATCH ${PROJECT_VERSION_PATCH})
+set(CPACK_DEBIAN_FILE_NAME DEB-DEFAULT)
+set(CPACK_PACKAGING_INSTALL_PREFIX
+    "/opt/rocm-ds"
+    CACHE PATH "Package install prefix."
+)
+include(CPack)
