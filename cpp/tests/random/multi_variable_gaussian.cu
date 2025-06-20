@@ -464,15 +464,6 @@ TEST_P(MVGTestD, MeanIsCorrectD)
 }
 TEST_P(MVGTestD, CovIsCorrectD)
 {
-#ifdef __HIP_PLATFORM_AMD__
-  auto test_name = std::string(::testing::UnitTest::GetInstance()->current_test_info()->name());
-  if (raft::host_warp_size(0) == 32 &&
-      (test_name == "CovIsCorrectD/2" || test_name == "CovIsCorrectD/4")) {
-    // TODO: Skipping test. See issue: https://github.com/AMD-AI/raft/issues/8. Investigate why this
-    // test fails on devices with warp size 32.
-    GTEST_SKIP() << "Known failure\n";
-  }
-#endif
   EXPECT_TRUE(raft::devArrMatch(P_d.data(),
                                 Rand_cov.data(),
                                 dim,
@@ -514,15 +505,6 @@ TEST_P(MVGMdspanTestD, MeanIsCorrectD)
 }
 TEST_P(MVGMdspanTestD, CovIsCorrectD)
 {
-#ifdef __HIP_PLATFORM_AMD__
-  auto test_name = std::string(::testing::UnitTest::GetInstance()->current_test_info()->name());
-  if (raft::host_warp_size(0) == 32 &&
-      (test_name == "CovIsCorrectD/2" || test_name == "CovIsCorrectD/4")) {
-    // TODO: Skipping test. See issue: https://github.com/AMD-AI/raft/issues/8. Investigate why this
-    // test fails on devices with warp size 32.
-    GTEST_SKIP() << "Known failure\n";
-  }
-#endif
   EXPECT_TRUE(raft::devArrMatch(P_d.data(),
                                 Rand_cov.data(),
                                 dim,

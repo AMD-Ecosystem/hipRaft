@@ -121,10 +121,9 @@ INSTANTIATE_TEST_CASE_P(                          // NOLINT
                                    SelectAlgo::kRadix11bits,
                                    SelectAlgo::kRadix11bitsExtraPass,
                                    SelectAlgo::kWarpImmediate,
-                                   SelectAlgo::kWarpFiltered)));
-// TODO(HIP/AMD): Unsupported test. Please see internal issue 1x
-// SelectAlgo::kWarpDistributed,
-// SelectAlgo::kWarpDistributedShm)));
+                                   SelectAlgo::kWarpFiltered,
+                                   SelectAlgo::kWarpDistributed,
+                                   SelectAlgo::kWarpDistributedShm)));
 
 using ReferencedRandomDoubleSizeT =
   SelectK<double, int64_t, with_ref<SelectAlgo::kAuto>::params_random>;
@@ -137,19 +136,13 @@ INSTANTIATE_TEST_CASE_P(                             // NOLINT
                                    SelectAlgo::kRadix11bits,
                                    SelectAlgo::kRadix11bitsExtraPass,
                                    SelectAlgo::kWarpImmediate,
-                                   SelectAlgo::kWarpFiltered)));
-// TODO(HIP/AMD): Unsupported test. Please see internal issue 1x
-// SelectAlgo::kWarpDistributed,
-// SelectAlgo::kWarpDistributedShm)));
+                                   SelectAlgo::kWarpFiltered,
+                                   SelectAlgo::kWarpDistributed,
+                                   SelectAlgo::kWarpDistributedShm)));
 
 using ReferencedRandomDoubleInt =
   SelectK<double, uint32_t, with_ref<SelectAlgo::kRadix11bits>::params_random>;
-// TODO(HIP/AMD): Unsupported test. Please see internal issue 1x
-TEST_P(ReferencedRandomDoubleInt, LargeSize)
-{
-  GTEST_SKIP();
-  run();
-}  // NOLINT
+TEST_P(ReferencedRandomDoubleInt, LargeSize) { run(); }  // NOLINT
 
 INSTANTIATE_TEST_CASE_P(  // NOLINT
   SelectK,

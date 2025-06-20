@@ -124,15 +124,6 @@ class GatherTest : public ::testing::TestWithParam<GatherInputs<IdxT>> {
     std::string test_name  = test_info->name();
     std::string suite_name = test_info->test_suite_name();
 
-    if (("GatherTests/GatherIfTestFU32I32" == suite_name) ||
-        ("GatherTests/GatherIfTransformTestFU32I32" == suite_name) ||
-        ("GatherTests/GatherIfTransformTestDU32I32" == suite_name) ||
-        ("GatherTests/GatherIfTransformTestFU32I64" == suite_name) ||
-        ("GatherTests/GatherIfTransformTestFI64I64" == suite_name)) {
-      // TODO(HIP/AMD): Unsupported test. Please see internal issue 1x
-      GTEST_SKIP() << "Skipping test as currently not supported";
-    }
-
     raft::random::RngState r(params.seed);
     raft::random::RngState r_int(params.seed);
 
@@ -172,6 +163,12 @@ class GatherTest : public ::testing::TestWithParam<GatherInputs<IdxT>> {
     h_out.resize(map_length * params.ncols);
     d_out_exp.resize(map_length * params.ncols, stream);
     d_out_act.resize(map_length * params.ncols, stream);
+    // (HIP/AMD) For the locations that are not written to by raft::matrix::gather_if, devArrMatch
+    // will expect zeros there. The upstream version of this test relies on the unspecified behavior
+    // that new allocations are automatically zero-initialized. This assumption breaks on the HIP
+    // platform which is why we explicitly zero initialize in the following lines:
+    RAFT_CUDA_TRY(cudaMemset(d_out_exp.data(), 0, sizeof(MatrixT) * map_length * params.ncols));
+    RAFT_CUDA_TRY(cudaMemset(d_out_act.data(), 0, sizeof(MatrixT) * map_length * params.ncols));
 
     // launch gather on the host and copy the results to device
     naiveGather<Conditional, MapTransform>(h_in.data(),

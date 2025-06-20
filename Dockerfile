@@ -58,6 +58,7 @@ DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
         clang-format \
         clangd \
         cmake-curses-gui \
+        libsuitesparse-dev \
         ssh \
         rpm \
         ccache

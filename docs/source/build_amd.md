@@ -38,29 +38,30 @@ hipRAFT currently provides libraries for C++ and Python.
 > hipRAFT builds against the **AMD ROCm software stack**—that is, the ROCm runtime, HIP compiler tool-chain, and a GPU driver that matches your ROCm version.
 > Install ROCm ≥ 6.4.0 (or the minimum version supported by the GPUs listed above) and make sure the `rocminfo` and `hipcc` commands are in your `PATH`.
 
-| Name                                                             | Version / Notes                              |
-| ----------------------------------------------------------       | -------------------------------------------- |
-| [`cmake`](https://cmake.org/)                                    | ≥ 3.31.0                                     |
-| [`ninja`](https://ninja-build.org/)                              | ≥ 1.11.1                                     |
-| [`hipsolver`](https://github.com/ROCm/hipSOLVER)                 | Version that comes bundled with ROCm ≥ 6.4.0 |
-| [`hipblas`](https://github.com/ROCm/hipblas)                     | Version that comes bundled with ROCm ≥ 6.4.0 |
-| [`hipblaslt`](https://github.com/ROCm/hipBLASLt)                 | Version that comes bundled with ROCm ≥ 6.4.0 |
-| [`hiprand`](https://github.com/ROCm/hiprand)                     | Version that comes bundled with ROCm ≥ 6.4.0 |
-| [`hipsparse`](https://github.com/ROCm/hipSPARSE)                 | Version that comes bundled with ROCm ≥ 6.4.0 |
-| [`libblas-dev`](https://www.netlib.org/lapack/)                  | Tested with 3.12.0                           |
-| [`liblapack-dev`](https://www.netlib.org/lapack/)                | Tested with 3.12.0                           |
-| **Additional Required Dependencies**                                 |                                          |
-| **\***[`hipMM`](https://github.com/ROCm-DS/hipMM)                | Version must match hipRAFT                   |
-| **\***[`hipCollections`](https://github.com/ROCm/hipCollections) | Version must match hipRAFT`                  |
-| **\***[`hipCUB`](https://github.com/ROCm/hipCUB)                 | Version that comes bundled with ROCm ≥ 6.4.0 |
-| **\***[`rocThrust`](https://github.com/ROCm/rocThrust)           | Version that comes bundled with ROCm ≥ 6.4.0 |
-| **\*\***[`OpenMP`](https://www.openmp.org/)                        | Version that comes bundled with ROCm ≥ 6.4.0 |
-| **Optional Dependencies**                                        |                                              |
-| [`RCCL`](https://github.com/ROCm/rccl)                           | Version that comes bundled with ROCm ≥ 6.4.0 |
-| [`UCX`](https://github.com/openucx/ucx)                          | ≥ 1.17.0                                     |
-| [`Googletest`](https://github.com/google/googletest)             | ≥ 1.13.0                                     |
-| [`Googlebench`](https://github.com/google/benchmark)             | ≥ 1.13.0                                     |
-| [`Doxygen`](https://github.com/doxygen/doxygen)                  | >=1.8.20                                     |
+| Name                                                                | Version / Notes                              |
+| ----------------------------------------------------------          | -------------------------------------------- |
+| [`cmake`](https://cmake.org/)                                       | ≥ 3.31.0                                     |
+| [`ninja`](https://ninja-build.org/)                                 | ≥ 1.11.1                                     |
+| [`hipsolver`](https://github.com/ROCm/hipSOLVER)                    | Version that comes bundled with ROCm ≥ 6.4.0 |
+| [`hipblas`](https://github.com/ROCm/hipblas)                        | Version that comes bundled with ROCm ≥ 6.4.0 |
+| [`hipblaslt`](https://github.com/ROCm/hipBLASLt)                    | Version that comes bundled with ROCm ≥ 6.4.0 |
+| [`hiprand`](https://github.com/ROCm/hiprand)                        | Version that comes bundled with ROCm ≥ 6.4.0 |
+| [`hipsparse`](https://github.com/ROCm/hipSPARSE)                    | Version that comes bundled with ROCm ≥ 6.4.0 |
+| [`libblas-dev`](https://www.netlib.org/lapack/)                     | Tested with 3.12.0                           |
+| [`liblapack-dev`](https://www.netlib.org/lapack/)                   | Tested with 3.12.0                           |
+| [`SuiteSparse`](https://github.com/DrTimothyAldenDavis/SuiteSparse) | Tested with 7.6.1                            |
+| **Additional Required Dependencies**                                |                                              |
+| **\***[`hipMM`](https://github.com/ROCm-DS/hipMM)                   | Version must match hipRAFT                   |
+| **\***[`hipCollections`](https://github.com/ROCm/hipCollections)    | Version must match hipRAFT                   |
+| **\***[`hipCUB`](https://github.com/ROCm/hipCUB)                    | Version that comes bundled with ROCm ≥ 6.4.0 |
+| **\***[`rocThrust`](https://github.com/ROCm/rocThrust)              | Version that comes bundled with ROCm ≥ 6.4.0 |
+| **\*\***[`OpenMP`](https://www.openmp.org/)                         | Version that comes bundled with ROCm ≥ 6.4.0 |
+| **Optional Dependencies**                                           |                                              |
+| [`RCCL`](https://github.com/ROCm/rccl)                              | Version that comes bundled with ROCm ≥ 6.4.0 |
+| [`UCX`](https://github.com/openucx/ucx)                             | ≥ 1.17.0                                     |
+| [`Googletest`](https://github.com/google/googletest)                | ≥ 1.13.0                                     |
+| [`Googlebench`](https://github.com/google/benchmark)                | ≥ 1.13.0                                     |
+| [`Doxygen`](https://github.com/doxygen/doxygen)                     | >=1.8.20                                     |
 
 **\*** Note: In the case of dependencies marked with an asterisk, if not found locally; the CMake build system will attempt to download a compatible version using
 [ROCmDS-cmake](https://github.com/ROCm-DS/ROCmDS-cmake).

@@ -223,8 +223,6 @@ TEST(Raft, HandleDefault)
   ASSERT_EQ(rmm::cuda_stream_per_thread, resource::get_cuda_stream(h));
   ASSERT_NE(nullptr, h.get_cublas_handle());
   ASSERT_NE(nullptr, h.get_cusolver_dn_handle());
-  // TODO(HIP/AMD): Disabled due to sparse failure issue. Please see internal issue 8
-  GTEST_SKIP() << "Skipping test as currently not supported";
   ASSERT_NE(nullptr, h.get_cusolver_sp_handle());
   ASSERT_NE(nullptr, h.get_cusparse_handle());
 }

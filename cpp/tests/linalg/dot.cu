@@ -156,10 +156,12 @@ const std::vector<DotInputs<double>> inputsd = {
 typedef DotTest<float> DotTestF;
 TEST_P(DotTestF, Result)
 {
+#ifdef __HIP_PLATFORM_AMD__
   if (std::string(::testing::UnitTest::GetInstance()->current_test_info()->name()) == "Result/1") {
-    // See issue: https://github.com/AMD-AI/raft/issues/8
-    GTEST_SKIP() << "Known failure\n";
+    // TODO: (HIP/AMD) See issue: https://github.com/AMD-AI/raft/issues/91
+    params.tolerance = 1e-2;
   }
+#endif
   auto compare = raft::CompareApprox<float>(params.tolerance);
   ASSERT_TRUE(compare(ref_output, host_output));
   ASSERT_TRUE(compare(ref_output, device_output));
