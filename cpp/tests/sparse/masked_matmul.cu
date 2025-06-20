@@ -14,6 +14,25 @@
  * limitations under the License.
  */
 
+/*
+ * Modifications Copyright (c) 2025 Advanced Micro Devices, Inc.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
 #include "../test_utils.cuh"
 
 #include <raft/core/resource/cuda_stream.hpp>
@@ -24,7 +43,14 @@
 
 #include <thrust/reduce.h>
 
+#include <type_traits>
+
+#ifdef __HIP_PLATFORM_AMD__
+#include <raft/cusparse.h>
+#include <raft/thrust_execution_policy.h>
+#else
 #include <cusparse.h>
+#endif
 #include <gtest/gtest.h>
 
 #include <iostream>
@@ -259,7 +285,7 @@ class MaskedMatmulTest
         thrust::device_ptr<output_t> d_output_ptr =
           thrust::device_pointer_cast(blobs_a_b.data_handle());
         thrust::device_ptr<value_t> d_value_ptr = thrust::device_pointer_cast(a_data_d.data());
-        thrust::transform(thrust::cuda::par.on(stream),
+        thrust::transform(THRUST_EXECUTION_POLICY.on(stream),
                           d_output_ptr,
                           d_output_ptr + a_size,
                           d_value_ptr,
@@ -269,7 +295,7 @@ class MaskedMatmulTest
         thrust::device_ptr<output_t> d_output_ptr =
           thrust::device_pointer_cast(blobs_a_b.data_handle() + a_size);
         thrust::device_ptr<value_t> d_value_ptr = thrust::device_pointer_cast(b_data_d.data());
-        thrust::transform(thrust::cuda::par.on(stream),
+        thrust::transform(THRUST_EXECUTION_POLICY.on(stream),
                           d_output_ptr,
                           d_output_ptr + b_size,
                           d_value_ptr,
@@ -333,6 +359,13 @@ class MaskedMatmulTest
 
   void Run()
   {
+    if constexpr (std::is_same_v<half, value_t>) {
+      if (params.m > 10) {
+        // HIP/AMD: See issue: https://github.com/AMD-AI/raft/issues/94. hipsparseCreateDnMat fails
+        // for CUDA_R_16F.
+        GTEST_SKIP() << "Skipping test";
+      }
+    }
     auto A =
       raft::make_device_matrix_view<const value_t, index_t>(a_data_d.data(), params.m, params.k);
     auto B =
@@ -367,7 +400,7 @@ class MaskedMatmulTest
 
     thrust::device_ptr<output_t> expected_data_ptr =
       thrust::device_pointer_cast(c_expected_data_d.data());
-    output_t sum_abs = thrust::reduce(thrust::cuda::par.on(stream),
+    output_t sum_abs = thrust::reduce(THRUST_EXECUTION_POLICY.on(stream),
                                       expected_data_ptr,
                                       expected_data_ptr + c_expected_data_d.size(),
                                       output_t(0.0f),

@@ -15,7 +15,7 @@
  */
 
 /*
- * Modifications Copyright (c) 2024 Advanced Micro Devices, Inc.
+ * Modifications Copyright (c) 2024-2025 Advanced Micro Devices, Inc.
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -520,7 +520,7 @@ mdspan_copyable_t<DstType, SrcType> copy(resources const& res, DstType&& dst, Sr
     throw(raft::non_cuda_build_error("Copying to from or on device in non-CUDA build"));
 #endif
   } else if constexpr (config::custom_kernel_allowed) {
-#if defined(__CUDACC__) || defined(__HIPCC__)
+#if !defined(RAFT_DISABLE_CUDA) && (defined(__CUDACC__) || defined(__HIPCC__))
     config::check_for_unique_dst(dst);
     auto const blocks = std::min(
       // This maximum is somewhat arbitrary. Could query the device to see
