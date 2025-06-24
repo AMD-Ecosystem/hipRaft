@@ -1,6 +1,6 @@
 # Build and Installation
 
-hipRAFT currently provides libraries for C++ and Python.
+hipRAFT currently provides C++ and Python API's.
 
 ## Table of Contents
 
@@ -20,6 +20,7 @@ hipRAFT currently provides libraries for C++ and Python.
   - [Building and installing](#building-and-installing-pylibraft)
   - [Running the python tests](#running-the-python-tests)
 - [Packaging](#packaging)
+- [Building documentation](#building-documentation)
 ------
 
 ### Tested on the following GPUs
@@ -71,7 +72,7 @@ hipRAFT currently provides libraries for C++ and Python.
 
 ### Docker
 
-For convenience hipRAFT also provides an [Ubuntu distribution-based Dockerfile](Dockerfile) that encapsulates all the above dependencies for development. Below are the instructions to create a container using this Dockerfile.
+For convenience hipRAFT also provides a `Dockerfile` that encapsulates all the above dependencies for development. Below are the instructions to create a container using this Dockerfile.
 
 ```bash
 cd <REPO_ROOT>
@@ -126,7 +127,7 @@ export RAPIDS_CMAKE_BRANCH=amd-integration/2.0.x                              # 
 
 ### Header-only C++
 
-`build.sh` uses [ROCmDS-cmake](https://github.com/ROCm-DS/ROCmDS-cmake), which will automatically download any dependencies which are not already installed. It's important to note that while all the headers will be installed and available.
+`build.sh` uses [ROCmDS-cmake](https://github.com/ROCm-DS/ROCmDS-cmake), which will automatically download any dependencies which are not already installed.
 
 The following example will download the needed dependencies and install the hipRAFT headers into `$INSTALL_PREFIX/include/hipRAFT`.
 ```bash
@@ -194,7 +195,7 @@ ctest --test-dir ./tests # If "--limit-tests" is specified, only a subset of tes
 
 When building hipRAFT from source, the `build.sh` script offers a nice wrapper around the `cmake` commands to ease the burdens of manually configuring the various available cmake options. When more fine-grained control over the CMake configuration is desired, the `cmake` command can be invoked directly as the below example demonstrates.
 
-The `CMAKE_INSTALL_PREFIX` installs hipRAFT into a specific location. The example below installs hipRAFT into the current Conda environment:
+The `CMAKE_INSTALL_PREFIX` option instructs CMake to install hipRAFT into a specific location.
 ```bash
 cd <HIPRAFT_ROOT>/cpp
 mkdir -p build && rm -rf build/*
@@ -221,10 +222,9 @@ hipRAFT's CMake has the following configurable flags available:
 | Flag                      | Possible Values                     | Default Value | Behavior                                                                                                                                                            |
 |---------------------------|-------------------------------------| --------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | CUDA_BACKEND              | ON, OFF                             | OFF           | Compile for the CUDA or HIP Backend                                                                                                                                 |
-| CMAKE_HIP_ARCHITECTURES   | NATIVE or specific GPU architectures| NATIVE        | NATIVE to compile for the automatically detected GPU on the system. Can also specify `;` delimited list of specific architectures. Example: `gfx942;gfx1100` |
+| CMAKE_HIP_ARCHITECTURES   | NATIVE or specific GPU architectures| NATIVE        | NATIVE to compile for the automatically detected GPU on the system. Can also specify `;` delimited list of specific architectures. Example: `gfx942;gfx1100`        |
 | BUILD_TESTS               | ON, OFF                             | ON            | Compile Googletests                                                                                                                                                 |
 | DETECT_CONDA_ENV          | ON, OFF                             | ON            | Enable detection of conda environment for dependencies                                                                                                              |
-| raft_FIND_COMPONENTS      | compiled distributed                |               | Configures the optional components as a space-separated list                                                                                                        |
 | RAFT_COMPILE_LIBRARY      | ON, OFF                             | ON if either BUILD_TESTS or BUILD_PRIMS_BENCH is ON; otherwise OFF | Compiles all `libraft` shared libraries (these are required for Googletests)                                   |
 | RAFT_COMPILE_DYNAMIC_ONLY | ON, OFF                             | OFF           | Only build the shared library and skip the static library. Has no effect if RAFT_COMPILE_LIBRARY is OFF                                                             |
 
@@ -361,3 +361,24 @@ ninja install
 cpack -G RPM # To generate a RPM package. hipraft-25.02.00-Linux.rpm will be created at <HIPRAFT_ROOT>/cpp/build.
 cpack -G TGZ # To generate a TGZ package. hipraft-25.02.00-Linux.tar.gz will be created at <HIPRAFT_ROOT>/cpp/build.
 ```
+
+## Building Documentation
+
+### Prepare environment to build documentation
+
+```bash
+cd <HIPRAFT_ROOT>
+# Activate the pylibraft conda environment.
+micromamba activate pylibraft
+# Install dependencies and tools required for generating documentation.
+pip install -r docs_amd/sphinx/requirements.txt
+```
+
+### Use `build.sh` to generate documentation
+
+```bash
+cd <HIPRAFT_ROOT>
+./build.sh libraft pylibraft --compile-lib docs clean
+```
+
+Navigate to `<HIPRAFT_ROOT>/docs_amd/_build` and use the tool of your choice, e.g. Firefox, to open and examine the root level html file, `index.html`. From this point you should be able to navigate through the documentation.

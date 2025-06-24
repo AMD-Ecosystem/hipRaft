@@ -1,0 +1,20 @@
+defaults:
+  numbered: False
+root: index
+
+subtrees:
+
+- caption: Build and installation
+  entries:
+  - file: build_and_install/build_and_install.md
+
+- caption: Reference
+  entries:
+  - file: reference/reference-cpp.rst
+    title: C++ API reference
+  - file: reference/reference-python.rst
+    title: Python API reference
+
+- caption: About
+  entries:
+  - file: license.md
