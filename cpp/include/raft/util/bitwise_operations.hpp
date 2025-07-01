@@ -31,184 +31,104 @@
 
 namespace raft {
 /**
- * @brief Computes the population count (number of bits set to 1) in the provided integer.
- *
- * This is a templated device function that will be specialized for different integral types.
- * The return value type matches that of the underlying device builtin: `int`.
- *
- * @tparam T Integral type (e.g., int32_t, uint32_t, int64_t, uint64_t).
- * @param[in] v The integer for which to count set bits.
- * @return Number of bits set to 1 in \p v.
+ * \brief Computes the population count (number of bits set to 1) in the provided integer.
  */
 template <typename T>
-__device__ int __POPC(T v)
+__device__ std::enable_if_t<sizeof(T) == 8, unsigned int> __POPC(T v)
 {
-  static_assert(!std::is_same_v<T, T>, "Invalid instantiation");
+  static_assert(std::is_integral_v<T>);
+  return __popcll(static_cast<unsigned long long>(v));
 }
-
-template <>
-__device__ inline int __POPC<int32_t>(int32_t v)
+/**
+ * \brief Computes the population count (number of bits set to 1) in the provided integer.
+ */
+template <typename T>
+__device__ std::enable_if_t<sizeof(T) == 4, unsigned int> __POPC(T v)
 {
-  return __popc(v);
-}
-
-template <>
-__device__ inline int __POPC<int64_t>(int64_t v)
-{
-  return __popcll(v);
-}
-
-template <>
-__device__ inline int __POPC<uint32_t>(uint32_t v)
-{
-  return __popc(v);
-}
-
-template <>
-__device__ inline int __POPC<uint64_t>(uint64_t v)
-{
-  return __popcll(v);
-}
-
-template <>
-__device__ inline int __POPC<unsigned long long int>(unsigned long long int v)
-{
-  static_assert(sizeof(unsigned long long) == 8);
-  return __popcll(v);
+  static_assert(std::is_integral_v<T>);
+  return __popc(static_cast<unsigned int>(v));
 }
 
 /**
- * \brief Find First Set
- * \return index of first set bit of lowest significance.
- * \note Return value type matches that of the underlying device builtin.
- * \note While `uint64_t` is defined as `unsigned long int` on x86_64,
- *        the HIP `__ffsll` device function provides `__ffsll` with `unsigned long long int`
- *        argument, which is also an 64-bit integer type on x86_64.
- *        However, the compilers typically see both as different types.
- *        We work with `uint64t` and `uint32t` here, so explicit instantiations
- *        for both are added here.
- */
+ * \brief Find First Set. Return index of first set bit of lowest significance.
+ **/
 template <typename T>
-__device__ int __FFS(T v)
+__device__ std::enable_if_t<sizeof(T) == 8, int> __FFS(T v)
 {
-  static_assert(!std::is_same_v<T, T>, "Invalid instantiation");
-}
-
-template <>
-__device__ inline int __FFS<int32_t>(int32_t v)
-{
-  return __ffs(v);
-}
-
-template <>
-__device__ inline int __FFS<int64_t>(int64_t v)
-{
+  static_assert(std::is_integral_v<T>);
   return __ffsll(static_cast<unsigned long long int>(v));
 }
 
-template <>
-__device__ inline int __FFS<uint32_t>(uint32_t v)
-{
-  return __ffs(v);
-}
-
-template <>
-__device__ inline int __FFS<uint64_t>(uint64_t v)
-{
-  return __ffsll(static_cast<unsigned long long int>(v));
-}
-
+/**
+ * \brief Find First Set. Return index of first set bit of lowest significance.
+ **/
 template <typename T>
-__device__ T __BREV(T v)
+__device__ std::enable_if_t<sizeof(T) == 4, int> __FFS(T v)
 {
-  static_assert(!std::is_same_v<T, T>, "Invalid instantiation");
+  static_assert(std::is_integral_v<T>);
+  return __ffs(static_cast<int>(v));
 }
 
-template <>
-__device__ inline int32_t __BREV<int32_t>(int32_t v)
+/**
+ \brief Bit-reversal helper that wraps __brevll intrinsic
+**/
+template <typename T>
+__device__ std::enable_if_t<sizeof(T) == 8, unsigned long long> __BREV(T v)
 {
-  static_assert(sizeof(int32_t) == sizeof(unsigned int));
-  return __brev(static_cast<unsigned int>(v));
-}
-
-template <>
-__device__ inline int64_t __BREV<int64_t>(int64_t v)
-{
-  static_assert(sizeof(int64_t) == sizeof(unsigned long long int));
+  static_assert(std::is_integral_v<T>);
   return __brevll(static_cast<unsigned long long int>(v));
 }
 
-template <>
-__device__ inline uint32_t __BREV<uint32_t>(uint32_t v)
+/**
+ \brief Bit-reversal helper that wraps __brev intrinsic
+**/
+template <typename T>
+__device__ std::enable_if_t<sizeof(T) == 4, unsigned int> __BREV(T v)
 {
-  static_assert(sizeof(uint32_t) == sizeof(unsigned int));
+  static_assert(std::is_integral_v<T>);
   return __brev(static_cast<unsigned int>(v));
 }
 
-template <>
-__device__ inline uint64_t __BREV<uint64_t>(uint64_t v)
-{
-  static_assert(sizeof(uint64_t) == sizeof(unsigned long long int));
-  return __brevll(static_cast<unsigned long long int>(v));
-}
-
+/**
+ \brief Helper that wraps __clzll intrinsic to count the number of leading zeros.
+**/
 template <typename T>
-__device__ int __CLZ(T v)
+__device__ std::enable_if_t<sizeof(T) == 8, int> __CLZ(T v)
 {
-  static_assert(!std::is_same_v<T, T>, "Invalid instantiation");
-}
-
-template <>
-__device__ inline int __CLZ<int32_t>(int32_t v)
-{
-  static_assert(sizeof(int32_t) == sizeof(int));
-  return __clz(static_cast<unsigned int>(v));
-}
-
-template <>
-__device__ inline int __CLZ<int64_t>(int64_t v)
-{
-  static_assert(sizeof(int64_t) == sizeof(long long int));
+  static_assert(std::is_integral_v<T>);
   return __clzll(static_cast<long long int>(v));
 }
 
-template <>
-__device__ inline int __CLZ<uint32_t>(uint32_t v)
+/**
+ \brief Helper that wraps __clz intrinsic to count the number of leading zeros.
+**/
+template <typename T>
+__device__ std::enable_if_t<sizeof(T) == 4, int> __CLZ(T v)
 {
-  static_assert(sizeof(uint32_t) == sizeof(int));
+  static_assert(std::is_integral_v<T>);
   return __clz(static_cast<int>(v));
 }
 
-template <>
-__device__ inline int __CLZ<uint64_t>(uint64_t v)
-{
-  static_assert(sizeof(uint64_t) == sizeof(long long int));
-  return __clzll(static_cast<long long int>(v));
-}
-
-template <>
-__device__ inline int __CLZ<unsigned long long>(unsigned long long v)
-{
-  static_assert(sizeof(unsigned long long) == sizeof(long long int));
-  return __clzll(static_cast<long long int>(v));
-}
-
+/**
+ \brief Helper that wraps __fns64 intrinsics to find the position of the n-th  bit set to 1 in a
+64-bit integer
+**/
 template <typename T>
-__device__ int32_t __FNS(T mask, uint32_t base, int32_t offset)
+__device__ std::enable_if_t<sizeof(T) == 8, int32_t> __FNS(T mask, uint32_t base, int32_t offset)
 {
-  static_assert(!std::is_same_v<T, T>, "Invalid instantiation");
+  static_assert(std::is_integral_v<T>);
+  return __fns64(static_cast<uint64_t>(mask), base, offset);
 }
 
-template <>
-__device__ int32_t __FNS<uint32_t>(uint32_t mask, uint32_t base, int32_t offset)
+/**
+ \brief Helper that wraps __fns32 intrinsics to find the position of the n-th bit set to 1 in a
+32-bit integer
+**/
+template <typename T>
+__device__ std::enable_if_t<sizeof(T) == 4, int32_t> __FNS(T mask, uint32_t base, int32_t offset)
 {
-  return __fns32(mask, base, offset);
-}
-
-template <>
-__device__ int32_t __FNS<uint64_t>(uint64_t mask, uint32_t base, int32_t offset)
-{
-  return __fns64(mask, base, offset);
+  static_assert(std::is_integral_v<T>);
+  return __fns32(static_cast<uint32_t>(mask), base, offset);
 }
 
 }  // namespace raft
