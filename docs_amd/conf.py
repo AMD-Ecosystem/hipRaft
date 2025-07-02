@@ -22,7 +22,7 @@ all_article_info_author = ""
 external_projects_current_project = "hipRAFT"
 
 html_theme = "rocm_docs_theme"
-html_theme_options = {"flavor": "rocm-ds"}
+html_theme_options = {"flavor": "rocm-ds", "repository_url": "https://github.com/AMD-AIOSS/hipRaft/"}
 
 extensions = [
     "rocm_docs",
