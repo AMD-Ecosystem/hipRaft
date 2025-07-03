@@ -42,6 +42,7 @@
 
 #include <raft/core/device_mdarray.hpp>
 #include <raft/core/resources.hpp>
+#include <raft/core/type_traits.hpp>
 
 namespace raft {
 namespace linalg {
@@ -86,7 +87,8 @@ void transpose(math_t* inout, int n, cudaStream_t stream)
 /**
  * @brief Transpose a matrix. The output has same layout policy as the input.
  *
- * @tparam T Data type of input matrix element.
+ * @tparam T Data type of input matrix element. The supported data types are half, float, and
+ * double.
  * @tparam IndexType Index type of matrix extent.
  * @tparam LayoutPolicy Layout type of the input matrix. When layout is strided, it can
  *                      be a submatrix of a larger matrix. Arbitrary stride is not supported.
@@ -101,7 +103,7 @@ template <typename T, typename IndexType, typename LayoutPolicy, typename Access
 auto transpose(raft::resources const& handle,
                raft::mdspan<T, raft::matrix_extent<IndexType>, LayoutPolicy, AccessorPolicy> in,
                raft::mdspan<T, raft::matrix_extent<IndexType>, LayoutPolicy, AccessorPolicy> out)
-  -> std::enable_if_t<std::is_floating_point_v<T> || std::is_same_v<T, half>, void>
+  -> std::enable_if_t<raft::is_floating_point_v<T>, void>
 {
   RAFT_EXPECTS(out.extent(0) == in.extent(1), "Invalid shape for transpose.");
   RAFT_EXPECTS(out.extent(1) == in.extent(0), "Invalid shape for transpose.");

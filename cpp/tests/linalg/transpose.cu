@@ -46,24 +46,6 @@
 
 #include <type_traits>
 
-#ifdef __HIP_PLATFORM_AMD__
-#include <hip/hip_fp16.h>
-#else
-#include <cuda_fp16.h>
-
-// The hip fp16 data type implicitly instantiates the is_floating_point
-// specialization in it's definition, so you can't specialize it again.
-// This is why this explicit instantiation must be removed from compilation
-// on TUs using the hip fp16 data type.
-namespace std {
-template <>
-struct is_floating_point<half> : std::true_type {};
-}  // namespace std
-
-#endif
-
-#include <gtest/gtest.h>
-
 namespace raft {
 namespace linalg {
 
@@ -269,7 +251,7 @@ namespace transpose_extra_test {
 template <typename T, typename IndexType, typename LayoutPolicy>
 [[nodiscard]] auto transpose(raft::resources const& handle,
                              device_matrix_view<T, IndexType, LayoutPolicy> in)
-  -> std::enable_if_t<(std::is_floating_point_v<T> || std::is_same_v<T, half>) &&
+  -> std::enable_if_t<(raft::is_floating_point_v<T>) &&
                         (std::is_same_v<LayoutPolicy, layout_c_contiguous> ||
                          std::is_same_v<LayoutPolicy, layout_f_contiguous>),
                       device_matrix<T, IndexType, LayoutPolicy>>
@@ -294,8 +276,7 @@ template <typename T, typename IndexType, typename LayoutPolicy>
 template <typename T, typename IndexType>
 [[nodiscard]] auto transpose(raft::resources const& handle,
                              device_matrix_view<T, IndexType, layout_stride> in)
-  -> std::enable_if_t<std::is_floating_point_v<T> || std::is_same_v<T, half>,
-                      device_matrix<T, IndexType, layout_stride>>
+  -> std::enable_if_t<raft::is_floating_point_v<T>, device_matrix<T, IndexType, layout_stride>>
 {
   matrix_extent<size_t> exts{in.extent(1), in.extent(0)};
   using policy_type =
