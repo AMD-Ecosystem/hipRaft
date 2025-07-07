@@ -14,6 +14,28 @@
 # limitations under the License.
 #
 
+# MIT License
+#
+# Modifications Copyright (c) 2025 Advanced Micro Devices, Inc.
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 # cython: profile=False
 # distutils: language = c++
 # cython: embedsignature = True
@@ -33,7 +55,7 @@ from pylibraft.common.optional cimport make_optional, optional
 
 # Cython doesn't like `const float` inside template parameters
 # hack around this with using typedefs
-ctypedef const float const_float
+ctypedef const float const_float_t
 ctypedef const int8_t const_int8_t
 ctypedef const uint8_t const_uint8_t
 
@@ -59,7 +81,7 @@ cdef optional[device_matrix_view[int64_t, int64_t, row_major]] make_optional_vie
 cdef device_matrix_view[uint32_t, int64_t, row_major] get_dmv_uint32(
     array, check_shape) except *
 
-cdef device_matrix_view[const_float, int64_t, row_major] get_const_dmv_float(
+cdef device_matrix_view[const_float_t, int64_t, row_major] get_const_dmv_float(
     array, check_shape) except *
 
 cdef device_matrix_view[const_uint8_t, int64_t, row_major] get_const_dmv_uint8(
@@ -86,7 +108,7 @@ cdef host_matrix_view[uint32_t, int64_t, row_major] get_hmv_uint32(
 cdef host_matrix_view[uint64_t, int64_t, row_major] get_hmv_uint64(
     array, check_shape) except *
 
-cdef host_matrix_view[const_float, int64_t, row_major] get_const_hmv_float(
+cdef host_matrix_view[const_float_t, int64_t, row_major] get_const_hmv_float(
     array, check_shape) except *
 
 cdef host_matrix_view[const_uint8_t, int64_t, row_major] get_const_hmv_uint8(

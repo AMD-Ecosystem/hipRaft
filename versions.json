@@ -1,9 +1,27 @@
 {
-  "packages" : {
-      "hipmm" : {
-          "version" : "${rapids-cmake-version}",
-          "git_url" : "https://$ENV{GITHUB_PASS}@github.com/AMD-AI/hipmm",
-          "git_tag" : "feat/gpinkert/branch-24.06-rocmds-logger"
-      }
+  "packages": {
+    "hipmm": {
+      "version": "3.0.0",
+      "git_url": "https://$ENV{GITHUB_PASS}@github.com/AMD-AI/hipmm",
+      "git_tag": "amd-integration/3.0.x"
+    },
+    "rocmds_logger": {
+      "version": "0.1.0",
+      "git_url": "https://$ENV{GITHUB_PASS}@github.com/AMD-AI/rocmds-logger",
+      "git_tag": "amd-integration/1.0.x"
+    },
+    "libhipcxx" : {
+      "version" : "2.7.0",
+      "git_url" : "https://$ENV{GITHUB_PASS}@github.com/AMD-AI/libhipcxx",
+      "git_tag" : "amd-integration/v2.7.0"
+    },
+    "hipco" : {
+      "version" : "0.3.0",
+      "git_url" : "https://$ENV{GITHUB_PASS}@github.com/AMD-AI/hipCollections",
+      "git_tag" : "amd-integration/0.3.x"
+    },
+    "rocthrust" : {
+      "version" : "3.0.0"
+    }
   }
 }

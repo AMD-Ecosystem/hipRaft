@@ -45,28 +45,16 @@ project(
 )
 
 # Check if raft is already available. If so, it is the user's responsibility to ensure that the
-# CMake package is also available at build time of the Python raft package. find_package(raft
-# "${RAPIDS_VERSION}") Note: On the AMD/HIP platform we want to force libraft.so into the libraft
-# wheel
+# CMake package is also available at build time of the Python raft package.
+# cmake-format: off
+# find_package(raft "${RAPIDS_VERSION}") Note: On the AMD/HIP platform we want to force libraft.so into the libraft wheel
+# cmake-format: on
 
 if(raft_FOUND)
   return()
 endif()
 
 unset(raft_FOUND)
-
-# (HIP/AMD): Temporary WAR until we can have rocmds-logger pip packages. The following ensures that
-# librapids-logger.so is force bundled into the libraft wheel.
-include(ExternalProject)
-ExternalProject_Add(
-  rocmds-logger
-  DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
-  GIT_REPOSITORY https://$ENV{GITHUB_PASS}@github.com/AMD-AI/rocmds-logger.git
-  GIT_TAG raft-logger-stable
-  GIT_SHALLOW 1
-  CMAKE_GENERATOR Ninja
-  CMAKE_ARGS "-DBUILD_TESTS=OFF" "-DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}"
-)
 
 # --- CUDA --- #
 set(CUDA_STATIC_RUNTIME OFF) # No static linking with HIP, HIP must be installed

@@ -51,8 +51,9 @@ hipRAFT currently provides libraries for C++ and Python.
 | [`liblapack-dev`](https://www.netlib.org/lapack/)                   | Tested with 3.12.0                           |
 | [`SuiteSparse`](https://github.com/DrTimothyAldenDavis/SuiteSparse) | Tested with 7.6.1                            |
 | **Additional Required Dependencies**                                |                                              |
-| **\***[`hipMM`](https://github.com/ROCm-DS/hipMM)                   | Version must match hipRAFT                   |
-| **\***[`hipCollections`](https://github.com/ROCm/hipCollections)    | Version must match hipRAFT                   |
+| **\***[`hipMM`](https://github.com/ROCm-DS/hipMM)                   | 3.0.0                                        |
+| **\***[`hipCollections`](https://github.com/ROCm/hipCollections)    | 0.3.0                                        |
+| **\***[`libhipcxx`](https://github.com/ROCm/libhipcxx)              | 2.7.0                                        |
 | **\***[`hipCUB`](https://github.com/ROCm/hipCUB)                    | Version that comes bundled with ROCm ≥ 6.4.0 |
 | **\***[`rocThrust`](https://github.com/ROCm/rocThrust)              | Version that comes bundled with ROCm ≥ 6.4.0 |
 | **\*\***[`OpenMP`](https://www.openmp.org/)                         | Version that comes bundled with ROCm ≥ 6.4.0 |
@@ -112,10 +113,13 @@ Set the Github personal access token(`GITHUB_PASS`). Note `GITHUB_PASS` should b
 export GITHUB_PASS=<GITHUB_PERSONAL_ACCESS_TOKEN>
 ```
 
-hipRAFT currently depends on custom branch of [`rocmds-logger`](https://github.com/AMD-AI/rocmds-logger) and as a result we need a custom branch of `ROCmDS-cmake` to pull this specific version of `rocmds-logger`. The following environment variables help select this specific version of `ROCmDS-cmake`:
+The following environment variables need to be set to select the version of `ROCmDS-cmake` that's scheduled to be released for General Availability.
+
 ```bash
-export RAPIDS_CMAKE_BRANCH=feat/25.04-logger
-export RAPIDS_CMAKE_URL=https://${GITHUB_PASS}@github.com/AMD-AI/ROCmDS-cmake
+export RAPIDS_CMAKE_SCRIPT_REPO=ROCm-DS/ROCmDS-CMake                          # Which ROCmDS-cmake repository to use when pulling the entrypoint RAPIDS.cmake script.
+export RAPIDS_CMAKE_SCRIPT_BRANCH=release/1.0.x                               # Which branch of the public ROCmDS-cmake git repository to pull the entrypoint RAPIDS.cmake script from.
+export RAPIDS_CMAKE_URL=https://${GITHUB_PASS}@github.com/AMD-AI/ROCmDS-cmake # URL to the internal ROCmDS-cmake git repository
+export RAPIDS_CMAKE_BRANCH=amd-integration/2.0.x                              # ROCmDS-cmake branch to use.
 ```
 
 ## C++ library
@@ -239,6 +243,15 @@ eval "$(micromamba shell hook --shell bash)"
 micromamba activate pylibraft
 ```
 It is recommended to build the python wheels in a conda environment built from `all_rocm_arch-x86_64.yaml`. It is also possible to use `venv` but it is up to the user to install all the required packages in the environment.
+
+### Development dependencies
+**The following Python packages must be installed from source with the specified versions, as they are not available on the AMD Simple PyPI index. Please consult the respective repositories for build and installation instructions.**
+1. `amd-hipmm==3.0.0b1` Branch: [amd-integration/3.0.x](https://github.com/AMD-AI/hipMM/tree/amd-integration/3.0.x)
+2. `amd-libhipmm==3.0.0b1` Branch: [amd-integration/3.0.x](https://github.com/AMD-AI/hipMM/tree/amd-integration/3.0.x)
+3. `hip-python==6.4.1.552.40` Branch: [release/rocm-rel-6.4.1](https://github.com/AMD-AI/hip-python/tree/release/rocm-rel-6.4.1)
+4. `hip-python-as-cuda==6.4.1.552.40` Branch:[release/rocm-rel-6.4.1](https://github.com/AMD-AI/hip-python/tree/release/rocm-rel-6.4.1)
+
+**Note: This is a temporary solution until the required packages are available on the AMD Simple PyPI index.**
 
 ### Building and installing `pylibraft`
 The Python libraries can be built and installed using the build.sh script:

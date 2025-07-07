@@ -16,6 +16,7 @@
 
 #pragma once
 
+#include <raft/core/logger-macros.hpp>
 #include <raft/core/logger.hpp>
 #include <raft/core/resource/cuda_stream.hpp>
 #include <raft/core/resources.hpp>                              // raft::resources

@@ -71,6 +71,7 @@ function(ConfigureTest)
             ${RAFT_CTK_MATH_DEPENDENCIES}
             $<TARGET_NAME_IF_EXISTS:OpenMP::OpenMP_CXX>
             $<TARGET_NAME_IF_EXISTS:conda_env>
+            raft_test_logger
   )
   set_target_properties(
     ${TEST_NAME}
@@ -104,6 +105,10 @@ function(ConfigureTest)
   )
 endfunction()
 
+# Create an object library for the logger so that we don't have to recompile it.
+add_library(raft_test_logger OBJECT)
+target_link_libraries(raft_test_logger PRIVATE raft_logger_impl)
+
 # ##################################################################################################
 # test sources ##################################################################################
 # ##################################################################################################
@@ -116,6 +121,7 @@ if(BUILD_TESTS)
     core/bitset.cu
     core/device_resources_manager.cpp
     core/device_setter.cpp
+    core/logger.cpp
     core/math_device.cu
     core/math_host.cpp
     core/operators_device.cu
