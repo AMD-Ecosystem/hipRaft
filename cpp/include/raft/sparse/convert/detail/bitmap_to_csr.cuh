@@ -196,10 +196,8 @@ RAFT_KERNEL __launch_bounds__(bitmap_to_csr_tpb)
   // An assert will trigger if the allocated HBM is insufficient when `NDEBUG` isn't defined.
   // Note: Assertion is active only if `NDEBUG` is undefined.
   if constexpr (check_nnz) {
-    if (tid == 0) {
-      assert(nnz <= sub_col_nnz[num_rows * num_sub_cols]);
-    }  // AMD FIX DO NOT REMOVE Note the "<="; It is possible that the last row in the matrix is all
-       // zeros.
+    // AMD FIX DO NOT REMOVE Note the "<="; It is possible that the last row in the matrix is all zeros.
+    if (tid == 0) { assert(sub_col_nnz[num_rows * num_sub_cols] <= nnz); }
   }
 
   size_t s_bit = size_t(row) * num_cols + sub_col * bits_per_sub_col;
