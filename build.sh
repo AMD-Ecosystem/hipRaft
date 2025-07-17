@@ -35,7 +35,7 @@ ARGS=$*
 # scripts, and that this script resides in the repo dir!
 REPODIR=$(cd $(dirname $0); pwd)
 
-VALIDARGS="clean libraft pylibraft docs tests template package bench-prims --uninstall  -v -g -n --compile-cuda --compile-lib --compile-static-lib --allgpuarch --no-nvtx --show_depr_warn --incl-cache-stats --time -h"
+VALIDARGS="clean libraft pylibraft docs tests template package bench-prims examples --uninstall  -v -g -n --compile-cuda --compile-lib --compile-static-lib --allgpuarch --no-nvtx --show_depr_warn --incl-cache-stats --time -h"
 HELP="$0 [<target> ...] [<flag> ...] [--cmake-args=\"<args>\"] [--cache-tool=<tool>] [--limit-tests=<targets>] [--build-metrics=<filename>]
  where <target> is:
    clean            - remove all existing build artifacts and configuration (start over)
@@ -45,6 +45,7 @@ HELP="$0 [<target> ...] [<flag> ...] [--cmake-args=\"<args>\"] [--cache-tool=<to
    docs             - build the documentation
    tests            - build the tests
    bench-prims      - build micro-benchmarks for primitives
+   examples         - build C++ examples
 
  and <flag> is:
    -v                          - verbose build mode
@@ -72,11 +73,12 @@ HELP="$0 [<target> ...] [<flag> ...] [--cmake-args=\"<args>\"] [--cache-tool=<to
  default action (no args) is to build libraft, tests, pylibraft and raft-dask targets
 "
 LIBRAFT_BUILD_DIR=${LIBRAFT_BUILD_DIR:=${REPODIR}/cpp/build}
+EXAMPLES_BUILD_DIR=${REPODIR}/examples/build
 SPHINX_BUILD_DIR=${REPODIR}/docs
 DOXYGEN_BUILD_DIR=${REPODIR}/cpp/doxygen
 RAFT_DASK_BUILD_DIR=${REPODIR}/python/raft-dask/_skbuild
 PYLIBRAFT_BUILD_DIR=${REPODIR}/python/pylibraft/_skbuild
-BUILD_DIRS="${LIBRAFT_BUILD_DIR} ${PYLIBRAFT_BUILD_DIR} ${RAFT_DASK_BUILD_DIR}"
+BUILD_DIRS="${LIBRAFT_BUILD_DIR} ${PYLIBRAFT_BUILD_DIR} ${RAFT_DASK_BUILD_DIR} ${EXAMPLES_BUILD_DIR}"
 
 # Set defaults for vars modified by flags to this script
 CMAKE_LOG_LEVEL=""
@@ -526,4 +528,16 @@ if hasArg docs; then
     doxygen Doxyfile
     cd ${SPHINX_BUILD_DIR}
     sphinx-build -b html source _html
+fi
+
+if hasArg examples; then
+    set -x
+    CMAKE_OVERRIDES_FILE="`readlink -f overrides.cmake`"
+
+    PARALLEL_LEVEL=${PARALLEL_LEVEL} \
+    BUILD_TYPE=${BUILD_TYPE} \
+    BUILD_DIR=${EXAMPLES_BUILD_DIR} \
+    RAFT_REPO_REL=${REPODIR} \
+    EXTRA_CMAKE_ARGS="-DCUDA_BACKEND=${BUILD_CUDA} -DCMAKE_USER_MAKE_RULES_OVERRIDE=${CMAKE_OVERRIDES_FILE}" \
+    bash ${REPODIR}/examples/build.sh
 fi
