@@ -47,9 +47,9 @@ dependencies:
 - scikit-build-core>=0.10.0
 - scikit-learn
 - scipy
+- sphinx
 - sphinx-copybutton
 - sphinx-markdown-tables
-- sphinx<8.2.0
 - sysroot_linux-aarch64==2.28
 <<<<<<< HEAD:conda/environments/all_cuda-128_arch-aarch64.yaml
 - ucx-py==0.44.*
