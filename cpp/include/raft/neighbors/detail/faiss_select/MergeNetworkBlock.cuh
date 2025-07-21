@@ -134,7 +134,7 @@ inline __device__ void blockMergeSmall(K* listK, V* listV)
 
 // Merge pairs of sorted lists larger than blockDim.x (NumThreads)
 // Note that optimizations for this function have been disabled.
-// See https://github.com/AMD-AI/raft/issues/49
+// See internal issue #49
 template <int NumThreads, typename K, typename V, int L, bool Dir, typename Comp, bool FullMerge>
 DISABLE_OPTIMIZATIONS inline __device__ void blockMergeLarge(K* listK, V* listV)
 {

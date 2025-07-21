@@ -158,7 +158,7 @@ TEST_P(DotTestF, Result)
 {
 #ifdef __HIP_PLATFORM_AMD__
   if (std::string(::testing::UnitTest::GetInstance()->current_test_info()->name()) == "Result/1") {
-    // TODO: (HIP/AMD) See issue: https://github.com/AMD-AI/raft/issues/91
+    // TODO: (HIP/AMD) See internal issue #91
     params.tolerance = 1e-2;
   }
 #endif
