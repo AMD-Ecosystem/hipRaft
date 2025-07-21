@@ -383,11 +383,7 @@ class warp_sort_filtered : public warp_sort<Capacity, Ascending, T, IdxT> {
   _RAFT_DEVICE _RAFT_FORCEINLINE void merge_buf_()
   {
     util::bitonic<kMaxBufLen>(!Ascending, kWarpWidth).sort(val_buf_, idx_buf_);
-#ifdef __HIP_PLATFORM_AMD__
     this->template merge_in<kMaxBufLen>(val_buf_, idx_buf_);
-#else
-    this->merge_in<kMaxBufLen>(val_buf_, idx_buf_);
-#endif
     buf_len_ = 0;
     set_k_th_();  // contains warp sync
 #pragma unroll
@@ -514,11 +510,7 @@ class warp_sort_distributed : public warp_sort<Capacity, Ascending, T, IdxT> {
   _RAFT_DEVICE _RAFT_FORCEINLINE void merge_buf_()
   {
     util::bitonic<1>(!Ascending, kWarpWidth).sort(buf_val_, buf_idx_);
-#ifdef __HIP_PLATFORM_AMD__
     this->template merge_in<1>(&buf_val_, &buf_idx_);
-#else
-    this->merge_in<1>(&buf_val_, &buf_idx_);
-#endif
     set_k_th_();  // contains warp sync
     buf_val_ = kDummy;
   }
@@ -634,11 +626,7 @@ class warp_sort_distributed_ext : public warp_sort<Capacity, Ascending, T, IdxT>
     IdxT buf_idx       = idx_buf_[laneId()];
     val_buf_[laneId()] = kDummy;
     util::bitonic<1>(!Ascending, kWarpWidth).sort(buf_val, buf_idx);
-#ifdef __HIP_PLATFORM_AMD__
     this->template merge_in<1>(&buf_val, &buf_idx);
-#else
-    this->merge_in<1>(&buf_val, &buf_idx);
-#endif
     set_k_th_();  // contains warp sync
   }
 
@@ -697,11 +685,7 @@ class warp_sort_immediate : public warp_sort<Capacity, Ascending, T, IdxT> {
     ++buf_len_;
     if (buf_len_ == kMaxArrLen) {
       util::bitonic<kMaxArrLen>(!Ascending, kWarpWidth).sort(val_buf_, idx_buf_);
-#ifdef __HIP_PLATFORM_AMD__
       this->template merge_in<kMaxArrLen>(val_buf_, idx_buf_);
-#else
-      this->merge_in<kMaxArrLen>(val_buf_, idx_buf_);
-#endif
 #pragma unroll
       for (int i = 0; i < kMaxArrLen; i++) {
         val_buf_[i] = kDummy;
@@ -714,11 +698,7 @@ class warp_sort_immediate : public warp_sort<Capacity, Ascending, T, IdxT> {
   {
     if (buf_len_ != 0) {
       util::bitonic<kMaxArrLen>(!Ascending, kWarpWidth).sort(val_buf_, idx_buf_);
-#ifdef __HIP_PLATFORM_AMD__
       this->template merge_in<kMaxArrLen>(val_buf_, idx_buf_);
-#else
-      this->merge_in<kMaxArrLen>(val_buf_, idx_buf_);
-#endif
     }
   }
 
