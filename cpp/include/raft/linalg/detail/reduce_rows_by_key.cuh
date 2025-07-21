@@ -170,7 +170,7 @@ __launch_bounds__(SUM_ROWS_SMALL_K_DIMX, 4)
     if (threadIdx.x < 32) {
       // We only need 4
       // TODO: (HIP/AMD) Revisit the usage of cub::ShuffleIndex<32> here. It does seem like this
-      // should be warp_size dependent. See issue: https://github.com/AMD-AI/raft/issues/68
+      // should be warp_size dependent. See internal issue #68
       thread_sums = cub::ShuffleIndex<32>(thread_sums, 0, std::numeric_limits<unsigned int>::max());
       if (static_cast<IdxT>(threadIdx.x) < nkeys) {
         if (threadIdx.x == 0) raft::myAtomicAdd(&d_sums[threadIdx.x * ncols + idim], thread_sums.x);

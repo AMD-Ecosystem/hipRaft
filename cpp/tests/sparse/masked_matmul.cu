@@ -361,8 +361,8 @@ class MaskedMatmulTest
   {
     if constexpr (std::is_same_v<half, value_t>) {
       if (params.m > 10) {
-        // HIP/AMD: See issue: https://github.com/AMD-AI/raft/issues/94. hipsparseCreateDnMat fails
-        // for CUDA_R_16F.
+        // HIP/AMD: See internal issue #94. hipsparseCreateDnMat
+        // fails for CUDA_R_16F.
         GTEST_SKIP() << "Skipping test";
       }
     }

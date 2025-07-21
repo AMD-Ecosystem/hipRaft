@@ -108,7 +108,7 @@ export CMAKE_PREFIX_PATH=/opt/rocm/lib/cmake # Set CMAKE_PREFIX_PATH to point to
 **The following environment variables are only required to be set for internal development. This section will be removed when hipRAFT becomes public.**
 
 
-Set the Github personal access token(`GITHUB_PASS`). Note `GITHUB_PASS` should be configured to authorize access to the `AMD-AI` organization.
+Set the Github personal access token(`GITHUB_PASS`). Note `GITHUB_PASS` should be configured to authorize access to the `AMD-AIOSS` organization.
 ```bash
 export GITHUB_PASS=<GITHUB_PERSONAL_ACCESS_TOKEN>
 ```
@@ -118,7 +118,7 @@ The following environment variables need to be set to select the version of `ROC
 ```bash
 export RAPIDS_CMAKE_SCRIPT_REPO=ROCm-DS/ROCmDS-CMake                          # Which ROCmDS-cmake repository to use when pulling the entrypoint RAPIDS.cmake script.
 export RAPIDS_CMAKE_SCRIPT_BRANCH=release/1.0.x                               # Which branch of the public ROCmDS-cmake git repository to pull the entrypoint RAPIDS.cmake script from.
-export RAPIDS_CMAKE_URL=https://${GITHUB_PASS}@github.com/AMD-AI/ROCmDS-cmake # URL to the internal ROCmDS-cmake git repository
+export RAPIDS_CMAKE_URL=https://${GITHUB_PASS}@github.com/AMD-AIOSS/ROCmDS-cmake # URL to the internal ROCmDS-cmake git repository
 export RAPIDS_CMAKE_BRANCH=amd-integration/2.0.x                              # ROCmDS-cmake branch to use.
 ```
 
@@ -246,10 +246,10 @@ It is recommended to build the python wheels in a conda environment built from `
 
 ### Development dependencies
 **The following Python packages must be installed from source with the specified versions, as they are not available on the AMD Simple PyPI index. Please consult the respective repositories for build and installation instructions.**
-1. `amd-hipmm==3.0.0b1` Branch: [amd-integration/3.0.x](https://github.com/AMD-AI/hipMM/tree/amd-integration/3.0.x)
-2. `amd-libhipmm==3.0.0b1` Branch: [amd-integration/3.0.x](https://github.com/AMD-AI/hipMM/tree/amd-integration/3.0.x)
-3. `hip-python==6.4.1.552.40` Branch: [release/rocm-rel-6.4.1](https://github.com/AMD-AI/hip-python/tree/release/rocm-rel-6.4.1)
-4. `hip-python-as-cuda==6.4.1.552.40` Branch:[release/rocm-rel-6.4.1](https://github.com/AMD-AI/hip-python/tree/release/rocm-rel-6.4.1)
+1. `amd-hipmm==3.0.0b1` Branch: [amd-integration/3.0.x](https://github.com/AMD-AIOSS/hipMM/tree/amd-integration/3.0.x)
+2. `amd-libhipmm==3.0.0b1` Branch: [amd-integration/3.0.x](https://github.com/AMD-AIOSS/hipMM/tree/amd-integration/3.0.x)
+3. `hip-python==6.4.1.552.40` Branch: [release/rocm-rel-6.4.1](https://github.com/AMD-AIOSS/hip-python/tree/release/rocm-rel-6.4.1)
+4. `hip-python-as-cuda==6.4.1.552.40` Branch:[release/rocm-rel-6.4.1](https://github.com/AMD-AIOSS/hip-python/tree/release/rocm-rel-6.4.1)
 
 **Note: This is a temporary solution until the required packages are available on the AMD Simple PyPI index.**
 

@@ -193,7 +193,7 @@ if(BUILD_TESTS)
     linalg/normalize.cu
     linalg/power.cu
     # cmake-format: off
-    # linalg/randomized_svd.cu TODO: (HIP/AMD) Requires an equivalent of cusolverDnXgesvdr in hipSOLVER. See https://github.com/AMD-AI/raft/issues/93
+    # linalg/randomized_svd.cu TODO: (HIP/AMD) Requires an equivalent of cusolverDnXgesvdr in hipSOLVER. See internal issue #93.
     # cmake-format: on
     linalg/reduce.cu
     linalg/reduce_cols_by_key.cu

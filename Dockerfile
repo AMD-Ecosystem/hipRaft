@@ -99,7 +99,7 @@ EOT
 
 ENV CMAKE_PREFIX_PATH="/opt/rocm/lib/cmake"
 ENV RAPIDS_CMAKE_BRANCH="feat/25.04-logger"
-ENV RAPIDS_CMAKE_URL="https://${GITHUB_PASS}@github.com/AMD-AI/ROCmDS-cmake"
+ENV RAPIDS_CMAKE_URL="https://${GITHUB_PASS}@github.com/AMD-AIOSS/ROCmDS-cmake"
 
 WORKDIR /home
 
