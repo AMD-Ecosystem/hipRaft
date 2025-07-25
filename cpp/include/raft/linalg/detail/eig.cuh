@@ -115,12 +115,10 @@ void eigDC(raft::resources const& handle,
 {
 // CUDART_VERSION is unset in the current TU. In case it somehow gets set to a value higher than
 // 11010, we still call eigDC_legacy()
-#if CUDART_VERSION < 11010 || defined(__HIP_PLATFORM_AMD__)
+#if defined(__HIP_PLATFORM_AMD__)
   eigDC_legacy(handle, in, n_rows, n_cols, eig_vectors, eig_vals, stream);
   return;
-#endif
-
-#ifndef __HIP_PLATFORM_AMD__
+#else
   int cudart_version = 0;
   RAFT_CUDA_TRY(cudaRuntimeGetVersion(&cudart_version));
   cudaStream_t stream_new;
