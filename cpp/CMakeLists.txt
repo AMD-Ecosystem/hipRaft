@@ -289,6 +289,10 @@ else()
   find_package(LAPACK REQUIRED)
   find_package(MPI)
   find_package(ucx 1.15.0)
+  # See https://gitlab.kitware.com/cmake/cmake/-/issues/20268
+  find_path(BLAS_INCLUDE_DIRS cblas.h /usr/include /usr/local/include /usr/include/openblas
+            /usr/include/cblas
+  )
   if(TARGET ucx::ucs)
     include(../python/raft-dask/cmake/thirdparty/get_ucxx.cmake)
   endif()
@@ -311,6 +315,12 @@ set(RAFT_CTK_MATH_DEPENDENCIES
     ${RAFT_BLAS_DEPENDENCY}
     ${RAFT_LAPACK_DEPENDENCY}
 )
+
+if(BLAS_INCLUDE_DIRS)
+  target_include_directories(raft INTERFACE "$<BUILD_INTERFACE:${BLAS_INCLUDE_DIRS}>")
+else()
+  message(WARNING "BLAS_INCLUDE_DIRS is not set. Skipping inclusion of BLAS include directories.")
+endif()
 
 # Endian detection
 include(TestBigEndian)

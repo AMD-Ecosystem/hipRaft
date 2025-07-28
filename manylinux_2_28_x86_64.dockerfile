@@ -1,8 +1,8 @@
-# syntax=docker/dockerfile:1.5
+# syntax=docker/dockerfile:1
 
 # MIT License
 #
-# Copyright (c) 2024-2025 Advanced Micro Devices, Inc.
+# Copyright (c) 2025 Advanced Micro Devices, Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -22,49 +22,56 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-ARG UBUNTU="24.04"
 ARG ROCM=6.4.2
-ARG BASE=rocm/dev-ubuntu-${UBUNTU}:${ROCM}-complete
-FROM ${BASE}
+FROM quay.io/pypa/manylinux_2_28_x86_64
 
-# Args used before a FROM statement are reset. Adding another ARG here keeps the default value the same, and
-# when specifying --build-arg UBUNTU=<SOME_VAL>, SOME_VAL is applied to both UBUNTU args.
-ARG UBUNTU="24.04"
+ARG ROCM=6.4.2
 
-ARG GITHUB_USER
-ARG GITHUB_PASS
+RUN dnf install -y wget
 
-ENV GITHUB_USER=${GITHUB_USER}
-ENV GITHUB_PASS=${GITHUB_PASS}
-ENV ROCM=${ROCM}
+RUN bash -c 'cat > /amdgpu_install_wrapper.sh' <<'EOF'
+#!/usr/bin/env bash
+set -exo pipefail
 
-#Ensures that if any stage in a pipe fails, that the entire RUN command fails
-SHELL ["/bin/bash", "-exo", "pipefail", "-c"]
+function get_os_property() {
+  grep "^$1=" /etc/os-release | cut -d "=" -f 2 | tr -d "\"" | tr -d "'"
+}
 
-RUN <<EOT
-apt-get update
-DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-        sudo \
+rhel_version_id=$(get_os_property VERSION_ID)
+rhel_version_major=$(echo ${rhel_version_id} | cut -d '.' -f 1)
+
+wget -np -r -nH --cut-dirs=4 -A "amdgpu-install*el${rhel_version_major}.noarch.rpm" https://repo.radeon.com/amdgpu-install/${ROCM}/rhel/${rhel_version_id}
+yum clean all
+yum install -y ./amdgpu-install*.rpm
+rm ./amdgpu-install*.rpm
+
+amdgpu-install -y --usecase="rocm,rocmdev,rocmdevtools,opencl,hip,openclsdk,hiplibsdk,openmpsdk,lrt,mllib,mlsdk" --no-dkms
+# make ld aware about rocm install dir
+echo "/opt/rocm/lib" > /etc/ld.so.conf.d/ROCM-MANUAL-INSTALL.conf
+ldconfig
+EOF
+
+RUN export ROCM=${ROCM} && bash /amdgpu_install_wrapper.sh
+
+RUN dnf install -y sudo \
         vim \
         python3 \
-        software-properties-common \
         git-all \
         bash-completion \
         ninja-build \
-        libblas-dev \
-        liblapack-dev \
-        wget \
         ca-certificates \
-        clang-format \
         clangd \
-        cmake-curses-gui \
-        libsuitesparse-dev \
-        ssh \
-        rpm \
-        ccache
-EOT
+        ccache \
+        openblas-devel \
+        lapack-devel \
+        suitesparse-devel
 
 WORKDIR /third_party_builds
+
+RUN <<EOT
+wget -q https://github.com/Kitware/CMake/releases/download/v4.0.1/cmake-4.0.1-linux-x86_64.sh
+bash ./cmake-4.0.1-linux-x86_64.sh --skip-license --prefix=/usr/local
+EOT
 
 RUN <<EOT
 wget -q https://github.com/openucx/ucx/releases/download/v1.17.0/ucx-1.17.0.tar.gz
@@ -86,21 +93,8 @@ make install
 EOT
 
 RUN <<EOT
-apt remove -y --purge --auto-remove cmake || echo "CMake not found"
-wget -q https://github.com/Kitware/CMake/releases/download/v4.0.1/cmake-4.0.1-linux-x86_64.sh
-bash ./cmake-4.0.1-linux-x86_64.sh --skip-license --prefix=/usr/local
-EOT
-
-RUN <<EOT
 curl -Ls https://micro.mamba.pm/api/micromamba/linux-64/latest | tar -xvj bin/micromamba
 mv bin/micromamba /usr/local/bin/
 EOT
-
-
-ENV CMAKE_PREFIX_PATH="/opt/rocm/lib/cmake"
-ENV RAPIDS_CMAKE_BRANCH="feat/25.04-logger"
-ENV RAPIDS_CMAKE_URL="https://${GITHUB_PASS}@github.com/AMD-AIOSS/ROCmDS-cmake"
-
-WORKDIR /home
 
 RUN rm -rf /third_party_builds
