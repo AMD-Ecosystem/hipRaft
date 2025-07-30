@@ -13,10 +13,10 @@ CMake based build workflow.
 
 The C++ examples use the `libraft` library. The CMake scripts will automatically
 download the latest release and build it. There are some pre-requisites for successfully
-building the library. Please refer to the `Build and installation` section for
-instruction on how to set up your developer environment for building hipRAFT.
+building the library. Please refer to the [Build and installation](../docs_amd/build_and_install/build_and_install.md#introduction)
+documentation for instructions on how to set up your developer environment for building hipRAFT.
 
-The directory (<raft_source>>/examples/cpp) can be copied directly and used as a starting point
+The directory `<raft_source>/examples/cpp`, can be copied directly and used as a starting point
 to build a new application with hipRAFT. An existing CMake project can also be modified to
 use hipRAFT by copying the contents in the "configure rapids-cmake" and "configure raft" sections
 of the provided CMakeLists.txt into your project, along with the
@@ -34,14 +34,14 @@ available and `raft::compiled` when utilizing the shared library.
 target_link_libraries(your_app_target PRIVATE raft::raft raft::compiled)
 ```
 
-## LINALG Example
+## Linear Algebra (linalg) Example
 
 This example demonstrates the use of the `linalg` module. It generates a random
 matrix and a random vector and computes their product using
-1. `raft::linalg::dot`, to take the dot product of each row of the matrix with the vector
+1. [raft::linalg::dot](reference/cpp_api/linalg_blas:dot), to take the dot product of each row of the matrix with the vector
 to produce each element of the result vector.
-2. `raft::linalg::gemv`, to compute the product directly.
-The results of the two methods are then compared using `raft::linalg::mean_squared_error`.
+2. [raft::linalg::gemv](reference/cpp_api/linalg_blas:gemv), to compute the product directly.
+The results of the two methods are then compared using [raft::linalg::mean_squared_error](linalg-mean-squared-error).
 
 It should produce an output like:
 ```
@@ -81,13 +81,13 @@ seed: 1140758900
 .............2...........333..3..........
 ```
 
-This example also demonstrates hipRAFT inter-op with custom Cuda kernels and Thrust.
+This example also demonstrates hipRAFT inter-op with custom HIP kernels and rocThrust.
 
 # Python example
 
 The Python example depends on the `pylibraft` module, which can either be installed
-using pip or built from source following the instructions in the `Build and installation` section.
-The example generates a random directed-graph using the `pylibraft.random.rmat` function. The
+using pip or built from source following the instructions in [this](../docs_amd/build_and_install/build_and_install.md#building-and-installing-pylibraft) section.
+The example generates a random directed-graph using the [pylibraft.random.rmat](reference/pylibraft_api/random:random) function. The
 generated graph is printed on the screen as an adjacency list. The output should look something
 like:
 ```
