@@ -84,14 +84,19 @@ def rmat(out, theta, r_scale, c_scale, seed=12345, handle=None):
     Parameters
     ----------
 
-    out: CUDA array interface compliant matrix shape (n_edges, 2). This will
-         contain the src/dst node ids stored consecutively like a pair.
-    theta: CUDA array interface compliant matrix shape
-           (max(r_scale, c_scale) * 4) This stores the probability distribution
-           at each RMAT level
-    r_scale: log2 of number of source nodes
-    c_scale: log2 of number of destination nodes
-    seed: random seed used for reproducibility
+    out:
+        CUDA array interface compliant matrix shape (n_edges, 2). This will
+        contain the src/dst node ids stored consecutively like a pair.
+    theta:
+        CUDA array interface compliant matrix shape
+        (max(r_scale, c_scale) * 4) This stores the probability distribution
+        at each RMAT level
+    r_scale: int
+        log2 of number of source nodes
+    c_scale: int
+        log2 of number of destination nodes
+    seed: int
+        random seed used for reproducibility
     {handle_docstring}
 
     Examples

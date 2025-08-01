@@ -1,6 +1,6 @@
-# Build and Installation
+# Introduction
 
-hipRAFT currently provides libraries for C++ and Python.
+hipRAFT currently provides C++ and Python API's.
 
 ## Table of Contents
 
@@ -20,6 +20,7 @@ hipRAFT currently provides libraries for C++ and Python.
   - [Building and installing](#building-and-installing-pylibraft)
   - [Running the python tests](#running-the-python-tests)
 - [Packaging](#packaging)
+- [Building documentation](#building-documentation)
 ------
 
 ### Tested on the following GPUs
@@ -38,31 +39,31 @@ hipRAFT currently provides libraries for C++ and Python.
 > hipRAFT builds against the **AMD ROCm software stack**—that is, the ROCm runtime, HIP compiler tool-chain, and a GPU driver that matches your ROCm version.
 > Install ROCm ≥ 6.4.0 (or the minimum version supported by the GPUs listed above) and make sure the `rocminfo` and `hipcc` commands are in your `PATH`.
 
-| Name                                                                | Version / Notes                              |
-| ----------------------------------------------------------          | -------------------------------------------- |
-| [`cmake`](https://cmake.org/)                                       | ≥ 3.31.0                                     |
-| [`ninja`](https://ninja-build.org/)                                 | ≥ 1.11.1                                     |
-| [`hipsolver`](https://github.com/ROCm/hipSOLVER)                    | Version that comes bundled with ROCm ≥ 6.4.0 |
-| [`hipblas`](https://github.com/ROCm/hipblas)                        | Version that comes bundled with ROCm ≥ 6.4.0 |
-| [`hipblaslt`](https://github.com/ROCm/hipBLASLt)                    | Version that comes bundled with ROCm ≥ 6.4.0 |
-| [`hiprand`](https://github.com/ROCm/hiprand)                        | Version that comes bundled with ROCm ≥ 6.4.0 |
-| [`hipsparse`](https://github.com/ROCm/hipSPARSE)                    | Version that comes bundled with ROCm ≥ 6.4.0 |
-| [`libblas-dev`](https://www.netlib.org/lapack/)                     | Tested with 3.12.0                           |
-| [`liblapack-dev`](https://www.netlib.org/lapack/)                   | Tested with 3.12.0                           |
-| [`SuiteSparse`](https://github.com/DrTimothyAldenDavis/SuiteSparse) | Tested with 7.6.1                            |
-| **Additional Required Dependencies**                                |                                              |
-| **\***[`hipMM`](https://github.com/ROCm-DS/hipMM)                   | 3.0.0                                        |
-| **\***[`hipCollections`](https://github.com/ROCm/hipCollections)    | 0.3.0                                        |
-| **\***[`libhipcxx`](https://github.com/ROCm/libhipcxx)              | 2.7.0                                        |
-| **\***[`hipCUB`](https://github.com/ROCm/hipCUB)                    | Version that comes bundled with ROCm ≥ 6.4.0 |
-| **\***[`rocThrust`](https://github.com/ROCm/rocThrust)              | Version that comes bundled with ROCm ≥ 6.4.0 |
-| **\*\***[`OpenMP`](https://www.openmp.org/)                         | Version that comes bundled with ROCm ≥ 6.4.0 |
-| **Optional Dependencies**                                           |                                              |
-| [`RCCL`](https://github.com/ROCm/rccl)                              | Version that comes bundled with ROCm ≥ 6.4.0 |
-| [`UCX`](https://github.com/openucx/ucx)                             | ≥ 1.17.0                                     |
-| [`Googletest`](https://github.com/google/googletest)                | ≥ 1.13.0                                     |
-| [`Googlebench`](https://github.com/google/benchmark)                | ≥ 1.13.0                                     |
-| [`Doxygen`](https://github.com/doxygen/doxygen)                     | >=1.8.20                                     |
+| Name                                                                  | Version / Notes                              |
+| ----------------------------------------------------------            | -------------------------------------------- |
+| [`cmake`](https://cmake.org/)                                         | ≥ 3.31.0                                     |
+| [`ninja`](https://ninja-build.org/)                                   | ≥ 1.11.1                                     |
+| [`hipsolver`](https://rocm.docs.amd.com/projects/hipSOLVER/en/latest/)| Version that comes bundled with ROCm ≥ 6.4.0 |
+| [`hipblas`](https://rocm.docs.amd.com/projects/hipBLAS/en/latest/)    | Version that comes bundled with ROCm ≥ 6.4.0 |
+| [`hipblaslt`](https://rocm.docs.amd.com/projects/hipBLASLt/en/latest/)| Version that comes bundled with ROCm ≥ 6.4.0 |
+| [`hiprand`](https://rocm.docs.amd.com/projects/hipRAND/en/latest/)    | Version that comes bundled with ROCm ≥ 6.4.0 |
+| [`hipsparse`](https://rocm.docs.amd.com/projects/hipSPARSE/en/latest/)| Version that comes bundled with ROCm ≥ 6.4.0 |
+| [`libblas-dev`](https://www.netlib.org/lapack/)                       | Tested with 3.12.0                           |
+| [`liblapack-dev`](https://www.netlib.org/lapack/)                     | Tested with 3.12.0                           |
+| [`SuiteSparse`](https://github.com/DrTimothyAldenDavis/SuiteSparse)   | Tested with 7.6.1                            |
+| **Additional Required Dependencies**                                                                                 |
+| **\***[`hipMM`](https://github.com/ROCm-DS/hipMM)                     | 3.0.0                                        |
+| **\***[`hipCollections`](https://github.com/ROCm/hipCollections)      | 0.3.0                                        |
+| **\***[`libhipcxx`](https://github.com/ROCm/libhipcxx)                | 2.7.0                                        |
+| **\***[`hipCUB`](https://github.com/ROCm/hipCUB)                      | Version that comes bundled with ROCm ≥ 6.4.0 |
+| **\***[`rocThrust`](https://github.com/ROCm/rocThrust)                | Version that comes bundled with ROCm ≥ 6.4.0 |
+| **\*\***[`OpenMP`](https://www.openmp.org/)                           | Version that comes bundled with ROCm ≥ 6.4.0 |
+| **Optional Dependencies**                                                                                            |
+| [`RCCL`](https://rocm.docs.amd.com/projects/rccl/en/latest/)          | Version that comes bundled with ROCm ≥ 6.4.0 |
+| [`UCX`](https://github.com/openucx/ucx)                               | ≥ 1.17.0                                     |
+| [`Googletest`](https://github.com/google/googletest)                  | ≥ 1.13.0                                     |
+| [`Googlebench`](https://github.com/google/benchmark)                  | ≥ 1.13.0                                     |
+| [`Doxygen`](https://github.com/doxygen/doxygen)                       | >=1.8.20                                     |
 
 **\*** Note: In the case of dependencies marked with an asterisk, if not found locally; the CMake build system will attempt to download a compatible version using
 [ROCmDS-cmake](https://github.com/ROCm-DS/ROCmDS-cmake).
@@ -71,7 +72,7 @@ hipRAFT currently provides libraries for C++ and Python.
 
 ### Docker
 
-For convenience hipRAFT also provides an [Ubuntu distribution-based Dockerfile](Dockerfile) that encapsulates all the above dependencies for development. Below are the instructions to create a container using this Dockerfile.
+For convenience hipRAFT also provides a `Dockerfile` that encapsulates all the above dependencies for development. Below are the instructions to create a container using this Dockerfile.
 
 ```bash
 cd <REPO_ROOT>
@@ -126,7 +127,7 @@ export RAPIDS_CMAKE_BRANCH=amd-integration/2.0.x                              # 
 
 ### Header-only C++
 
-`build.sh` uses [ROCmDS-cmake](https://github.com/ROCm-DS/ROCmDS-cmake), which will automatically download any dependencies which are not already installed. It's important to note that while all the headers will be installed and available.
+`build.sh` uses [ROCmDS-cmake](https://github.com/ROCm-DS/ROCmDS-cmake), which will automatically download any dependencies which are not already installed.
 
 The following example will download the needed dependencies and install the hipRAFT headers into `$INSTALL_PREFIX/include/hipRAFT`.
 ```bash
@@ -194,7 +195,7 @@ ctest --test-dir ./tests # If "--limit-tests" is specified, only a subset of tes
 
 When building hipRAFT from source, the `build.sh` script offers a nice wrapper around the `cmake` commands to ease the burdens of manually configuring the various available cmake options. When more fine-grained control over the CMake configuration is desired, the `cmake` command can be invoked directly as the below example demonstrates.
 
-The `CMAKE_INSTALL_PREFIX` installs hipRAFT into a specific location. The example below installs hipRAFT into the current Conda environment:
+The `CMAKE_INSTALL_PREFIX` option instructs CMake to install hipRAFT into a specific location.
 ```bash
 cd <HIPRAFT_ROOT>/cpp
 mkdir -p build && rm -rf build/*
@@ -221,10 +222,9 @@ hipRAFT's CMake has the following configurable flags available:
 | Flag                      | Possible Values                     | Default Value | Behavior                                                                                                                                                            |
 |---------------------------|-------------------------------------| --------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | CUDA_BACKEND              | ON, OFF                             | OFF           | Compile for the CUDA or HIP Backend                                                                                                                                 |
-| CMAKE_HIP_ARCHITECTURES   | NATIVE or specific GPU architectures| NATIVE        | NATIVE to compile for the automatically detected GPU on the system. Can also specify `;` delimited list of specific architectures. Example: `gfx942;gfx1100` |
+| CMAKE_HIP_ARCHITECTURES   | NATIVE or specific GPU architectures| NATIVE        | NATIVE to compile for the automatically detected GPU on the system. Can also specify `;` delimited list of specific architectures. Example: `gfx942;gfx1100`        |
 | BUILD_TESTS               | ON, OFF                             | ON            | Compile Googletests                                                                                                                                                 |
 | DETECT_CONDA_ENV          | ON, OFF                             | ON            | Enable detection of conda environment for dependencies                                                                                                              |
-| raft_FIND_COMPONENTS      | compiled distributed                |               | Configures the optional components as a space-separated list                                                                                                        |
 | RAFT_COMPILE_LIBRARY      | ON, OFF                             | ON if either BUILD_TESTS or BUILD_PRIMS_BENCH is ON; otherwise OFF | Compiles all `libraft` shared libraries (these are required for Googletests)                                   |
 | RAFT_COMPILE_DYNAMIC_ONLY | ON, OFF                             | OFF           | Only build the shared library and skip the static library. Has no effect if RAFT_COMPILE_LIBRARY is OFF                                                             |
 
@@ -271,13 +271,13 @@ Building and installing the python wheels manually:
 ```bash
 # Build libraft python wheel
 cd <HIPRAFT_ROOT>/python/libraft/
-pip wheel -w dist -v --no-deps --no-build-isolation --disable-pip-version-check .
+pip wheel -w dist -v --no-build-isolation --disable-pip-version-check .
 # Install libraft wheel
 pip install dist/libraft-*.whl
 
 # Build pylibraft python wheel
 cd <HIPRAFT_ROOT>/python/pylibraft/
-pip wheel -w dist -v --no-deps --no-build-isolation --disable-pip-version-check .
+pip wheel -w dist -v --no-build-isolation --disable-pip-version-check .
 # Install pylibraft wheel
 pip install dist/pylibraft*.whl
 ```
@@ -361,3 +361,24 @@ ninja install
 cpack -G RPM # To generate a RPM package. hipraft-25.02.00-Linux.rpm will be created at <HIPRAFT_ROOT>/cpp/build.
 cpack -G TGZ # To generate a TGZ package. hipraft-25.02.00-Linux.tar.gz will be created at <HIPRAFT_ROOT>/cpp/build.
 ```
+
+## Building Documentation
+
+### Prepare environment to build documentation
+
+```bash
+cd <HIPRAFT_ROOT>
+# Activate the pylibraft conda environment.
+micromamba activate pylibraft
+# Install dependencies and tools required for generating documentation.
+pip install -r docs_amd/sphinx/requirements.txt
+```
+
+### Use `build.sh` to generate documentation
+
+```bash
+cd <HIPRAFT_ROOT>
+./build.sh libraft pylibraft --compile-lib docs clean
+```
+
+Navigate to `<HIPRAFT_ROOT>/docs_amd/_build` and use the tool of your choice, e.g. Firefox, to open and examine the root level html file, `index.html`. From this point you should be able to navigate through the documentation.
