@@ -35,8 +35,8 @@ ARGS=$*
 # scripts, and that this script resides in the repo dir!
 REPODIR=$(cd $(dirname $0); pwd)
 
-VALIDARGS="clean libraft pylibraft docs tests template package bench-prims examples --uninstall  -v -g -n --compile-cuda --compile-lib --compile-static-lib --allgpuarch --no-nvtx --show_depr_warn --incl-cache-stats --time -h"
-HELP="$0 [<target> ...] [<flag> ...] [--cmake-args=\"<args>\"] [--cache-tool=<tool>] [--limit-tests=<targets>] [--build-metrics=<filename>]
+VALIDARGS="clean libraft pylibraft docs tests template package bench-prims examples --uninstall  -v -g -n --compile-lib --compile-static-lib --allgpuarch --show_depr_warn -h"
+HELP="$0 [<target> ...] [<flag> ...] [--cmake-args=\"<args>\"] [--cache-tool=<tool>] [--limit-tests=<targets>] [--build-metrics=<filename>] [--gpu-arch="arch"]
  where <target> is:
    clean            - remove all existing build artifacts and configuration (start over)
    libraft          - build the raft C++ code only. Also builds the C-wrapper library
@@ -54,20 +54,16 @@ HELP="$0 [<target> ...] [<flag> ...] [--cmake-args=\"<args>\"] [--cache-tool=<to
    --uninstall                 - uninstall files for specified targets which were built and installed prior
    --compile-lib               - compile shared library for all components
    --compile-static-lib        - compile static library for all components
-   --compile-cuda              - compile for CUDA backend (default: HIP/AMD)
    --cpu-only                  - build CPU only components without HIP/CUDA. Applies to bench-ann only currently.
    --limit-tests               - semicolon-separated list of test executables to compile (e.g. NEIGHBORS_TEST;CLUSTER_TEST)
    --limit-bench-prims         - semicolon-separated list of prims benchmark executables to compute (e.g. NEIGHBORS_PRIMS_BENCH;CLUSTER_PRIMS_BENCH)
    --allgpuarch                - build for all supported GPU architectures
-   --no-nvtx                   - disable nvtx (profiling markers), but allow enabling it in downstream projects
+   --gpu-arch=\"arch\"           - build for specific GPU architectures e.g --gpu-arch=\"gfx90a\"
    --show_depr_warn            - show cmake deprecation warnings
    --build-metrics             - filename for generating build metrics report for libraft
-   --incl-cache-stats          - include cache statistics in build metrics report
-   --cmake-args=\\\"<args>\\\" - pass arbitrary list of CMake configuration options (escape all quotes in argument)
+   --cmake-args=\\\"<args>\\\"     - pass arbitrary list of CMake configuration options (escape all quotes in argument)
    --cache-tool=<tool>         - pass the build cache tool (eg: ccache, sccache, distcc) that will be used
                                  to speedup the build process.
-   --time                      - Enable nvcc compilation time logging into cpp/build/nvcc_compile_log.csv.
-                                 Results can be interpreted with cpp/scripts/analyze_nvcc_log.py
    -h                          - print this text
 
  default action (no args) is to build libraft, tests, pylibraft and raft-dask targets
@@ -83,7 +79,6 @@ BUILD_DIRS="${LIBRAFT_BUILD_DIR} ${PYLIBRAFT_BUILD_DIR} ${RAFT_DASK_BUILD_DIR} $
 # Set defaults for vars modified by flags to this script
 CMAKE_LOG_LEVEL=""
 VERBOSE_FLAG=""
-BUILD_CUDA=OFF
 BUILD_ALL_GPU_ARCH=0
 BUILD_TESTS=OFF
 BUILD_TYPE=Release
@@ -96,8 +91,6 @@ BUILD_REPORT_INCL_CACHE_STATS=OFF
 TEST_TARGETS="CORE_TEST;SPARSE_TEST;LINALG_TEST;RANDOM_TEST;SOLVERS_TEST;STATS_TEST;MATRIX_TEST;MATRIX_SELECT_TEST;MATRIX_SELECT_LARGE_TEST;UTILS_TEST;LABEL_TEST;RUNTIME_RANDOM_TEST;NEIGHBORS_UTILS_TEST;SRC_LINALG_TEST"
 
 CACHE_ARGS=""
-# TODO(HIP/AMD): Need to add support for NVTX
-NVTX=OFF
 LOG_COMPILE_TIME=OFF
 CLEAN=0
 UNINSTALL=0
@@ -191,21 +184,33 @@ function limitBench {
     fi
 }
 
-function buildMetrics {
-    # Check for multiple build-metrics options
-    if [[ $(echo $ARGS | { grep -Eo "\-\-build\-metrics" || true; } | wc -l ) -gt 1 ]]; then
-        echo "Multiple --build-metrics options were provided, please provide only one: ${ARGS}"
+function gpuArch {
+    # Check if both --gpu-arch and --allgpuarch are specified
+    if hasArg --allgpuarch && [[ -n $(echo $ARGS | { grep -E "\-\-gpu\-arch" || true; } ) ]]; then
+        echo "Error: Cannot specify both --gpu-arch and --allgpuarch"
+        echo "Use either:"
+        echo "  --gpu-arch=\"gfx90a;gfx942\"    (for specific architectures)"
+        echo "  --allgpuarch        (for all supported architectures)"
         exit 1
     fi
-    # Check for build-metrics option
-    if [[ -n $(echo $ARGS | { grep -E "\-\-build\-metrics" || true; } ) ]]; then
-        # There are possible weird edge cases that may cause this regex filter to output nothing and fail silently
-        # the true pipe will catch any weird edge cases that may happen and will cause the program to fall back
-        # on the invalid option error
-        BUILD_REPORT_METRICS=$(echo $ARGS | sed -e 's/.*--build-metrics=//' -e 's/ .*//')
-        if [[ -n ${BUILD_REPORT_METRICS} ]]; then
-            # Remove the full BUILD_REPORT_METRICS argument from list of args so that it passes validArgs function
-            ARGS=${ARGS//--build-metrics=$BUILD_REPORT_METRICS/}
+
+    # Check for multiple gpu-arch options
+    if [[ $(echo $ARGS | { grep -Eo "\-\-gpu\-arch" || true; } | wc -l ) -gt 1 ]]; then
+        echo "Error: Multiple --gpu-arch options were provided. Please combine architectures into a single option."
+        echo "Instead of: --gpu-arch=gfx90a --gpu-arch=gfx942"
+        echo "Use:        --gpu-arch=\"gfx90a;gfx942\""
+        exit 1
+    fi
+
+    # Check for gpu-arch option
+    if [[ -n $(echo $ARGS | { grep -E "\-\-gpu\-arch" || true; } ) ]]; then
+        GPU_ARCH_ARG=$(echo $ARGS | { grep -Eo "\-\-gpu\-arch=.+( |$)" || true; })
+        if [[ -n ${GPU_ARCH_ARG} ]]; then
+            # Remove the full argument from ARGS
+            ARGS=${ARGS//$GPU_ARCH_ARG/}
+            # Extract just the architecture value(just one for now)
+            HIPRAFT_CMAKE_HIP_ARCHITECTURES=$(echo "$GPU_ARCH_ARG" | sed -e 's/--gpu-arch=//' -e "s/[\"']//g")
+            echo "Building for specified GPU architectures: ${HIPRAFT_CMAKE_HIP_ARCHITECTURES}"
         fi
     fi
 }
@@ -221,7 +226,7 @@ if (( ${NUMARGS} != 0 )); then
     cacheTool
     limitTests
     limitBench
-    buildMetrics
+    gpuArch
     for a in ${ARGS}; do
         if ! (echo " ${VALIDARGS} " | grep -q " ${a} "); then
             echo "Invalid option: ${a}"
@@ -304,10 +309,6 @@ fi
 
 if hasArg --allgpuarch; then
     BUILD_ALL_GPU_ARCH=1
-fi
-
-if hasArg --compile-cuda ; then
-    BUILD_CUDA=1
 fi
 
 if hasArg --compile-lib || (( ${NUMARGS} == 0 )); then
@@ -412,14 +413,14 @@ fi
 # Configure for building all C++ targets
 if (( ${NUMARGS} == 0 )) || hasArg libraft || hasArg docs || hasArg tests || hasArg bench-prims || hasArg package; then
     if (( ${BUILD_ALL_GPU_ARCH} == 0 )); then
-        RAFT_CMAKE_CUDA_ARCHITECTURES="${RAFT_CMAKE_CUDA_ARCHITECTURES:-NATIVE}"
-        if [[ "$RAFT_CMAKE_CUDA_ARCHITECTURES" == "NATIVE" ]]; then
+        HIPRAFT_CMAKE_HIP_ARCHITECTURES="${HIPRAFT_CMAKE_HIP_ARCHITECTURES:-NATIVE}"
+        if [[ "$HIPRAFT_CMAKE_HIP_ARCHITECTURES" == "NATIVE" ]]; then
             echo "Building for the architecture of the GPU in the system..."
         else
-            echo "Building for the GPU architecture(s) $RAFT_CMAKE_CUDA_ARCHITECTURES ..."
+            echo "Building for the GPU architecture(s) $HIPRAFT_CMAKE_HIP_ARCHITECTURES ..."
         fi
     else
-        RAFT_CMAKE_CUDA_ARCHITECTURES="RAPIDS"
+        HIPRAFT_CMAKE_HIP_ARCHITECTURES="RAPIDS"
         echo "Building for *ALL* supported GPU architectures..."
     fi
 
@@ -433,13 +434,9 @@ if (( ${NUMARGS} == 0 )) || hasArg libraft || hasArg docs || hasArg tests || has
     cd ${LIBRAFT_BUILD_DIR}
     cmake -S ${REPODIR}/cpp -B ${LIBRAFT_BUILD_DIR} \
           -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} \
-          -DCMAKE_CUDA_ARCHITECTURES=${RAFT_CMAKE_CUDA_ARCHITECTURES} \
-          -DCMAKE_HIP_ARCHITECTURES=${RAFT_CMAKE_CUDA_ARCHITECTURES} \
+          -DCMAKE_HIP_ARCHITECTURES=${HIPRAFT_CMAKE_HIP_ARCHITECTURES} \
           -DCMAKE_BUILD_TYPE=${BUILD_TYPE} \
-          -DCUDA_BACKEND=${BUILD_CUDA} \
           -DRAFT_COMPILE_LIBRARY=${COMPILE_LIBRARY} \
-          -DRAFT_NVTX=${NVTX} \
-          -DCUDA_LOG_COMPILE_TIME=${LOG_COMPILE_TIME} \
           -DDISABLE_DEPRECATION_WARNINGS=${DISABLE_DEPRECATION_WARNINGS} \
           -DBUILD_TESTS=${BUILD_TESTS} \
           -DBUILD_PRIMS_BENCH=${BUILD_PRIMS_BENCH} \
@@ -540,6 +537,6 @@ if hasArg examples; then
     BUILD_TYPE=${BUILD_TYPE} \
     BUILD_DIR=${EXAMPLES_BUILD_DIR} \
     RAFT_REPO_REL=${REPODIR} \
-    EXTRA_CMAKE_ARGS="-DCUDA_BACKEND=${BUILD_CUDA} -DCMAKE_USER_MAKE_RULES_OVERRIDE=${CMAKE_OVERRIDES_FILE}" \
+    EXTRA_CMAKE_ARGS="-DCMAKE_USER_MAKE_RULES_OVERRIDE=${CMAKE_OVERRIDES_FILE}" \
     bash ${REPODIR}/examples/build.sh
 fi
