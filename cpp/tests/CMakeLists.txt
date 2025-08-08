@@ -176,6 +176,7 @@ if(BUILD_TESTS)
     linalg/dot.cu
     linalg/eig.cu
     linalg/eig_sel.cu
+    linalg/gemm_basic.cpp
     linalg/gemm_layout.cu
     linalg/gemv.cu
     linalg/map.cu
