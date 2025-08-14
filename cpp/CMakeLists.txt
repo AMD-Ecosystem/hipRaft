@@ -61,7 +61,7 @@ endif()
 
 project(
   RAFT
-  VERSION "${RAPIDS_VERSION}"
+  VERSION 0.0.1
   LANGUAGES ${lang_list}
 )
 
