@@ -302,8 +302,9 @@ class warp_sort {
   _RAFT_DEVICE _RAFT_FORCEINLINE void merge_in(const T* __restrict__ keys_in,
                                                const IdxT* __restrict__ ids_in)
   {
+    constexpr auto kLoopBound = std::min(kMaxArrLen, PerThreadSizeIn);
 #pragma unroll
-    for (int i = std::min(kMaxArrLen, PerThreadSizeIn); i > 0; i--) {
+    for (int i = kLoopBound; i > 0; i--) {
       T& key  = val_arr_[kMaxArrLen - i];
       T other = keys_in[PerThreadSizeIn - i];
       if (is_ordered<Ascending>(other, key)) {
