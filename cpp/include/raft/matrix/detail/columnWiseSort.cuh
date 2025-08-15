@@ -250,7 +250,7 @@ void sortColumnsPerRow(const InType* in,
     // device Segmented radix sort
     // 2^18 column cap to restrict size of workspace ~512 MB
     // will give better perf than below deviceWide Sort for even larger dims
-    int numSegments = n_rows + 1;
+    int numSegments = n_rows;
 
     // need auxiliary storage: cub sorting + keys (if user not passing) +
     // staging for values out + segment partition
@@ -278,7 +278,7 @@ void sortColumnsPerRow(const InType* in,
       workspaceSize += raft::alignTo(sizeof(OutType) * (size_t)totalElements, memAlignWidth);
 
       // for segment offsets
-      workspaceSize += raft::alignTo(sizeof(int) * (size_t)numSegments, memAlignWidth);
+      workspaceSize += raft::alignTo(sizeof(int) * (size_t)(numSegments + 1), memAlignWidth);
     } else {
       size_t workspaceOffset = 0;
 
@@ -293,14 +293,14 @@ void sortColumnsPerRow(const InType* in,
       workspacePtr       = (void*)((size_t)workspacePtr + workspaceOffset);
 
       int* dSegmentOffsets = reinterpret_cast<int*>(workspacePtr);
-      workspaceOffset      = raft::alignTo(sizeof(int) * (size_t)numSegments, memAlignWidth);
+      workspaceOffset      = raft::alignTo(sizeof(int) * (size_t)(numSegments + 1), memAlignWidth);
       workspacePtr         = (void*)((size_t)workspacePtr + workspaceOffset);
 
       // layout idx
       RAFT_CUDA_TRY(layoutIdx(dValuesIn, n_rows, n_columns, stream));
 
       // layout segment lengths - spread out column length
-      RAFT_CUDA_TRY(layoutSortOffset(dSegmentOffsets, n_columns, numSegments, stream));
+      RAFT_CUDA_TRY(layoutSortOffset(dSegmentOffsets, n_columns, (numSegments + 1), stream));
 
       RAFT_CUDA_TRY(cub::DeviceSegmentedRadixSort::SortPairs(workspacePtr,
                                                              workspaceSize,
