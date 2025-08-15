@@ -71,6 +71,7 @@ function(ConfigureTest)
             ${RAFT_CTK_MATH_DEPENDENCIES}
             $<TARGET_NAME_IF_EXISTS:OpenMP::OpenMP_CXX>
             $<TARGET_NAME_IF_EXISTS:conda_env>
+            roctx64
             raft_test_logger
   )
   set_target_properties(

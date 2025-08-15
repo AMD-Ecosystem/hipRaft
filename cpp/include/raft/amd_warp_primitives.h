@@ -27,11 +27,18 @@
 
 #include <hip/hip_cooperative_groups.h>
 #include <hip/hip_runtime.h>
+#include <rocm-core/rocm_version.h>
 #include <rocprim/rocprim.hpp>
 
 namespace hip_warp_primitives {
 
-inline constexpr __device__ auto WAVEFRONT_SIZE = rocprim::device_warp_size();
+inline constexpr __device__ auto WAVEFRONT_SIZE = []() {
+#if ROCM_VERSION_MAJOR >= 7
+  return rocprim::arch::wavefront::max_size();
+#else
+  return rocprim::device_warp_size();
+#endif
+}();
 static_assert(WAVEFRONT_SIZE == 32 || WAVEFRONT_SIZE == 64, "Unsupported WAVEFRONT_SIZE");
 
 __device__ inline lane_mask __activemask(lane_mask mask) { return __ballot(1) & mask; }
@@ -89,6 +96,7 @@ __device__ inline void __sync_active_threads()
   __builtin_amdgcn_fence(__ATOMIC_ACQUIRE, "wavefront");
 }
 
+#if ROCM_VERSION_MAJOR < 7
 __device__ inline void __syncwarp()
 {
   /* sync/barrier all threads in a warp */
@@ -96,6 +104,7 @@ __device__ inline void __syncwarp()
   __builtin_amdgcn_wave_barrier();
   __builtin_amdgcn_fence(__ATOMIC_ACQUIRE, "wavefront");
 }
+#endif
 
 __device__ inline int __all_sync(lane_mask mask, int predicate)
 {
