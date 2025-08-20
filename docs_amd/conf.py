@@ -33,6 +33,7 @@ extensions = [
     "sphinx.ext.autosummary",
     "sphinx.ext.doctest",
     "sphinx_copybutton",
+    "autoapi.extension"
 ]
 
 myst_heading_anchors = 4  # or deeper if needed
@@ -42,15 +43,10 @@ autosectionlabel_prefix_document = True
 breathe_projects = {"RAFT": "./doxygen/xml"}  # Ensure Doxygen XML is in ./xml
 breathe_default_project = "raft"
 
-autodoc_default_options = {
-    "members": True,
-    "undoc-members": True,
-    "special-members": "__init__, __getitem__",
-    "inherited-members": True,
-    "show-inheritance": True,
-    "imported-members": False,
-    "member-order": "bysource",  # bysource: seems unfortunately not to work for Cython modules
-}
+autoapi_type = "python"
+autoapi_dirs = ["./reference/pylibraft_api/stubs"]
+autoapi_file_patterns = ["*.pyi"]
+autoapi_add_toctree_entry = False
 
 source_suffix = {
     ".rst": "restructuredtext",
