@@ -218,7 +218,8 @@
 #define cudaFuncSetCacheConfig hipFuncSetCacheConfig
 #endif
 #ifndef cudaFuncSetAttribute
-#define cudaFuncSetAttribute hipFuncSetAttribute
+#define cudaFuncSetAttribute(function, attr, value) \
+  hipFuncSetAttribute(reinterpret_cast<const void*>(function), attr, value)
 #endif
 #ifndef cudaGetDevice
 #define cudaGetDevice hipGetDevice

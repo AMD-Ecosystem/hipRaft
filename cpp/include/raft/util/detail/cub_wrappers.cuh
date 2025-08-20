@@ -68,11 +68,19 @@ void sortPairs(rmm::device_uvector<char>& workspace,
                cudaStream_t stream)
 {
   size_t worksize = 0;  //  Fix 'worksize' may be used uninitialized in this function.
-  cub::DeviceRadixSort::SortPairs(
-    nullptr, worksize, inKeys, outKeys, inVals, outVals, len, 0, sizeof(KeyT) * 8, stream);
+  RAFT_CUDA_TRY(cub::DeviceRadixSort::SortPairs(
+    nullptr, worksize, inKeys, outKeys, inVals, outVals, len, 0, sizeof(KeyT) * 8, stream));
   workspace.resize(worksize, stream);
-  cub::DeviceRadixSort::SortPairs(
-    workspace.data(), worksize, inKeys, outKeys, inVals, outVals, len, 0, sizeof(KeyT) * 8, stream);
+  RAFT_CUDA_TRY(cub::DeviceRadixSort::SortPairs(workspace.data(),
+                                                worksize,
+                                                inKeys,
+                                                outKeys,
+                                                inVals,
+                                                outVals,
+                                                len,
+                                                0,
+                                                sizeof(KeyT) * 8,
+                                                stream));
 }
 
 }  // namespace raft

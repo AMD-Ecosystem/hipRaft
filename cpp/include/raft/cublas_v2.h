@@ -118,14 +118,11 @@
 #ifndef CUBLAS_SIDE_LEFT
 #define CUBLAS_SIDE_LEFT HIPBLAS_SIDE_LEFT
 #endif
-
-// FIXME(HIP/AMD): Using canonical HIP_R_*F would result in passing hipDatatype_t type
-// to hipblasDotEx, but hipblasDotEx expects hipblasDatatype_t.
 #ifndef CUDA_R_32F
-#define CUDA_R_32F HIPBLAS_R_32F
+#define CUDA_R_32F HIP_R_32F
 #endif
 #ifndef CUDA_R_64F
-#define CUDA_R_64F HIPBLAS_R_64F
+#define CUDA_R_64F HIP_R_64F
 #endif
 
 // Functions

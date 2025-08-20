@@ -102,8 +102,8 @@ void transpose_half(raft::resources const& handle,
 
   int dev_id, sm_count;
 
-  cudaGetDevice(&dev_id);
-  cudaDeviceGetAttribute(&sm_count, cudaDevAttrMultiProcessorCount, dev_id);
+  RAFT_CUDA_TRY(cudaGetDevice(&dev_id));
+  RAFT_CUDA_TRY(cudaDeviceGetAttribute(&sm_count, cudaDevAttrMultiProcessorCount, dev_id));
 
   constexpr int tpb         = 256;
   constexpr int block_dim_x = 128 / sizeof(half);

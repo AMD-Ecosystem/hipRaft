@@ -374,7 +374,9 @@ void reduce_rows_by_key(const DataIteratorT d_A,
   typedef typename std::iterator_traits<KeysIteratorT>::value_type KeyType;
 
   // Following kernel needs memset
-  if (reset_sums) { cudaMemsetAsync(d_sums, 0, ncols * nkeys * sizeof(SumsT), stream); }
+  if (reset_sums) {
+    RAFT_CUDA_TRY(cudaMemsetAsync(d_sums, 0, ncols * nkeys * sizeof(SumsT), stream));
+  }
 
   if (d_keys_char != nullptr && nkeys <= SUM_ROWS_BY_KEY_SMALL_K_MAX_K) {
     // sum_rows_by_key_small_k is BW bounded. d_keys is loaded ncols time - avoiding wasting BW

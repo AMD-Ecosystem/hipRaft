@@ -427,8 +427,10 @@ RAFT_KERNEL __launch_bounds__(BlockSize) matrixLinewiseVecRowsMainKernel(Type* o
                        reinterpret_cast<const typename L::Vec::io_t*>(in),
                        L::AlignElems::div(len),
                        op,
-                       (workOffset ^= workSize * maxVecItemSize,
-                        L::loadVec((Vecs*)(shm + workOffset), vecs, blockOffset, rowLen))...);
+                       [&]() {
+                         workOffset ^= workSize * maxVecItemSize;
+                         return L::loadVec((Vecs*)(shm + workOffset), vecs, blockOffset, rowLen);
+                       }()...);
 }
 
 /**
@@ -513,8 +515,10 @@ RAFT_KERNEL __launch_bounds__(MaxOffset, 2) matrixLinewiseVecRowsTailKernel(Type
                   reinterpret_cast<const typename L::Vec::io_t*>(in),
                   arrOffset,
                   op,
-                  (workOffset ^= workSize * maxVecItemSize,
-                   L::loadVec((Vecs*)(shm + workOffset), vecs, 0, rowLen))...);
+                  [&]() {
+                    workOffset ^= workSize * maxVecItemSize;
+                    return L::loadVec((Vecs*)(shm + workOffset), vecs, 0, rowLen);
+                  }()...);
   } else {
     // second block: offset = arrTail, length = len - arrTail
     // NB: I subtract MaxOffset (= blockDim.x) to get the correct indexing for block 1
@@ -522,8 +526,10 @@ RAFT_KERNEL __launch_bounds__(MaxOffset, 2) matrixLinewiseVecRowsTailKernel(Type
                   reinterpret_cast<const typename L::Vec::io_t*>(in + arrTail - MaxOffset),
                   len - arrTail + MaxOffset,
                   op,
-                  (workOffset ^= workSize * maxVecItemSize,
-                   L::loadVec((Vecs*)(shm + workOffset), vecs, arrTail % rowLen, rowLen))...);
+                  [&]() {
+                    workOffset ^= workSize * maxVecItemSize;
+                    return L::loadVec((Vecs*)(shm + workOffset), vecs, arrTail % rowLen, rowLen);
+                  }()...);
   }
 }
 

@@ -127,33 +127,33 @@ void segmented_sort_by_key(raft::resources const& handle,
   // Determine temporary device storage requirements
   size_t temp_storage_bytes = 0;
   if (asc) {
-    cub::DeviceSegmentedRadixSort::SortPairs(nullptr,
-                                             temp_storage_bytes,
-                                             keys,
-                                             out_dists.data_handle(),
-                                             values,
-                                             out_inds.data_handle(),
-                                             n_elements,
-                                             n_segments,
-                                             offsets,
-                                             offsets + 1,
-                                             0,
-                                             sizeof(ValT) * 8,
-                                             stream);
+    RAFT_CUDA_TRY(cub::DeviceSegmentedRadixSort::SortPairs(nullptr,
+                                                           temp_storage_bytes,
+                                                           keys,
+                                                           out_dists.data_handle(),
+                                                           values,
+                                                           out_inds.data_handle(),
+                                                           n_elements,
+                                                           n_segments,
+                                                           offsets,
+                                                           offsets + 1,
+                                                           0,
+                                                           sizeof(ValT) * 8,
+                                                           stream));
   } else {
-    cub::DeviceSegmentedRadixSort::SortPairsDescending(nullptr,
-                                                       temp_storage_bytes,
-                                                       keys,
-                                                       out_dists.data_handle(),
-                                                       values,
-                                                       out_inds.data_handle(),
-                                                       n_elements,
-                                                       n_segments,
-                                                       offsets,
-                                                       offsets + 1,
-                                                       0,
-                                                       sizeof(ValT) * 8,
-                                                       stream);
+    RAFT_CUDA_TRY(cub::DeviceSegmentedRadixSort::SortPairsDescending(nullptr,
+                                                                     temp_storage_bytes,
+                                                                     keys,
+                                                                     out_dists.data_handle(),
+                                                                     values,
+                                                                     out_inds.data_handle(),
+                                                                     n_elements,
+                                                                     n_segments,
+                                                                     offsets,
+                                                                     offsets + 1,
+                                                                     0,
+                                                                     sizeof(ValT) * 8,
+                                                                     stream));
   }
 
   auto d_temp_storage = raft::make_device_mdarray<char, size_t>(
@@ -161,35 +161,36 @@ void segmented_sort_by_key(raft::resources const& handle,
 
   if (asc) {
     // Run sorting operation
-    cub::DeviceSegmentedRadixSort::SortPairs((void*)d_temp_storage.data_handle(),
-                                             temp_storage_bytes,
-                                             keys,
-                                             out_dists.data_handle(),
-                                             values,
-                                             out_inds.data_handle(),
-                                             n_elements,
-                                             n_segments,
-                                             offsets,
-                                             offsets + 1,
-                                             0,
-                                             sizeof(ValT) * 8,
-                                             stream);
+    RAFT_CUDA_TRY(cub::DeviceSegmentedRadixSort::SortPairs((void*)d_temp_storage.data_handle(),
+                                                           temp_storage_bytes,
+                                                           keys,
+                                                           out_dists.data_handle(),
+                                                           values,
+                                                           out_inds.data_handle(),
+                                                           n_elements,
+                                                           n_segments,
+                                                           offsets,
+                                                           offsets + 1,
+                                                           0,
+                                                           sizeof(ValT) * 8,
+                                                           stream));
 
   } else {
     // Run sorting operation
-    cub::DeviceSegmentedRadixSort::SortPairsDescending((void*)d_temp_storage.data_handle(),
-                                                       temp_storage_bytes,
-                                                       keys,
-                                                       out_dists.data_handle(),
-                                                       values,
-                                                       out_inds.data_handle(),
-                                                       n_elements,
-                                                       n_segments,
-                                                       offsets,
-                                                       offsets + 1,
-                                                       0,
-                                                       sizeof(ValT) * 8,
-                                                       stream);
+    RAFT_CUDA_TRY(
+      cub::DeviceSegmentedRadixSort::SortPairsDescending((void*)d_temp_storage.data_handle(),
+                                                         temp_storage_bytes,
+                                                         keys,
+                                                         out_dists.data_handle(),
+                                                         values,
+                                                         out_inds.data_handle(),
+                                                         n_elements,
+                                                         n_segments,
+                                                         offsets,
+                                                         offsets + 1,
+                                                         0,
+                                                         sizeof(ValT) * 8,
+                                                         stream));
   }
 
   raft::copy(values, out_inds.data_handle(), out_inds.size(), stream);

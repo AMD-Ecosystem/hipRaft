@@ -44,6 +44,10 @@
 
 namespace raft::neighbors::detail {
 
+#ifdef __HIP_PLATFORM_AMD__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wpass-failed"
+#endif
 template <typename value_idx = std::int64_t,
           typename value_t   = float,
           int warp_q,
@@ -140,6 +144,10 @@ inline void knn_merge_parts_impl(const value_t* inK,
       inK, inV, outK, outV, n_samples, n_parts, kInit, vInit, k, translations);
   RAFT_CUDA_TRY(cudaPeekAtLastError());
 }
+
+#ifdef __HIP_PLATFORM_AMD__
+#pragma clang diagnostic pop
+#endif
 
 /**
  * @brief Merge knn distances and index matrix, which have been partitioned

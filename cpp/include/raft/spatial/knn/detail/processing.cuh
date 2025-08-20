@@ -52,7 +52,7 @@ class CosineMetricProcessor : public MetricProcessor<math_t> {
   {
   }
 
-  void preprocess(math_t* data)
+  void preprocess(math_t* data) override
   {
     raft::linalg::rowNorm(colsums_.data(),
                           data,
@@ -67,13 +67,13 @@ class CosineMetricProcessor : public MetricProcessor<math_t> {
       data, data, colsums_.data(), n_cols_, n_rows_, row_major_, false, raft::div_op{}, stream_);
   }
 
-  void revert(math_t* data)
+  void revert(math_t* data) override
   {
     raft::linalg::matrixVectorOp(
       data, data, colsums_.data(), n_cols_, n_rows_, row_major_, false, raft::mul_op{}, stream_);
   }
 
-  void postprocess(math_t* data)
+  void postprocess(math_t* data) override
   {
     raft::linalg::unaryOp(
       data, data, k_ * n_rows_, [] __device__(math_t in) { return 1 - in; }, stream_);

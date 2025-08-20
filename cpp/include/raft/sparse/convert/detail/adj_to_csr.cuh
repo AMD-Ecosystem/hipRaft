@@ -178,8 +178,8 @@ void adj_to_csr(raft::resources const& handle,
   // occupancy) exceeds the number of rows, assign multiple blocks to a single
   // row.
   int dev_id, sm_count, blocks_per_sm;
-  cudaGetDevice(&dev_id);
-  cudaDeviceGetAttribute(&sm_count, cudaDevAttrMultiProcessorCount, dev_id);
+  RAFT_CUDA_TRY(cudaGetDevice(&dev_id));
+  RAFT_CUDA_TRY(cudaDeviceGetAttribute(&sm_count, cudaDevAttrMultiProcessorCount, dev_id));
   cudaOccupancyMaxActiveBlocksPerMultiprocessor(
     &blocks_per_sm, adj_to_csr_kernel<index_t>, adj_to_csr_tpb, 0);
 

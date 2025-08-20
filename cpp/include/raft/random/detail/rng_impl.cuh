@@ -294,11 +294,11 @@ std::enable_if_t<std::is_integral_v<OutType>> discrete(RngState& rng_state,
   // Compute the cumulative sums of the weights
   size_t temp_storage_bytes = 0;
   rmm::device_uvector<WeightType> weights_csum(len, stream);
-  cub::DeviceScan::InclusiveSum(
-    nullptr, temp_storage_bytes, weights, weights_csum.data(), len, stream);
+  RAFT_CUDA_TRY(cub::DeviceScan::InclusiveSum(
+    nullptr, temp_storage_bytes, weights, weights_csum.data(), len, stream));
   rmm::device_uvector<uint8_t> temp_storage(temp_storage_bytes, stream);
-  cub::DeviceScan::InclusiveSum(
-    temp_storage.data(), temp_storage_bytes, weights, weights_csum.data(), len, stream);
+  RAFT_CUDA_TRY(cub::DeviceScan::InclusiveSum(
+    temp_storage.data(), temp_storage_bytes, weights, weights_csum.data(), len, stream));
 
   // Sample indices with replacement
   RAFT_CALL_RNG_FUNC(rng_state,
@@ -410,21 +410,21 @@ auto excess_subsample(raft::resources const& res, RngState& state, IdxT N, IdxT 
   // Sort indices according to rnd keys
   size_t workspace_size = 0;
   auto stream           = resource::get_cuda_stream(res);
-  cub::DeviceMergeSort::SortPairs(nullptr,
-                                  workspace_size,
-                                  rnd_idx.data_handle(),
-                                  linear_idx.data_handle(),
-                                  rnd_idx.size(),
-                                  raft::less_op{},
-                                  stream);
+  RAFT_CUDA_TRY(cub::DeviceMergeSort::SortPairs(nullptr,
+                                                workspace_size,
+                                                rnd_idx.data_handle(),
+                                                linear_idx.data_handle(),
+                                                rnd_idx.size(),
+                                                raft::less_op{},
+                                                stream));
   auto workspace = raft::make_device_vector<char, IdxT>(res, workspace_size);
-  cub::DeviceMergeSort::SortPairs(workspace.data_handle(),
-                                  workspace_size,
-                                  rnd_idx.data_handle(),
-                                  linear_idx.data_handle(),
-                                  rnd_idx.size(),
-                                  raft::less_op{},
-                                  stream);
+  RAFT_CUDA_TRY(cub::DeviceMergeSort::SortPairs(workspace.data_handle(),
+                                                workspace_size,
+                                                rnd_idx.data_handle(),
+                                                linear_idx.data_handle(),
+                                                rnd_idx.size(),
+                                                raft::less_op{},
+                                                stream));
 
   if (rnd_idx.size() == static_cast<size_t>(N)) {
     // We shuffled the linear_idx array by sorting it according to rnd_idx.
@@ -440,30 +440,30 @@ auto excess_subsample(raft::resources const& res, RngState& state, IdxT N, IdxT 
   auto values_out = raft::make_device_vector<IdxT, IdxT>(res, rnd_idx.size());
   rmm::device_scalar<IdxT> num_selected(stream);
   size_t worksize2 = 0;
-  cub::DeviceSelect::UniqueByKey(nullptr,
-                                 worksize2,
-                                 rnd_idx.data_handle(),
-                                 linear_idx.data_handle(),
-                                 keys_out.data_handle(),
-                                 values_out.data_handle(),
-                                 num_selected.data(),
-                                 rnd_idx.size(),
-                                 stream);
+  RAFT_CUDA_TRY(cub::DeviceSelect::UniqueByKey(nullptr,
+                                               worksize2,
+                                               rnd_idx.data_handle(),
+                                               linear_idx.data_handle(),
+                                               keys_out.data_handle(),
+                                               values_out.data_handle(),
+                                               num_selected.data(),
+                                               rnd_idx.size(),
+                                               stream));
 
   if (worksize2 > workspace.size()) {
     workspace      = raft::make_device_vector<char, IdxT>(res, worksize2);
     workspace_size = workspace.size();
   }
 
-  cub::DeviceSelect::UniqueByKey(workspace.data_handle(),
-                                 workspace_size,
-                                 rnd_idx.data_handle(),
-                                 linear_idx.data_handle(),
-                                 keys_out.data_handle(),
-                                 values_out.data_handle(),
-                                 num_selected.data(),
-                                 rnd_idx.size(),
-                                 stream);
+  RAFT_CUDA_TRY(cub::DeviceSelect::UniqueByKey(workspace.data_handle(),
+                                               workspace_size,
+                                               rnd_idx.data_handle(),
+                                               linear_idx.data_handle(),
+                                               keys_out.data_handle(),
+                                               values_out.data_handle(),
+                                               num_selected.data(),
+                                               rnd_idx.size(),
+                                               stream));
 
   IdxT selected = num_selected.value(stream);
 
@@ -476,13 +476,13 @@ auto excess_subsample(raft::resources const& res, RngState& state, IdxT N, IdxT 
   }
 
   // After duplicates are removed, we need to shuffle back to random order
-  cub::DeviceMergeSort::SortPairs(workspace.data_handle(),
-                                  workspace_size,
-                                  values_out.data_handle(),
-                                  keys_out.data_handle(),
-                                  n_samples,
-                                  raft::less_op{},
-                                  stream);
+  RAFT_CUDA_TRY(cub::DeviceMergeSort::SortPairs(workspace.data_handle(),
+                                                workspace_size,
+                                                values_out.data_handle(),
+                                                keys_out.data_handle(),
+                                                n_samples,
+                                                raft::less_op{},
+                                                stream));
 
   values_out = raft::make_device_vector<IdxT, IdxT>(res, n_samples);
   raft::copy(values_out.data_handle(), keys_out.data_handle(), n_samples, stream);

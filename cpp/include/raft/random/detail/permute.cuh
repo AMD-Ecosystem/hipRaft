@@ -49,6 +49,10 @@
 namespace raft::random {
 namespace detail {
 
+#ifdef __HIP_PLATFORM_AMD__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wpass-failed"
+#endif
 template <typename Type, typename IntType, typename IdxType, int TPB, bool rowMajor>
 RAFT_KERNEL permuteKernel(
   IntType* perms, Type* out, const Type* in, IdxType a, IdxType b, IdxType N, IdxType D)
@@ -93,6 +97,9 @@ RAFT_KERNEL permuteKernel(
     }
   }
 }
+#ifdef __HIP_PLATFORM_AMD__
+#pragma clang diagnostic pop
+#endif
 
 // This is wrapped in a type to allow for partial template specialization
 template <typename Type, typename IntType, typename IdxType, int TPB, bool rowMajor, int VLen>

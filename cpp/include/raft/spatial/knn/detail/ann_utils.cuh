@@ -123,7 +123,7 @@ struct with_mapped_memory_t {
 
   ~with_mapped_memory_t()
   {
-    if (host_ptr_ != nullptr) { cudaHostUnregister(host_ptr_); }
+    if (host_ptr_ != nullptr) { static_cast<void>(cudaHostUnregister(host_ptr_)); }
   }
 
   auto operator()() { return action_((PtrT)dev_ptr_); }  // NOLINT
