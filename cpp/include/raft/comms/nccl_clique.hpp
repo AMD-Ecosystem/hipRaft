@@ -82,7 +82,7 @@ struct nccl_clique {
       per_device_pools_(0),
       device_resources_(0)
   {
-    cudaGetDeviceCount(&num_ranks_);
+    RAFT_CUDA_TRY(cudaGetDeviceCount(&num_ranks_));
     device_ids_.resize(num_ranks_);
     std::iota(device_ids_.begin(), device_ids_.end(), 0);
     nccl_comms_.resize(num_ranks_);
@@ -156,7 +156,7 @@ struct nccl_clique {
   {
 #pragma omp parallel for  // necessary to avoid hangs
     for (int rank = 0; rank < num_ranks_; rank++) {
-      cudaSetDevice(device_ids_[rank]);
+      static_cast<void>(cudaSetDevice(device_ids_[rank]));
       ncclCommDestroy(nccl_comms_[rank]);
       rmm::cuda_device_id id(device_ids_[rank]);
       rmm::mr::set_per_device_resource(id, nullptr);
