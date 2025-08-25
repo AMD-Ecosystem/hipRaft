@@ -71,8 +71,8 @@ EOT
 RUN wget -N -P /tmp/ https://artifactory-cdn.amd.com/artifactory/list/amdgpu-deb/amdgpu-install-internal_7.0-24.04-1_all.deb
 RUN apt update
 RUN apt-get install -y /tmp/amdgpu-install-internal_7.0-24.04-1_all.deb
-RUN sh -c 'echo deb [arch=amd64 trusted=yes] https://compute-artifactory.amd.com/artifactory/list/rocm-release-archive-24.04-deb/ 7.0 rel-24 > /etc/apt/sources.list.d/rocm-build.list'
-RUN amdgpu-repo --amdgpu-build=2196257
+RUN sh -c 'echo deb [arch=amd64 trusted=yes] https://compute-artifactory.amd.com/artifactory/list/rocm-release-archive-24.04-deb/ 7.0 rel-38 > /etc/apt/sources.list.d/rocm-build.list'
+RUN amdgpu-repo --amdgpu-build=2204044
 RUN amdgpu-install -y --usecase=rocm,rocmdev,rocmdevtools,lrt,opencl,openclsdk,hip,hiplibsdk,openmpsdk,mllib,mlsdk
 RUN rm /tmp/amdgpu-*
 #######################################################################################################################################
