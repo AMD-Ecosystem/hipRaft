@@ -48,6 +48,7 @@
 #include <hip/hip_fp16.h>
 #include <rocprim/rocprim.hpp>
 #else
+#include <cuda_bf16.h>
 #include <cuda_fp16.h>
 #include <cuda_runtime_api.h>
 #endif
@@ -541,6 +542,29 @@ __device__ half convert_to_device_type<half, uint16_t>(uint16_t value)
   __half_raw raw;
   raw.x = value;
   return half(raw);
+}
+
+/**
+ * This is a hack to allow constexpr definition of `bfloat16` constants.
+ *
+ * Same reasoning as for `half`: CUDA’s `__nv_bfloat16` has no constexpr constructor.
+ */
+struct __bfloat16_constexpr : __nv_bfloat16 {  // NOLINT
+  constexpr explicit inline __bfloat16_constexpr(uint16_t u) : __nv_bfloat16() { __x = u; }
+};
+
+template <>
+constexpr inline auto lower_bound<__nv_bfloat16>() -> __nv_bfloat16
+{
+  // Negative infinity in bfloat16 (sign=1, exp=all ones, mantissa=0)
+  return static_cast<__nv_bfloat16>(__bfloat16_constexpr{0xff80u});
+}
+
+template <>
+constexpr inline auto upper_bound<__nv_bfloat16>() -> __nv_bfloat16
+{
+  // Positive infinity in bfloat16 (sign=0, exp=all ones, mantissa=0)
+  return static_cast<__nv_bfloat16>(__bfloat16_constexpr{0x7f80u});
 }
 
 }  // namespace raft
