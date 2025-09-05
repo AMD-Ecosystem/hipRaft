@@ -14,6 +14,9 @@ hipRAFT currently provides C++ and Python API's.
   - [C++ Tests](#c-tests)
   - [`ccache` and `sccache`](#ccache-and-sccache)
   - [Using CMake directly](#using-cmake-directly)
+  - [GPU Architecture selection](#gpu-architecture-selection)
+    - [`--allgpuarch`](#--allgpuarch)
+    - [`Compile only for specified GPU arch`](#compile-only-for-specified-gpu-arch)
 
 - [Python library](#python-library)
   - [Conda environment scripts](#conda-environment-scripts)
@@ -207,7 +210,6 @@ cmake -S .. \
       -DCMAKE_INSTALL_PREFIX=install \
       -DCMAKE_HIP_ARCHITECTURES=NATIVE \
       -DCMAKE_BUILD_TYPE=Release \
-      -DCUDA_BACKEND=OFF \
       -DRAFT_COMPILE_LIBRARY=ON \
       -DBUILD_TESTS=ON \
       -DCMAKE_CXX_COMPILER=hipcc
@@ -221,14 +223,38 @@ hipRAFT's CMake has the following configurable flags available:
 
 | Flag                      | Possible Values                     | Default Value | Behavior                                                                                                                                                            |
 |---------------------------|-------------------------------------| --------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| CUDA_BACKEND              | ON, OFF                             | OFF           | Compile for the CUDA or HIP Backend                                                                                                                                 |
 | CMAKE_HIP_ARCHITECTURES   | NATIVE or specific GPU architectures| NATIVE        | NATIVE to compile for the automatically detected GPU on the system. Can also specify `;` delimited list of specific architectures. Example: `gfx942;gfx1100`        |
 | BUILD_TESTS               | ON, OFF                             | ON            | Compile Googletests                                                                                                                                                 |
 | DETECT_CONDA_ENV          | ON, OFF                             | ON            | Enable detection of conda environment for dependencies                                                                                                              |
 | RAFT_COMPILE_LIBRARY      | ON, OFF                             | ON if either BUILD_TESTS or BUILD_PRIMS_BENCH is ON; otherwise OFF | Compiles all `libraft` shared libraries (these are required for Googletests)                                   |
 | RAFT_COMPILE_DYNAMIC_ONLY | ON, OFF                             | OFF           | Only build the shared library and skip the static library. Has no effect if RAFT_COMPILE_LIBRARY is OFF                                                             |
 
+### GPU Architecture selection
 
+#### --allgpuarch
+
+Builds hipRAFT for all supported GPU architectures, increasing portability but also build time. You can also use --allgpuarch with `build.sh`:
+**Always execute a clean build or manually delete the build directory before running this argument if a previous build is present, to prevent potential build conflicts or errors.**
+
+```bash
+./build.sh clean
+./build.sh libraft tests --allgpuarch
+```
+#### Compile only for specified GPU arch
+
+When specifying target architectures, provide them as a single string enclosed in double quotes. For multiple architectures, separate each with a semicolon (;).
+
+```bash
+./build.sh libraft tests --gpu-arch="gfx90a;gfx942"
+```
+
+OR
+
+```bash
+./build.sh libraft tests --gpu-arch="gfx942"
+```
+
+**Do not specify both --gpu-arch and --allgpuarch flags in the same build command. Avoid using multiple separate --gpu-arch flags; always combine all target architectures into one --gpu-arch option.**
 
 ## Python Library
 
@@ -349,7 +375,6 @@ cmake -S .. \
       -DCMAKE_INSTALL_PREFIX=install \
       -DCMAKE_HIP_ARCHITECTURES=NATIVE \
       -DCMAKE_BUILD_TYPE=Release \
-      -DCUDA_BACKEND=OFF \
       -DRAFT_COMPILE_LIBRARY=ON \
       -DBUILD_TESTS=OFF \
       -DCMAKE_CXX_COMPILER=hipcc
