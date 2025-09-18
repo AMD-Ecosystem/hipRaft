@@ -28,13 +28,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-# Use RAPIDS_VERSION_MAJOR_MINOR from rapids_config.cmake
-# TODO(AMD/HIP): Update the default values
-set(RAFT_VERSION "${RAPIDS_VERSION}")
+set(RAFT_VERSION "0.1.0")
 set(RAFT_FORK "AMD-AIOSS")
-#set(RAFT_PINNED_TAG "branch-${RAPIDS_VERSION_MAJOR_MINOR}")
 set(RAFT_PINNED_TAG "amd-integration")
-# When PINNED_TAG above doesn't match the default rapids branch,
+# When PINNED_TAG above doesn't match the default branch,
 # force local raft clone in build directory
 # even if it's already installed.
 set(RAFT_CLONE_ON_PIN ON)
@@ -43,7 +40,7 @@ function(find_and_configure_raft)
     set(oneValueArgs VERSION FORK PINNED_TAG COMPILE_LIBRARY ENABLE_MNMG_DEPENDENCIES CLONE_ON_PIN)
     cmake_parse_arguments(PKG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
-    if(NOT CPM_raft_SOURCE AND PKG_CLONE_ON_PIN AND NOT PKG_PINNED_TAG STREQUAL "branch-${RAFT_VERSION}")
+    if(NOT CPM_raft_SOURCE AND PKG_CLONE_ON_PIN AND NOT PKG_PINNED_TAG STREQUAL "amd-integration")
         message(STATUS "RAFT pinned tag found: ${PKG_PINNED_TAG}. Cloning raft locally.")
         set(CPM_DOWNLOAD_raft ON)
     endif()
@@ -80,7 +77,7 @@ endfunction()
 # Change pinned tag here to test a commit in CI
 # To use a different RAFT locally, set the CMake variable
 # CPM_raft_SOURCE=/path/to/local/raft
-find_and_configure_raft(VERSION  ${RAFT_VERSION}.00
+find_and_configure_raft(VERSION  ${RAFT_VERSION}
         FORK                     ${RAFT_FORK}
         PINNED_TAG               ${RAFT_PINNED_TAG}
         COMPILE_LIBRARY          ON
