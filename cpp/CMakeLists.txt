@@ -748,4 +748,21 @@ set(CPACK_PACKAGING_INSTALL_PREFIX
     "/opt/rocm-ds"
     CACHE PATH "Package install prefix."
 )
+# System dependencies
+set(CPACK_DEBIAN_PACKAGE_DEPENDS libblas-dev liblapack-dev libsuitesparse-dev)
+set(CPACK_RPM_PACKAGE_REQUIRES_LIST openblas-devel lapack-devel suitesparse-devel)
+# Other ROCmDS packages
+include("${rapids-cmake-dir}/cpm/detail/package_details.cmake")
+macro(append_rocmds_package pkg_name deb_name rpm_name)
+  rapids_cpm_package_details(${pkg_name} version repository tag shallow exclude)
+  list(APPEND CPACK_DEBIAN_PACKAGE_DEPENDS "${deb_name} (= ${version})")
+  list(APPEND CPACK_RPM_PACKAGE_REQUIRES_LIST "${rpm_name} = ${version}")
+endmacro()
+append_rocmds_package(hipmm hipmm hipmm)
+append_rocmds_package(rocmds_logger rapids_logger rapids_logger)
+append_rocmds_package(libhipcxx libhipcxx-dev libhipcxx-dev)
+append_rocmds_package(hipco rocm-hipcollections-dev rocm-hipcollections-dev)
+
+string(JOIN ", " CPACK_RPM_PACKAGE_REQUIRES ${CPACK_RPM_PACKAGE_REQUIRES_LIST})
+
 include(CPack)
