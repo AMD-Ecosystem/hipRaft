@@ -187,7 +187,11 @@ RAFT relies on `clang-format` to enforce code style across all C++ and CUDA sour
 1. Do not split empty functions/records/namespaces.
 2. Two-space indentation everywhere, including the line continuations.
 3. Disable reflowing of comments.
-   The reasons behind these deviations from the Google style guide are given in comments [here](https://github.com/rapidsai/raft/blob/branch-25.06/cpp/.clang-format).
+# <<<<<<< OLD CODE from cfbf6197 (c8feda29) - COMMENTED OUT
+#    The reasons behind these deviations from the Google style guide are given in comments [here](https://github.com/rapidsai/raft/blob/branch-25.06/cpp/.clang-format).
+# =======
+   The reasons behind these deviations from the Google style guide are given in comments [here](https://github.com/rapidsai/raft/blob/branch-25.12/cpp/.clang-format).
+# >>>>>>> END NEW CODE (c8feda29)
 
 [`doxygen`](https://doxygen.nl/) is used as documentation generator and also as a documentation linter.
 In order to run doxygen as a linter on C++/CUDA code, run
@@ -205,7 +209,11 @@ you can run  `codespell -i 3 -w .` from the repository root directory.
 This will bring up an interactive prompt to select which spelling fixes to apply.
 
 ### #include style
-[include_checker.py](https://github.com/rapidsai/raft/blob/branch-25.06/cpp/scripts/include_checker.py) is used to enforce the include style as follows:
+# <<<<<<< OLD CODE from cfbf6197 (c8feda29) - COMMENTED OUT
+# [include_checker.py](https://github.com/rapidsai/raft/blob/branch-25.06/cpp/scripts/include_checker.py) is used to enforce the include style as follows:
+# =======
+[include_checker.py](https://github.com/rapidsai/raft/blob/branch-25.12/cpp/scripts/include_checker.py) is used to enforce the include style as follows:
+# >>>>>>> END NEW CODE (c8feda29)
 1. `#include "..."` should be used for referencing local files only. It is acceptable to be used for referencing files in a sub-folder/parent-folder of the same algorithm, but should never be used to include files in other algorithms or between algorithms and the primitives or other dependencies.
 2. `#include <...>` should be used for referencing everything else
 
@@ -230,7 +238,11 @@ Call CUDA APIs via the provided helper macros `RAFT_CUDA_TRY`, `RAFT_CUBLAS_TRY`
 ## Logging
 
 ### Introduction
-Anything and everything about logging is defined inside [logger.hpp](https://github.com/rapidsai/raft/blob/branch-25.06/cpp/include/raft/core/logger.hpp). It uses [spdlog](https://github.com/gabime/spdlog) underneath, but this information is transparent to all.
+# <<<<<<< OLD CODE from cfbf6197 (c8feda29) - COMMENTED OUT
+# Anything and everything about logging is defined inside [logger.hpp](https://github.com/rapidsai/raft/blob/branch-25.06/cpp/include/raft/core/logger.hpp). It uses [spdlog](https://github.com/gabime/spdlog) underneath, but this information is transparent to all.
+# =======
+Anything and everything about logging is defined inside [logger.hpp](https://github.com/rapidsai/raft/blob/branch-25.12/cpp/include/raft/core/logger.hpp). It uses [spdlog](https://github.com/gabime/spdlog) underneath, but this information is transparent to all.
+# >>>>>>> END NEW CODE (c8feda29)
 
 ### Usage
 ```cpp
