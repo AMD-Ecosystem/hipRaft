@@ -317,7 +317,7 @@ set(RAFT_CTK_MATH_DEPENDENCIES
 )
 
 if(BLAS_INCLUDE_DIRS)
-  target_include_directories(raft INTERFACE "$<BUILD_INTERFACE:${BLAS_INCLUDE_DIRS}>")
+  target_include_directories(raft INTERFACE ${BLAS_INCLUDE_DIRS})
 else()
   message(WARNING "BLAS_INCLUDE_DIRS is not set. Skipping inclusion of BLAS include directories.")
 endif()
