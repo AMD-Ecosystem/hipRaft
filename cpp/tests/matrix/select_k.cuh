@@ -268,7 +268,7 @@ struct SelectK  // NOLINT
 
     // If the dists (keys) are the same, different corresponding ids may end up in the selection
     // due to non-deterministic nature of some implementations.
-    auto compare_ids = [this](size_t batch_index, const IdxT& i, const IdxT& j) {
+    auto compare_ids = [this](const IdxT& i, const IdxT& j, const size_t pos) {
       if (i == j) return true;
       auto& in_ids   = ref.get_in_ids();
       auto& in_dists = ref.get_in_dists();
@@ -284,8 +284,13 @@ struct SelectK  // NOLINT
               0, 1, 2, ..    (spec.len - 1)    # Batch:spec.batch_size - 1
             ]
       */
-      auto ix_i      = spec.len * batch_index + i;
-      auto ix_j      = spec.len * batch_index + j;
+      auto batch     = pos / spec.k;
+      auto start_pos = in_ids.begin() + batch * spec.len;
+      // Get the indices of found neighbor ids in the source (input ids)
+      auto ix_i =
+        static_cast<int64_t>(std::find(start_pos, start_pos + spec.len, i) - in_ids.begin());
+      auto ix_j =
+        static_cast<int64_t>(std::find(start_pos, start_pos + spec.len, j) - in_ids.begin());
       auto forgive_i = forgive_algo(ref.algo, i);
       auto forgive_j = forgive_algo(res.algo, j);
       // Some algorithms return invalid indices in special cases.
