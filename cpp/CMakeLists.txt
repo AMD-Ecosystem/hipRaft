@@ -760,7 +760,7 @@ macro(append_rocmds_package pkg_name deb_name rpm_name)
 endmacro()
 append_rocmds_package(hipmm hipmm hipmm)
 append_rocmds_package(rocmds_logger rapids_logger rapids_logger)
-append_rocmds_package(libhipcxx libhipcxx-dev libhipcxx-dev)
+append_rocmds_package(libhipcxx libhipcxx-dev libhipcxx-devel)
 append_rocmds_package(hipco rocm-hipcollections-dev rocm-hipcollections-dev)
 
 string(JOIN ", " CPACK_RPM_PACKAGE_REQUIRES ${CPACK_RPM_PACKAGE_REQUIRES_LIST})
