@@ -468,14 +468,14 @@ TEST(Rng, MeanError)
 template <typename T, int len, int scale>
 class ScaledBernoulliTest : public ::testing::Test {
  public:
-  ScaledBernoulliTest() : stream(resource::get_cuda_stream(handle)), data(len, stream) {}
+  ScaledBernoulliTest() : data(len, stream) {}
 
  protected:
   void SetUp() override
   {
-    RAFT_CUDA_TRY(cudaStreamCreate(&stream));
     RngState r(42);
     scaled_bernoulli(handle, r, data.data(), len, T(0.5), T(scale));
+    stream.synchronize();
   }
 
   void rangeCheck()
@@ -487,7 +487,7 @@ class ScaledBernoulliTest : public ::testing::Test {
   }
 
   raft::resources handle;
-  cudaStream_t stream;
+  rmm::cuda_stream_view stream{resource::get_cuda_stream(handle)};
 
   rmm::device_uvector<T> data;
 };
@@ -495,16 +495,16 @@ class ScaledBernoulliTest : public ::testing::Test {
 template <typename T, int len, int scale>
 class ScaledBernoulliMdspanTest : public ::testing::Test {
  public:
-  ScaledBernoulliMdspanTest() : stream(resource::get_cuda_stream(handle)), data(len, stream) {}
+  ScaledBernoulliMdspanTest() : data(len, stream) {}
 
  protected:
   void SetUp() override
   {
-    RAFT_CUDA_TRY(cudaStreamCreate(&stream));
     RngState r(42);
 
     raft::device_vector_view<T, int> data_view(data.data(), data.size());
     scaled_bernoulli(handle, r, data_view, T(0.5), T(scale));
+    stream.synchronize();
   }
 
   void rangeCheck()
@@ -516,7 +516,7 @@ class ScaledBernoulliMdspanTest : public ::testing::Test {
   }
 
   raft::resources handle;
-  cudaStream_t stream;
+  rmm::cuda_stream_view stream{resource::get_cuda_stream(handle)};
 
   rmm::device_uvector<T> data;
 };
