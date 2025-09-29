@@ -92,9 +92,8 @@ class cuda_stream_resource_factory : public resource_factory {
  */
 inline rmm::cuda_stream_view get_cuda_stream(resources const& res)
 {
-  if (!res.has_resource_factory(resource_type::CUDA_STREAM_VIEW)) {
-    res.add_resource_factory(std::make_shared<cuda_stream_resource_factory>());
-  }
+  res.add_resource_factory_if_not_present<cuda_stream_resource_factory>(
+    resource_type::CUDA_STREAM_VIEW);
   return *res.get_resource<rmm::cuda_stream_view>(resource_type::CUDA_STREAM_VIEW);
 };
 

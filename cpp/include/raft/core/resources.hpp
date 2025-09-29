@@ -69,7 +69,12 @@ class resources {
    * @brief Shallow copy of underlying resources instance.
    * Note that this does not create any new resources.
    */
-  resources(const resources& res) : factories_(res.factories_), resources_(res.resources_) {}
+  resources(const resources& res) {
+    std::lock_guard<std::mutex> _(res.mutex_);
+    factories_ = res.factories_;
+    resources_ = res.resources_;
+  }
+
   resources(resources&&)            = delete;
   resources& operator=(resources&&) = delete;
 
@@ -87,7 +92,9 @@ class resources {
 
   /**
    * @brief Register a resource_factory with the current instance.
-   * This will overwrite any existing resource factories.
+   * This will overwrite any existing resource factories and reset the underlying resource.
+   * Note: If the resource is currently in use, this may result in a dangling reference.
+   * Use with caution.
    * @param factory resource factory to register on the current instance
    */
   void add_resource_factory(std::shared_ptr<resource::resource_factory> factory) const
@@ -102,6 +109,32 @@ class resources {
       resources_.at(rtype) = std::make_pair(resource::resource_type::LAST_KEY,
                                             std::make_shared<resource::empty_resource>());
     }
+  }
+
+  /**
+   * @brief Register a resource_factory with the current instance, only if one is not already
+   * registered.
+   * @tparam FactoryType Type of the factory to be registered.
+   * @tparam Args Variadic arguments to forward to the factory constructor.
+   * @param resource_type Resource type associated with the factory.
+   * @param args Arguments forwarded to the factory constructor.
+   */
+  template <typename FactoryType, typename... Args>
+  void add_resource_factory_if_not_present(resource::resource_type resource_type, Args&&... args) const
+  {
+    RAFT_EXPECTS(resource_type != resource::resource_type::LAST_KEY,
+                 "LAST_KEY is a placeholder and not a valid resource factory type.");
+
+    std::lock_guard<std::mutex> _(mutex_);
+    if (factories_.at(resource_type).first != resource::resource_type::LAST_KEY) {
+      return;
+    }
+
+    auto factory = std::make_shared<FactoryType>(std::forward<Args>(args)...);
+    RAFT_EXPECTS(factory->get_resource_type() != resource::resource_type::LAST_KEY,
+                 "LAST_KEY is a placeholder and not a valid resource factory type.");
+
+    factories_.at(resource_type) = std::make_pair(resource_type, factory);
   }
 
   /**

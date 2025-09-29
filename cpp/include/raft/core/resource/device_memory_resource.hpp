@@ -191,9 +191,8 @@ class workspace_resource_factory : public resource_factory {
 inline auto get_workspace_resource(resources const& res)
   -> rmm::mr::limiting_resource_adaptor<rmm::mr::device_memory_resource>*
 {
-  if (!res.has_resource_factory(resource_type::WORKSPACE_RESOURCE)) {
-    res.add_resource_factory(std::make_shared<workspace_resource_factory>());
-  }
+  res.add_resource_factory_if_not_present<workspace_resource_factory>(
+    resource_type::WORKSPACE_RESOURCE);
   return res.get_resource<rmm::mr::limiting_resource_adaptor<rmm::mr::device_memory_resource>>(
     resource_type::WORKSPACE_RESOURCE);
 };
@@ -276,9 +275,8 @@ inline void set_workspace_to_global_resource(
 
 inline auto get_large_workspace_resource(resources const& res) -> rmm::mr::device_memory_resource*
 {
-  if (!res.has_resource_factory(resource_type::LARGE_WORKSPACE_RESOURCE)) {
-    res.add_resource_factory(std::make_shared<large_workspace_resource_factory>());
-  }
+  res.add_resource_factory_if_not_present<large_workspace_resource_factory>(
+    resource_type::LARGE_WORKSPACE_RESOURCE);
   return res.get_resource<rmm::mr::device_memory_resource>(resource_type::LARGE_WORKSPACE_RESOURCE);
 };
 

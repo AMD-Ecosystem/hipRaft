@@ -88,10 +88,9 @@ class device_properties_resource_factory : public resource_factory {
  */
 inline cudaDeviceProp& get_device_properties(resources const& res)
 {
-  if (!res.has_resource_factory(resource_type::DEVICE_PROPERTIES)) {
-    int dev_id = get_device_id(res);
-    res.add_resource_factory(std::make_shared<device_properties_resource_factory>(dev_id));
-  }
+  int dev_id = get_device_id(res);
+  res.add_resource_factory_if_not_present<device_properties_resource_factory>(
+    resource_type::DEVICE_PROPERTIES, dev_id);
   return *res.get_resource<cudaDeviceProp>(resource_type::DEVICE_PROPERTIES);
 };
 

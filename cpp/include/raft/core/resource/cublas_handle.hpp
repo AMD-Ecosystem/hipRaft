@@ -92,10 +92,9 @@ class cublas_resource_factory : public resource_factory {
  */
 inline cublasHandle_t get_cublas_handle(resources const& res)
 {
-  if (!res.has_resource_factory(resource_type::CUBLAS_HANDLE)) {
-    cudaStream_t stream = get_cuda_stream(res);
-    res.add_resource_factory(std::make_shared<cublas_resource_factory>(stream));
-  }
+  cudaStream_t stream = get_cuda_stream(res);
+  res.add_resource_factory_if_not_present<cublas_resource_factory>(
+    resource_type::CUBLAS_HANDLE, stream);
   auto ret = *res.get_resource<cublasHandle_t>(resource_type::CUBLAS_HANDLE);
   RAFT_CUBLAS_TRY(cublasSetStream(ret, get_cuda_stream(res)));
   return ret;

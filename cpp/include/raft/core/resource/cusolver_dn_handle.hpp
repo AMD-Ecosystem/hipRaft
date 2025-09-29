@@ -98,10 +98,9 @@ class cusolver_dn_resource_factory : public resource_factory {
  */
 inline cusolverDnHandle_t get_cusolver_dn_handle(resources const& res)
 {
-  if (!res.has_resource_factory(resource_type::CUSOLVER_DN_HANDLE)) {
-    cudaStream_t stream = get_cuda_stream(res);
-    res.add_resource_factory(std::make_shared<cusolver_dn_resource_factory>(stream));
-  }
+  cudaStream_t stream = get_cuda_stream(res);
+  res.add_resource_factory_if_not_present<cusolver_dn_resource_factory>(
+    resource_type::CUSOLVER_DN_HANDLE, stream);
   return *res.get_resource<cusolverDnHandle_t>(resource_type::CUSOLVER_DN_HANDLE);
 };
 

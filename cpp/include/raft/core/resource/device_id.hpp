@@ -87,9 +87,7 @@ class device_id_resource_factory : public resource_factory {
  */
 inline int get_device_id(resources const& res)
 {
-  if (!res.has_resource_factory(resource_type::DEVICE_ID)) {
-    res.add_resource_factory(std::make_shared<device_id_resource_factory>());
-  }
+  res.add_resource_factory_if_not_present<device_id_resource_factory>(resource_type::DEVICE_ID);
   return *res.get_resource<int>(resource_type::DEVICE_ID);
 };
 
