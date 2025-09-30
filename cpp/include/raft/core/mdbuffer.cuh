@@ -49,13 +49,6 @@
 #include <raft/util/variant_utils.hpp>
 
 #include <algorithm>
-#ifndef __HIP_PLATFORM_AMD__
-// TODO(HIP/AMD): Is this header really required?
-// It does not compile since a recursively included TBB
-// header is missing. Building in the conda environment may fix this,
-// but right now, it seems that this header is not actively needed.
-#include <execution>
-#endif
 #include <optional>
 #include <type_traits>
 #include <utility>
