@@ -25,6 +25,8 @@
 # ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR
 # THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+# cmake-lint: disable=W0106
+
 file(READ "${CMAKE_CURRENT_LIST_DIR}/VERSION" _rapids_version)
 if(_rapids_version MATCHES [[^([0-9][0-9])\.([0-9][0-9])\.([0-9][0-9])]])
   set(RAPIDS_VERSION_MAJOR "${CMAKE_MATCH_1}")
@@ -56,6 +58,18 @@ if(NOT EXISTS "${CMAKE_CURRENT_BINARY_DIR}/RAFT_RAPIDS-${RAPIDS_VERSION_MAJOR_MI
     set(RAPIDS_CMAKE_SCRIPT_BRANCH "$ENV{RAPIDS_CMAKE_SCRIPT_BRANCH}")
   else()
     set(RAPIDS_CMAKE_SCRIPT_BRANCH release/1.0.x)
+  endif()
+  if(NOT DEFINED ENV{RAPIDS_CMAKE_BRANCH})
+    message(STATUS "RAPIDS_CMAKE_BRANCH is not set. Using branch 'amd-integration/2.0.x'.")
+    set(ENV{RAPIDS_CMAKE_BRANCH} "amd-integration/2.0.x")
+  endif()
+  if(NOT DEFINED ENV{RAPIDS_CMAKE_REPO})
+    message(STATUS "RAPIDS_CMAKE_REPO is not set. Using 'ROCm-DS/ROCmDS-CMake'.")
+    set(ENV{RAPIDS_CMAKE_REPO} "ROCm-DS/ROCmDS-CMake")
+  endif()
+  if(NOT DEFINED ENV{RAPIDS_CMAKE_VERSION})
+    message(STATUS "RAPIDS_CMAKE_REPO is not set. Using '2.0.0'.")
+    set(ENV{RAPIDS_CMAKE_VERSION} 2.0.0)
   endif()
   set(URL
       "https://raw.githubusercontent.com/ROCm-DS/ROCmDS-CMake/${RAPIDS_CMAKE_SCRIPT_BRANCH}/RAPIDS.cmake"
