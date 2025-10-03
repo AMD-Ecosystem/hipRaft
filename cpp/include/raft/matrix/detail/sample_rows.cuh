@@ -14,11 +14,34 @@
  * limitations under the License.
  */
 
+// MIT License
+//
+// Modifications Copyright (C) 2025 Advanced Micro Devices, Inc. All rights reserved.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
 #pragma once
 
 #include <raft/core/device_mdarray.hpp>
 #include <raft/core/device_mdspan.hpp>
 #include <raft/core/logger.hpp>
+#include <raft/core/resource/device_memory_resource.hpp>
 #include <raft/core/resources.hpp>
 #include <raft/matrix/gather.cuh>
 #include <raft/random/rng.cuh>
@@ -50,8 +73,37 @@ void sample_rows(raft::resources const& res,
                          raft::make_const_mdspan(train_indices.view()),
                          output);
   } else {
+#ifdef __HIP_PLATFORM_AMD__
+    // (HIP/AMD) In the code path below when the input dataset is on the host, raft::matrix::gather
+    // utilizes pinned memory as a staging area before gathering rows of the input dataset to the
+    // output. This is done to avoid the overhead of copying the entire input dataset to the device.
+    // However, the pinned memory usage on AMD systems with unified memory architectures like the
+    // MI300A leads to incorrect results. The workaround is to allocate a device buffer and copy the
+    // input dataset to it before calling raft::matrix::gather.
+    // See internal issue 129.
+    int current_device = -1;
+    RAFT_CUDA_TRY(hipGetDevice(&current_device));
+    hipDeviceProp_t device_prop{};
+    hipGetDeviceProperties(&device_prop, current_device);
+    if (device_prop.unifiedAddressing) {
+      rmm::device_uvector<T> backing_storage(n_rows_input * n_dim,
+                                             raft::resource::get_cuda_stream(res),
+                                             raft::resource::get_large_workspace_resource(res));
+      raft::copy(
+        backing_storage.data(), input, n_rows_input * n_dim, raft::resource::get_cuda_stream(res));
+      auto device_dataset =
+        raft::make_device_matrix_view<const T, IdxT>(backing_storage.data(), n_rows_input, n_dim);
+      raft::matrix::gather(
+        res, device_dataset, raft::make_const_mdspan(train_indices.view()), output);
+    } else {
+      // (HIP/AMD) Not using unified addressing, should be safe to use the host path
+      auto dataset = raft::make_host_matrix_view<const T, IdxT>(input, n_rows_input, n_dim);
+      raft::matrix::detail::gather(res, dataset, make_const_mdspan(train_indices.view()), output);
+    }
+#else
     auto dataset = raft::make_host_matrix_view<const T, IdxT>(input, n_rows_input, n_dim);
     raft::matrix::detail::gather(res, dataset, make_const_mdspan(train_indices.view()), output);
+#endif
   }
 }
 }  // namespace raft::matrix::detail
