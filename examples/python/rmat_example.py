@@ -72,4 +72,4 @@ print(f"number of duplicates: {num_duplicates}")
 
 print("Graph Adjacency List:")
 for node, nbrs in adj_list.items():
-    print(f"{node} : {nbrs}")
+    print(f"{int(node)} : { {int(n) for n in nbrs} }")

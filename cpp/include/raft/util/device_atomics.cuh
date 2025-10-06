@@ -686,8 +686,7 @@ __device__ T atomicIncWarp(T* ctr)
 {
   namespace cg = cooperative_groups;
   auto g       = cg::coalesced_threads();
-  // FIXME(HIP/AMD): this is a workaround for a compiler issue in ROCm 6.2
-  // T warp_res;
+  // FIXME(HIP/AMD): this is a workaround for a compiler issue in ROCm
   T warp_res = 0;
   if (g.thread_rank() == 0) { warp_res = atomicAdd(ctr, static_cast<T>(g.size())); }
   return g.shfl(warp_res, 0) + g.thread_rank();
