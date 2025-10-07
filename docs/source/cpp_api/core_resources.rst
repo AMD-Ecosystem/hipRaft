@@ -51,7 +51,7 @@ underlying device resources.
 
 namespace *raft::core*
 
-.. doxygenclass:: raft::device_resources_manager
+.. doxygenstruct:: raft::device_resources_manager
     :project: RAFT
     :members:
 

@@ -1,32 +1,8 @@
-# Introduction
+# Building and Installing hipRAFT
 
 hipRAFT currently provides C++ and Python API's.
 
-## Table of Contents
-
-- [GPU Requirements](#tested-on-the-following-gpus)
-- [Dependencies](#dependencies)
-- [Docker](#docker)
-- [Environment Variables](#environment-variables)
-- [C++ library](#c-library)
-  - [Header-only C++](#header-only-c)
-  - [C++ Shared Library](#c-shared-library-optional)
-  - [C++ Tests](#c-tests)
-  - [`ccache` and `sccache`](#ccache-and-sccache)
-  - [Using CMake directly](#using-cmake-directly)
-  - [GPU Architecture selection](#gpu-architecture-selection)
-    - [`--allgpuarch`](#--allgpuarch)
-    - [`Compile only for specified GPU arch`](#compile-only-for-specified-gpu-arch)
-
-- [Python library](#python-library)
-  - [Conda environment scripts](#conda-environment-scripts)
-  - [Building and installing](#building-and-installing-pylibraft)
-  - [Running the python tests](#running-the-python-tests)
-- [Packaging](#packaging)
-- [Building documentation](#building-documentation)
-------
-
-### Tested on the following GPUs
+## Tested on the following GPUs
 
 | Accelerator         | Architecture | Wavefront Size | LLVM target |
 |---------------------|--------------|----------------|-------------|
@@ -36,11 +12,11 @@ hipRAFT currently provides C++ and Python API's.
 | AMD Instinct MI300A | CDNA3        | 64             | gfx942      |
 | AMD Instinct MI300X | CDNA3        | 64             | gfx942      |
 
-### Dependencies
+## Dependencies
 
-> **Primary requirement**
-> hipRAFT builds against the **AMD ROCm software stack**—that is, the ROCm runtime, HIP compiler tool-chain, and a GPU driver that matches your ROCm version.
-> Install ROCm ≥ 6.4.0 (or the minimum version supported by the GPUs listed above) and make sure the `rocminfo` and `hipcc` commands are in your `PATH`.
+hipRAFT builds against the **AMD ROCm software stack** - that is, the ROCm runtime, HIP compiler tool-chain, and a GPU driver that matches your ROCm version.
+
+Install ROCm ≥ 6.4.0 (or the minimum version supported by the GPUs listed above) and make sure the `rocminfo` and `hipcc` commands are in your `PATH`. For more information, see [ROCm Installation](https://rocm.docs.amd.com/projects/install-on-linux/en/latest/).
 
 | Name                                                                  | Version / Notes                              |
 | ----------------------------------------------------------            | -------------------------------------------- |
@@ -68,14 +44,12 @@ hipRAFT currently provides C++ and Python API's.
 | [`Googlebench`](https://github.com/google/benchmark)                  | ≥ 1.13.0                                     |
 | [`Doxygen`](https://github.com/doxygen/doxygen)                       | >=1.8.20                                     |
 
-**\*** Note: In the case of dependencies marked with an asterisk, if not found locally; the CMake build system will attempt to download a compatible version using
-[ROCmDS-cmake](https://github.com/ROCm-DS/ROCmDS-cmake).
-
-**\*\*** Note: The `OpenMP` toolchain is automatically installed as part of the standard ROCm installation and is available under /`opt/rocm-{version}/llvm`.
+> **Note:** In the case of dependencies marked with an asterisk, if not found locally; the CMake build system will attempt to download a compatible version using
+[ROCmDS-cmake](https://github.com/ROCm-DS/ROCmDS-cmake). The `OpenMP` toolchain is automatically installed as part of the standard ROCm installation and is available under /`opt/rocm-{version}/llvm`.
 
 ### Docker
 
-For convenience hipRAFT also provides a `Dockerfile` that encapsulates all the above dependencies for development. Below are the instructions to create a container using this Dockerfile.
+hipRAFT also provides a `Dockerfile` that encapsulates all the above dependencies for development. Below are the instructions to create a container using this Dockerfile.
 
 ```bash
 cd <REPO_ROOT>
@@ -99,31 +73,11 @@ This container will have all necessary packages installed to build and run hipRA
 ```bash
 docker build --build-arg UBUNTU=22.04 -t <RAFT_DEV_IMAGE> .
 ```
-------
-
 
 ## Environment variables
 
 ```bash
 export CMAKE_PREFIX_PATH=/opt/rocm/lib/cmake # Set CMAKE_PREFIX_PATH to point to the ROCm installation site
-```
-
-### Development environment variables
-**The following environment variables are only required to be set for internal development. This section will be removed when hipRAFT becomes public.**
-
-
-Set the Github personal access token(`GITHUB_PASS`). Note `GITHUB_PASS` should be configured to authorize access to the `AMD-AIOSS` organization.
-```bash
-export GITHUB_PASS=<GITHUB_PERSONAL_ACCESS_TOKEN>
-```
-
-The following environment variables need to be set to select the version of `ROCmDS-cmake` that's scheduled to be released for General Availability.
-
-```bash
-export RAPIDS_CMAKE_SCRIPT_REPO=ROCm-DS/ROCmDS-CMake                          # Which ROCmDS-cmake repository to use when pulling the entrypoint RAPIDS.cmake script.
-export RAPIDS_CMAKE_SCRIPT_BRANCH=release/1.0.x                               # Which branch of the public ROCmDS-cmake git repository to pull the entrypoint RAPIDS.cmake script from.
-export RAPIDS_CMAKE_URL=https://${GITHUB_PASS}@github.com/AMD-AIOSS/ROCmDS-cmake # URL to the internal ROCmDS-cmake git repository
-export RAPIDS_CMAKE_BRANCH=amd-integration/2.0.x                              # ROCmDS-cmake branch to use.
 ```
 
 ## C++ library

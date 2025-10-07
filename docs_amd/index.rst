@@ -8,21 +8,19 @@
 hipRAFT documentation
 ********************************************************************
 
-.. include:: ../README.md
-   :parser: myst_parser.sphinx_
-
-------------
+hipRAFT is a library of fundamental algorithms and primitives for machine-learning and data-mining workloads that can be run on AMD GPUs. Forked from the NVIDIA RAPIDS `raft <https://github.com/rapidsai/raft>`_ project, hipRAFT brings the same rich functionality to the HIP&trade;/ROCm&trade; stack while preserving the directory structure, file naming and API naming to
+minimize porting friction for developers using both projects. It offers both a modern C++ interface for systems developers and fully featured Python bindings for rapid prototyping and data-science workflows. For more information, see :doc:`What is hipRAFT <what-is-hipRAFT>`
 
 .. grid:: 2
   :gutter: 3
 
   .. grid-item-card:: Installation
 
-    * :doc:`Build & installation guide <build_and_install/build_and_install>`
+    * :doc:`Building and installing hipRAFT <install/build_and_install>`
 
-  .. grid-item-card:: Examples
+  .. grid-item-card:: How to
 
-    * :doc:`Examples <examples_readme>`
+    * :doc:`Use hipRAFT <how-to/using-hipRAFT>`
 
   .. grid-item-card:: API reference
 
