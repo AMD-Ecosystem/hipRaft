@@ -84,7 +84,7 @@ void sample_rows(raft::resources const& res,
     int current_device = -1;
     RAFT_CUDA_TRY(hipGetDevice(&current_device));
     hipDeviceProp_t device_prop{};
-    hipGetDeviceProperties(&device_prop, current_device);
+    RAFT_CUDA_TRY(hipGetDeviceProperties(&device_prop, current_device));
     if (device_prop.unifiedAddressing) {
       rmm::device_uvector<T> backing_storage(n_rows_input * n_dim,
                                              raft::resource::get_cuda_stream(res),
