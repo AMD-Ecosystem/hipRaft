@@ -29,7 +29,7 @@
 # THE SOFTWARE.
 
 # Use this variable to update RAPIDS and RAFT versions
-set(RAPIDS_VERSION "25.02")
+set(RAPIDS_VERSION "00.01.00")
 set(RAPIDS_CMAKE_MODULE_PATH
     $ENV{RAPIDS_CMAKE_MODULE_PATH}
     CACHE FILEPATH "Announce that ROCmDS-CMake is available via the provided module path."
