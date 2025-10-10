@@ -13,7 +13,7 @@ CMake based build workflow.
 
 The C++ examples use the `libraft` library. The CMake scripts will automatically
 download the latest release and build it. There are some pre-requisites for successfully
-building the library. Please refer to the [Build and installation](../install/build_and_install.md#building-and-installing-hipraft)
+building the library. Please refer to the [Building hipRAFT from source](../install/build.md#building-hipraft-from-source)
 documentation for instructions on how to set up your developer environment for building hipRAFT.
 
 The directory `<raft_source>/examples/cpp`, can be copied directly and used as a starting point
@@ -86,7 +86,7 @@ This example also demonstrates hipRAFT inter-op with custom HIP kernels and rocT
 # Python example
 
 The Python example depends on the `pylibraft` module, which can either be installed
-using pip or built from source following the instructions in [Building and installing pylibraft](../install/build_and_install.md#building-and-installing-pylibraft).
+using pip or built from source following the instructions in [Building hipRAFT from source](../install/build.md#building-hipraft-from-source).
 The example generates a random directed-graph using the [pylibraft.random.rmat](reference/pylibraft_api/random:random) function. The
 generated graph is printed on the screen as an adjacency list. The output should look something
 like:

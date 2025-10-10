@@ -16,7 +16,8 @@ minimize porting friction for developers using both projects. It offers both a m
 
   .. grid-item-card:: Installation
 
-    * :doc:`Building and installing hipRAFT <install/build_and_install>`
+    * :doc:`Installing hipRAFT <install/install>`
+    * :doc:`Building hipRAFT <install/build>`
 
   .. grid-item-card:: How to
 

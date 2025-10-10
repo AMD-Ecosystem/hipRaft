@@ -1,6 +1,6 @@
-# Building and Installing hipRAFT
+# Building hipRAFT from source
 
-hipRAFT currently provides C++ and Python API's.
+hipRAFT currently provides C++ and Python APIs.
 
 ## Tested on the following GPUs
 
@@ -16,17 +16,17 @@ hipRAFT currently provides C++ and Python API's.
 
 hipRAFT builds against the **AMD ROCm software stack** - that is, the ROCm runtime, HIP compiler tool-chain, and a GPU driver that matches your ROCm version.
 
-Install ROCm ≥ 6.4.0 (or the minimum version supported by the GPUs listed above) and make sure the `rocminfo` and `hipcc` commands are in your `PATH`. For more information, see [ROCm Installation](https://rocm.docs.amd.com/projects/install-on-linux/en/latest/).
+Install ROCm ≥ 7.0.0 (or the minimum version supported by the GPUs listed above) and make sure the `rocminfo` and `hipcc` commands are in your `PATH`. For more information, see [ROCm Installation](https://rocm.docs.amd.com/projects/install-on-linux/en/latest/).
 
 | Name                                                                  | Version / Notes                              |
 | ----------------------------------------------------------            | -------------------------------------------- |
 | [`cmake`](https://cmake.org/)                                         | ≥ 3.31.0                                     |
 | [`ninja`](https://ninja-build.org/)                                   | ≥ 1.11.1                                     |
-| [`hipsolver`](https://rocm.docs.amd.com/projects/hipSOLVER/en/latest/)| Version that comes bundled with ROCm ≥ 6.4.0 |
-| [`hipblas`](https://rocm.docs.amd.com/projects/hipBLAS/en/latest/)    | Version that comes bundled with ROCm ≥ 6.4.0 |
-| [`hipblaslt`](https://rocm.docs.amd.com/projects/hipBLASLt/en/latest/)| Version that comes bundled with ROCm ≥ 6.4.0 |
-| [`hiprand`](https://rocm.docs.amd.com/projects/hipRAND/en/latest/)    | Version that comes bundled with ROCm ≥ 6.4.0 |
-| [`hipsparse`](https://rocm.docs.amd.com/projects/hipSPARSE/en/latest/)| Version that comes bundled with ROCm ≥ 6.4.0 |
+| [`hipsolver`](https://rocm.docs.amd.com/projects/hipSOLVER/en/latest/)| Version that comes bundled with ROCm ≥ 7.0.0 |
+| [`hipblas`](https://rocm.docs.amd.com/projects/hipBLAS/en/latest/)    | Version that comes bundled with ROCm ≥ 7.0.0 |
+| [`hipblaslt`](https://rocm.docs.amd.com/projects/hipBLASLt/en/latest/)| Version that comes bundled with ROCm ≥ 7.0.0 |
+| [`hiprand`](https://rocm.docs.amd.com/projects/hipRAND/en/latest/)    | Version that comes bundled with ROCm ≥ 7.0.0 |
+| [`hipsparse`](https://rocm.docs.amd.com/projects/hipSPARSE/en/latest/)| Version that comes bundled with ROCm ≥ 7.0.0 |
 | [`libblas-dev`](https://www.netlib.org/lapack/)                       | Tested with 3.12.0                           |
 | [`liblapack-dev`](https://www.netlib.org/lapack/)                     | Tested with 3.12.0                           |
 | [`SuiteSparse`](https://github.com/DrTimothyAldenDavis/SuiteSparse)   | Tested with 7.6.1                            |
@@ -34,11 +34,11 @@ Install ROCm ≥ 6.4.0 (or the minimum version supported by the GPUs listed abov
 | **\***[`hipMM`](https://github.com/ROCm-DS/hipMM)                     | 3.0.0                                        |
 | **\***[`hipCollections`](https://github.com/ROCm/hipCollections)      | 0.3.0                                        |
 | **\***[`libhipcxx`](https://github.com/ROCm/libhipcxx)                | 2.7.0                                        |
-| **\***[`hipCUB`](https://github.com/ROCm/hipCUB)                      | Version that comes bundled with ROCm ≥ 6.4.0 |
-| **\***[`rocThrust`](https://github.com/ROCm/rocThrust)                | Version that comes bundled with ROCm ≥ 6.4.0 |
-| **\*\***[`OpenMP`](https://www.openmp.org/)                           | Version that comes bundled with ROCm ≥ 6.4.0 |
+| **\***[`hipCUB`](https://github.com/ROCm/hipCUB)                      | Version that comes bundled with ROCm ≥ 7.0.0 |
+| **\***[`rocThrust`](https://github.com/ROCm/rocThrust)                | Version that comes bundled with ROCm ≥ 7.0.0 |
+| **\*\***[`OpenMP`](https://www.openmp.org/)                           | Version that comes bundled with ROCm ≥ 7.0.0 |
 | **Optional Dependencies**                                                                                            |
-| [`RCCL`](https://rocm.docs.amd.com/projects/rccl/en/latest/)          | Version that comes bundled with ROCm ≥ 6.4.0 |
+| [`RCCL`](https://rocm.docs.amd.com/projects/rccl/en/latest/)          | Version that comes bundled with ROCm ≥ 7.0.0 |
 | [`UCX`](https://github.com/openucx/ucx)                               | ≥ 1.17.0                                     |
 | [`Googletest`](https://github.com/google/googletest)                  | ≥ 1.13.0                                     |
 | [`Googlebench`](https://github.com/google/benchmark)                  | ≥ 1.13.0                                     |
@@ -49,7 +49,7 @@ Install ROCm ≥ 6.4.0 (or the minimum version supported by the GPUs listed abov
 
 ### Docker
 
-hipRAFT also provides a `Dockerfile` that encapsulates all the above dependencies for development. Below are the instructions to create a container using this Dockerfile.
+hipRAFT also provides a `Dockerfile` that encapsulates all the above dependencies for development. The following are the instructions to create a container using this Dockerfile.
 
 ```bash
 cd <REPO_ROOT>

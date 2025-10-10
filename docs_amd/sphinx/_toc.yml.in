@@ -9,8 +9,10 @@ subtrees:
 
 - caption: Installation
   entries:
-  - file: install/build_and_install.md
-    title: Building and Installing hipRAFT
+  - file: install/install.md
+    title: Installing hipRAFT
+  - file: install/build.md
+    title: Building hipRAFT
 
 - caption: How to
   entries:
