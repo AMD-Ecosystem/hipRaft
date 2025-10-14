@@ -29,8 +29,8 @@
 # THE SOFTWARE.
 
 set(RAFT_VERSION "0.1.0")
-set(RAFT_FORK "AMD-AIOSS")
-set(RAFT_PINNED_TAG "amd-integration")
+set(RAFT_FORK "ROCm-DS")
+set(RAFT_PINNED_TAG "release/rocmds-25.10")
 # When PINNED_TAG above doesn't match the default branch,
 # force local raft clone in build directory
 # even if it's already installed.
@@ -40,7 +40,7 @@ function(find_and_configure_raft)
     set(oneValueArgs VERSION FORK PINNED_TAG COMPILE_LIBRARY ENABLE_MNMG_DEPENDENCIES CLONE_ON_PIN)
     cmake_parse_arguments(PKG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
-    if(NOT CPM_raft_SOURCE AND PKG_CLONE_ON_PIN AND NOT PKG_PINNED_TAG STREQUAL "amd-integration")
+    if(NOT CPM_raft_SOURCE AND PKG_CLONE_ON_PIN AND NOT PKG_PINNED_TAG STREQUAL "release/rocmds-25.10")
         message(STATUS "RAFT pinned tag found: ${PKG_PINNED_TAG}. Cloning raft locally.")
         set(CPM_DOWNLOAD_raft ON)
     endif()
@@ -63,7 +63,7 @@ function(find_and_configure_raft)
             INSTALL_EXPORT_SET  raft-template-exports
             COMPONENTS          ${RAFT_COMPONENTS}
             CPM_ARGS
-            GIT_REPOSITORY https://$ENV{GITHUB_PASS}@github.com/${PKG_FORK}/hipRaft.git
+            GIT_REPOSITORY https://github.com/${PKG_FORK}/hipRaft.git
             GIT_TAG        ${PKG_PINNED_TAG}
             SOURCE_SUBDIR  cpp
             OPTIONS
