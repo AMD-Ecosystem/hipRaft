@@ -55,7 +55,8 @@ DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
         libsuitesparse-dev \
         ssh \
         rpm \
-        ccache
+        ccache \
+        libopenblas-dev
 EOT
 
 WORKDIR /third_party_builds

@@ -16,17 +16,17 @@ hipRAFT currently provides C++ and Python APIs.
 
 hipRAFT builds against the **AMD ROCm software stack** - that is, the ROCm runtime, HIP compiler tool-chain, and a GPU driver that matches your ROCm version.
 
-Install ROCm ≥ 7.0.0 (or the minimum version supported by the GPUs listed above) and make sure the `rocminfo` and `hipcc` commands are in your `PATH`. For more information, see [ROCm Installation](https://rocm.docs.amd.com/projects/install-on-linux/en/latest/).
+Install ROCm ≥ 7.0.2 (or the minimum version supported by the GPUs listed above) and make sure the `rocminfo` and `hipcc` commands are in your `PATH`. For more information, see [ROCm Installation](https://rocm.docs.amd.com/projects/install-on-linux/en/latest/).
 
 | Name                                                                  | Version / Notes                              |
 | ----------------------------------------------------------            | -------------------------------------------- |
 | [`cmake`](https://cmake.org/)                                         | ≥ 3.31.0                                     |
 | [`ninja`](https://ninja-build.org/)                                   | ≥ 1.11.1                                     |
-| [`hipsolver`](https://rocm.docs.amd.com/projects/hipSOLVER/en/latest/)| Version that comes bundled with ROCm ≥ 7.0.0 |
-| [`hipblas`](https://rocm.docs.amd.com/projects/hipBLAS/en/latest/)    | Version that comes bundled with ROCm ≥ 7.0.0 |
-| [`hipblaslt`](https://rocm.docs.amd.com/projects/hipBLASLt/en/latest/)| Version that comes bundled with ROCm ≥ 7.0.0 |
-| [`hiprand`](https://rocm.docs.amd.com/projects/hipRAND/en/latest/)    | Version that comes bundled with ROCm ≥ 7.0.0 |
-| [`hipsparse`](https://rocm.docs.amd.com/projects/hipSPARSE/en/latest/)| Version that comes bundled with ROCm ≥ 7.0.0 |
+| [`hipsolver`](https://rocm.docs.amd.com/projects/hipSOLVER/en/latest/)| Version that comes bundled with ROCm ≥ 7.0.2 |
+| [`hipblas`](https://rocm.docs.amd.com/projects/hipBLAS/en/latest/)    | Version that comes bundled with ROCm ≥ 7.0.2 |
+| [`hipblaslt`](https://rocm.docs.amd.com/projects/hipBLASLt/en/latest/)| Version that comes bundled with ROCm ≥ 7.0.2 |
+| [`hiprand`](https://rocm.docs.amd.com/projects/hipRAND/en/latest/)    | Version that comes bundled with ROCm ≥ 7.0.2 |
+| [`hipsparse`](https://rocm.docs.amd.com/projects/hipSPARSE/en/latest/)| Version that comes bundled with ROCm ≥ 7.0.2 |
 | [`libblas-dev`](https://www.netlib.org/lapack/)                       | Tested with 3.12.0                           |
 | [`liblapack-dev`](https://www.netlib.org/lapack/)                     | Tested with 3.12.0                           |
 | [`SuiteSparse`](https://github.com/DrTimothyAldenDavis/SuiteSparse)   | Tested with 7.6.1                            |
@@ -34,11 +34,11 @@ Install ROCm ≥ 7.0.0 (or the minimum version supported by the GPUs listed abov
 | **\***[`hipMM`](https://github.com/ROCm-DS/hipMM)                     | 3.0.0                                        |
 | **\***[`hipCollections`](https://github.com/ROCm/hipCollections)      | 0.3.0                                        |
 | **\***[`libhipcxx`](https://github.com/ROCm/libhipcxx)                | 2.7.0                                        |
-| **\***[`hipCUB`](https://github.com/ROCm/hipCUB)                      | Version that comes bundled with ROCm ≥ 7.0.0 |
-| **\***[`rocThrust`](https://github.com/ROCm/rocThrust)                | Version that comes bundled with ROCm ≥ 7.0.0 |
-| **\*\***[`OpenMP`](https://www.openmp.org/)                           | Version that comes bundled with ROCm ≥ 7.0.0 |
+| **\***[`hipCUB`](https://github.com/ROCm/hipCUB)                      | Version that comes bundled with ROCm ≥ 7.0.2 |
+| **\***[`rocThrust`](https://github.com/ROCm/rocThrust)                | Version that comes bundled with ROCm ≥ 7.0.2 |
+| **\*\***[`OpenMP`](https://www.openmp.org/)                           | Version that comes bundled with ROCm ≥ 7.0.2 |
 | **Optional Dependencies**                                                                                            |
-| [`RCCL`](https://rocm.docs.amd.com/projects/rccl/en/latest/)          | Version that comes bundled with ROCm ≥ 7.0.0 |
+| [`RCCL`](https://rocm.docs.amd.com/projects/rccl/en/latest/)          | Version that comes bundled with ROCm ≥ 7.0.2 |
 | [`UCX`](https://github.com/openucx/ucx)                               | ≥ 1.17.0                                     |
 | [`Googletest`](https://github.com/google/googletest)                  | ≥ 1.13.0                                     |
 | [`Googlebench`](https://github.com/google/benchmark)                  | ≥ 1.13.0                                     |
@@ -224,15 +224,6 @@ micromamba activate pylibraft
 ```
 It is recommended to build the python wheels in a conda environment built from `all_rocm_arch-x86_64.yaml`. It is also possible to use `venv` but it is up to the user to install all the required packages in the environment.
 
-### Development dependencies
-**The following Python packages must be installed from source with the specified versions, as they are not available on the AMD Simple PyPI index. Please consult the respective repositories for build and installation instructions.**
-1. `amd-hipmm==3.0.0b1` Branch: [amd-integration/3.0.x](https://github.com/AMD-AIOSS/hipMM/tree/amd-integration/3.0.x)
-2. `amd-libhipmm==3.0.0b1` Branch: [amd-integration/3.0.x](https://github.com/AMD-AIOSS/hipMM/tree/amd-integration/3.0.x)
-3. `hip-python==6.4.1.552.40` Branch: [release/rocm-rel-6.4.1](https://github.com/AMD-AIOSS/hip-python/tree/release/rocm-rel-6.4.1)
-4. `hip-python-as-cuda==6.4.1.552.40` Branch:[release/rocm-rel-6.4.1](https://github.com/AMD-AIOSS/hip-python/tree/release/rocm-rel-6.4.1)
-
-**Note: This is a temporary solution until the required packages are available on the AMD Simple PyPI index.**
-
 ### Building and installing `pylibraft`
 The Python libraries can be built and installed using the build.sh script:
 ```bash
@@ -339,6 +330,30 @@ ninja install
 # Invoke cpack to generate package
 cpack -G RPM # To generate a RPM package. hipraft-25.02.00-Linux.rpm will be created at <HIPRAFT_ROOT>/cpp/build.
 cpack -G TGZ # To generate a TGZ package. hipraft-25.02.00-Linux.tar.gz will be created at <HIPRAFT_ROOT>/cpp/build.
+```
+
+## Building the primitives benchmarks
+
+The primitives benchmarks can be built using the `bench-prims` target in `build.sh`.
+
+```bash
+cd <HIPRAFT_ROOT>
+./build.sh bench-prims --compile-lib  clean
+
+```
+This will build all the primitives benchmarks and place the resulting binaries in `cpp/build/bench/prims`.
+
+```bash
+ls -l <HIPRAFT_ROOT>/cpp/build/bench/prims/
+  CMakeFiles
+  cmake_install.cmake
+  CORE_BENCH
+  LINALG_BENCH
+  MATRIX_BENCH
+  RANDOM_BENCH
+  SPARSE_BENCH
+  UTIL_BENCH
+
 ```
 
 ## Building Documentation
