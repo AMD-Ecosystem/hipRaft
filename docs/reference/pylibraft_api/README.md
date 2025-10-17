@@ -8,7 +8,7 @@ From an environment with `pylibhipraft` installed run:
 
 ```bash
 pip install pybind11-stubgen
-cd <HIPRAFT_ROOT>/docs_amd/reference/pylibraft_api
+cd <HIPRAFT_ROOT>/docs/reference/pylibraft_api
 pybind11-stubgen --ignore-all-errors pylibraft.common
 pybind11-stubgen --ignore-all-errors pylibraft.common.interruptible
 pybind11-stubgen --ignore-all-errors pylibraft.common.cai_wrapper
