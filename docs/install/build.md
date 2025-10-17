@@ -384,7 +384,7 @@ pip install -r docs/sphinx/requirements.txt
 
 ```bash
 cd <HIPRAFT_ROOT>
-./build.sh libraft pylibraft --compile-lib docs clean
+./build.sh docs clean
 ```
 
 Navigate to `<HIPRAFT_ROOT>/docs/_build` and use the tool of your choice, e.g. Firefox, to open and examine the root level html file, `index.html`. From this point you should be able to navigate through the documentation.
