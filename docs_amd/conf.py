@@ -24,8 +24,17 @@ external_projects_current_project = "hipRAFT"
 html_theme = "rocm_docs_theme"
 html_theme_options = {"flavor": "rocm-ds", "repository_url": "https://github.com/AMD-AIOSS/hipRaft/"}
 
+external_toc_path = "./sphinx/_toc.yml"
+doxygen_root = "doxygen"
+doxysphinx_enabled = True
+doxygen_project = {
+    "name": "doxygen",
+    "path": "doxygen/xml",
+}
+
 extensions = [
     "rocm_docs",
+    "rocm_docs.doxygen",
     "breathe",
     "sphinx.ext.intersphinx",
     "sphinx.ext.autodoc",
@@ -50,12 +59,4 @@ autoapi_add_toctree_entry = False
 
 source_suffix = {
     ".rst": "restructuredtext",
-}
-
-external_toc_path = "./sphinx/_toc.yml"
-doxygen_root = "doxygen"
-doxysphinx_enabled = True
-doxygen_project = {
-    "name": "doxygen",
-    "path": "doxygen/xml",
 }
