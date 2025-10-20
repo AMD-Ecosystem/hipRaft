@@ -1,56 +1,32 @@
-# Introduction
+# Building hipRAFT from source
 
-hipRAFT currently provides C++ and Python API's.
+hipRAFT currently provides C++ and Python APIs. The following instructions provide steps to build and test hipRAFT from source files provided in the [https://github.com/ROCm-DS/hipRaft](https://github.com/ROCm-DS/hipRaft) repository. 
 
-## Table of Contents
+## Tested on the following GPUs
 
-- [GPU Requirements](#tested-on-the-following-gpus)
-- [Dependencies](#dependencies)
-- [Docker](#docker)
-- [Environment Variables](#environment-variables)
-- [C++ library](#c-library)
-  - [Header-only C++](#header-only-c)
-  - [C++ Shared Library](#c-shared-library-optional)
-  - [C++ Tests](#c-tests)
-  - [`ccache` and `sccache`](#ccache-and-sccache)
-  - [Using CMake directly](#using-cmake-directly)
-  - [GPU Architecture selection](#gpu-architecture-selection)
-    - [`--allgpuarch`](#--allgpuarch)
-    - [`Compile only for specified GPU arch`](#compile-only-for-specified-gpu-arch)
-
-- [Python library](#python-library)
-  - [Conda environment scripts](#conda-environment-scripts)
-  - [Building and installing](#building-and-installing-pylibraft)
-  - [Running the python tests](#running-the-python-tests)
-- [Packaging](#packaging)
-- [Building documentation](#building-documentation)
-------
-
-### Tested on the following GPUs
-
-| Accelerator         | Architecture | Wavefront Size | LLVM target |
+| AMD Instinct GPU    | Architecture | Wavefront Size | LLVM target |
 |---------------------|--------------|----------------|-------------|
-| AMD Instinct MI210  | CDNA2        | 64             | gfx90a      |
-| AMD Instinct MI250  | CDNA2        | 64             | gfx90a      |
-| AMD Instinct MI250X | CDNA2        | 64             | gfx90a      |
-| AMD Instinct MI300A | CDNA3        | 64             | gfx942      |
-| AMD Instinct MI300X | CDNA3        | 64             | gfx942      |
+| MI210               | CDNA2        | 64             | gfx90a      |
+| MI250               | CDNA2        | 64             | gfx90a      |
+| MI250X              | CDNA2        | 64             | gfx90a      |
+| MI300A              | CDNA3        | 64             | gfx942      |
+| MI300X              | CDNA3        | 64             | gfx942      |
 
-### Dependencies
+## Dependencies
 
-> **Primary requirement**
-> hipRAFT builds against the **AMD ROCm software stack**—that is, the ROCm runtime, HIP compiler tool-chain, and a GPU driver that matches your ROCm version.
-> Install ROCm ≥ 6.4.0 (or the minimum version supported by the GPUs listed above) and make sure the `rocminfo` and `hipcc` commands are in your `PATH`.
+hipRAFT builds against the AMD ROCm software stack, that is the ROCm runtime, HIP compiler tool-chain, and a GPU driver that matches your ROCm version.
+
+Install ROCm 7.0.2 or later, or the minimum version supported by the GPUs listed above, and make sure the `rocminfo` and `hipcc` commands are in your `PATH`. For more information, see [ROCm Installation](https://rocm.docs.amd.com/projects/install-on-linux/en/latest/).
 
 | Name                                                                  | Version / Notes                              |
 | ----------------------------------------------------------            | -------------------------------------------- |
 | [`cmake`](https://cmake.org/)                                         | ≥ 3.31.0                                     |
 | [`ninja`](https://ninja-build.org/)                                   | ≥ 1.11.1                                     |
-| [`hipsolver`](https://rocm.docs.amd.com/projects/hipSOLVER/en/latest/)| Version that comes bundled with ROCm ≥ 6.4.0 |
-| [`hipblas`](https://rocm.docs.amd.com/projects/hipBLAS/en/latest/)    | Version that comes bundled with ROCm ≥ 6.4.0 |
-| [`hipblaslt`](https://rocm.docs.amd.com/projects/hipBLASLt/en/latest/)| Version that comes bundled with ROCm ≥ 6.4.0 |
-| [`hiprand`](https://rocm.docs.amd.com/projects/hipRAND/en/latest/)    | Version that comes bundled with ROCm ≥ 6.4.0 |
-| [`hipsparse`](https://rocm.docs.amd.com/projects/hipSPARSE/en/latest/)| Version that comes bundled with ROCm ≥ 6.4.0 |
+| [`hipsolver`](https://rocm.docs.amd.com/projects/hipSOLVER/en/latest/)| Version that comes bundled with ROCm ≥ 7.0.2 |
+| [`hipblas`](https://rocm.docs.amd.com/projects/hipBLAS/en/latest/)    | Version that comes bundled with ROCm ≥ 7.0.2 |
+| [`hipblaslt`](https://rocm.docs.amd.com/projects/hipBLASLt/en/latest/)| Version that comes bundled with ROCm ≥ 7.0.2 |
+| [`hiprand`](https://rocm.docs.amd.com/projects/hipRAND/en/latest/)    | Version that comes bundled with ROCm ≥ 7.0.2 |
+| [`hipsparse`](https://rocm.docs.amd.com/projects/hipSPARSE/en/latest/)| Version that comes bundled with ROCm ≥ 7.0.2 |
 | [`libblas-dev`](https://www.netlib.org/lapack/)                       | Tested with 3.12.0                           |
 | [`liblapack-dev`](https://www.netlib.org/lapack/)                     | Tested with 3.12.0                           |
 | [`SuiteSparse`](https://github.com/DrTimothyAldenDavis/SuiteSparse)   | Tested with 7.6.1                            |
@@ -58,24 +34,23 @@ hipRAFT currently provides C++ and Python API's.
 | **\***[`hipMM`](https://github.com/ROCm-DS/hipMM)                     | 3.0.0                                        |
 | **\***[`hipCollections`](https://github.com/ROCm/hipCollections)      | 0.3.0                                        |
 | **\***[`libhipcxx`](https://github.com/ROCm/libhipcxx)                | 2.7.0                                        |
-| **\***[`hipCUB`](https://github.com/ROCm/hipCUB)                      | Version that comes bundled with ROCm ≥ 6.4.0 |
-| **\***[`rocThrust`](https://github.com/ROCm/rocThrust)                | Version that comes bundled with ROCm ≥ 6.4.0 |
-| **\*\***[`OpenMP`](https://www.openmp.org/)                           | Version that comes bundled with ROCm ≥ 6.4.0 |
+| **\***[`hipCUB`](https://github.com/ROCm/hipCUB)                      | Version that comes bundled with ROCm ≥ 7.0.2 |
+| **\***[`rocThrust`](https://github.com/ROCm/rocThrust)                | Version that comes bundled with ROCm ≥ 7.0.2 |
+| **\*\***[`OpenMP`](https://www.openmp.org/)                           | Version that comes bundled with ROCm ≥ 7.0.2 |
 | **Optional Dependencies**                                                                                            |
-| [`RCCL`](https://rocm.docs.amd.com/projects/rccl/en/latest/)          | Version that comes bundled with ROCm ≥ 6.4.0 |
+| [`RCCL`](https://rocm.docs.amd.com/projects/rccl/en/latest/)          | Version that comes bundled with ROCm ≥ 7.0.2 |
 | [`UCX`](https://github.com/openucx/ucx)                               | ≥ 1.17.0                                     |
 | [`Googletest`](https://github.com/google/googletest)                  | ≥ 1.13.0                                     |
 | [`Googlebench`](https://github.com/google/benchmark)                  | ≥ 1.13.0                                     |
 | [`Doxygen`](https://github.com/doxygen/doxygen)                       | >=1.8.20                                     |
 
-**\*** Note: In the case of dependencies marked with an asterisk, if not found locally; the CMake build system will attempt to download a compatible version using
-[ROCmDS-cmake](https://github.com/ROCm-DS/ROCmDS-cmake).
-
-**\*\*** Note: The `OpenMP` toolchain is automatically installed as part of the standard ROCm installation and is available under /`opt/rocm-{version}/llvm`.
+> `*` - If not found locally the CMake build system will attempt to download a compatible version using [ROCmDS-cmake](https://github.com/ROCm-DS/ROCmDS-cmake). 
+>
+> `**` - The `OpenMP` toolchain is automatically installed as part of the standard ROCm installation and is available under /`opt/rocm-{version}/llvm`.
 
 ### Docker
 
-For convenience hipRAFT also provides a `Dockerfile` that encapsulates all the above dependencies for development. Below are the instructions to create a container using this Dockerfile.
+hipRAFT also provides a `Dockerfile` that encapsulates all the above dependencies for development. The following are the instructions to create a container using this Dockerfile.
 
 ```bash
 cd <REPO_ROOT>
@@ -94,13 +69,11 @@ docker run -d -it --cap-add=SYS_PTRACE \
        -v <REPO_ROOT>:<REPO_ROOT> <RAFT_DEV_IMAGE>  tail -f /dev/null
 docker exec -it <CONTAINER_NAME> bash
 ```
-This container will have all necessary packages installed to build and run hipRAFT properly. This will create an Ubuntu 24.04 container that has ROCm installed. If you wish to use Ubuntu 22.04, replace the docker build command with the following:
+This container will have all necessary packages installed to build and run hipRAFT. The preceding command will create an Ubuntu 24.04 container that has ROCm installed. To use Ubuntu 22.04, replace the Docker build command with the following:
 
 ```bash
 docker build --build-arg UBUNTU=22.04 -t <RAFT_DEV_IMAGE> .
 ```
-------
-
 
 ## Environment variables
 
@@ -108,53 +81,42 @@ docker build --build-arg UBUNTU=22.04 -t <RAFT_DEV_IMAGE> .
 export CMAKE_PREFIX_PATH=/opt/rocm/lib/cmake # Set CMAKE_PREFIX_PATH to point to the ROCm installation site
 ```
 
-### Development environment variables
-**The following environment variables are only required to be set for internal development. This section will be removed when hipRAFT becomes public.**
-
-
-Set the Github personal access token(`GITHUB_PASS`). Note `GITHUB_PASS` should be configured to authorize access to the `AMD-AIOSS` organization.
-```bash
-export GITHUB_PASS=<GITHUB_PERSONAL_ACCESS_TOKEN>
-```
-
-The following environment variables need to be set to select the version of `ROCmDS-cmake` that's scheduled to be released for General Availability.
-
-```bash
-export RAPIDS_CMAKE_SCRIPT_REPO=ROCm-DS/ROCmDS-CMake                          # Which ROCmDS-cmake repository to use when pulling the entrypoint RAPIDS.cmake script.
-export RAPIDS_CMAKE_SCRIPT_BRANCH=release/1.0.x                               # Which branch of the public ROCmDS-cmake git repository to pull the entrypoint RAPIDS.cmake script from.
-export RAPIDS_CMAKE_URL=https://${GITHUB_PASS}@github.com/AMD-AIOSS/ROCmDS-cmake # URL to the internal ROCmDS-cmake git repository
-export RAPIDS_CMAKE_BRANCH=amd-integration/2.0.x                              # ROCmDS-cmake branch to use.
-```
-
 ## C++ library
 
 ### Header-only C++
 
-`build.sh` uses [ROCmDS-cmake](https://github.com/ROCm-DS/ROCmDS-cmake), which will automatically download any dependencies which are not already installed.
+`build.sh` uses [ROCmDS-cmake](https://github.com/ROCm-DS/ROCmDS-cmake), which will automatically download any dependencies that are not already installed.
 
 The following example will download the needed dependencies and install the hipRAFT headers into `$INSTALL_PREFIX/include/hipRAFT`.
+
 ```bash
 ./build.sh libraft
 ```
-The `-n` flag can be passed to just have the build download the needed dependencies. Since hipRAFT's C++ headers are primarily used during build-time in downstream projects, the dependencies will never be installed by the hipRAFT build.
+
+The `-n` flag can be passed to have the build download just the needed dependencies. Because hipRAFT C++ headers are primarily used during build-time in downstream projects, the dependencies will never be installed by the hipRAFT build.
+
 ```bash
 ./build.sh libraft -n
 ```
 
-Once installed, `libraft` headers (and dependencies which were downloaded and installed using `ROCmDS-cmake`) can be uninstalled also using `build.sh`:
+After installation, `libraft` headers (and dependencies which were downloaded and installed using `ROCmDS-cmake`) can be uninstalled also using `build.sh`:
+
 ```bash
 ./build.sh libraft --uninstall
 ```
+
 ### C++ Shared Library (optional)
 
 A shared library must be built in order to build `pylibraft`. Pass the `--compile-lib` flag to `build.sh` to build the library:
+
 ```bash
 ./build.sh libraft --compile-lib
 ```
 
-In above example the shared library is installed by default into `$INSTALL_PREFIX/lib`. To disable this, pass `-n` flag.
+In the preceding example the shared library is installed by default into `$INSTALL_PREFIX/lib`. To disable this, pass `-n` flag.
 
 Once installed, the shared library, headers (and any dependencies downloaded and installed via `ROCmDS-cmake`) can be uninstalled using `build.sh`:
+
 ```bash
 ./build.sh libraft --uninstall
 ```
@@ -174,7 +136,7 @@ For example, to run the matrix tests:
 ./cpp/build/gtests/MATRIX_TEST
 ```
 
-It can take sometime to compile all of the tests. You can build individual tests by providing a semicolon-separated list to the `--limit-tests` option in `build.sh`:
+It can take significant time to compile all of the tests. You can build individual tests by providing a semicolon-separated list to the `--limit-tests` option in `build.sh`:
 
 ```bash
 ./build.sh libraft tests -n --limit-tests="CORE_TEST;MATRIX_TEST"
@@ -196,9 +158,10 @@ ctest --test-dir ./tests # If "--limit-tests" is specified, only a subset of tes
 
 ### Using CMake directly
 
-When building hipRAFT from source, the `build.sh` script offers a nice wrapper around the `cmake` commands to ease the burdens of manually configuring the various available cmake options. When more fine-grained control over the CMake configuration is desired, the `cmake` command can be invoked directly as the below example demonstrates.
+When building hipRAFT from source, the `build.sh` script provides a convenient wrapper around the `cmake` commands to ease the burdens of manually configuring the various available cmake options. When more fine-grained control over the CMake configuration is desired, the `cmake` command can be invoked directly as the following example demonstrates.
 
 The `CMAKE_INSTALL_PREFIX` option instructs CMake to install hipRAFT into a specific location.
+
 ```bash
 cd <HIPRAFT_ROOT>/cpp
 mkdir -p build && rm -rf build/*
@@ -219,7 +182,7 @@ ninja
 ninja install
 ```
 
-hipRAFT's CMake has the following configurable flags available:
+For hipRAFT, CMake has the following configurable flags available:
 
 | Flag                      | Possible Values                     | Default Value | Behavior                                                                                                                                                            |
 |---------------------------|-------------------------------------| --------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -233,16 +196,19 @@ hipRAFT's CMake has the following configurable flags available:
 
 #### --allgpuarch
 
-Builds hipRAFT for all supported GPU architectures, increasing portability but also build time. You can also use --allgpuarch with `build.sh`:
-**Always execute a clean build or manually delete the build directory before running this argument if a previous build is present, to prevent potential build conflicts or errors.**
+Builds hipRAFT for all supported GPU architectures, increasing portability but also build time. You can also use `--allgpuarch` with `build.sh`.
 
 ```bash
 ./build.sh clean
 ./build.sh libraft tests --allgpuarch
 ```
+
+> **Note** 
+> Always execute a clean build or manually delete the build directory before running this argument if a previous build is present, to prevent potential build conflicts or errors.
+
 #### Compile only for specified GPU arch
 
-When specifying target architectures, provide them as a single string enclosed in double quotes. For multiple architectures, separate each with a semicolon (;).
+When specifying target architectures, provide them as a single string enclosed in double quotes. For multiple architectures, separate each with a semicolon (`;`).
 
 ```bash
 ./build.sh libraft tests --gpu-arch="gfx90a;gfx942"
@@ -254,7 +220,8 @@ OR
 ./build.sh libraft tests --gpu-arch="gfx942"
 ```
 
-**Do not specify both --gpu-arch and --allgpuarch flags in the same build command. Avoid using multiple separate --gpu-arch flags; always combine all target architectures into one --gpu-arch option.**
+> **Note**
+> Do not specify both `--gpu-arch` and `--allgpuarch` flags in the same build command. Avoid using multiple separate `--gpu-arch` flags by combining all target architectures into one `--gpu-arch` option.
 
 ## Python Library
 
@@ -270,17 +237,9 @@ micromamba activate pylibraft
 ```
 It is recommended to build the python wheels in a conda environment built from `all_rocm_arch-x86_64.yaml`. It is also possible to use `venv` but it is up to the user to install all the required packages in the environment.
 
-### Development dependencies
-**The following Python packages must be installed from source with the specified versions, as they are not available on the AMD Simple PyPI index. Please consult the respective repositories for build and installation instructions.**
-1. `amd-hipmm==3.0.0b1` Branch: [amd-integration/3.0.x](https://github.com/AMD-AIOSS/hipMM/tree/amd-integration/3.0.x)
-2. `amd-libhipmm==3.0.0b1` Branch: [amd-integration/3.0.x](https://github.com/AMD-AIOSS/hipMM/tree/amd-integration/3.0.x)
-3. `hip-python==6.4.1.552.40` Branch: [release/rocm-rel-6.4.1](https://github.com/AMD-AIOSS/hip-python/tree/release/rocm-rel-6.4.1)
-4. `hip-python-as-cuda==6.4.1.552.40` Branch:[release/rocm-rel-6.4.1](https://github.com/AMD-AIOSS/hip-python/tree/release/rocm-rel-6.4.1)
-
-**Note: This is a temporary solution until the required packages are available on the AMD Simple PyPI index.**
-
 ### Building and installing `pylibraft`
 The Python libraries can be built and installed using the build.sh script:
+
 ```bash
 # Activate environment created above.
 micromamba activate pylibraft
@@ -350,9 +309,7 @@ libraft
 |   `-- rapids
 `-- load.py
 ```
-## Packaging
-
-### Packaging with build.sh
+## Packaging with build.sh
 
 The following command will generate a debian : `hipraft_<VERSION>_amd64.deb` in `<HIPRAFT_ROOT>/cpp/build`.
 
@@ -387,9 +344,33 @@ cpack -G RPM # To generate a RPM package. hipraft-25.02.00-Linux.rpm will be cre
 cpack -G TGZ # To generate a TGZ package. hipraft-25.02.00-Linux.tar.gz will be created at <HIPRAFT_ROOT>/cpp/build.
 ```
 
+## Building the primitives benchmarks
+
+The primitives benchmarks can be built using the `bench-prims` target in `build.sh`.
+
+```bash
+cd <HIPRAFT_ROOT>
+./build.sh bench-prims --compile-lib  clean
+
+```
+This will build all the primitives benchmarks and place the resulting binaries in `cpp/build/bench/prims`.
+
+```bash
+ls -l <HIPRAFT_ROOT>/cpp/build/bench/prims/
+  CMakeFiles
+  cmake_install.cmake
+  CORE_BENCH
+  LINALG_BENCH
+  MATRIX_BENCH
+  RANDOM_BENCH
+  SPARSE_BENCH
+  UTIL_BENCH
+
+```
+
 ## Building Documentation
 
-### Prepare environment to build documentation
+Prepare the environment to build documentation using the following commands:
 
 ```bash
 cd <HIPRAFT_ROOT>
@@ -403,7 +384,7 @@ pip install -r docs_amd/sphinx/requirements.txt
 
 ```bash
 cd <HIPRAFT_ROOT>
-./build.sh libraft pylibraft --compile-lib docs clean
+./build.sh docs clean
 ```
 
 Navigate to `<HIPRAFT_ROOT>/docs_amd/_build` and use the tool of your choice, e.g. Firefox, to open and examine the root level html file, `index.html`. From this point you should be able to navigate through the documentation.

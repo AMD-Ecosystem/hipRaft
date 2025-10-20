@@ -71,7 +71,6 @@ HELP="$0 [<target> ...] [<flag> ...] [--cmake-args=\"<args>\"] [--cache-tool=<to
 LIBRAFT_BUILD_DIR=${LIBRAFT_BUILD_DIR:=${REPODIR}/cpp/build}
 EXAMPLES_BUILD_DIR=${REPODIR}/examples/build
 SPHINX_BUILD_DIR=${REPODIR}/docs_amd
-DOXYGEN_BUILD_DIR=${REPODIR}/docs_amd/doxygen
 RAFT_DASK_BUILD_DIR=${REPODIR}/python/raft-dask/_skbuild
 PYLIBRAFT_BUILD_DIR=${REPODIR}/python/pylibraft/_skbuild
 BUILD_DIRS="${LIBRAFT_BUILD_DIR} ${PYLIBRAFT_BUILD_DIR} ${RAFT_DASK_BUILD_DIR} ${EXAMPLES_BUILD_DIR}"
@@ -411,7 +410,7 @@ fi
 
 ################################################################################
 # Configure for building all C++ targets
-if (( ${NUMARGS} == 0 )) || hasArg libraft || hasArg docs || hasArg tests || hasArg bench-prims || hasArg package; then
+if (( ${NUMARGS} == 0 )) || hasArg libraft || hasArg tests || hasArg bench-prims || hasArg package; then
     if (( ${BUILD_ALL_GPU_ARCH} == 0 )); then
         HIPRAFT_CMAKE_HIP_ARCHITECTURES="${HIPRAFT_CMAKE_HIP_ARCHITECTURES:-NATIVE}"
         if [[ "$HIPRAFT_CMAKE_HIP_ARCHITECTURES" == "NATIVE" ]]; then
@@ -521,8 +520,6 @@ if hasArg docs; then
     set -x
     export RAPIDS_VERSION="$(sed -E -e 's/^([0-9]{2})\.([0-9]{2})\.([0-9]{2}).*$/\1.\2.\3/' "${REPODIR}/VERSION")"
     export RAPIDS_VERSION_MAJOR_MINOR="$(sed -E -e 's/^([0-9]{2})\.([0-9]{2})\.([0-9]{2}).*$/\1.\2/' "${REPODIR}/VERSION")"
-    cd ${DOXYGEN_BUILD_DIR}
-    doxygen Doxyfile
     cd ${SPHINX_BUILD_DIR}
     mkdir -p _build
     rm -rf _build/*

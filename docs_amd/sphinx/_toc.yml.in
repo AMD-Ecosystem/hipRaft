@@ -3,14 +3,21 @@ defaults:
 root: index
 
 subtrees:
+- entries:
+  - file: what-is-hipRAFT.md
+    title: What is hipRAFT
 
-- caption: Build and installation
+- caption: Installation
   entries:
-  - file: build_and_install/build_and_install.md
+  - file: install/install.md
+    title: Installing hipRAFT
+  - file: install/build.md
+    title: Building hipRAFT
 
-- caption: Examples
+- caption: How to
   entries:
-  - file: examples_readme.md
+  - file: how-to/using-hipRAFT.md
+    title: Use hipRAFT
 
 - caption: Reference
   entries:
