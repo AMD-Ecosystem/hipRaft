@@ -1,1 +1,1 @@
-../docs_amd/how-to/using-hipRAFT.md
+../docs/how-to/using-hipRAFT.md

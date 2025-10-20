@@ -1,1 +1,1 @@
-docs_amd/install/build.md
+docs/install/build.md
