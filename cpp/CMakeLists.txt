@@ -287,7 +287,7 @@ else()
   # NOTE(HIP/AMD): BLAS and LAPACK are needed for lapack_hip.hpp
   find_package(BLAS REQUIRED)
   find_package(LAPACK REQUIRED)
-  find_package(MPI)
+  find_package(MPI COMPONENTS CXX)
   find_package(ucx 1.15.0)
   # See https://gitlab.kitware.com/cmake/cmake/-/issues/20268
   find_path(BLAS_INCLUDE_DIRS cblas.h /usr/include /usr/local/include /usr/include/openblas

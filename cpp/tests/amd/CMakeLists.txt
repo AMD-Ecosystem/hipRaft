@@ -28,12 +28,12 @@ if(BUILD_TESTS)
   )
 
   ConfigureTest(
-        NAME SRC_LINALG_TEST PATH src_linalg/coalasced_reduction.cu LIB EXPLICIT_INSTANTIATE_ONLY
+    NAME SRC_LINALG_TEST PATH src_linalg/coalasced_reduction.cu LIB EXPLICIT_INSTANTIATE_ONLY
   )
 
   if(TARGET ucx::ucp
      AND TARGET ucx::ucs
-     AND DEFINED MPI_FOUND
+     AND TARGET MPI::MPI_CXX
   )
     # raft_distributed tests
     ConfigureTest(NAME STD_COMMS_TEST PATH comms/std_comms.cu)
@@ -43,7 +43,7 @@ if(BUILD_TESTS)
 
     add_executable(mpi_comms_test_executable comms/mpi_comms.cu)
     target_link_libraries(
-      mpi_comms_test_executable PRIVATE raft raft::distributed ${MPI_LIBRARIES} GTest::gtest
+      mpi_comms_test_executable PRIVATE raft raft::distributed MPI::MPI_CXX GTest::gtest
     )
     # Add a test invocation that runs the MPI communications test using mpirun
     add_test(
