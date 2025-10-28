@@ -3,12 +3,12 @@
     "hipmm": {
       "version": "3.0.0",
       "git_url": "https://$ENV{GITHUB_PASS}@github.com/AMD-AIOSS/hipmm",
-      "git_tag": "amd-integration/3.0.x"
+      "git_tag": "update/25.04"
     },
     "rocmds_logger": {
       "version": "1.0.0",
       "git_url": "https://$ENV{GITHUB_PASS}@github.com/AMD-AIOSS/rocmds-logger",
-      "git_tag": "amd-integration/1.0.x"
+      "git_tag": "amd-integration/2.0.x"
     },
     "libhipcxx" : {
       "version" : "2.7.0",
