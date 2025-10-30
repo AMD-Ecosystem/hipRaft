@@ -36,7 +36,7 @@ requires = ["scikit-build-core[pyproject]>=0.7.0", "cmake>=3.26.4", "ninja"]
 
 
 [project]
-name = "libhipraft"
+name = "amd-libraft"
 dynamic = ["version"]
 description = "hipRAFT: Reusable Algorithms Functions and other Tools (C++)"
 readme = { file = "README.md", content-type = "text/markdown" }
