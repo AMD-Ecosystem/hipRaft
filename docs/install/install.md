@@ -11,7 +11,7 @@ You can install hipRAFT via AMD PyPI as described below. This is recommended for
 ## Requirements
 
 hipRAFT requires ROCm 7.0.2 or later running on a ROCm-supported operating system. Using Ubuntu 22.04 or later is recommended.
-For more information, see [ROCm-DS system requirements](https://rocm.docs.amd.com/projects/rocm-ds/en/docs-25.10/install/requirements.html).
+For more information, see [ROCm-DS system requirements](https://rocm.docs.amd.com/projects/rocm-ds/en/latest/install/requirements.html).
 
 The steps in this topic require a Conda installation. A minimal free version of Conda is [Miniforge](https://conda-forge.org/download/).
 

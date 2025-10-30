@@ -1,7 +1,7 @@
 # What is hipRAFT?
 
 hipRAFT is a library of functions for machine learning and data mining.  It is AMD’s ROCm-native
-port of NVIDIA RAPIDS RAFT: a collection of reusable, GPU-accelerated C++/Python primitives (distance, reductions,
+port of NVIDIA® RAPIDS® RAFT: a collection of reusable, GPU-accelerated C++/Python primitives (distance, reductions,
 neighbors, graph, sparse/dense linalg, etc.) built with HIP for AMD Instinct GPUs. It provides
 RAFT-compatible APIs so data-science and ML libraries (e.g., vector search, clustering, graph analytics)
 can run efficiently on ROCm without code rewrites. While not exhaustive, the following table summarizes

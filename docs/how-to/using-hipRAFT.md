@@ -24,7 +24,7 @@ of the provided CMakeLists.txt into your project, along with the
 
 To build against a version other than the latest release, set the CMake variable
 `RAFT_PINNED_TAG`, in `get_raft.cmake`, to the branch to build against. Alternatively, the
-CMake variable `CPM_raft_SOURCE` can be set to the path to a local directory containing
+CMake variable `CPM_raft_SOURCE` can be set to a local directory containing
 the hipRAFT source code, possibly with custom code changes that you want to test.
 
 Be sure to link against the appropriate CMake targets. Use `raft::raft` to make the headers
@@ -55,8 +55,8 @@ Mean Squared Error: 6.81184e-13
 ## Make Blobs example
 
 This example demonstrates the `make_blobs` function in the `random` module. Several random
-2D clusters are generated in the form a sparse matrix. The sparse matrix is then converted to
-a dense 2D map using a custom CUDA kernel, and printed on the screen. The output should look
+2D clusters are generated in the form of a sparse matrix. The sparse matrix is then converted to
+a dense 2D map using a custom HIP kernel, and printed on the screen. The output should look
 something like this:
 
 ```
