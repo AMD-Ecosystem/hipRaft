@@ -106,6 +106,8 @@ option(RAFT_COMPILE_DYNAMIC_ONLY "Only build the shared library and skip the
 static library. Has no effect if RAFT_COMPILE_LIBRARY is OFF" OFF
 )
 
+option(ENABLE_CODE_COVERAGE "turn on flags for code coverage" OFF)
+
 # Needed because GoogleBenchmark changes the state of FindThreads.cmake, causing subsequent runs to
 # have different values for the `Threads::Threads` target. Setting this flag ensures
 # `Threads::Threads` is the same value across all builds so that cache hits occur
@@ -247,6 +249,13 @@ endif()
 if(BUILD_PRIMS_BENCH)
   include(${rapids-cmake-dir}/cpm/gbench.cmake)
   rapids_cpm_gbench(BUILD_STATIC)
+endif()
+
+# ##################################################################################################
+# * code coverage ------------------------------------------------------------
+if(ENABLE_CODE_COVERAGE)
+  add_compile_options(-fprofile-instr-generate -fcoverage-mapping)
+  add_link_options(-fprofile-instr-generate -fcoverage-mapping)
 endif()
 
 # ##################################################################################################
