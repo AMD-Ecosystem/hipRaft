@@ -40,7 +40,7 @@ requires = [
 ]
 
 [project]
-name = "pylibhipraft"
+name = "amd-pylibraft"
 dynamic = ["version"]
 description = "RAFT: Reusable Algorithms Functions and other Tools"
 readme = { file = "README.md", content-type = "text/markdown" }
@@ -51,7 +51,7 @@ authors = [
 license = { text = "Apache 2.0 AND MIT" }
 requires-python = ">=3.10"
 dependencies = [
-    "libhipraft==0.1.*,>=0.0.0a0",
+    "amd-libraft==0.1.*,>=0.0.0a0",
     "numpy>=1.23,<3.0a0",
     "amd_hipmm",
     "hip-python",

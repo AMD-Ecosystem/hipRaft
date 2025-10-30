@@ -1,10 +1,10 @@
 # Generating the stubs
 
-In order to generate the python API documentation from an environment where pylibhipraft is unavailable, the stubs must be generated. This can be done by running the following commands:
+In order to generate the python API documentation from an environment where amd-pylibraft is unavailable, the stubs must be generated. This can be done by running the following commands:
 
 ```bash
 
-From an environment with `pylibhipraft` installed run:
+From an environment with `amd-pylibraft` installed run:
 
 ```bash
 pip install pybind11-stubgen
