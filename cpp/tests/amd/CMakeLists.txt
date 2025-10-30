@@ -33,7 +33,7 @@ if(BUILD_TESTS)
 
   if(TARGET ucx::ucp
      AND TARGET ucx::ucs
-     AND TARGET MPI::MPI_CXX
+     AND MPI_CXX_FOUND
   )
     # raft_distributed tests
     ConfigureTest(NAME STD_COMMS_TEST PATH comms/std_comms.cu)
