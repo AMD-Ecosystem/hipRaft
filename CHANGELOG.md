@@ -37,4 +37,4 @@ hipRAFT is AMD's port of NVIDIA's RAFT library, enabling 25.02 version of RAFT o
 - Raft-dask is unsupported
 
 ### Contributors
-- Philipp Samfass, Lalith Narasimhan, Sujin Philip, Sukriti Choudhary, Grant Pinkert, Kevin Joseph, Randy Hartgrove, Alex Xu,
+- Philipp Samfass, Lalith Narasimhan, Sujin Philip, Sukriti Choudhary, Grant Pinkert, Kevin Joseph, Randy Hartgrove, Alex Xu
