@@ -90,8 +90,8 @@ class cusparse_resource_factory : public resource_factory {
 inline cusparseHandle_t get_cusparse_handle(resources const& res)
 {
   rmm::cuda_stream_view stream = get_cuda_stream(res);
-  res.add_resource_factory_if_not_present<cusparse_resource_factory>(
-    resource_type::CUSPARSE_HANDLE, stream);
+  res.add_resource_factory_if_not_present<cusparse_resource_factory>(resource_type::CUSPARSE_HANDLE,
+                                                                     stream);
   return *res.get_resource<cusparseHandle_t>(resource_type::CUSPARSE_HANDLE);
 };
 

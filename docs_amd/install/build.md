@@ -1,6 +1,30 @@
+<!---
+    MIT License
+
+    Copyright (C) 2025 Advanced Micro Devices, Inc. All rights reserved.
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
+-->
+
 # Building hipRAFT from source
 
-hipRAFT currently provides C++ and Python APIs. The following instructions provide steps to build and test hipRAFT from source files provided in the [https://github.com/ROCm-DS/hipRaft](https://github.com/ROCm-DS/hipRaft) repository. 
+hipRAFT currently provides C++ and Python APIs. The following instructions provide steps to build and test hipRAFT from source files provided in the [https://github.com/ROCm-DS/hipRaft](https://github.com/ROCm-DS/hipRaft) repository.
 
 ## Tested on the following GPUs
 
@@ -44,7 +68,7 @@ Install ROCm 7.0.2 or later, or the minimum version supported by the GPUs listed
 | [`Googlebench`](https://github.com/google/benchmark)                  | ≥ 1.13.0                                     |
 | [`Doxygen`](https://github.com/doxygen/doxygen)                       | >=1.8.20                                     |
 
-> `*` - If not found locally the CMake build system will attempt to download a compatible version using [ROCmDS-cmake](https://github.com/ROCm-DS/ROCmDS-cmake). 
+> `*` - If not found locally the CMake build system will attempt to download a compatible version using [ROCmDS-cmake](https://github.com/ROCm-DS/ROCmDS-cmake).
 >
 > `**` - The `OpenMP` toolchain is automatically installed as part of the standard ROCm installation and is available under /`opt/rocm-{version}/llvm`.
 
@@ -203,7 +227,7 @@ Builds hipRAFT for all supported GPU architectures, increasing portability but a
 ./build.sh libraft tests --allgpuarch
 ```
 
-> **Note** 
+> **Note**
 > Always execute a clean build or manually delete the build directory before running this argument if a previous build is present, to prevent potential build conflicts or errors.
 
 #### Compile only for specified GPU arch
