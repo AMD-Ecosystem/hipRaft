@@ -38,11 +38,11 @@
 #ifdef __HIP_PLATFORM_AMD__
 #include <hipcub/hipcub.hpp>
 namespace cub = hipcub;
+#else
+#include <cub/cub.cuh>
 #endif
 
 #include <raft/util/cuda_utils.cuh>
-
-#include <cub/cub.cuh>
 
 namespace raft {
 namespace linalg {
