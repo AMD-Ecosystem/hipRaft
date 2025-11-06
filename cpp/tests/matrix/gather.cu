@@ -137,6 +137,7 @@ class GatherTest : public ::testing::TestWithParam<GatherInputs<IdxT>> {
     // input matrix setup
     const auto ld_in = params.ncols + params.ncols_margin;
     d_in.resize(params.nrows * ld_in, stream);
+    RAFT_CUDA_TRY(cudaMemset(d_in.data(), 0, params.nrows * ld_in * sizeof(MatrixT)));
     h_in.resize(params.nrows * ld_in);
     raft::random::uniform(handle, r, d_in.data(), len, MatrixT(-1.0), MatrixT(1.0));
     raft::update_host(h_in.data(), d_in.data(), len, stream);
