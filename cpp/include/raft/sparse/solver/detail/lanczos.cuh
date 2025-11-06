@@ -1860,7 +1860,7 @@ auto lanczos_smallest(
     ValueTypeT mone = -1;
 
     raft::linalg::gemv(handle,
-                       CUBLAS_OP_T,
+                       true,
                        n,
                        nEigVecs,
                        &one,
@@ -1874,7 +1874,7 @@ auto lanczos_smallest(
                        stream);
 
     raft::linalg::gemv(handle,
-                       CUBLAS_OP_N,
+                       false,
                        n,
                        nEigVecs,
                        &mone,
