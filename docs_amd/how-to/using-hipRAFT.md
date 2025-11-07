@@ -1,3 +1,27 @@
+<!---
+    MIT License
+
+    Modifications Copyright (C) 2025 Advanced Micro Devices, Inc. All rights reserved.
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
+-->
+
 # Using hipRAFT
 
 Example code demonstrating the use of the hipRAFT library is provided
@@ -24,7 +48,7 @@ of the provided CMakeLists.txt into your project, along with the
 
 To build against a version other than the latest release, set the CMake variable
 `RAFT_PINNED_TAG`, in `get_raft.cmake`, to the branch to build against. Alternatively, the
-CMake variable `CPM_raft_SOURCE` can be set to the path to a local directory containing
+CMake variable `CPM_raft_SOURCE` can be set to a local directory containing
 the hipRAFT source code, possibly with custom code changes that you want to test.
 
 Be sure to link against the appropriate CMake targets. Use `raft::raft` to make the headers
@@ -55,8 +79,8 @@ Mean Squared Error: 6.81184e-13
 ## Make Blobs example
 
 This example demonstrates the `make_blobs` function in the `random` module. Several random
-2D clusters are generated in the form a sparse matrix. The sparse matrix is then converted to
-a dense 2D map using a custom CUDA kernel, and printed on the screen. The output should look
+2D clusters are generated in the form of a sparse matrix. The sparse matrix is then converted to
+a dense 2D map using a custom HIP kernel, and printed on the screen. The output should look
 something like this:
 
 ```

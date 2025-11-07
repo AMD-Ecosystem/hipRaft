@@ -5,7 +5,7 @@ root: index
 subtrees:
 - entries:
   - file: what-is-hipRAFT.md
-    title: What is hipRAFT
+    title: What is hipRAFT?
 
 - caption: Installation
   entries:

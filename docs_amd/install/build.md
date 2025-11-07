@@ -1,7 +1,7 @@
 <!---
     MIT License
 
-    Copyright (C) 2025 Advanced Micro Devices, Inc. All rights reserved.
+    Modifications Copyright (C) 2025 Advanced Micro Devices, Inc. All rights reserved.
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
@@ -24,7 +24,7 @@
 
 # Building hipRAFT from source
 
-hipRAFT currently provides C++ and Python APIs. The following instructions provide steps to build and test hipRAFT from source files provided in the [https://github.com/ROCm-DS/hipRaft](https://github.com/ROCm-DS/hipRaft) repository.
+hipRAFT currently provides C++ and Python APIs. The following instructions provide steps to build and test hipRAFT from source files provided in the [https://github.com/ROCm-DS/hipRaft](https://github.com/ROCm-DS/hipRaft) repository. To install hipRAFT for end users, see [Installing hipRAFT](./install.md).
 
 ## Tested on the following GPUs
 
@@ -40,7 +40,7 @@ hipRAFT currently provides C++ and Python APIs. The following instructions provi
 
 hipRAFT builds against the AMD ROCm software stack, that is the ROCm runtime, HIP compiler tool-chain, and a GPU driver that matches your ROCm version.
 
-Install ROCm 7.0.2 or later, or the minimum version supported by the GPUs listed above, and make sure the `rocminfo` and `hipcc` commands are in your `PATH`. For more information, see [ROCm Installation](https://rocm.docs.amd.com/projects/install-on-linux/en/latest/).
+Install ROCm 7.0.2, or the minimum version supported by the GPUs listed above, and make sure the `rocminfo` and `hipcc` commands are in your `PATH`. For more information, see [ROCm Installation](https://rocm.docs.amd.com/projects/install-on-linux/en/docs-7.0.2/).
 
 | Name                                                                  | Version / Notes                              |
 | ----------------------------------------------------------            | -------------------------------------------- |
@@ -210,7 +210,7 @@ For hipRAFT, CMake has the following configurable flags available:
 
 | Flag                      | Possible Values                     | Default Value | Behavior                                                                                                                                                            |
 |---------------------------|-------------------------------------| --------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| CMAKE_HIP_ARCHITECTURES   | NATIVE or specific GPU architectures| NATIVE        | NATIVE to compile for the automatically detected GPU on the system. Can also specify `;` delimited list of specific architectures. Example: `gfx942;gfx1100`        |
+| CMAKE_HIP_ARCHITECTURES   | NATIVE or specific GPU architectures| NATIVE        | NATIVE to compile for the automatically detected GPU on the system. Can also specify `;` delimited list of specific architectures. Example: `gfx942;gfx90a`        |
 | BUILD_TESTS               | ON, OFF                             | ON            | Compile Googletests                                                                                                                                                 |
 | DETECT_CONDA_ENV          | ON, OFF                             | ON            | Enable detection of conda environment for dependencies                                                                                                              |
 | RAFT_COMPILE_LIBRARY      | ON, OFF                             | ON if either BUILD_TESTS or BUILD_PRIMS_BENCH is ON; otherwise OFF | Compiles all `libraft` shared libraries (these are required for Googletests)                                   |
@@ -401,7 +401,7 @@ cd <HIPRAFT_ROOT>
 # Activate the pylibraft conda environment.
 micromamba activate pylibraft
 # Install dependencies and tools required for generating documentation.
-pip install -r docs_amd/sphinx/requirements.txt
+pip install -r docs/sphinx/requirements.txt
 ```
 
 ### Use `build.sh` to generate documentation
@@ -411,4 +411,4 @@ cd <HIPRAFT_ROOT>
 ./build.sh docs clean
 ```
 
-Navigate to `<HIPRAFT_ROOT>/docs_amd/_build` and use the tool of your choice, e.g. Firefox, to open and examine the root level html file, `index.html`. From this point you should be able to navigate through the documentation.
+Navigate to `<HIPRAFT_ROOT>/docs/_build` and use the tool of your choice, e.g. Firefox, to open and examine the root level html file, `index.html`. From this point you should be able to navigate through the documentation.
