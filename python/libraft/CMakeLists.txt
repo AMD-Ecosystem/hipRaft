@@ -83,6 +83,7 @@ else()
   set_property(
     TARGET raft_lib
     PROPERTY INSTALL_RPATH
+             "$ORIGIN/"
              "$ORIGIN/../../../../" # Assumes the following conda structure:
                                     # $ORIGIN=$CONDA_PREFIX/lib/site-packages/libcuvs/lib/
              "/opt/rocm/lib/llvm/lib/" # Assumes ROCm is installed in /opt/rocm. This is for

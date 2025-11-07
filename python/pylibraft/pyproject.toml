@@ -35,8 +35,8 @@ build-backend = "scikit_build_core.build"
 requires = [
     "cython>=3.0.0,<3.1.0a0",
     "scikit-build-core[pyproject]>=0.7.0",
-    "amd-hipmm",
-    "amd-libhipmm",
+    "amd-hipmm==3.*",
+    "amd-libhipmm==3.*",
 ]
 
 [project]
@@ -51,11 +51,11 @@ authors = [
 license = { text = "Apache 2.0 AND MIT" }
 requires-python = ">=3.10"
 dependencies = [
-    "amd-libraft==0.1.*,>=0.0.0a0",
+    "amd-libraft==1.0.*",
     "numpy>=1.23,<3.0a0",
-    "amd_hipmm",
-    "hip-python",
-    "hip-python-as-cuda",
+    "amd_hipmm==3.*",
+    "hip-python==7.*",
+    "hip-python-as-cuda==7.*",
 ]
 classifiers = [
     "Intended Audience :: Developers",
@@ -67,7 +67,7 @@ classifiers = [
 
 [project.optional-dependencies]
 test = [
-    "amd-cupy",
+    "amd-cupy==13.5.1",
     "pytest-cov",
     "pytest==7.*",
     "scikit-learn",
