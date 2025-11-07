@@ -40,6 +40,8 @@
 #include <raft/util/bitwise_operations.hpp>
 #include <raft/util/cuda_dev_essentials.cuh>
 
+#include <type_traits>
+
 #ifdef __HIP_PLATFORM_AMD__
 using bitmask_type = uint64_t;
 #undef CUDART_VERSION
@@ -58,7 +60,14 @@ namespace raft {
 /**
  * \return the full mask: all bits are set to 1.
  */
-__device__ inline constexpr bitmask_type LANE_MASK_ALL = ~0;
+__device__ inline constexpr bitmask_type LANE_MASK_ALL = []() constexpr -> bitmask_type {
+  if constexpr (rocprim::arch::wavefront::max_size() == 64) {
+    return std::numeric_limits<bitmask_type>::max();
+  } else {
+    // Lower 32 bits are set to 1 and upper 32 bits are set to 0
+    return static_cast<bitmask_type>(std::numeric_limits<uint32_t>::max());
+  }
+}();
 
 /** True CUDA alignment of a type (adapted from CUB) */
 template <typename T>
@@ -295,6 +304,20 @@ DI std::enable_if_t<!is_shuffleable_v<T>, T> shfl_xor(T val,
 
   return output;
 }
+
+/*
+ * @brief Returns the last active lane in the warp for the given predicate
+ * @param predicate the predicate to check
+ * @return highest lane ID where predicate was true. Returns -1 if no lane had predicate true.
+ */
+DI int32_t warp_highest_active_lane(int predicate)
+{
+  using BallotType =
+    std::conditional_t<rocprim::arch::wavefront::max_size() == 32, uint32_t, uint64_t>;
+  BallotType ballot = __ballot_sync(raft::LANE_MASK_ALL, predicate);
+  return (rocprim::arch::wavefront::max_size() - 1) - raft::__CLZ(ballot);
+}
+
 #ifdef __HIP_PLATFORM_AMD__
 // Undefine it to not affect any other source files
 #undef CUDART_VERSION

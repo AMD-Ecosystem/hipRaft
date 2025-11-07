@@ -31,6 +31,8 @@ if(BUILD_TESTS)
     NAME SRC_LINALG_TEST PATH src_linalg/coalasced_reduction.cu LIB EXPLICIT_INSTANTIATE_ONLY
   )
 
+  ConfigureTest(NAME WARP_PRIMITIVES PATH warp_primitives/warp_primitives.cu)
+
   if(TARGET ucx::ucp
      AND TARGET ucx::ucs
      AND MPI_CXX_FOUND
