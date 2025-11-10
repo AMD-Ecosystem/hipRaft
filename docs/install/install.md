@@ -17,7 +17,7 @@ The steps in this topic require a Conda installation. A minimal free version of 
 
 ## Install hipRAFT via AMD PyPI
 
-```{important}
+```{warning}
 Only install hipRAFT using AMD’s official package index.
 To ensure security, integrity, and supportability of your builds, consume packages exclusively from AMD’s official package index. Do not install, mirror, or resolve dependencies from any third‑party or unofficial indexes.
 ```
