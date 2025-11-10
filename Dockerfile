@@ -46,6 +46,7 @@ DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
         bash-completion \
         ninja-build \
         libblas-dev \
+        libopenblas-dev \
         liblapack-dev \
         wget \
         ca-certificates \
