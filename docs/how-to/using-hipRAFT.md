@@ -1,3 +1,12 @@
+<!---
+---
+myst:
+  html_meta:
+    "description": "hipRAFT documentation and API reference library"
+    "keywords": "Machine-Learning, Information-Retrieval, Primitives, Nearest-Neighbors, GPU, RAPIDS, ROCm-DS"
+---
+-->
+
 # Using hipRAFT
 
 Example code demonstrating the use of the hipRAFT library is provided
@@ -90,7 +99,7 @@ This example also demonstrates hipRAFT inter-op with custom HIP kernels and rocT
 # Python example
 
 The Python example depends on the `pylibraft` module, which can either be installed
-using pip or built from source following the instructions in [Building hipRAFT from source](../install/build.md#building-hipraft-from-source).
+using pip or built from source following the instructions in [Building hipRAFT from source](../install/build.md#python-library).
 The example generates a random directed-graph using the [pylibraft.random.rmat](reference/pylibraft_api/random:random) function. The
 generated graph is printed on the screen as an adjacency list. The output should look something like:
 
