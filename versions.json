@@ -13,12 +13,12 @@
     "libhipcxx" : {
       "version" : "2.7.0",
       "git_url" : "https://github.com/ROCm/libhipcxx",
-      "git_tag" : "release/2.7.x"
+      "git_tag" : "release/rocmds-25.10"
     },
     "hipco" : {
       "version" : "0.3.0",
       "git_url" : "https://github.com/ROCm/hipCollections",
-      "git_tag" : "release/0.3.x"
+      "git_tag" : "release/rocmds-25.10"
     },
     "rocthrust" : {
       "version" : "4.0.0"
