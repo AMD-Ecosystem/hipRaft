@@ -53,7 +53,7 @@ if(NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/RAFT_RAPIDS.cmake)
     set(RAPIDS_CMAKE_SCRIPT_BRANCH release/rocmds-25.10)
   endif()
   set(URL
-      "https://raw.githubusercontent.com/${RAPIDS_CMAKE_SCRIPT_REPO}/${RAPIDS_CMAKE_SCRIPT_BRANCH}/RAFT_RAPIDS.cmake"
+      "https://raw.githubusercontent.com/${RAPIDS_CMAKE_SCRIPT_REPO}/${RAPIDS_CMAKE_SCRIPT_BRANCH}/RAPIDS.cmake"
   )
   file(DOWNLOAD ${URL} ${CMAKE_CURRENT_BINARY_DIR}/RAFT_RAPIDS.cmake)
 endif()
