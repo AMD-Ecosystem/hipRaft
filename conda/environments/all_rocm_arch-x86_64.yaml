@@ -29,6 +29,7 @@ dependencies:
 - scikit-build-core>=0.7.0
 - pip
 - pip-tools
+- ninja
 - pytest==7.*
 - pip:
   - --extra-index-url https://pypi.amd.com/rocm-7.0.2/simple/
