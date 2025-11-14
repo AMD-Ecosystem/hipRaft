@@ -36,33 +36,33 @@
 # Abort script on first error
 set -e
 
-PARALLEL_LEVEL=${PARALLEL_LEVEL:=`nproc`}
+PARALLEL_LEVEL=${PARALLEL_LEVEL:=$(nproc)}
 
-BUILD_TYPE=${BUILD_TYPE:="Release"}
-SOURCE_DIR=$(cd $(dirname $0); pwd)
+BUILD_TYPE="${BUILD_TYPE:="Release"}"
+SOURCE_DIR="$(cd "$(dirname "$0")"; pwd)"
 BUILD_DIR=${BUILD_DIR:="${SOURCE_DIR}/build/"}
 
 if [[ ${RAFT_REPO_REL} != "" ]]; then
-  RAFT_REPO_PATH="`readlink -f \"${RAFT_REPO_REL}\"`"
+  RAFT_REPO_PATH="$(readlink -f "${RAFT_REPO_REL}")"
   EXTRA_CMAKE_ARGS="${EXTRA_CMAKE_ARGS} -DCPM_raft_SOURCE=${RAFT_REPO_PATH}"
 fi
 
 if [ "$1" == "clean" ]; then
-  rm -rf $BUILD_DIR
+  rm -rf "$BUILD_DIR"
   exit 0
 fi
 
-mkdir -p $BUILD_DIR
-cd $BUILD_DIR
+mkdir -p "$BUILD_DIR"
+cd "$BUILD_DIR"
 
 export CC=hipcc
 export CXX=hipcc
 
 cmake \
- -DCMAKE_BUILD_TYPE=${BUILD_TYPE} \
+ -DCMAKE_BUILD_TYPE="${BUILD_TYPE}" \
  -DCMAKE_HIP_ARCHITECTURES="NATIVE" \
  -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
- ${EXTRA_CMAKE_ARGS} \
- ${SOURCE_DIR}/cpp
+ "${EXTRA_CMAKE_ARGS}" \
+" ${SOURCE_DIR}/cpp"
 
-cmake  --build . -j${PARALLEL_LEVEL}
+cmake  --build . -j"${PARALLEL_LEVEL}"

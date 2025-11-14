@@ -127,7 +127,7 @@ abs(T x)
   return T{};
 #endif
 #else
-  INSTANTIATED_BUT_NEVER_CALLED;
+INSTANTIATED_BUT_NEVER_CALLED;
 #endif
 }
 #endif
@@ -224,7 +224,7 @@ cos(T x)
   return T{};
 #endif
 #else
-  INSTANTIATED_BUT_NEVER_CALLED;
+INSTANTIATED_BUT_NEVER_CALLED;
 #endif
 }
 #endif
@@ -281,7 +281,7 @@ sin(T x)
   return T{};
 #endif
 #else
-  INSTANTIATED_BUT_NEVER_CALLED;
+INSTANTIATED_BUT_NEVER_CALLED;
 #endif
 }
 #endif
@@ -369,7 +369,7 @@ exp(T x)
   return T{};
 #endif
 #else
-  INSTANTIATED_BUT_NEVER_CALLED;
+INSTANTIATED_BUT_NEVER_CALLED;
 #endif
 }
 #endif
@@ -426,7 +426,7 @@ log(T x)
   return T{};
 #endif
 #else
-  INSTANTIATED_BUT_NEVER_CALLED;
+INSTANTIATED_BUT_NEVER_CALLED;
 #endif
 }
 #endif
@@ -510,7 +510,7 @@ RAFT_DEVICE_INLINE_FUNCTION typename std::enable_if_t<std::is_same_v<T, __half>,
   return T{};
 #endif
 #else
-  INSTANTIATED_BUT_NEVER_CALLED;
+INSTANTIATED_BUT_NEVER_CALLED;
 #endif
 }
 
@@ -559,7 +559,7 @@ RAFT_DEVICE_INLINE_FUNCTION typename std::enable_if_t<std::is_same_v<T, __half>,
   return T{};
 #endif
 #else
-  INSTANTIATED_BUT_NEVER_CALLED;
+INSTANTIATED_BUT_NEVER_CALLED;
 #endif
 }
 
@@ -646,7 +646,7 @@ RAFT_DEVICE_INLINE_FUNCTION typename std::enable_if_t<std::is_same_v<T, __half>,
   return T{};
 #endif
 #else
-  INSTANTIATED_BUT_NEVER_CALLED;
+INSTANTIATED_BUT_NEVER_CALLED;
 #endif
 }
 
@@ -696,7 +696,7 @@ RAFT_DEVICE_INLINE_FUNCTION typename std::enable_if_t<std::is_same_v<T, nv_bfloa
   return T{};
 #endif
 #else
-  INSTANTIATED_BUT_NEVER_CALLED;
+INSTANTIATED_BUT_NEVER_CALLED;
 #endif
 }
 
@@ -781,7 +781,7 @@ sqrt(T x)
   return T{};
 #endif
 #else
-  INSTANTIATED_BUT_NEVER_CALLED;
+INSTANTIATED_BUT_NEVER_CALLED;
 #endif
 }
 #endif

@@ -36,7 +36,7 @@ ARGS=$*
 REPODIR=$(cd "$(dirname "$0")"; pwd)
 
 VALIDARGS="clean libraft pylibraft docs tests template package bench-prims examples --uninstall  -v -g -n --compile-lib --compile-static-lib --allgpuarch --show_depr_warn -h"
-HELP="$0 [<target> ...] [<flag> ...] [--cmake-args=\"<args>\"] [--cache-tool=<tool>] [--limit-tests=<targets>] [--build-metrics=<filename>] [--gpu-arch="arch"]
+HELP="$0 [<target> ...] [<flag> ...] [--cmake-args=\"<args>\"] [--cache-tool=<tool>] [--limit-tests=<targets>] [--build-metrics=<filename>] [--gpu-arch=\"arch\"]
  where <target> is:
    clean            - remove all existing build artifacts and configuration (start over)
    libraft          - build the raft C++ code only. Also builds the C-wrapper library
@@ -54,7 +54,6 @@ HELP="$0 [<target> ...] [<flag> ...] [--cmake-args=\"<args>\"] [--cache-tool=<to
    --uninstall                 - uninstall files for specified targets which were built and installed prior
    --compile-lib               - compile shared library for all components
    --compile-static-lib        - compile static library for all components
-   --cpu-only                  - build CPU only components without HIP/CUDA. Applies to bench-ann only currently.
    --limit-tests               - semicolon-separated list of test executables to compile (e.g. NEIGHBORS_TEST;CLUSTER_TEST)
    --limit-bench-prims         - semicolon-separated list of prims benchmark executables to compute (e.g. NEIGHBORS_PRIMS_BENCH;CLUSTER_PRIMS_BENCH)
    --allgpuarch                - build for all supported GPU architectures
@@ -105,7 +104,6 @@ STATS_TEST;\
 UTILS_TEST"
 
 CACHE_ARGS=""
-LOG_COMPILE_TIME=OFF
 CLEAN=0
 DISABLE_DEPRECATION_WARNINGS=ON
 CMAKE_TARGET=""
@@ -202,7 +200,7 @@ function limitBench {
 
 function gpuArch {
     # Check if both --gpu-arch and --allgpuarch are specified
-    if hasArg --allgpuarch && [[ -n $(echo $ARGS | { grep -E "\-\-gpu\-arch" || true; } ) ]]; then
+    if hasArg --allgpuarch && [[ -n $(echo "$ARGS" | { grep -E "\-\-gpu\-arch" || true; } ) ]]; then
         echo "Error: Cannot specify both --gpu-arch and --allgpuarch"
         echo "Use either:"
         echo "  --gpu-arch=\"gfx90a;gfx942\"    (for specific architectures)"
@@ -211,7 +209,7 @@ function gpuArch {
     fi
 
     # Check for multiple gpu-arch options
-    if [[ $(echo $ARGS | { grep -Eo "\-\-gpu\-arch" || true; } | wc -l ) -gt 1 ]]; then
+    if [[ $(echo "$ARGS" | { grep -Eo "\-\-gpu\-arch" || true; } | wc -l ) -gt 1 ]]; then
         echo "Error: Multiple --gpu-arch options were provided. Please combine architectures into a single option."
         echo "Instead of: --gpu-arch=gfx90a --gpu-arch=gfx942"
         echo "Use:        --gpu-arch=\"gfx90a;gfx942\""
@@ -219,8 +217,8 @@ function gpuArch {
     fi
 
     # Check for gpu-arch option
-    if [[ -n $(echo $ARGS | { grep -E "\-\-gpu\-arch" || true; } ) ]]; then
-        GPU_ARCH_ARG=$(echo $ARGS | { grep -Eo "\-\-gpu\-arch=.+( |$)" || true; })
+    if [[ -n $(echo "$ARGS" | { grep -E "\-\-gpu\-arch" || true; } ) ]]; then
+        GPU_ARCH_ARG=$(echo "$ARGS" | { grep -Eo "\-\-gpu\-arch=.+( |$)" || true; })
         if [[ -n ${GPU_ARCH_ARG} ]]; then
             # Remove the full argument from ARGS
             ARGS=${ARGS//$GPU_ARCH_ARG/}
@@ -373,25 +371,6 @@ if hasArg bench-prims; then
     fi
 fi
 
-if hasArg bench-ann || (( ${NUMARGS} == 0 )); then
-    BUILD_ANN_BENCH=ON
-    CMAKE_TARGET="${CMAKE_TARGET};${ANN_BENCH_TARGETS}"
-    if hasArg --cpu-only; then
-        COMPILE_LIBRARY=OFF
-        BUILD_CPU_ONLY=ON
-        NVTX=OFF
-    else
-        COMPILE_LIBRARY=ON
-    fi
-fi
-
-if hasArg --no-nvtx; then
-    NVTX=OFF
-fi
-if hasArg --time; then
-    echo "-- Logging compile times to cpp/build/nvcc_compile_log.csv"
-    LOG_COMPILE_TIME=ON
-fi
 if hasArg --show_depr_warn; then
     DISABLE_DEPRECATION_WARNINGS=OFF
 fi
@@ -443,20 +422,20 @@ if (( NUMARGS == 0 )) || hasArg libraft || hasArg tests || hasArg bench-prims ||
         "${CACHE_TOOL}" --zero-stats
     fi
 
-    mkdir -p ${LIBRAFT_BUILD_DIR}
-    cd ${LIBRAFT_BUILD_DIR}
-    cmake -S ${REPODIR}/cpp -B ${LIBRAFT_BUILD_DIR} \
-          -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} \
-          -DCMAKE_HIP_ARCHITECTURES=${HIPRAFT_CMAKE_HIP_ARCHITECTURES} \
-          -DCMAKE_BUILD_TYPE=${BUILD_TYPE} \
-          -DRAFT_COMPILE_LIBRARY=${COMPILE_LIBRARY} \
-          -DDISABLE_DEPRECATION_WARNINGS=${DISABLE_DEPRECATION_WARNINGS} \
-          -DBUILD_TESTS=${BUILD_TESTS} \
-          -DBUILD_PRIMS_BENCH=${BUILD_PRIMS_BENCH} \
-          -DCMAKE_MESSAGE_LOG_LEVEL=${CMAKE_LOG_LEVEL} \
-          ${EXTRA_CMAKE_HIP_ARGS} \
-          "${CACHE_ARGS[@]}" \
-          "${EXTRA_CMAKE_ARGS[@]}"
+    mkdir -p "${LIBRAFT_BUILD_DIR}"
+    cd "${LIBRAFT_BUILD_DIR}"
+    cmake -S "${REPODIR}/cpp" -B "${LIBRAFT_BUILD_DIR}" \
+          -DCMAKE_INSTALL_PREFIX="${INSTALL_PREFIX}" \
+          -DCMAKE_HIP_ARCHITECTURES="${HIPRAFT_CMAKE_HIP_ARCHITECTURES}" \
+          -DCMAKE_BUILD_TYPE="${BUILD_TYPE}" \
+          -DRAFT_COMPILE_LIBRARY="${COMPILE_LIBRARY}" \
+          -DDISABLE_DEPRECATION_WARNINGS="${DISABLE_DEPRECATION_WARNINGS}" \
+          -DBUILD_TESTS="${BUILD_TESTS}" \
+          -DBUILD_PRIMS_BENCH="${BUILD_PRIMS_BENCH}" \
+          -DCMAKE_MESSAGE_LOG_LEVEL="${CMAKE_LOG_LEVEL}" \
+          "${EXTRA_CMAKE_HIP_ARGS}" \
+          ${CACHE_ARGS[@]:+"${CACHE_ARGS[@]}"} \
+          ${EXTRA_CMAKE_ARGS[@]:+"${EXTRA_CMAKE_ARGS[@]}"}
 
 
   compile_start=$(date +%s)
@@ -515,26 +494,31 @@ if (( NUMARGS == 0 )) || hasArg libraft || hasArg tests || hasArg bench-prims ||
 fi
 
 # Build and (optionally) install the pylibraft Python package
+
+# Replace spaces with semicolons in SKBUILD_EXTRA_CMAKE_ARGS
+SKBUILD_EXTRA_CMAKE_ARGS="${EXTRA_CMAKE_ARGS[*]// /;}"
 if (( NUMARGS == 0 )) || hasArg pylibraft; then
     # Build and install libraft pip package
-    SKBUILD_CMAKE_ARGS="-DCMAKE_CXX_COMPILER=hipcc;-DCMAKE_PREFIX_PATH=${INSTALL_PREFIX};${EXTRA_CMAKE_ARGS}" \
-        python -m pip install --no-build-isolation ${REPODIR}/python/libraft
+    SKBUILD_CMAKE_ARGS="-DCMAKE_CXX_COMPILER=hipcc;-DCMAKE_PREFIX_PATH=${INSTALL_PREFIX};${SKBUILD_EXTRA_CMAKE_ARGS}" \
+        python -m pip install --no-build-isolation "${REPODIR}"/python/libraft
     # Build and install pylibraft pip package
-    SKBUILD_CMAKE_ARGS="-DCMAKE_CXX_COMPILER=hipcc;-DCMAKE_PREFIX_PATH=${INSTALL_PREFIX};${EXTRA_CMAKE_ARGS}" \
-        python -m pip install --no-build-isolation ${REPODIR}/python/pylibraft
+    SKBUILD_CMAKE_ARGS="-DCMAKE_CXX_COMPILER=hipcc;-DCMAKE_PREFIX_PATH=${INSTALL_PREFIX};${SKBUILD_EXTRA_CMAKE_ARGS}" \
+        python -m pip install --no-build-isolation "${REPODIR}"/python/pylibraft
 fi
 
 # Build and (optionally) install the raft-dask Python package
 if (( NUMARGS == 0 )) || hasArg raft-dask; then
     SKBUILD_CMAKE_ARGS="${SKBUILD_EXTRA_CMAKE_ARGS}" \
-        python -m pip install --no-build-isolation --no-deps --config-settings rapidsai.disable-cuda=true "${REPODIR}"/python/raft-dask
+        python -m pip install --no-build-isolation --no-deps --config-settings rapidsai.disable-cuda=true "${REPODIR}/python/raft-dask"
 fi
 
 if hasArg docs; then
     set -x
-    export RAPIDS_VERSION="$(sed -E -e 's/^([0-9]{2})\.([0-9]{2})\.([0-9]{2}).*$/\1.\2.\3/' "${REPODIR}/VERSION")"
-    export RAPIDS_VERSION_MAJOR_MINOR="$(sed -E -e 's/^([0-9]{2})\.([0-9]{2})\.([0-9]{2}).*$/\1.\2/' "${REPODIR}/VERSION")"
-    cd ${SPHINX_BUILD_DIR}
+    RAPIDS_VERSION="$(sed -E -e 's/^([0-9]{2})\.([0-9]{2})\.([0-9]{2}).*$/\1.\2.\3/' "${REPODIR}/VERSION")"
+    export RAPIDS_VERSION
+    RAPIDS_VERSION_MAJOR_MINOR="$(sed -E -e 's/^([0-9]{2})\.([0-9]{2})\.([0-9]{2}).*$/\1.\2/' "${REPODIR}/VERSION")"
+    export RAPIDS_VERSION_MAJOR_MINOR
+    cd "${SPHINX_BUILD_DIR}"
     mkdir -p _build
     rm -rf _build/*
     LC_ALL=C.UTF-8 sphinx-build -E . _build
@@ -542,12 +526,12 @@ fi
 
 if hasArg examples; then
     set -x
-    CMAKE_OVERRIDES_FILE="`readlink -f overrides.cmake`"
+    CMAKE_OVERRIDES_FILE="$(readlink -f overrides.cmake)"
 
     PARALLEL_LEVEL=${PARALLEL_LEVEL} \
     BUILD_TYPE=${BUILD_TYPE} \
     BUILD_DIR=${EXAMPLES_BUILD_DIR} \
     RAFT_REPO_REL=${REPODIR} \
     EXTRA_CMAKE_ARGS="-DCMAKE_USER_MAKE_RULES_OVERRIDE=${CMAKE_OVERRIDES_FILE}" \
-    bash ${REPODIR}/examples/build.sh
+    bash "${REPODIR}"/examples/build.sh
 fi

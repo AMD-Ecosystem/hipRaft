@@ -37,7 +37,7 @@ HIPRAFT_PROFILES_DIR=${HIPRAFT_BUILD_DIR}/profiles
 HIPRAFT_COVERAGE_DATA=${HIPRAFT_BUILD_DIR}/hipraft-coverage.profdata
 HIPRAFT_COVERAGE_REPORT_PATH=${HIPRAFT_BUILD_DIR}/coverage_report
 
-mkdir -p $HIPRAFT_PROFILES_DIR
+mkdir -p "$HIPRAFT_PROFILES_DIR"
 
 # Run C++ tests
 BINARIES=("${HIPRAFT_BUILD_DIR}/libraft.so")
@@ -49,9 +49,9 @@ if [ -d "${GTEST_DIR}" ]; then
             echo "Running ./${test_exec} ..."
             BINARIES+=("${GTEST_DIR}/${test_exec}")
             export LLVM_PROFILE_FILE="${HIPRAFT_PROFILES_DIR}/${test_exec}.profraw"
-            if ! ./$test_exec; then
+            if ! ./"$test_exec"; then
                 echo "Test ${test_exec} failed"
-                have_failures=1
+                exit 1
             fi
         else
             echo "Skipping non-executable file: ${test_exec}"
@@ -59,19 +59,19 @@ if [ -d "${GTEST_DIR}" ]; then
     done
 else
     echo "C++ test directory not found at ${GTEST_DIR}"
-    have_failures=1
+    exit 1
 fi
 
 set -x
 
-llvm-profdata merge -sparse ${HIPRAFT_PROFILES_DIR}/*.profraw -o ${HIPRAFT_COVERAGE_DATA}
+llvm-profdata merge -sparse "${HIPRAFT_PROFILES_DIR}"/*.profraw -o "${HIPRAFT_COVERAGE_DATA}"
 
-mkdir -p $HIPRAFT_COVERAGE_REPORT_PATH
+mkdir -p "$HIPRAFT_COVERAGE_REPORT_PATH"
 
 OBJECTS="$(printf ' --object=%s' "${BINARIES[@]}")"
 LLVM_COV_OPTIONS="--format=html --show-line-counts-or-regions --Xdemangler c++filt"
 llvm-cov show \
-    ${OBJECTS} ${LLVM_COV_OPTIONS} \
-    --instr-profile=${HIPRAFT_COVERAGE_DATA} \
-    --output-dir=${HIPRAFT_COVERAGE_REPORT_PATH} \
-    --ignore-filename-regex=${HIPRAFT_BUILD_DIR}/_deps
+    "${OBJECTS}" "${LLVM_COV_OPTIONS}" \
+    --instr-profile="${HIPRAFT_COVERAGE_DATA}" \
+    --output-dir="${HIPRAFT_COVERAGE_REPORT_PATH}" \
+    --ignore-filename-regex="${HIPRAFT_BUILD_DIR}/_deps"
