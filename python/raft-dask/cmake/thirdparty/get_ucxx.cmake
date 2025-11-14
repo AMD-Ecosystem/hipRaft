@@ -1,8 +1,17 @@
 #=============================================================================
-# cmake-format: off
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025, NVIDIA CORPORATION.
-# SPDX-License-Identifier: Apache-2.0
-# cmake-format: on
+# Copyright (c) 2024, NVIDIA CORPORATION.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 #=============================================================================
 # Modifications Copyright (c) 2025-2026 Advanced Micro Devices, Inc.
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -51,15 +60,9 @@ endfunction()
 # Change pinned tag here to test a commit in CI
 # To use a different ucxx locally, set the CMake variable
 # CPM_ucxx_SOURCE=/path/to/local/ucxx
-# <<<<<<< OLD CODE from 15a81210 (c8feda29) - COMMENTED OUT
-# find_and_configure_ucxx(VERSION  0.1.0
-#         FORK             ROCm-DS
-#         PINNED_TAG       release/rocmds-26.03
-# =======
-find_and_configure_ucxx(VERSION  0.47
-        FORK             rapidsai
-        PINNED_TAG       main
-# >>>>>>> END NEW CODE (c8feda29)
+find_and_configure_ucxx(VERSION  0.1.0
+        FORK             ROCm-DS
+        PINNED_TAG       release/rocmds-26.03
         EXCLUDE_FROM_ALL YES
         UCXX_STATIC      ${RAFT_DASK_UCXX_STATIC}
     )
