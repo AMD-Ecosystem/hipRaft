@@ -1419,6 +1419,9 @@ inline cusolverStatus_t cusolverDnxsyevd_bufferSize(  // NOLINT
   size_t* workspaceInBytesOnHost,
   cudaStream_t stream)
 {
+#ifdef __HIP_PLATFORM_AMD__
+  return CUSOLVER_STATUS_NOT_SUPPORTED;
+#else
   RAFT_CUSOLVER_TRY(cusolverDnSetStream(handle, stream));
   return cusolverDnXsyevd_bufferSize(handle,
                                      params,
@@ -1433,6 +1436,7 @@ inline cusolverStatus_t cusolverDnxsyevd_bufferSize(  // NOLINT
                                      CUDA_R_32F,
                                      workspaceInBytesOnDevice,
                                      workspaceInBytesOnHost);
+#endif
 }
 
 template <>
@@ -1449,6 +1453,9 @@ inline cusolverStatus_t cusolverDnxsyevd_bufferSize(  // NOLINT
   size_t* workspaceInBytesOnHost,
   cudaStream_t stream)
 {
+#ifdef __HIP_PLATFORM_AMD__
+  return CUSOLVER_STATUS_NOT_SUPPORTED;
+#else
   RAFT_CUSOLVER_TRY(cusolverDnSetStream(handle, stream));
   return cusolverDnXsyevd_bufferSize(handle,
                                      params,
@@ -1463,6 +1470,7 @@ inline cusolverStatus_t cusolverDnxsyevd_bufferSize(  // NOLINT
                                      CUDA_R_64F,
                                      workspaceInBytesOnDevice,
                                      workspaceInBytesOnHost);
+#endif
 }
 
 template <typename T>
@@ -1499,6 +1507,9 @@ inline cusolverStatus_t cusolverDnxsyevd(  // NOLINT
   int* info,
   cudaStream_t stream)
 {
+#ifdef __HIP_PLATFORM_AMD__
+  return CUSOLVER_STATUS_NOT_SUPPORTED;
+#else
   RAFT_CUSOLVER_TRY(cusolverDnSetStream(handle, stream));
   return cusolverDnXsyevd(handle,
                           params,
@@ -1516,6 +1527,7 @@ inline cusolverStatus_t cusolverDnxsyevd(  // NOLINT
                           bufferOnHost,
                           workspaceInBytesOnHost,
                           info);
+#endif
 }
 
 template <>
@@ -1535,6 +1547,9 @@ inline cusolverStatus_t cusolverDnxsyevd(  // NOLINT
   int* info,
   cudaStream_t stream)
 {
+#ifdef __HIP_PLATFORM_AMD__
+  return CUSOLVER_STATUS_NOT_SUPPORTED;
+#else
   RAFT_CUSOLVER_TRY(cusolverDnSetStream(handle, stream));
   return cusolverDnXsyevd(handle,
                           params,
@@ -1552,6 +1567,7 @@ inline cusolverStatus_t cusolverDnxsyevd(  // NOLINT
                           bufferOnHost,
                           workspaceInBytesOnHost,
                           info);
+#endif
 }
 /** @} */
 
