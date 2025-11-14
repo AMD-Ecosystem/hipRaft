@@ -92,6 +92,6 @@ class host_vector_policy {
 // be used. Unfortunately, this compiler flag is not compatible
 // with rocthrust.
 template <typename T>
-using host_vector_policy_default_allocator = host_vector_policy<T, std::allocator<T>>;
+using host_vector_policy_default_allocator = host_vector_policy<T>;
 
 }  // namespace raft

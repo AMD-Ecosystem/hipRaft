@@ -50,8 +50,6 @@
 #include <rmm/device_uvector.hpp>
 #include <rmm/resource_ref.hpp>
 
-#include <cub/util_type.cuh>  // cub::Traits
-
 #include <algorithm>
 #include <functional>
 #include <type_traits>
@@ -59,6 +57,10 @@
 #ifdef __HIP_PLATFORM_AMD__
 #include <raft/amd_warp_primitives.h>
 using namespace hip_warp_primitives;
+#include <hipcub/util_type.hpp>  // hipcub::Traits
+namespace cub = hipcub;
+#else
+#include <cub/util_type.cuh>  // cub::Traits
 #endif
 
 /*
@@ -174,18 +176,7 @@ class warp_sort {
    *  The `empty` value for the chosen binary operation,
    *  i.e. `Ascending ? upper_bound<T>() : lower_bound<T>()`.
    */
-  static constexpr auto kDummy = []() {
-#ifdef __HIP_PLATFORM_AMD__
-    if constexpr (std::is_same_v<T, half>) {
-      return Ascending ? raft::kHalfLowerBoundAsUint16 : kHalfUpperBoundAsUint16;
-    } else {
-      return Ascending ? upper_bound<T>() : lower_bound<T>();
-    }
-#else
-    return Ascending ? upper_bound<T>() : lower_bound<T>();
-#endif
-  }();
-  using kDummyType = decltype(kDummy);
+  static constexpr auto kDummy = Ascending ? upper_bound<T>() : lower_bound<T>();
 
   /** Width of the subwarp. */
   static constexpr int kWarpWidth = std::min<int>(Capacity, WarpSize);
@@ -849,11 +840,9 @@ __launch_bounds__(256) RAFT_KERNEL block_kernel(const T* in,
   const IdxT stride         = gridDim.x * blockDim.x;
   const IdxT per_thread_lim = len + laneId();
   for (IdxT i = threadIdx.x + blockIdx.x * blockDim.x; i < per_thread_lim; i += stride) {
-    using DummyType = typename WarpSortClass<Capacity, Ascending, T, IdxT>::kDummyType;
     // Twiddle the input value to ensure proper comparison of floating-point and signed int values
     queue.add(i < len ? cub::Traits<T>::TwiddleIn(__ldcs(reinterpret_cast<const bits_t*>(in) + i))
-                        : convert_to_device_type<T, DummyType>(
-                            WarpSortClass<Capacity, Ascending, bits_t, IdxT>::kDummy),
+                      : WarpSortClass<Capacity, Ascending, bits_t, IdxT>::kDummy,
               (i < len && in_idx != nullptr) ? __ldcs(in_idx + i) : i);
   }
 

@@ -38,7 +38,7 @@
 #include <raft/util/cuda_utils.cuh>
 
 #ifdef __HIP_PLATFORM_AMD__
-#include <hip/hip_fp16.h>
+#include <raft/cuda_bf16.h>
 #else
 #include <cuda_fp16.h>
 #endif

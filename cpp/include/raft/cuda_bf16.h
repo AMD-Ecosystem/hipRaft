@@ -26,3 +26,15 @@
 #ifndef nv_bfloat16
 #define nv_bfloat16 __hip_bfloat16
 #endif
+
+#ifndef nv_bfloat162
+#define nv_bfloat162 __hip_bfloat162
+#endif
+
+#ifndef __nv_bfloat16
+#define __nv_bfloat16 __hip_bfloat16
+#endif
+
+#ifndef __nv_bfloat162
+#define __nv_bfloat162 __hip_bfloat162
+#endif
