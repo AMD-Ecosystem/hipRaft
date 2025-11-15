@@ -322,14 +322,38 @@ template <bool DevicePointerMode = false, typename S, typename A, typename B, ty
     "linalg::matmul(m = %d, n = %d, k = %d)", m, n, k);
   std::shared_ptr<matmul_desc> mm_desc{nullptr};
   matmul_key_t mm_key{m, n, k, lda, ldb, ldc, trans_a, trans_b};
+#ifdef __HIP_PLATFORM_AMD__
+  // (HIP/AMD): https://ontrack-internal.amd.com/browse/SWDEV-464770
+  // hipBLASLt does not support device pointer mode, so always use host mode
+  constexpr bool kActualDeviceMode = false;
+  // When DevicePointerMode is true, we need to copy device pointers to host
+  S alpha_host, beta_host;
+  const S* alpha_ptr = alpha;
+  const S* beta_ptr  = beta;
+  if constexpr (DevicePointerMode) {
+    if (alpha != nullptr) {
+      RAFT_CUDA_TRY(cudaMemcpyAsync(&alpha_host, alpha, sizeof(S), cudaMemcpyDeviceToHost, stream));
+      alpha_ptr = &alpha_host;
+    }
+    if (beta != nullptr) {
+      RAFT_CUDA_TRY(cudaMemcpyAsync(&beta_host, beta, sizeof(S), cudaMemcpyDeviceToHost, stream));
+      beta_ptr = &beta_host;
+    }
+    RAFT_CUDA_TRY(cudaStreamSynchronize(stream));
+  }
+#else
+  constexpr bool kActualDeviceMode = DevicePointerMode;
+  const S* alpha_ptr               = alpha;
+  const S* beta_ptr                = beta;
+#endif
   auto& cache =
-    resource::get_custom_resource<matmul_cache<S, A, B, C, DevicePointerMode>>(res)->value;
+    resource::get_custom_resource<matmul_cache<S, A, B, C, kActualDeviceMode>>(res)->value;
   if (!cache.get(mm_key, &mm_desc)) {
-    mm_desc.reset(new matmul_desc{matmul_desc::create<S, A, B, C, DevicePointerMode>(res, mm_key)});
+    mm_desc.reset(new matmul_desc{matmul_desc::create<S, A, B, C, kActualDeviceMode>(res, mm_key)});
     cache.set(mm_key, mm_desc);
   }
   // Allocate alpha and beta pointers if not provided.
-  coef_wrapper<DevicePointerMode, S> w(alpha, beta, stream);
+  coef_wrapper<kActualDeviceMode, S> w(alpha_ptr, beta_ptr, stream);
   RAFT_CUBLAS_TRY(cublasLtMatmul(resource::get_cublaslt_handle(res),
                                  mm_desc->desc,
                                  w.alpha,
