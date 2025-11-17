@@ -52,8 +52,8 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/rapidsai/raft"
-Documentation = "https://docs.rapids.ai/api/raft/stable/"
+Homepage = "https://github.com/ROCm-DS/hipRaft"
+Documentation = "https://rocm.docs.amd.com/projects/hipRaft/en/latest/"
 
 [project.entry-points."cmake.prefix"]
 libraft = "libraft"
