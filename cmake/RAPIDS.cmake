@@ -114,9 +114,11 @@ if(POLICY CMP0135)
 endif()
 include(FetchContent)
 if(rapids-cmake-fetch-via-git)
-  FetchContent_Declare(rapids-cmake
+  FetchContent_Declare(
+    rapids-cmake
     GIT_REPOSITORY "${rapids-cmake-url}"
-    GIT_TAG "${rapids-cmake-value-to-clone}")
+    GIT_TAG "${rapids-cmake-value-to-clone}"
+  )
 else()
   string(APPEND rapids-cmake-url "${rapids-cmake-value-to-clone}")
   FetchContent_Declare(rapids-cmake URL "${rapids-cmake-url}")
@@ -126,8 +128,8 @@ if(POLICY CMP0135)
 endif()
 FetchContent_GetProperties(rapids-cmake)
 if(rapids-cmake_POPULATED)
-  # Something else has already populated rapids-cmake, only thing
-  # we need to do is setup the CMAKE_MODULE_PATH
+  # Something else has already populated rapids-cmake, only thing we need to do is setup the
+  # CMAKE_MODULE_PATH
   if(NOT "${rapids-cmake-dir}" IN_LIST CMAKE_MODULE_PATH)
     list(APPEND CMAKE_MODULE_PATH "${rapids-cmake-dir}")
   endif()
