@@ -56,6 +56,7 @@ jobs:
       date: ${{ inputs.date }}
       script: ci/test_cpp.sh
       sha: ${{ inputs.sha }}
+      sccache-dist-token-secret-name: GIST_REPO_READ_ORG_GITHUB_TOKEN
   conda-python-tests:
     secrets: inherit
 # <<<<<<< OLD CODE from e5534a19 (c8feda29) - COMMENTED OUT
@@ -73,6 +74,7 @@ jobs:
       date: ${{ inputs.date }}
       script: ci/test_python.sh
       sha: ${{ inputs.sha }}
+      sccache-dist-token-secret-name: GIST_REPO_READ_ORG_GITHUB_TOKEN
   wheel-tests-pylibraft:
     secrets: inherit
 # <<<<<<< OLD CODE from e5534a19 (c8feda29) - COMMENTED OUT
@@ -90,6 +92,7 @@ jobs:
       date: ${{ inputs.date }}
       sha: ${{ inputs.sha }}
       script: ci/test_wheel_pylibraft.sh
+      sccache-dist-token-secret-name: GIST_REPO_READ_ORG_GITHUB_TOKEN
   wheel-tests-raft-dask:
     secrets: inherit
 # <<<<<<< OLD CODE from e5534a19 (c8feda29) - COMMENTED OUT
@@ -107,3 +110,4 @@ jobs:
       date: ${{ inputs.date }}
       sha: ${{ inputs.sha }}
       script: ci/test_wheel_raft_dask.sh
+      sccache-dist-token-secret-name: GIST_REPO_READ_ORG_GITHUB_TOKEN
