@@ -19,7 +19,11 @@
 #include <raft/core/resource/resource_types.hpp>
 #include <raft/core/resources.hpp>
 
+#ifdef __HIP_PLATFORM_AMD__
+#include <rccl/rccl.h>
+#else
 #include <nccl.h>
+#endif
 
 #include <memory>
 
