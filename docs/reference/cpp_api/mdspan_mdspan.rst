@@ -205,7 +205,10 @@ Pinned Factories
 .. doxygenfunction:: raft::make_pinned_matrix_view
     :project: RAFT
 
-.. doxygenfunction:: raft::make_pinned_vector_view
+.. doxygenfunction:: raft::make_pinned_vector_view(ElementType *ptr, IndexType n)
+    :project: RAFT
+
+.. doxygenfunction:: raft::make_pinned_vector_view(ElementType *ptr, const typename LayoutPolicy::template mapping<vector_extent<IndexType>> &mapping)
     :project: RAFT
 
 .. doxygenfunction:: raft::make_pinned_scalar_view
