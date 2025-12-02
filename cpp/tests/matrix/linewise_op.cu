@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2021-2024, NVIDIA CORPORATION.
+ * SPDX-FileCopyrightText: Copyright (c) 2021-2025, NVIDIA CORPORATION.
  * SPDX-License-Identifier: Apache-2.0
  */
 /*
@@ -40,6 +40,8 @@
 #else
 #include <cuda_profiler_api.h>
 #endif
+
+#include <thrust/for_each.h>
 
 #include <gtest/gtest.h>
 
