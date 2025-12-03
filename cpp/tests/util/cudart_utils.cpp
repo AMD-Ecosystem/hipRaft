@@ -136,6 +136,7 @@ TEST(Raft, Copy2DAsync)
     cudaMemcpy(d_dst.data(), h_dst.data(), pitch * elem_size * rows, cudaMemcpyHostToDevice));
 
   raft::copy_matrix(d_dst.data(), pitch, d_src.data(), pitch, width, height, stream);
+  RAFT_CUDA_TRY(cudaStreamSynchronize(stream));
   RAFT_CUDA_TRY(
     cudaMemcpy(h_dst.data(), d_dst.data(), pitch * elem_size * rows, cudaMemcpyDeviceToHost));
 
