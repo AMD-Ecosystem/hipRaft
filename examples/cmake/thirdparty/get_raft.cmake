@@ -28,7 +28,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-set(RAFT_VERSION "0.1.0")
+set(RAFT_VERSION "1.0.0")
 set(RAFT_FORK "AMD-AIOSS")
 set(RAFT_PINNED_TAG "amd-integration")
 # When PINNED_TAG above doesn't match the default branch,

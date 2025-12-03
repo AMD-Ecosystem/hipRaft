@@ -55,5 +55,5 @@ conda activate hipraft
 hipRAFT can then be installed into this environment using pip and the AMD PyPI URL:
 
 ```bash
-pip install amd-pylibraft==0.1.0 --extra-index-url=https://pypi.amd.com/simple
+pip install amd-pylibraft==1.0.0 --extra-index-url=https://pypi.amd.com/simple
 ```
