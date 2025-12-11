@@ -47,14 +47,13 @@
 #ifdef __HIP_PLATFORM_AMD__
 #include <hipcub/hipcub.hpp>
 namespace cub = hipcub;
-#include <hip/std/atomic>
 #include <hip/std/optional>
 #else
 #include <cub/cub.cuh>
-#include <cuda/atomic>
 
 #include <optional>
 #endif
+#include <cuda/atomic>
 
 #include <cstddef>
 
