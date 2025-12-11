@@ -206,7 +206,7 @@ class coordinate_structure : public coordinate_structure_t<RowType, ColType, NZT
    * resize the underlying data arrays.
    * @param nnz new sparsity
    */
-  void initialize_sparsity(nnz_type nnz)
+  void initialize_sparsity(nnz_type nnz) override
   {
     sparse_structure_type::initialize_sparsity(nnz);
     c_rows_.resize(nnz);

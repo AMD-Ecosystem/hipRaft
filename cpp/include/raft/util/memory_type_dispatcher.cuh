@@ -14,6 +14,28 @@
  * limitations under the License.
  */
 
+// MIT License
+//
+// Modifications Copyright (C) 2025 Advanced Micro Devices, Inc. All rights reserved.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
 #pragma once
 #include <raft/core/mdbuffer.cuh>
 #include <raft/core/mdspan.hpp>
@@ -184,9 +206,12 @@ decltype(auto) memory_type_dispatcher(raft::resources const& res, lambda_t&& f, 
   // Suppress warning for unreachable loop. In general, it is a desirable thing
   // for this to be unreachable, but some functors may be specialized in such a
   // way that this is not the case.
-#pragma nv_diag_suppress 128
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunknown-pragmas"
+#pragma hip_diag_suppress 128
   RAFT_FAIL("The given functor could not be invoked on the provided data");
 #pragma nv_diag_default 128
+#pragma GCC diagnostic pop
 }
 
 template <typename lambda_t, typename mdspan_type, enable_if_mdspan<mdspan_type>* = nullptr>
