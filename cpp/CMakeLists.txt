@@ -148,29 +148,13 @@ if(CUDA_STATIC_MATH_LIBRARIES)
   set(_ctk_static_suffix "_static")
 endif()
 
-# <<<<<<< OLD CODE from 23734a05 (c8feda29) - COMMENTED OUT
-# if(CUDA_BACKEND)
-#   # CUDA runtime
-#   rapids_cuda_init_runtime(USE_STATIC ${CUDA_STATIC_RUNTIME})
-#   # * find CUDAToolkit package
-#   # * determine GPU architectures
-#   # * enable the CMake CUDA language
-#   # * set other CUDA compilation flags
-# =======
-# CUDA runtime
-rapids_cuda_init_runtime(USE_STATIC ON)
-# * find CUDAToolkit package
-# * determine GPU architectures
-# * enable the CMake CUDA language
-# * set other CUDA compilation flags
-rapids_find_package(
-  CUDAToolkit REQUIRED
-  BUILD_EXPORT_SET raft-exports
-  INSTALL_EXPORT_SET raft-exports
-)
-
-if(NOT DISABLE_OPENMP)
-# >>>>>>> END NEW CODE (c8feda29)
+if(CUDA_BACKEND)
+  # CUDA runtime
+  rapids_cuda_init_runtime(USE_STATIC ON)
+  # * find CUDAToolkit package
+  # * determine GPU architectures
+  # * enable the CMake CUDA language
+  # * set other CUDA compilation flags
   rapids_find_package(
     CUDAToolkit REQUIRED
     BUILD_EXPORT_SET raft-exports
@@ -758,6 +742,8 @@ endif()
 # * build test executable ----------------------------------------------------
 
 if(BUILD_TESTS)
+  # include CTest module -- automatically calls enable_testing()
+  include(CTest)
   add_subdirectory(tests)
 endif()
 

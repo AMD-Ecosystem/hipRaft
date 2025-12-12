@@ -50,12 +50,8 @@ endif()
 unset(raft_FOUND)
 
 # --- CUDA --- #
-# <<<<<<< OLD CODE from 23734a05 (c8feda29) - COMMENTED OUT
-# set(CUDA_STATIC_RUNTIME OFF) # No static linking with HIP, HIP must be installed
-# set(CUDA_STATIC_MATH_LIBRARIES OFF) # No static linking with HIP, HIP must be installed
-# =======
-set(CUDA_STATIC_MATH_LIBRARIES OFF)
-# >>>>>>> END NEW CODE (c8feda29)
+set(CUDA_STATIC_RUNTIME OFF) # No static linking with HIP, HIP must be installed
+set(CUDA_STATIC_MATH_LIBRARIES OFF) # No static linking with HIP, HIP must be installed
 
 # --- RAFT ---#
 set(BUILD_TESTS OFF)
