@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2024, NVIDIA CORPORATION.
+ * SPDX-FileCopyrightText: Copyright (c) 2024-2025, NVIDIA CORPORATION.
  * SPDX-License-Identifier: Apache-2.0
  */
 /*
@@ -26,8 +26,6 @@
 #include <raft/core/resource/cublas_handle.hpp>
 #include <raft/core/resource/cuda_stream.hpp>
 #include <raft/core/resources.hpp>
-#include <raft/distance/distance.cuh>
-#include <raft/distance/distance_types.hpp>
 #include <raft/random/rng.cuh>
 #include <raft/sparse/linalg/masked_matmul.cuh>
 #include <raft/util/itertools.hpp>
@@ -237,16 +235,6 @@ struct MaskedMatmulBench : public fixture {
         auto mask = raft::core::bitset_view<const bits_t, index_t>(bits_d.data(), params.n);
         raft::sparse::linalg::masked_matmul(handle, a, b, mask, c);
       }
-    } else {
-      raft::distance::pairwise_distance(handle,
-                                        a_data_d.data(),
-                                        b_data_d.data(),
-                                        c_dense_data_d.data(),
-                                        static_cast<int>(params.m),
-                                        static_cast<int>(params.n),
-                                        static_cast<int>(params.k),
-                                        raft::distance::DistanceType::InnerProduct,
-                                        true);
     }
     resource::sync_stream(handle);
 
@@ -260,16 +248,6 @@ struct MaskedMatmulBench : public fixture {
           auto mask = raft::core::bitset_view<const bits_t, index_t>(bits_d.data(), params.n);
           raft::sparse::linalg::masked_matmul(handle, a, b, mask, c);
         }
-      } else {
-        raft::distance::pairwise_distance(handle,
-                                          a_data_d.data(),
-                                          b_data_d.data(),
-                                          c_dense_data_d.data(),
-                                          static_cast<int>(params.m),
-                                          static_cast<int>(params.n),
-                                          static_cast<int>(params.k),
-                                          raft::distance::DistanceType::InnerProduct,
-                                          true);
       }
       resource::sync_stream(handle);
     });

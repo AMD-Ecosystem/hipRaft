@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2021-2024, NVIDIA CORPORATION.
+ * SPDX-FileCopyrightText: Copyright (c) 2021-2025, NVIDIA CORPORATION.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -25,7 +25,6 @@
 #pragma once
 
 #include <raft/core/math.hpp>
-#include <raft/distance/distance_types.hpp>
 #include <raft/util/cudart_utils.hpp>
 
 #ifdef __HIP_PLATFORM_AMD__
