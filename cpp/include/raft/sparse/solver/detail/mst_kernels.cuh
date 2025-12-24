@@ -37,12 +37,12 @@ RAFT_KERNEL kernel_min_edge_per_vertex(const edge_t* offsets,
 {
   edge_t tid = threadIdx.x + blockIdx.x * blockDim.x;
 
-  unsigned warp_id = tid / 32;
-  unsigned lane_id = tid % 32;
+  unsigned warp_id = tid / WarpSize;
+  unsigned lane_id = tid % WarpSize;
 
-  __shared__ edge_t min_edge_index[32];
-  __shared__ alteration_t min_edge_weight[32];
-  __shared__ vertex_t min_color[32];
+  __shared__ edge_t min_edge_index[WarpSize];
+  __shared__ alteration_t min_edge_weight[WarpSize];
+  __shared__ vertex_t min_color[WarpSize];
 
   min_edge_index[lane_id]  = std::numeric_limits<edge_t>::max();
   min_edge_weight[lane_id] = std::numeric_limits<alteration_t>::max();
@@ -63,7 +63,7 @@ RAFT_KERNEL kernel_min_edge_per_vertex(const edge_t* offsets,
 
     // assuming one warp per row
     // find min for each thread in warp
-    for (edge_t e = row_start + lane_id; e < row_end; e += 32) {
+    for (edge_t e = row_start + lane_id; e < row_end; e += WarpSize) {
       alteration_t curr_edge_weight = weights[e];
       vertex_t successor_color_idx  = color_index[indices[e]];
       vertex_t successor_color      = color[successor_color_idx];
@@ -82,7 +82,7 @@ RAFT_KERNEL kernel_min_edge_per_vertex(const edge_t* offsets,
   // reduce across threads in warp
   // each thread in warp holds min edge scanned by itself
   // reduce across all those warps
-  for (int offset = 16; offset > 0; offset >>= 1) {
+  for (int offset = WarpSize / 2; offset > 0; offset >>= 1) {
     if (lane_id < offset) {
       if (min_edge_weight[lane_id] > min_edge_weight[lane_id + offset]) {
         min_color[lane_id]       = min_color[lane_id + offset];

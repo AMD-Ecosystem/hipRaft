@@ -15,7 +15,7 @@
  */
 
 /*
- * Modifications Copyright (c) 2024-2025 Advanced Micro Devices, Inc.
+ * Modifications Copyright (c) 2024-2026 Advanced Micro Devices, Inc.
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -314,10 +314,9 @@ void MST_solver<vertex_t, edge_t, weight_t, alteration_t>::min_edge_per_vertex()
   thrust::fill(
     policy, min_edge_color.begin(), min_edge_color.end(), std::numeric_limits<alteration_t>::max());
   thrust::fill(
-    policy, new_mst_edge.begin(), new_mst_edge.end(), std::numeric_limits<weight_t>::max());
+    policy, new_mst_edge.begin(), new_mst_edge.end(), std::numeric_limits<edge_t>::max());
 
-  int n_threads = 32;
-
+  int n_threads                     = raft::host_warp_size(stream);
   vertex_t* color_ptr               = color.data();
   edge_t* new_mst_edge_ptr          = new_mst_edge.data();
   bool* mst_edge_ptr                = mst_edge.data();
