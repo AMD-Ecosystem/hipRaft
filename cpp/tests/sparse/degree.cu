@@ -14,6 +14,28 @@
  * limitations under the License.
  */
 
+// MIT License
+//
+// Modifications Copyright (C) 2026 Advanced Micro Devices, Inc. All rights reserved.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
 #include "../test_utils.cuh"
 
 #include <raft/sparse/linalg/degree.cuh>
@@ -49,7 +71,7 @@ typedef SparseDegreeTests<float> COODegree;
 TEST_P(COODegree, Result)
 {
   cudaStream_t stream;
-  cudaStreamCreate(&stream);
+  RAFT_CUDA_TRY(cudaStreamCreate(&stream));
 
   int in_rows_h[5] = {0, 0, 1, 2, 2};
   int verify_h[5]  = {2, 1, 2, 0, 0};
@@ -64,7 +86,7 @@ TEST_P(COODegree, Result)
   raft::update_device(verify.data(), *&verify_h, 5, stream);
 
   linalg::coo_degree(in_rows.data(), 5, results.data(), stream);
-  cudaDeviceSynchronize();
+  RAFT_CUDA_TRY(cudaDeviceSynchronize());
 
   ASSERT_TRUE(raft::devArrMatch<int>(verify.data(), results.data(), 5, raft::Compare<int>()));
 
@@ -75,7 +97,7 @@ typedef SparseDegreeTests<float> COODegreeNonzero;
 TEST_P(COODegreeNonzero, Result)
 {
   cudaStream_t stream;
-  cudaStreamCreate(&stream);
+  RAFT_CUDA_TRY(cudaStreamCreate(&stream));
 
   int in_rows_h[5]   = {0, 0, 1, 2, 2};
   float in_vals_h[5] = {0.0, 5.0, 0.0, 1.0, 1.0};
@@ -94,7 +116,7 @@ TEST_P(COODegreeNonzero, Result)
   raft::update_device(in_vals.data(), *&in_vals_h, 5, stream);
 
   linalg::coo_degree_nz<float>(in_rows.data(), in_vals.data(), 5, results.data(), stream);
-  cudaDeviceSynchronize();
+  RAFT_CUDA_TRY(cudaDeviceSynchronize());
 
   ASSERT_TRUE(raft::devArrMatch<int>(verify.data(), results.data(), 5, raft::Compare<int>()));
 

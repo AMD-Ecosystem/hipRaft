@@ -15,7 +15,7 @@
  */
 
 /*
- * Modifications Copyright (c) 2024-2025 Advanced Micro Devices, Inc.
+ * Modifications Copyright (c) 2024-2026 Advanced Micro Devices, Inc.
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -180,8 +180,8 @@ void adj_to_csr(raft::resources const& handle,
   int dev_id, sm_count, blocks_per_sm;
   RAFT_CUDA_TRY(cudaGetDevice(&dev_id));
   RAFT_CUDA_TRY(cudaDeviceGetAttribute(&sm_count, cudaDevAttrMultiProcessorCount, dev_id));
-  cudaOccupancyMaxActiveBlocksPerMultiprocessor(
-    &blocks_per_sm, adj_to_csr_kernel<index_t>, adj_to_csr_tpb, 0);
+  RAFT_CUDA_TRY(cudaOccupancyMaxActiveBlocksPerMultiprocessor(
+    &blocks_per_sm, adj_to_csr_kernel<index_t>, adj_to_csr_tpb, 0));
 
   index_t max_active_blocks = sm_count * blocks_per_sm;
   index_t blocks_per_row    = raft::ceildiv(max_active_blocks, num_rows);

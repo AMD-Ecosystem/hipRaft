@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-// Modifications Copyright (c) 2024-2025 Advanced Micro Devices, Inc.
+// Modifications Copyright (c) 2024-2026 Advanced Micro Devices, Inc.
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
@@ -251,23 +251,23 @@ void kmeansPlusPlus(raft::resources const& handle,
     {
       // Determine temporary device storage requirements
       size_t temp_storage_bytes = 0;
-      cub::DeviceReduce::ArgMin(nullptr,
-                                temp_storage_bytes,
-                                costPerCandidate.data_handle(),
-                                minClusterIndexAndDistance.data(),
-                                costPerCandidate.extent(0),
-                                stream);
+      RAFT_CUDA_TRY(cub::DeviceReduce::ArgMin(nullptr,
+                                              temp_storage_bytes,
+                                              costPerCandidate.data_handle(),
+                                              minClusterIndexAndDistance.data(),
+                                              costPerCandidate.extent(0),
+                                              stream));
 
       // Allocate temporary storage
       workspace.resize(temp_storage_bytes, stream);
 
       // Run argmin-reduction
-      cub::DeviceReduce::ArgMin(workspace.data(),
-                                temp_storage_bytes,
-                                costPerCandidate.data_handle(),
-                                minClusterIndexAndDistance.data(),
-                                costPerCandidate.extent(0),
-                                stream);
+      RAFT_CUDA_TRY(cub::DeviceReduce::ArgMin(workspace.data(),
+                                              temp_storage_bytes,
+                                              costPerCandidate.data_handle(),
+                                              minClusterIndexAndDistance.data(),
+                                              costPerCandidate.extent(0),
+                                              stream));
 
       int bestCandidateIdx = -1;
       raft::copy(&bestCandidateIdx, &minClusterIndexAndDistance.data()->key, 1, stream);
