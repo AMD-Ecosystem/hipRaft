@@ -1,6 +1,6 @@
 # =============================================================================
 # cmake-format: off
-# SPDX-FileCopyrightText: Copyright (c) 2020-2025, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2020-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 # cmake-format: on
 cmake_minimum_required(VERSION 3.30.4 FATAL_ERROR)
@@ -212,7 +212,7 @@ include(${rapids-cmake-dir}/cpm/rocmds_logger.cmake)
 rapids_cpm_rapids_logger(BUILD_EXPORT_SET raft-exports INSTALL_EXPORT_SET raft-exports)
 create_logger_macros(RAFT "raft::default_logger()" include/raft/core)
 
-# CCCL before rmm/cuco so we get the right version of CCCL
+# CCCL before rmm so we get the right version of CCCL
 include(cmake/thirdparty/get_cccl.cmake)
 
 # When CPM_cuco_SOURCE is set, CPM uses add_subdirectory (instead of find_package) for
@@ -230,19 +230,10 @@ if(NOT CUDA_BACKEND)
   unset(_cccl_global_promote_targets)
 endif()
 
-if(CUDA_BACKEND)
-  include(${rapids-cmake-dir}/cpm/cuco.cmake)
-  rapids_cpm_cuco(BUILD_EXPORT_SET raft-exports INSTALL_EXPORT_SET raft-exports)
-else()
-  include(${rapids-cmake-dir}/cpm/hipco.cmake)
-  rapids_cpm_hipco(BUILD_EXPORT_SET raft-exports INSTALL_EXPORT_SET raft-exports)
-endif()
-
 # FIXME(HIP/AMD): the original ordering of getting RMM before hipCo leads to a CMake configuration
 # error where roc::rocprim target is not defined, but target roc::rocprim_hip is defined. This makes
 # CMake configuration of rocprim fail. Further investigation tbd.
 include(cmake/thirdparty/get_rmm.cmake)
-# include(cmake/thirdparty/get_cutlass.cmake)
 
 if(BUILD_TESTS)
   include(${rapids-cmake-dir}/cpm/gtest.cmake)
@@ -281,10 +272,7 @@ target_include_directories(
 )
 
 # Keep RAFT as lightweight as possible. Only CUDA libs and rmm should be used in global target.
-target_link_libraries(
-  raft INTERFACE rapids_logger::rapids_logger rmm::rmm cuco::cuco
-                 $<$<BOOL:${CUDA_BACKEND}>:nvidia::cutlass::cutlass> CCCL::CCCL
-)
+target_link_libraries(raft INTERFACE rapids_logger::rapids_logger rmm::rmm CCCL::CCCL)
 
 target_compile_features(raft INTERFACE cxx_std_17 $<BUILD_INTERFACE:cuda_std_17>)
 target_compile_options(

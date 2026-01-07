@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2022-2025, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2022-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
 # Modifications Copyright (c) 2024-2026 Advanced Micro Devices, Inc.
@@ -131,9 +131,14 @@ repos:
                 exclude: |
                   (?x)
                     ^CHANGELOG[.]md$|
-                    ^cpp/cmake/patches/cutlass/build-export[.]patch$
-      - repo: https://github.com/Yelp/detect-secrets
-        rev: v1.5.0
+# <<<<<<< OLD CODE from ec3a1e00 (c8feda29) - COMMENTED OUT
+#                     ^cpp/cmake/patches/cutlass/build-export[.]patch$
+#       - repo: https://github.com/Yelp/detect-secrets
+#         rev: v1.5.0
+# =======
+      - repo: https://github.com/pre-commit/pre-commit-hooks
+        rev: v5.0.0
+# >>>>>>> END NEW CODE (c8feda29)
         hooks:
 # <<<<<<< OLD CODE from dc154b05 (c8feda29) - COMMENTED OUT
 #           - id: detect-secrets
