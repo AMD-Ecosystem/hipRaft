@@ -15,7 +15,7 @@
  */
 
 /*
- * Modifications Copyright (c) 2024-2025 Advanced Micro Devices, Inc.
+ * Modifications Copyright (c) 2024-2026 Advanced Micro Devices, Inc.
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -327,19 +327,22 @@ template <bool DevicePointerMode = false, typename S, typename A, typename B, ty
   // hipBLASLt does not support device pointer mode, so always use host mode
   constexpr bool kActualDeviceMode = false;
   // When DevicePointerMode is true, we need to copy device pointers to host
-  S alpha_host, beta_host;
+  S alpha_host{};
+  S beta_host{};
   const S* alpha_ptr = alpha;
   const S* beta_ptr  = beta;
   if constexpr (DevicePointerMode) {
+    RAFT_LOG_WARN(
+      "hipBlasLt does not support device pointer mode for scalars, using host mode instead");
     if (alpha != nullptr) {
-      RAFT_CUDA_TRY(cudaMemcpyAsync(&alpha_host, alpha, sizeof(S), cudaMemcpyDeviceToHost, stream));
+      raft::update_host(&alpha_host, alpha, 1, stream);
       alpha_ptr = &alpha_host;
     }
     if (beta != nullptr) {
-      RAFT_CUDA_TRY(cudaMemcpyAsync(&beta_host, beta, sizeof(S), cudaMemcpyDeviceToHost, stream));
+      raft::update_host(&beta_host, beta, 1, stream);
       beta_ptr = &beta_host;
     }
-    RAFT_CUDA_TRY(cudaStreamSynchronize(stream));
+    raft::resource::sync_stream(res);
   }
 #else
   constexpr bool kActualDeviceMode = DevicePointerMode;

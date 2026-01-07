@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 /*
- * Modifications Copyright (c) 2024-2025 Advanced Micro Devices, Inc.
+ * Modifications Copyright (c) 2024-2026 Advanced Micro Devices, Inc.
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -272,8 +272,6 @@ struct SelectK  // NOLINT
     if (ref.not_supported || res.not_supported) { GTEST_SKIP(); }
     ASSERT_TRUE(hostVecMatch(ref.get_out_dists(), res.get_out_dists(), Compare<KeyT>()));
 
-    // If the dists (keys) are the same, different corresponding ids may end up in the selection
-    // due to non-deterministic nature of some implementations.
     // If the dists (keys) are the same, different corresponding ids may end up in the selection
     // due to non-deterministic nature of some implementations.
     auto compare_ids = [this](const IdxT& i, const IdxT& j, const size_t pos) {
