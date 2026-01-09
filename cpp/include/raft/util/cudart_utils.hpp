@@ -15,7 +15,7 @@
  */
 
 /*
- * Modifications Copyright (c) 2024-2025 Advanced Micro Devices, Inc.
+ * Modifications Copyright (c) 2024-2026 Advanced Micro Devices, Inc.
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -510,9 +510,18 @@ namespace {  // NOLINT
  *
  * When we switch to C++20, perhaps we can use `bit_cast` for the same purpose.
  */
+#ifdef __HIP_PLATFORM_AMD__
+struct __half_constexpr : __half_raw {  // NOLINT
+  constexpr explicit inline __half_constexpr(uint16_t u)
+    : __half_raw{{__builtin_bit_cast(_Float16, u)}}
+  {
+  }
+};
+#else
 struct __half_constexpr : __half {  // NOLINT
   constexpr explicit inline __half_constexpr(uint16_t u) : __half() { __x = u; }
 };
+#endif
 }  // namespace
 
 template <>
