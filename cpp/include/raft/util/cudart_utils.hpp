@@ -47,6 +47,7 @@
 #include <raft/util/warp_primitives.cuh>
 
 #include <hip/hip_fp16.h>
+#include <rocm-core/rocm_version.h>
 #include <rocprim/rocprim.hpp>
 #else
 #include <cuda_bf16.h>
@@ -511,13 +512,24 @@ namespace {  // NOLINT
  * When we switch to C++20, perhaps we can use `bit_cast` for the same purpose.
  */
 #ifdef __HIP_PLATFORM_AMD__
-struct __half_constexpr : __half_raw {  // NOLINT
+
+#if ROCM_VERSION_MAJOR >= 7 && ROCM_VERSION_MINOR >= 11
+// See https://github.com/ROCm/rocm-systems/commit/96f6b6e2512bddcdd783ab62be930cb1712a372d
+struct __half_constexpr : __half {
+  constexpr explicit inline __half_constexpr(uint16_t u) : __half(__half_raw{.x = u}) {}
+};
+#else
+// ROCm 7.10 and earlier
+struct __half_constexpr : __half {
   constexpr explicit inline __half_constexpr(uint16_t u)
-    : __half_raw{{__builtin_bit_cast(_Float16, u)}}
+    : __half(__half_raw{.data = __builtin_bit_cast(_Float16, u)})
   {
   }
 };
+#endif
+
 #else
+// CUDA
 struct __half_constexpr : __half {  // NOLINT
   constexpr explicit inline __half_constexpr(uint16_t u) : __half() { __x = u; }
 };

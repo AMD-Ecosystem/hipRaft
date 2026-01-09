@@ -2,7 +2,7 @@
 
 # Copyright (c) 2020-2024, NVIDIA CORPORATION.
 
-# Modifications Copyright (c) 2024-2025 Advanced Micro Devices, Inc.
+# Modifications Copyright (c) 2024-2026 Advanced Micro Devices, Inc.
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -117,6 +117,10 @@ BUILD_ABI=${BUILD_ABI:=ON}
 
 # Default to Ninja if generator is not specified
 export CMAKE_GENERATOR="${CMAKE_GENERATOR:=Ninja}"
+
+# This is currently required for TheRock based installations.
+# See https://github.com/ROCm/TheRock/issues/1402
+export HIP_PLATFORM=amd
 
 function hasArg {
     (( NUMARGS != 0 )) && (echo " ${ARGS} " | grep -q " $1 ")
