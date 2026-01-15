@@ -25,18 +25,22 @@ on:
 jobs:
   conda-cpp-checks:
     secrets: inherit
-# <<<<<<< OLD CODE from f6a89918 (c8feda29) - COMMENTED OUT
-# # <<<<<<< OLD CODE from e5534a19 (c8feda29) - COMMENTED OUT
-# # # <<<<<<< OLD CODE from d6cc6e9f (c8feda29) - COMMENTED OUT
-# # #     uses: rapidsai/shared-workflows/.github/workflows/conda-cpp-post-build-checks.yaml@branch-25.12
+# <<<<<<< OLD CODE from 2ed13791 (c8feda29) - COMMENTED OUT
+# # <<<<<<< OLD CODE from f6a89918 (c8feda29) - COMMENTED OUT
+# # # <<<<<<< OLD CODE from e5534a19 (c8feda29) - COMMENTED OUT
+# # # # <<<<<<< OLD CODE from d6cc6e9f (c8feda29) - COMMENTED OUT
+# # # #     uses: rapidsai/shared-workflows/.github/workflows/conda-cpp-post-build-checks.yaml@branch-25.12
+# # # # =======
+# # #     uses: rapidsai/shared-workflows/.github/workflows/conda-cpp-post-build-checks.yaml@release/25.12
+# # # # >>>>>>> END NEW CODE (c8feda29)
 # # # =======
-# #     uses: rapidsai/shared-workflows/.github/workflows/conda-cpp-post-build-checks.yaml@release/25.12
+# #     uses: rapidsai/shared-workflows/.github/workflows/conda-cpp-post-build-checks.yaml@main
 # # # >>>>>>> END NEW CODE (c8feda29)
 # # =======
-#     uses: rapidsai/shared-workflows/.github/workflows/conda-cpp-post-build-checks.yaml@main
+#     uses: rapidsai/shared-workflows/.github/workflows/conda-cpp-post-build-checks.yaml@release/26.02
 # # >>>>>>> END NEW CODE (c8feda29)
 # =======
-    uses: rapidsai/shared-workflows/.github/workflows/conda-cpp-post-build-checks.yaml@release/26.02
+    uses: rapidsai/shared-workflows/.github/workflows/conda-cpp-post-build-checks.yaml@main
 # >>>>>>> END NEW CODE (c8feda29)
     with:
       build_type: ${{ inputs.build_type }}
@@ -45,18 +49,22 @@ jobs:
       sha: ${{ inputs.sha }}
   conda-cpp-tests:
     secrets: inherit
-# <<<<<<< OLD CODE from f6a89918 (c8feda29) - COMMENTED OUT
-# # <<<<<<< OLD CODE from e5534a19 (c8feda29) - COMMENTED OUT
-# # # <<<<<<< OLD CODE from d6cc6e9f (c8feda29) - COMMENTED OUT
-# # #     uses: rapidsai/shared-workflows/.github/workflows/conda-cpp-tests.yaml@branch-25.12
+# <<<<<<< OLD CODE from 2ed13791 (c8feda29) - COMMENTED OUT
+# # <<<<<<< OLD CODE from f6a89918 (c8feda29) - COMMENTED OUT
+# # # <<<<<<< OLD CODE from e5534a19 (c8feda29) - COMMENTED OUT
+# # # # <<<<<<< OLD CODE from d6cc6e9f (c8feda29) - COMMENTED OUT
+# # # #     uses: rapidsai/shared-workflows/.github/workflows/conda-cpp-tests.yaml@branch-25.12
+# # # # =======
+# # #     uses: rapidsai/shared-workflows/.github/workflows/conda-cpp-tests.yaml@release/25.12
+# # # # >>>>>>> END NEW CODE (c8feda29)
 # # # =======
-# #     uses: rapidsai/shared-workflows/.github/workflows/conda-cpp-tests.yaml@release/25.12
+# #     uses: rapidsai/shared-workflows/.github/workflows/conda-cpp-tests.yaml@main
 # # # >>>>>>> END NEW CODE (c8feda29)
 # # =======
-#     uses: rapidsai/shared-workflows/.github/workflows/conda-cpp-tests.yaml@main
+#     uses: rapidsai/shared-workflows/.github/workflows/conda-cpp-tests.yaml@release/26.02
 # # >>>>>>> END NEW CODE (c8feda29)
 # =======
-    uses: rapidsai/shared-workflows/.github/workflows/conda-cpp-tests.yaml@release/26.02
+    uses: rapidsai/shared-workflows/.github/workflows/conda-cpp-tests.yaml@main
 # >>>>>>> END NEW CODE (c8feda29)
     with:
       build_type: ${{ inputs.build_type }}
@@ -67,18 +75,22 @@ jobs:
       sccache-dist-token-secret-name: GIST_REPO_READ_ORG_GITHUB_TOKEN
   conda-python-tests:
     secrets: inherit
-# <<<<<<< OLD CODE from f6a89918 (c8feda29) - COMMENTED OUT
-# # <<<<<<< OLD CODE from e5534a19 (c8feda29) - COMMENTED OUT
-# # # <<<<<<< OLD CODE from d6cc6e9f (c8feda29) - COMMENTED OUT
-# # #     uses: rapidsai/shared-workflows/.github/workflows/conda-python-tests.yaml@branch-25.12
+# <<<<<<< OLD CODE from 2ed13791 (c8feda29) - COMMENTED OUT
+# # <<<<<<< OLD CODE from f6a89918 (c8feda29) - COMMENTED OUT
+# # # <<<<<<< OLD CODE from e5534a19 (c8feda29) - COMMENTED OUT
+# # # # <<<<<<< OLD CODE from d6cc6e9f (c8feda29) - COMMENTED OUT
+# # # #     uses: rapidsai/shared-workflows/.github/workflows/conda-python-tests.yaml@branch-25.12
+# # # # =======
+# # #     uses: rapidsai/shared-workflows/.github/workflows/conda-python-tests.yaml@release/25.12
+# # # # >>>>>>> END NEW CODE (c8feda29)
 # # # =======
-# #     uses: rapidsai/shared-workflows/.github/workflows/conda-python-tests.yaml@release/25.12
+# #     uses: rapidsai/shared-workflows/.github/workflows/conda-python-tests.yaml@main
 # # # >>>>>>> END NEW CODE (c8feda29)
 # # =======
-#     uses: rapidsai/shared-workflows/.github/workflows/conda-python-tests.yaml@main
+#     uses: rapidsai/shared-workflows/.github/workflows/conda-python-tests.yaml@release/26.02
 # # >>>>>>> END NEW CODE (c8feda29)
 # =======
-    uses: rapidsai/shared-workflows/.github/workflows/conda-python-tests.yaml@release/26.02
+    uses: rapidsai/shared-workflows/.github/workflows/conda-python-tests.yaml@main
 # >>>>>>> END NEW CODE (c8feda29)
     with:
       build_type: ${{ inputs.build_type }}
@@ -89,18 +101,22 @@ jobs:
       sccache-dist-token-secret-name: GIST_REPO_READ_ORG_GITHUB_TOKEN
   wheel-tests-pylibraft:
     secrets: inherit
-# <<<<<<< OLD CODE from f6a89918 (c8feda29) - COMMENTED OUT
-# # <<<<<<< OLD CODE from e5534a19 (c8feda29) - COMMENTED OUT
-# # # <<<<<<< OLD CODE from d6cc6e9f (c8feda29) - COMMENTED OUT
-# # #     uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@branch-25.12
+# <<<<<<< OLD CODE from 2ed13791 (c8feda29) - COMMENTED OUT
+# # <<<<<<< OLD CODE from f6a89918 (c8feda29) - COMMENTED OUT
+# # # <<<<<<< OLD CODE from e5534a19 (c8feda29) - COMMENTED OUT
+# # # # <<<<<<< OLD CODE from d6cc6e9f (c8feda29) - COMMENTED OUT
+# # # #     uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@branch-25.12
+# # # # =======
+# # #     uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@release/25.12
+# # # # >>>>>>> END NEW CODE (c8feda29)
 # # # =======
-# #     uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@release/25.12
+# #     uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@main
 # # # >>>>>>> END NEW CODE (c8feda29)
 # # =======
-#     uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@main
+#     uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@release/26.02
 # # >>>>>>> END NEW CODE (c8feda29)
 # =======
-    uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@release/26.02
+    uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@main
 # >>>>>>> END NEW CODE (c8feda29)
     with:
       build_type: ${{ inputs.build_type }}
@@ -111,18 +127,22 @@ jobs:
       sccache-dist-token-secret-name: GIST_REPO_READ_ORG_GITHUB_TOKEN
   wheel-tests-raft-dask:
     secrets: inherit
-# <<<<<<< OLD CODE from f6a89918 (c8feda29) - COMMENTED OUT
-# # <<<<<<< OLD CODE from e5534a19 (c8feda29) - COMMENTED OUT
-# # # <<<<<<< OLD CODE from d6cc6e9f (c8feda29) - COMMENTED OUT
-# # #     uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@branch-25.12
+# <<<<<<< OLD CODE from 2ed13791 (c8feda29) - COMMENTED OUT
+# # <<<<<<< OLD CODE from f6a89918 (c8feda29) - COMMENTED OUT
+# # # <<<<<<< OLD CODE from e5534a19 (c8feda29) - COMMENTED OUT
+# # # # <<<<<<< OLD CODE from d6cc6e9f (c8feda29) - COMMENTED OUT
+# # # #     uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@branch-25.12
+# # # # =======
+# # #     uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@release/25.12
+# # # # >>>>>>> END NEW CODE (c8feda29)
 # # # =======
-# #     uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@release/25.12
+# #     uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@main
 # # # >>>>>>> END NEW CODE (c8feda29)
 # # =======
-#     uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@main
+#     uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@release/26.02
 # # >>>>>>> END NEW CODE (c8feda29)
 # =======
-    uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@release/26.02
+    uses: rapidsai/shared-workflows/.github/workflows/wheels-test.yaml@main
 # >>>>>>> END NEW CODE (c8feda29)
     with:
       build_type: ${{ inputs.build_type }}
