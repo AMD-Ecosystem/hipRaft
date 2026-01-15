@@ -14,11 +14,35 @@
  * limitations under the License.
  */
 
+// MIT License
+//
+// Modifications Copyright (C) 2026 Advanced Micro Devices, Inc. All rights reserved.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
 #pragma once
 
 #include <raft/core/device_resources.hpp>
 #include <raft/core/resource/multi_gpu.hpp>
 #include <raft/core/resource/resource_types.hpp>
+
+#include <omp.h>
 
 #include <unordered_set>
 #include <vector>
@@ -83,7 +107,34 @@ class device_resources_snmg : public device_resources {
 
   device_resources_snmg(device_resources_snmg&&)            = delete;
   device_resources_snmg& operator=(device_resources_snmg&&) = delete;
-  ~device_resources_snmg() {};
+  ~device_resources_snmg()
+  {
+    /*
+      Users of device_resources_snmg typically follow a pattern such as:
+
+      #pragma omp parallel for
+      for (int rank = 0; rank < index.num_ranks_; rank++) {
+        const raft::resources& per_gpu_resource =
+      raft::resource::set_current_device_to_rank(device_resources_snmg_instance, rank);
+        // ... do work ... that uses the resources associated with the current GPU
+        resource::sync_stream(per_gpu_resource);
+      }
+
+      This pattern is primarily used in hipVS algorithms that use multiple GPUs. When running the
+      multi-GPU python tests in hipVS it was observed that on teardown of the python interpreter,
+      OpenMP worker threads would segfault when running destructors of some HIP runtime TLS objects.
+      Due to the way python unloads modules, it was observed that the OpenMP runtime was destroying
+      it's threads after the HIP global teardown leading to a segfault.
+
+      To mitigate this, we request that the OpenMP runtime release the resources (thread pool)
+      before the device_resources_snmg object is destroyed. This can cause the OpenMP worker threads
+      to exit earlier, so their TLS destructors run before HIP runtime global teardown.
+    */
+    // Only available in OpenMP 5.0+ https://www.openmp.org/spec-html/5.0/openmpsu153.html
+    // Pre-condition is that all enqueued work has been completed and all threads have exited their
+    // parallel regions.
+    omp_pause_resource_all(omp_pause_hard);
+  };
 
   /**
    * @brief Set a memory pool on all GPUs of the multi-gpu world
