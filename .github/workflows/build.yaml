@@ -3,7 +3,7 @@ name: build
 on:
   push:
     branches:
-      - "branch-*"
+      - "main"
     tags:
       - v[0-9][0-9].[0-9][0-9].[0-9][0-9]
   workflow_dispatch:
@@ -34,23 +34,7 @@ concurrency:
 jobs:
   cpp-build:
     secrets: inherit
-# <<<<<<< OLD CODE from 2ed13791 (c8feda29) - COMMENTED OUT
-# # <<<<<<< OLD CODE from f6a89918 (c8feda29) - COMMENTED OUT
-# # # <<<<<<< OLD CODE from e5534a19 (c8feda29) - COMMENTED OUT
-# # # # <<<<<<< OLD CODE from d6cc6e9f (c8feda29) - COMMENTED OUT
-# # # #     uses: rapidsai/shared-workflows/.github/workflows/conda-cpp-build.yaml@branch-25.12
-# # # # =======
-# # #     uses: rapidsai/shared-workflows/.github/workflows/conda-cpp-build.yaml@release/25.12
-# # # # >>>>>>> END NEW CODE (c8feda29)
-# # # =======
-# #     uses: rapidsai/shared-workflows/.github/workflows/conda-cpp-build.yaml@main
-# # # >>>>>>> END NEW CODE (c8feda29)
-# # =======
-#     uses: rapidsai/shared-workflows/.github/workflows/conda-cpp-build.yaml@release/26.02
-# # >>>>>>> END NEW CODE (c8feda29)
-# =======
     uses: rapidsai/shared-workflows/.github/workflows/conda-cpp-build.yaml@main
-# >>>>>>> END NEW CODE (c8feda29)
     with:
       build_type: ${{ inputs.build_type || 'branch' }}
       branch: ${{ inputs.branch }}
@@ -62,23 +46,7 @@ jobs:
   python-build:
     needs: [cpp-build]
     secrets: inherit
-# <<<<<<< OLD CODE from 2ed13791 (c8feda29) - COMMENTED OUT
-# # <<<<<<< OLD CODE from f6a89918 (c8feda29) - COMMENTED OUT
-# # # <<<<<<< OLD CODE from e5534a19 (c8feda29) - COMMENTED OUT
-# # # # <<<<<<< OLD CODE from d6cc6e9f (c8feda29) - COMMENTED OUT
-# # # #     uses: rapidsai/shared-workflows/.github/workflows/conda-python-build.yaml@branch-25.12
-# # # # =======
-# # #     uses: rapidsai/shared-workflows/.github/workflows/conda-python-build.yaml@release/25.12
-# # # # >>>>>>> END NEW CODE (c8feda29)
-# # # =======
-# #     uses: rapidsai/shared-workflows/.github/workflows/conda-python-build.yaml@main
-# # # >>>>>>> END NEW CODE (c8feda29)
-# # =======
-#     uses: rapidsai/shared-workflows/.github/workflows/conda-python-build.yaml@release/26.02
-# # >>>>>>> END NEW CODE (c8feda29)
-# =======
     uses: rapidsai/shared-workflows/.github/workflows/conda-python-build.yaml@main
-# >>>>>>> END NEW CODE (c8feda29)
     with:
       build_type: ${{ inputs.build_type || 'branch' }}
       branch: ${{ inputs.branch }}
@@ -89,23 +57,7 @@ jobs:
   upload-conda:
     needs: [cpp-build, python-build]
     secrets: inherit
-# <<<<<<< OLD CODE from 2ed13791 (c8feda29) - COMMENTED OUT
-# # <<<<<<< OLD CODE from f6a89918 (c8feda29) - COMMENTED OUT
-# # # <<<<<<< OLD CODE from e5534a19 (c8feda29) - COMMENTED OUT
-# # # # <<<<<<< OLD CODE from d6cc6e9f (c8feda29) - COMMENTED OUT
-# # # #     uses: rapidsai/shared-workflows/.github/workflows/conda-upload-packages.yaml@branch-25.12
-# # # # =======
-# # #     uses: rapidsai/shared-workflows/.github/workflows/conda-upload-packages.yaml@release/25.12
-# # # # >>>>>>> END NEW CODE (c8feda29)
-# # # =======
-# #     uses: rapidsai/shared-workflows/.github/workflows/conda-upload-packages.yaml@main
-# # # >>>>>>> END NEW CODE (c8feda29)
-# # =======
-#     uses: rapidsai/shared-workflows/.github/workflows/conda-upload-packages.yaml@release/26.02
-# # >>>>>>> END NEW CODE (c8feda29)
-# =======
     uses: rapidsai/shared-workflows/.github/workflows/conda-upload-packages.yaml@main
-# >>>>>>> END NEW CODE (c8feda29)
     with:
       build_type: ${{ inputs.build_type || 'branch' }}
       branch: ${{ inputs.branch }}
@@ -115,51 +67,19 @@ jobs:
     if: github.ref_type == 'branch'
     needs: python-build
     secrets: inherit
-# <<<<<<< OLD CODE from 2ed13791 (c8feda29) - COMMENTED OUT
-# # <<<<<<< OLD CODE from f6a89918 (c8feda29) - COMMENTED OUT
-# # # <<<<<<< OLD CODE from e5534a19 (c8feda29) - COMMENTED OUT
-# # # # <<<<<<< OLD CODE from d6cc6e9f (c8feda29) - COMMENTED OUT
-# # # #     uses: rapidsai/shared-workflows/.github/workflows/custom-job.yaml@branch-25.12
-# # # # =======
-# # #     uses: rapidsai/shared-workflows/.github/workflows/custom-job.yaml@release/25.12
-# # # # >>>>>>> END NEW CODE (c8feda29)
-# # # =======
-# #     uses: rapidsai/shared-workflows/.github/workflows/custom-job.yaml@main
-# # # >>>>>>> END NEW CODE (c8feda29)
-# # =======
-#     uses: rapidsai/shared-workflows/.github/workflows/custom-job.yaml@release/26.02
-# # >>>>>>> END NEW CODE (c8feda29)
-# =======
     uses: rapidsai/shared-workflows/.github/workflows/custom-job.yaml@main
-# >>>>>>> END NEW CODE (c8feda29)
     with:
       arch: "amd64"
       branch: ${{ inputs.branch }}
       build_type: ${{ inputs.build_type || 'branch' }}
-      container_image: "rapidsai/ci-conda:26.02-latest"
+      container_image: "rapidsai/ci-conda:26.04-latest"
       date: ${{ inputs.date }}
       node_type: "gpu-l4-latest-1"
       script: "ci/build_docs.sh"
       sha: ${{ inputs.sha }}
   wheel-build-libraft:
     secrets: inherit
-# <<<<<<< OLD CODE from 2ed13791 (c8feda29) - COMMENTED OUT
-# # <<<<<<< OLD CODE from f6a89918 (c8feda29) - COMMENTED OUT
-# # # <<<<<<< OLD CODE from e5534a19 (c8feda29) - COMMENTED OUT
-# # # # <<<<<<< OLD CODE from d6cc6e9f (c8feda29) - COMMENTED OUT
-# # # #     uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@branch-25.12
-# # # # =======
-# # #     uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@release/25.12
-# # # # >>>>>>> END NEW CODE (c8feda29)
-# # # =======
-# #     uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@main
-# # # >>>>>>> END NEW CODE (c8feda29)
-# # =======
-#     uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@release/26.02
-# # >>>>>>> END NEW CODE (c8feda29)
-# =======
     uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@main
-# >>>>>>> END NEW CODE (c8feda29)
     with:
       build_type: ${{ inputs.build_type || 'branch' }}
       branch: ${{ inputs.branch }}
@@ -175,23 +95,7 @@ jobs:
   wheel-publish-libraft:
     needs: wheel-build-libraft
     secrets: inherit
-# <<<<<<< OLD CODE from 2ed13791 (c8feda29) - COMMENTED OUT
-# # <<<<<<< OLD CODE from f6a89918 (c8feda29) - COMMENTED OUT
-# # # <<<<<<< OLD CODE from e5534a19 (c8feda29) - COMMENTED OUT
-# # # # <<<<<<< OLD CODE from d6cc6e9f (c8feda29) - COMMENTED OUT
-# # # #     uses: rapidsai/shared-workflows/.github/workflows/wheels-publish.yaml@branch-25.12
-# # # # =======
-# # #     uses: rapidsai/shared-workflows/.github/workflows/wheels-publish.yaml@release/25.12
-# # # # >>>>>>> END NEW CODE (c8feda29)
-# # # =======
-# #     uses: rapidsai/shared-workflows/.github/workflows/wheels-publish.yaml@main
-# # # >>>>>>> END NEW CODE (c8feda29)
-# # =======
-#     uses: rapidsai/shared-workflows/.github/workflows/wheels-publish.yaml@release/26.02
-# # >>>>>>> END NEW CODE (c8feda29)
-# =======
     uses: rapidsai/shared-workflows/.github/workflows/wheels-publish.yaml@main
-# >>>>>>> END NEW CODE (c8feda29)
     with:
       build_type: ${{ inputs.build_type || 'branch' }}
       branch: ${{ inputs.branch }}
@@ -202,23 +106,7 @@ jobs:
   wheel-build-pylibraft:
     needs: wheel-build-libraft
     secrets: inherit
-# <<<<<<< OLD CODE from 2ed13791 (c8feda29) - COMMENTED OUT
-# # <<<<<<< OLD CODE from f6a89918 (c8feda29) - COMMENTED OUT
-# # # <<<<<<< OLD CODE from e5534a19 (c8feda29) - COMMENTED OUT
-# # # # <<<<<<< OLD CODE from d6cc6e9f (c8feda29) - COMMENTED OUT
-# # # #     uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@branch-25.12
-# # # # =======
-# # #     uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@release/25.12
-# # # # >>>>>>> END NEW CODE (c8feda29)
-# # # =======
-# #     uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@main
-# # # >>>>>>> END NEW CODE (c8feda29)
-# # =======
-#     uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@release/26.02
-# # >>>>>>> END NEW CODE (c8feda29)
-# =======
     uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@main
-# >>>>>>> END NEW CODE (c8feda29)
     with:
       build_type: ${{ inputs.build_type || 'branch' }}
       branch: ${{ inputs.branch }}
@@ -232,23 +120,7 @@ jobs:
   wheel-publish-pylibraft:
     needs: wheel-build-pylibraft
     secrets: inherit
-# <<<<<<< OLD CODE from 2ed13791 (c8feda29) - COMMENTED OUT
-# # <<<<<<< OLD CODE from f6a89918 (c8feda29) - COMMENTED OUT
-# # # <<<<<<< OLD CODE from e5534a19 (c8feda29) - COMMENTED OUT
-# # # # <<<<<<< OLD CODE from d6cc6e9f (c8feda29) - COMMENTED OUT
-# # # #     uses: rapidsai/shared-workflows/.github/workflows/wheels-publish.yaml@branch-25.12
-# # # # =======
-# # #     uses: rapidsai/shared-workflows/.github/workflows/wheels-publish.yaml@release/25.12
-# # # # >>>>>>> END NEW CODE (c8feda29)
-# # # =======
-# #     uses: rapidsai/shared-workflows/.github/workflows/wheels-publish.yaml@main
-# # # >>>>>>> END NEW CODE (c8feda29)
-# # =======
-#     uses: rapidsai/shared-workflows/.github/workflows/wheels-publish.yaml@release/26.02
-# # >>>>>>> END NEW CODE (c8feda29)
-# =======
     uses: rapidsai/shared-workflows/.github/workflows/wheels-publish.yaml@main
-# >>>>>>> END NEW CODE (c8feda29)
     with:
       build_type: ${{ inputs.build_type || 'branch' }}
       branch: ${{ inputs.branch }}
@@ -259,23 +131,7 @@ jobs:
   wheel-build-raft-dask:
     needs: wheel-build-libraft
     secrets: inherit
-# <<<<<<< OLD CODE from 2ed13791 (c8feda29) - COMMENTED OUT
-# # <<<<<<< OLD CODE from f6a89918 (c8feda29) - COMMENTED OUT
-# # # <<<<<<< OLD CODE from e5534a19 (c8feda29) - COMMENTED OUT
-# # # # <<<<<<< OLD CODE from d6cc6e9f (c8feda29) - COMMENTED OUT
-# # # #     uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@branch-25.12
-# # # # =======
-# # #     uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@release/25.12
-# # # # >>>>>>> END NEW CODE (c8feda29)
-# # # =======
-# #     uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@main
-# # # >>>>>>> END NEW CODE (c8feda29)
-# # =======
-#     uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@release/26.02
-# # >>>>>>> END NEW CODE (c8feda29)
-# =======
     uses: rapidsai/shared-workflows/.github/workflows/wheels-build.yaml@main
-# >>>>>>> END NEW CODE (c8feda29)
     with:
       build_type: ${{ inputs.build_type || 'branch' }}
       branch: ${{ inputs.branch }}
@@ -289,23 +145,7 @@ jobs:
   wheel-publish-raft-dask:
     needs: wheel-build-raft-dask
     secrets: inherit
-# <<<<<<< OLD CODE from 2ed13791 (c8feda29) - COMMENTED OUT
-# # <<<<<<< OLD CODE from f6a89918 (c8feda29) - COMMENTED OUT
-# # # <<<<<<< OLD CODE from e5534a19 (c8feda29) - COMMENTED OUT
-# # # # <<<<<<< OLD CODE from d6cc6e9f (c8feda29) - COMMENTED OUT
-# # # #     uses: rapidsai/shared-workflows/.github/workflows/wheels-publish.yaml@branch-25.12
-# # # # =======
-# # #     uses: rapidsai/shared-workflows/.github/workflows/wheels-publish.yaml@release/25.12
-# # # # >>>>>>> END NEW CODE (c8feda29)
-# # # =======
-# #     uses: rapidsai/shared-workflows/.github/workflows/wheels-publish.yaml@main
-# # # >>>>>>> END NEW CODE (c8feda29)
-# # =======
-#     uses: rapidsai/shared-workflows/.github/workflows/wheels-publish.yaml@release/26.02
-# # >>>>>>> END NEW CODE (c8feda29)
-# =======
     uses: rapidsai/shared-workflows/.github/workflows/wheels-publish.yaml@main
-# >>>>>>> END NEW CODE (c8feda29)
     with:
       build_type: ${{ inputs.build_type || 'branch' }}
       branch: ${{ inputs.branch }}
