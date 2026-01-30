@@ -11,7 +11,7 @@
 # or implied. See the License for the specific language governing permissions and limitations under
 # the License.
 
-# Modifications Copyright (c) 2024-2025 Advanced Micro Devices, Inc. Permission is hereby granted,
+# Modifications Copyright (c) 2024-2026 Advanced Micro Devices, Inc. Permission is hereby granted,
 # free of charge, to any person obtaining a copy of this software and associated documentation files
 # (the "Software"), to deal in the Software without restriction, including without limitation the
 # rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the
@@ -198,13 +198,21 @@ else()
 endif()
 
 if(NOT DISABLE_OPENMP)
-  rapids_find_package(
-    OpenMP REQUIRED
-    BUILD_EXPORT_SET raft-exports
-    INSTALL_EXPORT_SET raft-exports
-  )
-  if(OPENMP_FOUND)
-    message(VERBOSE "RAFT: OpenMP found in ${OpenMP_CXX_INCLUDE_DIRS}")
+  if(CUDA_BACKEND)
+    # This is needed for the CUDA backend to find the OpenMP library. When using the HIP/ROCm
+    # backend OpenMP is shipped as part of the ROCm LLVM toolchain. By passing -fopenmp the
+    # toolchain will correctly add the required include paths and libraries. The install rpath will
+    # also be set to find the OpenMP library. TODO: Clean this up when we get rid of the
+    # CUDA_BACKEND option. This includes removing references to OpenMP related targets, variables
+    # and flags from all the cmake files.
+    rapids_find_package(
+      OpenMP REQUIRED
+      BUILD_EXPORT_SET raft-exports
+      INSTALL_EXPORT_SET raft-exports
+    )
+    if(OPENMP_FOUND)
+      message(VERBOSE "RAFT: OpenMP found in ${OpenMP_CXX_INCLUDE_DIRS}")
+    endif()
   endif()
 endif()
 
@@ -282,6 +290,14 @@ target_compile_options(
   raft INTERFACE $<$<COMPILE_LANG_AND_ID:CUDA,NVIDIA>:--expt-extended-lambda
                  --expt-relaxed-constexpr> -DHIP_ENABLE_WARP_SYNC_BUILTINS
 )
+if(NOT DISABLE_OPENMP AND NOT CUDA_BACKEND)
+  target_compile_options(raft INTERFACE -fopenmp)
+  target_link_options(raft INTERFACE -fopenmp)
+  # Note that by passing -fopenmp the compiler driver will already add the correct rpath for the
+  # OpenMP implementation. However we also add a version-agnostic ROCm RPATH so we're not tied to a
+  # specific ROCm version. This is only needed for the HIP/ROCm backend.
+  target_link_options(raft INTERFACE "LINKER:-rpath,/opt/rocm/lib/llvm/lib")
+endif()
 target_compile_definitions(
   raft INTERFACE "RAFT_LOG_ACTIVE_LEVEL=RAPIDS_LOGGER_LOG_LEVEL_${LIBRAFT_LOGGING_LEVEL}"
 )
