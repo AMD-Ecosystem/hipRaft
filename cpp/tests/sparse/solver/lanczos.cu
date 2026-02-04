@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2019-2025, NVIDIA CORPORATION.
+ * SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -217,14 +217,13 @@ class rmat_lanczos_tests
     auto csr_matrix = raft::make_device_csr_matrix_view<ValueType, IndexType, IndexType, IndexType>(
       const_cast<ValueType*>(symmetric_coo.vals()), csr_structure);
 
-    std::get<0>(stats) =
-      raft::sparse::solver::lanczos_compute_smallest_eigenvectors<IndexType, ValueType>(
-        handle,
-        config,
-        csr_matrix,
-        std::make_optional(v0.view()),
-        eigenvalues.view(),
-        eigenvectors.view());
+    std::get<0>(stats) = raft::sparse::solver::lanczos_compute_eigenpairs<IndexType, ValueType>(
+      handle,
+      config,
+      csr_matrix,
+      std::make_optional(v0.view()),
+      eigenvalues.view(),
+      eigenvectors.view());
 
     ASSERT_TRUE(raft::devArrMatch<ValueType>(eigenvalues.data_handle(),
                                              expected_eigenvalues.data_handle(),
@@ -239,7 +238,7 @@ class rmat_lanczos_tests
       raft::make_device_matrix<ValueType, uint32_t, raft::col_major>(
         handle, symmetric_coo.n_rows, n_components);
 
-    raft::sparse::solver::lanczos_compute_smallest_eigenvectors<IndexType, ValueType>(
+    raft::sparse::solver::lanczos_compute_eigenpairs<IndexType, ValueType>(
       handle,
       config,
       csr_matrix,
@@ -272,14 +271,13 @@ class rmat_lanczos_tests
       raft::make_device_matrix<ValueType, uint32_t, raft::col_major>(
         handle, symmetric_coo.n_rows, n_components);
 
-    std::get<0>(stats) =
-      raft::sparse::solver::lanczos_compute_smallest_eigenvectors<IndexType, ValueType>(
-        handle,
-        config,
-        coo_matrix,
-        std::make_optional(v0.view()),
-        eigenvalues_coo.view(),
-        eigenvectors_coo.view());
+    std::get<0>(stats) = raft::sparse::solver::lanczos_compute_eigenpairs<IndexType, ValueType>(
+      handle,
+      config,
+      coo_matrix,
+      std::make_optional(v0.view()),
+      eigenvalues_coo.view(),
+      eigenvectors_coo.view());
 
     ASSERT_TRUE(raft::devArrMatch<ValueType>(eigenvalues_coo.data_handle(),
                                              expected_eigenvalues.data_handle(),
@@ -353,14 +351,13 @@ class lanczos_tests : public ::testing::TestWithParam<lanczos_inputs<IndexType, 
     auto csr_matrix = raft::make_device_csr_matrix_view<ValueType, IndexType, IndexType, IndexType>(
       const_cast<ValueType*>(vals.data_handle()), csr_structure);
 
-    std::get<0>(stats) =
-      raft::sparse::solver::lanczos_compute_smallest_eigenvectors<IndexType, ValueType>(
-        handle,
-        config,
-        csr_matrix,
-        std::make_optional(v0.view()),
-        eigenvalues.view(),
-        eigenvectors.view());
+    std::get<0>(stats) = raft::sparse::solver::lanczos_compute_eigenpairs<IndexType, ValueType>(
+      handle,
+      config,
+      csr_matrix,
+      std::make_optional(v0.view()),
+      eigenvalues.view(),
+      eigenvectors.view());
 
     ASSERT_TRUE(raft::devArrMatch<ValueType>(eigenvalues.data_handle(),
                                              expected_eigenvalues.data_handle(),
@@ -375,7 +372,7 @@ class lanczos_tests : public ::testing::TestWithParam<lanczos_inputs<IndexType, 
       raft::make_device_matrix<ValueType, uint32_t, raft::col_major>(
         handle, n, params.n_components);
 
-    raft::sparse::solver::lanczos_compute_smallest_eigenvectors<IndexType, ValueType>(
+    raft::sparse::solver::lanczos_compute_eigenpairs<IndexType, ValueType>(
       handle,
       config,
       csr_matrix,
@@ -407,14 +404,13 @@ class lanczos_tests : public ::testing::TestWithParam<lanczos_inputs<IndexType, 
       raft::make_device_matrix<ValueType, uint32_t, raft::col_major>(
         handle, n, params.n_components);
 
-    std::get<0>(stats) =
-      raft::sparse::solver::lanczos_compute_smallest_eigenvectors<IndexType, ValueType>(
-        handle,
-        config,
-        coo_matrix,
-        std::make_optional(v0.view()),
-        eigenvalues_coo.view(),
-        eigenvectors_coo.view());
+    std::get<0>(stats) = raft::sparse::solver::lanczos_compute_eigenpairs<IndexType, ValueType>(
+      handle,
+      config,
+      coo_matrix,
+      std::make_optional(v0.view()),
+      eigenvalues_coo.view(),
+      eigenvectors_coo.view());
 
     ASSERT_TRUE(raft::devArrMatch<ValueType>(eigenvalues_coo.data_handle(),
                                              expected_eigenvalues.data_handle(),
