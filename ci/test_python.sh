@@ -1,5 +1,9 @@
 #!/bin/bash
-# SPDX-FileCopyrightText: Copyright (c) 2022-2024, NVIDIA CORPORATION.
+# <<<<<<< OLD CODE from edfc5cf8 (c8feda29) - COMMENTED OUT
+# # SPDX-FileCopyrightText: Copyright (c) 2022-2024, NVIDIA CORPORATION.
+# =======
+# SPDX-FileCopyrightText: Copyright (c) 2022-2026, NVIDIA CORPORATION.
+# >>>>>>> END NEW CODE (c8feda29)
 # SPDX-License-Identifier: Apache-2.0
 
 set -euo pipefail
@@ -11,7 +15,7 @@ cd "$(dirname "$(realpath "${BASH_SOURCE[0]}")")"/../
 
 rapids-logger "Downloading artifacts from previous jobs"
 CPP_CHANNEL=$(rapids-download-conda-from-github cpp)
-PYTHON_CHANNEL=$(rapids-download-conda-from-github python)
+PYTHON_CHANNEL=$(rapids-download-from-github "$(rapids-package-name "conda_python" raft --stable --cuda "$RAPIDS_CUDA_VERSION")")
 
 rapids-logger "Generate Python testing dependencies"
 rapids-dependency-file-generator \

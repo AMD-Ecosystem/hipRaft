@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# SPDX-FileCopyrightText: Copyright (c) 2020-2025, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2020-2026, NVIDIA CORPORATION.
 # SPDX-License-Identifier: Apache-2.0
 
 # Modifications Copyright (c) 2024-2026 Advanced Micro Devices, Inc.
@@ -117,6 +117,14 @@ EXTRA_CMAKE_HIP_ARGS="-DCMAKE_CXX_COMPILER=hipcc"
 INSTALL_PREFIX=${INSTALL_PREFIX:=${PREFIX:=${CONDA_PREFIX:=$LIBRAFT_BUILD_DIR/install}}}
 PARALLEL_LEVEL=${PARALLEL_LEVEL:=$(nproc)}
 BUILD_ABI=${BUILD_ABI:=ON}
+
+PYTHON_ARGS_FOR_INSTALL=(
+    -v
+    --no-build-isolation
+    --no-deps
+    --config-settings
+    "rapidsai.disable-cuda=true"
+)
 
 # Default to Ninja if generator is not specified
 export CMAKE_GENERATOR="${CMAKE_GENERATOR:=Ninja}"
@@ -433,23 +441,40 @@ if (( NUMARGS == 0 )) || hasArg libraft || hasArg tests || hasArg bench-prims ||
   fi
 fi
 
-# Build and (optionally) install the pylibraft Python package
+# If `RAPIDS_PY_VERSION` is set, use that as the lower-bound for the stable ABI CPython version
+if [ -n "${RAPIDS_PY_VERSION:-}" ]; then
+    RAPIDS_PY_API="cp${RAPIDS_PY_VERSION//./}"
+    PYTHON_ARGS_FOR_INSTALL+=("--config-settings" "skbuild.wheel.py-api=${RAPIDS_PY_API}")
+fi
 
-# Replace spaces with semicolons in SKBUILD_EXTRA_CMAKE_ARGS
-SKBUILD_EXTRA_CMAKE_ARGS="${EXTRA_CMAKE_ARGS[*]// /;}"
-if (( NUMARGS == 0 )) || hasArg pylibraft || hasArg raft-dask; then
-    # Build and install libraft pip package
-    SKBUILD_CMAKE_ARGS="-DCMAKE_CXX_COMPILER=hipcc;-DCMAKE_PREFIX_PATH=${INSTALL_PREFIX};${SKBUILD_EXTRA_CMAKE_ARGS}" \
-        python -m pip install --no-deps --no-build-isolation "${REPODIR}"/python/libraft
-    # Build and install pylibraft pip package
-    SKBUILD_CMAKE_ARGS="-DCMAKE_CXX_COMPILER=hipcc;-DCMAKE_PREFIX_PATH=${INSTALL_PREFIX};${SKBUILD_EXTRA_CMAKE_ARGS}" \
-        python -m pip install --no-deps --no-build-isolation "${REPODIR}"/python/pylibraft
+# Build and (optionally) install the pylibraft Python package
+# <<<<<<< OLD CODE from edfc5cf8 (c8feda29) - COMMENTED OUT
+#
+# # Replace spaces with semicolons in SKBUILD_EXTRA_CMAKE_ARGS
+# SKBUILD_EXTRA_CMAKE_ARGS="${EXTRA_CMAKE_ARGS[*]// /;}"
+# if (( NUMARGS == 0 )) || hasArg pylibraft || hasArg raft-dask; then
+#     # Build and install libraft pip package
+#     SKBUILD_CMAKE_ARGS="-DCMAKE_CXX_COMPILER=hipcc;-DCMAKE_PREFIX_PATH=${INSTALL_PREFIX};${SKBUILD_EXTRA_CMAKE_ARGS}" \
+#         python -m pip install --no-deps --no-build-isolation "${REPODIR}"/python/libraft
+#     # Build and install pylibraft pip package
+#     SKBUILD_CMAKE_ARGS="-DCMAKE_CXX_COMPILER=hipcc;-DCMAKE_PREFIX_PATH=${INSTALL_PREFIX};${SKBUILD_EXTRA_CMAKE_ARGS}" \
+#         python -m pip install --no-deps --no-build-isolation "${REPODIR}"/python/pylibraft
+# =======
+if (( NUMARGS == 0 )) || hasArg pylibraft; then
+    SKBUILD_CMAKE_ARGS="${SKBUILD_EXTRA_CMAKE_ARGS}" \
+        python -m pip install "${PYTHON_ARGS_FOR_INSTALL[@]}" "${REPODIR}"/python/pylibraft
+# >>>>>>> END NEW CODE (c8feda29)
 fi
 
 # Build and (optionally) install the raft-dask Python package
 if (( NUMARGS == 0 )) || hasArg raft-dask; then
-    SKBUILD_CMAKE_ARGS="-DCMAKE_CXX_COMPILER=hipcc;-DCMAKE_PREFIX_PATH=${INSTALL_PREFIX};${SKBUILD_EXTRA_CMAKE_ARGS}" \
-        python -m pip install --no-deps --no-build-isolation "${REPODIR}"/python/raft-dask
+# <<<<<<< OLD CODE from edfc5cf8 (c8feda29) - COMMENTED OUT
+#     SKBUILD_CMAKE_ARGS="-DCMAKE_CXX_COMPILER=hipcc;-DCMAKE_PREFIX_PATH=${INSTALL_PREFIX};${SKBUILD_EXTRA_CMAKE_ARGS}" \
+#         python -m pip install --no-deps --no-build-isolation "${REPODIR}"/python/raft-dask
+# =======
+    SKBUILD_CMAKE_ARGS="${SKBUILD_EXTRA_CMAKE_ARGS}" \
+        python -m pip install "${PYTHON_ARGS_FOR_INSTALL[@]}" "${REPODIR}"/python/raft-dask
+# >>>>>>> END NEW CODE (c8feda29)
 fi
 
 if hasArg docs; then
