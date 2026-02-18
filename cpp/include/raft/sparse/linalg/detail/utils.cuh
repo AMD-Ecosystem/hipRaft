@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2021-2025, NVIDIA CORPORATION.
+ * SPDX-FileCopyrightText: Copyright (c) 2021-2026, NVIDIA CORPORATION.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -33,7 +33,7 @@ namespace cub = hipcub;
 #include <raft/amd_warp_primitives.h>
 using namespace hip_warp_primitives;
 #else
-#include <cub/cub.cuh>
+#include <cub/warp/warp_reduce.cuh>
 #include <cuda_fp16.h>
 #endif
 

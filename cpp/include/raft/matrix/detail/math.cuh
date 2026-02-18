@@ -38,7 +38,7 @@
 #include <hipcub/hipcub.hpp>
 namespace cub = hipcub;
 #else
-#include <cub/cub.cuh>
+#include <cub/block/block_reduce.cuh>
 #endif
 
 namespace raft {

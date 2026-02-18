@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2019-2024, NVIDIA CORPORATION.
+ * SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -29,7 +29,11 @@
 #include <hipcub/hipcub.hpp>
 namespace cub = hipcub;
 #else
-#include <cub/cub.cuh>
+#include <cub/block/block_load.cuh>
+#include <cub/block/block_radix_sort.cuh>
+#include <cub/block/block_store.cuh>
+#include <cub/device/device_radix_sort.cuh>
+#include <cub/device/device_segmented_radix_sort.cuh>
 #endif
 
 #include <cstddef>

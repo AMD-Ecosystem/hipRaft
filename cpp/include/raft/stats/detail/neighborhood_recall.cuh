@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2023-2024, NVIDIA CORPORATION.
+ * SPDX-FileCopyrightText: Copyright (c) 2023-2026, NVIDIA CORPORATION.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -38,9 +38,7 @@
 namespace cub = hipcub;
 #include <hip/std/optional>
 #else
-#include <cub/cub.cuh>
-
-#include <optional>
+#include <cub/block/block_reduce.cuh>
 #endif
 #include <cuda/atomic>
 

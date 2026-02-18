@@ -347,7 +347,6 @@ class lanczos_tests : public ::testing::TestWithParam<lanczos_inputs<IndexType, 
       }
     }
 
-// >>>>>>> END NEW CODE (c8feda29)
     raft::random::uniform<ValueType>(handle, rng, v0.view(), 0, 1);
     std::tuple<IndexType, ValueType, IndexType> stats;
 

@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2022-2024, NVIDIA CORPORATION.
+ * SPDX-FileCopyrightText: Copyright (c) 2022-2026, NVIDIA CORPORATION.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -34,10 +34,7 @@
 #ifdef __HIP_PLATFORM_AMD__
 #include <hipcub/hipcub.hpp>
 namespace cub = hipcub;
-#else
-#include <cub/cub.cuh>
 #endif
-
 #include <gtest/gtest.h>
 #include <sys/timeb.h>
 
