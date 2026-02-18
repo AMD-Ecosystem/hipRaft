@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2025, NVIDIA CORPORATION.
+ * SPDX-FileCopyrightText: Copyright (c) 2025-2026, NVIDIA CORPORATION.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -36,25 +36,14 @@
 #include <raft/amd_warp_primitives.h>
 #include <raft/core/resource/stream_view.hpp>
 #include <raft/util/device_loads_stores_hip.cuh>
-
-#include <hip/hip_cooperative_groups.h>
 #else
 #include <raft/util/device_loads_stores.cuh>
-
-#include <cooperative_groups.h>
-#include <cooperative_groups/reduce.h>
 #endif
 
+#include <cuda/std/cassert>
 #include <cuda/std/functional>
-#include <thrust/copy.h>
-#include <thrust/functional.h>
-#include <thrust/iterator/discard_iterator.h>
-#include <thrust/reduce.h>
-#include <thrust/sequence.h>
-
-#include <assert.h>
-
-namespace cg = cooperative_groups;
+#include <thrust/fill.h>
+#include <thrust/scan.h>
 
 namespace raft {
 namespace sparse {
