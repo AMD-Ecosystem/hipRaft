@@ -36,8 +36,13 @@
 #include <raft/amd_warp_primitives.h>
 #include <raft/core/resource/stream_view.hpp>
 #include <raft/util/device_loads_stores_hip.cuh>
+
+#include <hipcub/hipcub.hpp>
+namespace cub = hipcub;
 #else
 #include <raft/util/device_loads_stores.cuh>
+
+#include <cub/block/block_reduce.cuh>
 #endif
 
 #include <cuda/std/cassert>
