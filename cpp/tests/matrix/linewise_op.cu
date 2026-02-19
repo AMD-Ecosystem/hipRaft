@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2021-2025, NVIDIA CORPORATION.
+ * SPDX-FileCopyrightText: Copyright (c) 2021-2026, NVIDIA CORPORATION.
  * SPDX-License-Identifier: Apache-2.0
  */
 /*
@@ -41,6 +41,7 @@
 #include <cuda_profiler_api.h>
 #endif
 
+#include <cuda/iterator>
 #include <thrust/for_each.h>
 
 #include <gtest/gtest.h>
@@ -296,7 +297,7 @@ struct LinewiseTest : public ::testing::TestWithParam<typename ParamsReader::Par
               blob_out.data(), n, m);
             // prep padded input data
             thrust::for_each_n(rmm::exec_policy(stream),
-                               thrust::make_counting_iterator(0ul),
+                               cuda::make_counting_iterator(0ul),
                                nLines * lineLen,
                                [inSpan, in2, lineLen] __device__(size_t i) {
                                  inSpan(i / lineLen, i % lineLen) = in2[i];
@@ -311,7 +312,7 @@ struct LinewiseTest : public ::testing::TestWithParam<typename ParamsReader::Par
               runLinewiseSum<raft::row_major>(out, in, lineLen, nLines, vec1);
               auto out_dense = blob_val.data();
               thrust::for_each_n(rmm::exec_policy(stream),
-                                 thrust::make_counting_iterator(0ul),
+                                 cuda::make_counting_iterator(0ul),
                                  nLines * lineLen,
                                  [outSpan, out_dense, lineLen] __device__(size_t i) {
                                    out_dense[i] = outSpan(i / lineLen, i % lineLen);
@@ -329,7 +330,7 @@ struct LinewiseTest : public ::testing::TestWithParam<typename ParamsReader::Par
               blob_out.data(), n, m);
             // prep padded input data
             thrust::for_each_n(rmm::exec_policy(stream),
-                               thrust::make_counting_iterator(0ul),
+                               cuda::make_counting_iterator(0ul),
                                nLines * lineLen,
                                [inSpan, in2, lineLen] __device__(size_t i) {
                                  inSpan(i % lineLen, i / lineLen) = in2[i];
@@ -344,7 +345,7 @@ struct LinewiseTest : public ::testing::TestWithParam<typename ParamsReader::Par
               runLinewiseSum<raft::col_major>(out, in, lineLen, nLines, vec1);
               auto out_dense = blob_val.data();
               thrust::for_each_n(rmm::exec_policy(stream),
-                                 thrust::make_counting_iterator(0ul),
+                                 cuda::make_counting_iterator(0ul),
                                  nLines * lineLen,
                                  [outSpan, out_dense, lineLen] __device__(size_t i) {
                                    out_dense[i] = outSpan(i % lineLen, i / lineLen);
