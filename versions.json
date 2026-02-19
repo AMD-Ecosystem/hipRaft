@@ -18,7 +18,7 @@
     "hipco" : {
       "version" : "0.3.0",
       "git_url" : "https://$ENV{GITHUB_PASS}@github.com/AMD-AIOSS/hipCollections",
-      "git_tag" : "amd-integration/0.3.x"
+      "git_tag" : "amd-integration-0.3.x"
     },
     "rocthrust" : {
       "version" : "4.0.0"
