@@ -8,12 +8,12 @@
     "rocmds_logger": {
       "version": "1.0.0",
       "git_url": "https://$ENV{GITHUB_PASS}@github.com/AMD-AIOSS/rocmds-logger",
-      "git_tag": "amd-integration/2.0.x"
+      "git_tag": "amd-integration-2.0.x"
     },
     "libhipcxx" : {
       "version" : "2.7.0",
       "git_url" : "https://$ENV{GITHUB_PASS}@github.com/AMD-AIOSS/libhipcxx",
-      "git_tag" : "amd-integration/v2.7.0"
+      "git_tag" : "amd-integration-v2.7.0"
     },
     "hipco" : {
       "version" : "0.3.0",
