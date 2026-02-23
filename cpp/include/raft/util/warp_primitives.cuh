@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2023-2024, NVIDIA CORPORATION.
+ * SPDX-FileCopyrightText: Copyright (c) 2023-2026, NVIDIA CORPORATION.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -24,10 +24,10 @@
 
 #pragma once
 
-#include <raft/core/cudart_utils.hpp>
 #include <raft/core/operators.hpp>
 #include <raft/util/bitwise_operations.hpp>
 #include <raft/util/cuda_dev_essentials.cuh>
+#include <raft/util/cudart_utils.hpp>
 
 #include <type_traits>
 

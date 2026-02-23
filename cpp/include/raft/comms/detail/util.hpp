@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2021-2024, NVIDIA CORPORATION.
+ * SPDX-FileCopyrightText: Copyright (c) 2021-2026, NVIDIA CORPORATION.
  * SPDX-License-Identifier: Apache-2.0
  */
 // Modifications Copyright (c) 2025 Advanced Micro Devices, Inc.
@@ -21,6 +21,7 @@
 #pragma once
 
 #include <raft/common/nccl_macros.hpp>
+#include <raft/core/comms.hpp>
 #include <raft/core/error.hpp>
 #include <raft/core/interruptible.hpp>
 

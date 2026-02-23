@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2019-2024, NVIDIA CORPORATION.
+ * SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION.
  * SPDX-License-Identifier: Apache-2.0
  */
 // Modifications Copyright (c) 2025 Advanced Micro Devices, Inc.
@@ -20,8 +20,8 @@
 // THE SOFTWARE.
 #pragma once
 
-#include <raft/comms/comms.hpp>
 #include <raft/comms/detail/util.hpp>
+#include <raft/core/comms.hpp>
 #include <raft/core/error.hpp>
 #include <raft/core/resources.hpp>
 #include <raft/util/cudart_utils.hpp>

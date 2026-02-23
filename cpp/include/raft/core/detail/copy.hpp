@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2023-2024, NVIDIA CORPORATION.
+ * SPDX-FileCopyrightText: Copyright (c) 2023-2026, NVIDIA CORPORATION.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -35,10 +35,10 @@
 #include <cstdio>
 #include <type_traits>
 #ifndef RAFT_DISABLE_CUDA
-#include <raft/core/cudart_utils.hpp>
 #include <raft/core/device_mdarray.hpp>
 #include <raft/core/resource/cublas_handle.hpp>
 #include <raft/linalg/detail/cublas_wrappers.hpp>
+#include <raft/util/cudart_utils.hpp>
 #if defined(__CUDACC__) || defined(__HIPCC__)
 #include <raft/linalg/transpose.cuh>
 #include <raft/util/cuda_dev_essentials.cuh>
