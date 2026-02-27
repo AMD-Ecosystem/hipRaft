@@ -1,27 +1,27 @@
 {
   "packages": {
     "hipmm": {
-      "version": "3.0.0",
+      "version": "4.0.0",
       "git_url": "https://$ENV{GITHUB_PASS}@github.com/AMD-AIOSS/hipmm",
-      "git_tag": "upgrade/25.04"
+      "git_tag": "amd-integration"
     },
     "rocmds_logger": {
       "version": "1.0.0",
       "git_url": "https://$ENV{GITHUB_PASS}@github.com/AMD-AIOSS/rocmds-logger",
-      "git_tag": "amd-integration-2.0.x"
+      "git_tag": "amd-integration"
     },
     "libhipcxx" : {
-      "version" : "2.7.0",
+      "version" : "3.0.2",
       "git_url" : "https://$ENV{GITHUB_PASS}@github.com/AMD-AIOSS/libhipcxx",
-      "git_tag" : "amd-integration-v2.7.0"
+      "git_tag" : "amd-integration"
     },
     "hipco" : {
-      "version" : "0.3.0",
+      "version" : "0.4.0",
       "git_url" : "https://$ENV{GITHUB_PASS}@github.com/AMD-AIOSS/hipCollections",
-      "git_tag" : "amd-integration-0.3.x"
+      "git_tag" : "amd-integration"
     },
     "rocthrust" : {
-      "version" : "4.0.0"
+      "version" : "4.2.0"
     }
   }
 }

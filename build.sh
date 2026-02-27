@@ -504,10 +504,10 @@ SKBUILD_EXTRA_CMAKE_ARGS="${EXTRA_CMAKE_ARGS[*]// /;}"
 if (( NUMARGS == 0 )) || hasArg pylibraft; then
     # Build and install libraft pip package
     SKBUILD_CMAKE_ARGS="-DCMAKE_CXX_COMPILER=hipcc;-DCMAKE_PREFIX_PATH=${INSTALL_PREFIX};${SKBUILD_EXTRA_CMAKE_ARGS}" \
-        python -m pip install --no-build-isolation "${REPODIR}"/python/libraft
+        python -m pip install --no-deps --no-build-isolation "${REPODIR}"/python/libraft
     # Build and install pylibraft pip package
     SKBUILD_CMAKE_ARGS="-DCMAKE_CXX_COMPILER=hipcc;-DCMAKE_PREFIX_PATH=${INSTALL_PREFIX};${SKBUILD_EXTRA_CMAKE_ARGS}" \
-        python -m pip install --no-build-isolation "${REPODIR}"/python/pylibraft
+        python -m pip install --no-deps --no-build-isolation "${REPODIR}"/python/pylibraft
 fi
 
 # Build and (optionally) install the raft-dask Python package
