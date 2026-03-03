@@ -35,8 +35,8 @@ ARGS=$*
 # scripts, and that this script resides in the repo dir!
 REPODIR=$(cd "$(dirname "$0")"; pwd)
 
-VALIDARGS="clean libraft pylibraft docs tests template package bench-prims examples --uninstall  -v -g -n --compile-lib --compile-static-lib --allgpuarch --show_depr_warn -h"
-HELP="$0 [<target> ...] [<flag> ...] [--cmake-args=\"<args>\"] [--cache-tool=<tool>] [--limit-tests=<targets>] [--build-metrics=<filename>] [--gpu-arch=\"arch\"]
+VALIDARGS="clean libraft pylibraft docs tests package bench-prims examples --uninstall  -v -g -n --compile-lib --compile-static-lib --allgpuarch --show_depr_warn -h"
+HELP="$0 [<target> ...] [<flag> ...] [--cmake-args=\"<args>\"] [--cache-tool=<tool>] [--limit-tests=<targets>] [--gpu-arch=\"arch\"]
  where <target> is:
    clean            - remove all existing build artifacts and configuration (start over)
    libraft          - build the raft C++ code only. Also builds the C-wrapper library
@@ -59,7 +59,6 @@ HELP="$0 [<target> ...] [<flag> ...] [--cmake-args=\"<args>\"] [--cache-tool=<to
    --allgpuarch                - build for all supported GPU architectures
    --gpu-arch=\"arch\"           - build for specific GPU architectures e.g --gpu-arch=\"gfx90a\"
    --show_depr_warn            - show cmake deprecation warnings
-   --build-metrics             - filename for generating build metrics report for libraft
    --cmake-args=\\\"<args>\\\"     - pass arbitrary list of CMake configuration options (escape all quotes in argument)
    --cache-tool=<tool>         - pass the build cache tool (eg: ccache, sccache, distcc) that will be used
                                  to speedup the build process.
@@ -381,9 +380,6 @@ fi
 if hasArg clean; then
     CLEAN=1
 fi
-if hasArg --incl-cache-stats; then
-    BUILD_REPORT_INCL_CACHE_STATS=ON
-fi
 if [[ ${CMAKE_TARGET} == "" ]]; then
     CMAKE_TARGET="all"
 fi
@@ -454,47 +450,6 @@ if (( NUMARGS == 0 )) || hasArg libraft || hasArg tests || hasArg bench-prims ||
   compile_end=$(date +%s)
   compile_total=$(( compile_end - compile_start ))
 
-  if [[ -n "$BUILD_REPORT_METRICS" && -f "${LIBRAFT_BUILD_DIR}/.ninja_log" ]]; then
-      if ! rapids-build-metrics-reporter.py 2> /dev/null && [ ! -f rapids-build-metrics-reporter.py ]; then
-          echo "Downloading rapids-build-metrics-reporter.py"
-          curl -sO https://raw.githubusercontent.com/rapidsai/build-metrics-reporter/v1/rapids-build-metrics-reporter.py
-      fi
-
-      echo "Formatting build metrics"
-      MSG=""
-      # get some sccache/ccache stats after the compile
-      if [[ "$BUILD_REPORT_INCL_CACHE_STATS" == "ON" ]]; then
-          if [[ ${CACHE_TOOL} == "sccache" && -x "$(command -v sccache)" ]]; then
-              COMPILE_REQUESTS=$(sccache -s | grep "Compile requests \+ [0-9]\+$" | awk '{ print $NF }')
-              CACHE_HITS=$(sccache -s | grep "Cache hits \+ [0-9]\+$" | awk '{ print $NF }')
-              HIT_RATE=$(COMPILE_REQUESTS="${COMPILE_REQUESTS}" CACHE_HITS="${CACHE_HITS}" python3 -c "import os; print(f'{int(os.getenv(\"CACHE_HITS\")) / int(os.getenv(\"COMPILE_REQUESTS\")):.2f}' if int(os.getenv(\"COMPILE_REQUESTS\")) else 'nan')")
-              MSG="${MSG}<br/>cache hit rate ${HIT_RATE} %"
-          elif [[ ${CACHE_TOOL} == "ccache" && -x "$(command -v ccache)" ]]; then
-              CACHE_STATS_LINE=$(ccache -s | grep "Hits: \+ [0-9]\+ / [0-9]\+" | tail -n1)
-              if [[ -n "$CACHE_STATS_LINE" ]]; then
-                  CACHE_HITS=$(echo "$CACHE_STATS_LINE" - | awk '{ print $2 }')
-                  COMPILE_REQUESTS=$(echo "$CACHE_STATS_LINE" - | awk '{ print $4 }')
-                  HIT_RATE=$(COMPILE_REQUESTS="${COMPILE_REQUESTS}" CACHE_HITS="${CACHE_HITS}" python3 -c "import os; print(f'{int(os.getenv(\"CACHE_HITS\")) / int(os.getenv(\"COMPILE_REQUESTS\")):.2f}' if int(os.getenv(\"COMPILE_REQUESTS\")) else 'nan')")
-                  MSG="${MSG}<br/>cache hit rate ${HIT_RATE} %"
-              fi
-          fi
-      fi
-      MSG="${MSG}<br/>parallel setting: $PARALLEL_LEVEL"
-      MSG="${MSG}<br/>parallel build time: $compile_total seconds"
-      if [[ -f "${LIBRAFT_BUILD_DIR}/libraft.so" ]]; then
-          LIBRAFT_FS=$(find "${LIBRAFT_BUILD_DIR}" -name libraft.so -printf '%s' | awk '{printf "%.2f MB", $1/1024/1024}')
-          MSG="${MSG}<br/>libraft.so size: $LIBRAFT_FS"
-      fi
-      BMR_DIR=${RAPIDS_ARTIFACTS_DIR:-"${LIBRAFT_BUILD_DIR}"}
-      echo "The HTML report can be found at [${BMR_DIR}/${BUILD_REPORT_METRICS}.html]. In CI, this report"
-      echo "will also be uploaded to the appropriate subdirectory of https://downloads.rapids.ai/ci/raft/, and"
-      echo "the entire URL can be found in \"conda-cpp-build\" runs under the task \"Upload additional artifacts\""
-      mkdir -p "${BMR_DIR}"
-      MSG_OUTFILE="$(mktemp)"
-      echo "$MSG" > "${MSG_OUTFILE}"
-      PATH=".:$PATH" python rapids-build-metrics-reporter.py "${LIBRAFT_BUILD_DIR}"/.ninja_log --fmt html --msg "${MSG_OUTFILE}" > "${BMR_DIR}"/"${BUILD_REPORT_METRICS}".html
-      cp "${LIBRAFT_BUILD_DIR}"/.ninja_log "${BMR_DIR}"/ninja.log
-  fi
 fi
 
 # Build and (optionally) install the pylibraft Python package
