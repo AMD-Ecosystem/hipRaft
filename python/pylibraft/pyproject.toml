@@ -56,8 +56,8 @@ classifiers = [
 [project.optional-dependencies]
 test = [
     "cupy-cuda13x>=13.6.0",
+    "pytest",
     "pytest-cov",
-    "pytest<9.0.0",
     "scikit-learn",
     "scipy",
 ]
