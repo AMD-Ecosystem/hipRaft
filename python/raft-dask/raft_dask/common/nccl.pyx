@@ -53,7 +53,7 @@ cdef extern from "raft/comms/std_comms.hpp" namespace "raft::comms":
     void nccl_unique_id_from_char(ncclUniqueId *id,
                                   char *uniqueId) except +
 
-cdef extern from "nccl.h":
+cdef extern from "rccl/rccl.h":
 
     cdef struct ncclComm
 

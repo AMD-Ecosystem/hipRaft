@@ -63,7 +63,13 @@ RUN dnf install -y sudo \
         ccache \
         openblas-devel \
         lapack-devel \
-        suitesparse-devel
+        suitesparse-devel \
+        autoconf \
+        libtool \
+        rdma-core \
+        rdma-core-devel \
+        libibverbs \
+        infiniband-diags
 
 WORKDIR /third_party_builds
 
@@ -73,10 +79,10 @@ bash ./cmake-4.0.1-linux-x86_64.sh --skip-license --prefix=/usr/local
 EOT
 
 RUN <<EOT
-wget -q https://github.com/openucx/ucx/releases/download/v1.17.0/ucx-1.17.0.tar.gz
-tar xzf ucx-1.17.0.tar.gz
-cd ucx-1.17.0
-./contrib/configure-release --prefix=/usr --with-rocm=/opt/rocm
+wget -q https://github.com/openucx/ucx/releases/download/v1.18.1/ucx-1.18.1.tar.gz
+tar xzf ucx-1.18.1.tar.gz
+cd ucx-1.18.1
+./contrib/configure-release --prefix=/usr --with-rocm=/opt/rocm  --with-rc --with-ud --with-dm --enable-mt --without-go --disable-assertions
 make -j$(nproc)
 make install
 EOT

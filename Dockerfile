@@ -56,16 +56,24 @@ DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
         libsuitesparse-dev \
         ssh \
         rpm \
-        ccache
+        ccache \
+        autoconf \
+        libtool \
+        rdma-core \
+        rdmacm-utils \
+        librdmacm-dev \
+        libibverbs1 \
+        ibutils \
+        infiniband-diags
 EOT
 
 WORKDIR /third_party_builds
 
 RUN <<EOT
-wget -q https://github.com/openucx/ucx/releases/download/v1.17.0/ucx-1.17.0.tar.gz
-tar xzf ucx-1.17.0.tar.gz
-cd ucx-1.17.0
-./contrib/configure-release --prefix=/usr --with-rocm=/opt/rocm
+wget -q https://github.com/openucx/ucx/releases/download/v1.18.1/ucx-1.18.1.tar.gz
+tar xzf ucx-1.18.1.tar.gz
+cd ucx-1.18.1
+./contrib/configure-release --prefix=/usr --with-rocm=/opt/rocm  --with-rc --with-ud --with-dm --enable-mt --without-go --disable-assertions
 make -j$(nproc)
 make install
 EOT

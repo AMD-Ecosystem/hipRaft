@@ -35,13 +35,14 @@ ARGS=$*
 # scripts, and that this script resides in the repo dir!
 REPODIR=$(cd "$(dirname "$0")"; pwd)
 
-VALIDARGS="clean libraft pylibraft docs tests package bench-prims examples --uninstall  -v -g -n --compile-lib --compile-static-lib --allgpuarch --show_depr_warn -h"
+VALIDARGS="clean libraft pylibraft raft-dask docs tests package bench-prims examples --uninstall  -v -g -n --compile-lib --compile-static-lib --allgpuarch --show_depr_warn -h"
 HELP="$0 [<target> ...] [<flag> ...] [--cmake-args=\"<args>\"] [--cache-tool=<tool>] [--limit-tests=<targets>] [--gpu-arch=\"arch\"]
  where <target> is:
    clean            - remove all existing build artifacts and configuration (start over)
    libraft          - build the raft C++ code only. Also builds the C-wrapper library
                       around the C++ code.
    pylibraft        - build the pylibraft Python package
+   raft-dask        - build the raft-dask Python package. This also requires pylibraft.
    docs             - build the documentation
    tests            - build the tests
    bench-prims      - build micro-benchmarks for primitives
@@ -445,7 +446,7 @@ fi
 
 # Replace spaces with semicolons in SKBUILD_EXTRA_CMAKE_ARGS
 SKBUILD_EXTRA_CMAKE_ARGS="${EXTRA_CMAKE_ARGS[*]// /;}"
-if (( NUMARGS == 0 )) || hasArg pylibraft; then
+if (( NUMARGS == 0 )) || hasArg pylibraft || hasArg raft-dask; then
     # Build and install libraft pip package
     SKBUILD_CMAKE_ARGS="-DCMAKE_CXX_COMPILER=hipcc;-DCMAKE_PREFIX_PATH=${INSTALL_PREFIX};${SKBUILD_EXTRA_CMAKE_ARGS}" \
         python -m pip install --no-deps --no-build-isolation "${REPODIR}"/python/libraft
@@ -456,8 +457,8 @@ fi
 
 # Build and (optionally) install the raft-dask Python package
 if (( NUMARGS == 0 )) || hasArg raft-dask; then
-    SKBUILD_CMAKE_ARGS="${SKBUILD_EXTRA_CMAKE_ARGS}" \
-        python -m pip install --no-build-isolation --no-deps --config-settings rapidsai.disable-cuda=true "${REPODIR}/python/raft-dask"
+    SKBUILD_CMAKE_ARGS="-DCMAKE_CXX_COMPILER=hipcc;-DCMAKE_PREFIX_PATH=${INSTALL_PREFIX};${SKBUILD_EXTRA_CMAKE_ARGS}" \
+        python -m pip install --no-deps --no-build-isolation "${REPODIR}"/python/raft-dask
 fi
 
 if hasArg docs; then

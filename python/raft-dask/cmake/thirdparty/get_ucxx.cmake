@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #=============================================================================
-# Modifications Copyright (c) 2025 Advanced Micro Devices, Inc.
+# Modifications Copyright (c) 2025-2026 Advanced Micro Devices, Inc.
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -29,11 +29,11 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
+#=============================================================================
 function(find_and_configure_ucxx)
     set(oneValueArgs VERSION FORK PINNED_TAG EXCLUDE_FROM_ALL)
     set(options UCXX_STATIC)
-    cmake_parse_arguments(PKG "${options}" "${oneValueArgs}"
-            "${multiValueArgs}" ${ARGN} )
+    cmake_parse_arguments(PKG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN} )
 
     set(BUILD_UCXX_SHARED ON)
     if(PKG_UCXX_STATIC)
@@ -43,9 +43,8 @@ function(find_and_configure_ucxx)
             GLOBAL_TARGETS         ucxx::ucxx ucxx::python
             BUILD_EXPORT_SET       raft-distributed-exports
             INSTALL_EXPORT_SET     raft-distributed-exports
-            PATCH_COMMAND          git checkout -- . && git apply ${CMAKE_CURRENT_LIST_DIR}/ucxx.diff # TODO: (HIP/AMD) Remove this patch once upstream fixes issues related to lambda captures
             CPM_ARGS
-            GIT_REPOSITORY         https://github.com/${PKG_FORK}/ucxx.git
+            GIT_REPOSITORY         https://github.com/${PKG_FORK}/hip-ucxx.git
             GIT_TAG                ${PKG_PINNED_TAG}
             SOURCE_SUBDIR          cpp
             EXCLUDE_FROM_ALL       ${PKG_EXCLUDE_FROM_ALL}
@@ -53,18 +52,17 @@ function(find_and_configure_ucxx)
               "BUILD_TESTS OFF"
               "BUILD_BENCH OFF"
               "UCXX_ENABLE_PYTHON ON"
-              "UCXX_ENABLE_RMM OFF" # TODO: (HIP/AMD) This causes a compilation error in libhipcxx. "error: unknown pragma ignored" define _LIBCUDACXX_DISABLE_EXEC_CHECK _Pragma("nv_exec_check_disable")
+              "UCXX_ENABLE_RMM ON"
               "BUILD_SHARED_LIBS ${BUILD_UCXX_SHARED}"
         )
-
 endfunction()
 
 # Change pinned tag here to test a commit in CI
 # To use a different ucxx locally, set the CMake variable
 # CPM_ucxx_SOURCE=/path/to/local/ucxx
-find_and_configure_ucxx(VERSION  0.44
-        FORK             rapidsai
-        PINNED_TAG       branch-0.44
+find_and_configure_ucxx(VERSION  0.1.0
+        FORK             ROCm-DS
+        PINNED_TAG       release/rocmds-26.03
         EXCLUDE_FROM_ALL YES
         UCXX_STATIC      ${RAFT_DASK_UCXX_STATIC}
     )
