@@ -35,6 +35,7 @@ build-backend = "scikit_build_core.build"
 requires = [
     "cython>=3.0.0,<3.1.0a0",
     "scikit-build-core[pyproject]>=0.10.0",
+    "amd-libhipmm==4.*",
     "amd-hipmm==4.*"
 ]
 
@@ -52,7 +53,6 @@ requires-python = ">=3.10"
 dependencies = [
     "amd-libraft==1.0.*",
     "numpy>=1.23,<3.0a0",
-    "amd-libhipmm==4.*",
     "amd_hipmm==4.*",
     "hip-python==7.*",
     "hip-python-as-cuda==7.*",
