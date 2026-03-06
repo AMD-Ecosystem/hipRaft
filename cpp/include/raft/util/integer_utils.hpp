@@ -17,7 +17,7 @@
  */
 
 /*
- * Modifications Copyright (c) 2025 Advanced Micro Devices, Inc.
+ * Modifications Copyright (c) 2025-2026 Advanced Micro Devices, Inc.
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -51,7 +51,12 @@
 #include <type_traits>
 
 namespace raft {
-//! Utility functions
+
+/**
+ * @defgroup integer_utils Integer arithmetic utilities
+ * @{
+ */
+
 /**
  * Finds the smallest integer not less than `number_to_round` and modulo `S` is
  * zero. This function assumes that `number_to_round` is non-negative and
@@ -257,5 +262,7 @@ _RAFT_HOST_DEVICE inline void wmul_64bit(uint64_t& res_hi, uint64_t& res_lo, uin
   res_hi = (t1 >> 32) + (t2 >> 32) + t3 + carry;
 #endif
 }
+
+/** @} */
 
 }  // namespace raft

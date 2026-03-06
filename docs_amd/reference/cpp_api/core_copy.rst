@@ -21,24 +21,18 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     SOFTWARE.
 
-Utilities
-=========
-
-RAFT contains numerous utility functions and primitives that are easily usable.
-This page provides C++ API references for the publicly-exposed utility functions.
+Copy
+====
 
 .. role:: py(code)
    :language: c++
    :class: highlight
 
-Integer Arithmetic
-------------------
-
-``#include <raft/util/integer_utils.hpp>``
+``#include <raft/core/copy.hpp>``
 
 namespace *raft*
 
-.. doxygengroup:: integer_utils
+.. doxygengroup:: core_copy
     :project: RAFT
     :members:
     :content-only:

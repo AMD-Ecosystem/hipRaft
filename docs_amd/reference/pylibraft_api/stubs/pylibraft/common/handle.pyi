@@ -2,7 +2,7 @@ from __future__ import annotations
 import builtins as __builtins__
 import functools as functools
 from pylibraft.common.cuda import CudaRuntimeError
-__all__: list[str] = ['CudaRuntimeError', 'DeviceResources', 'Handle', 'auto_sync_handle', 'functools']
+__all__: list[str] = ['CudaRuntimeError', 'DeviceResources', 'DeviceResourcesSNMG', 'Handle', 'auto_sync_handle', 'functools']
 class DeviceResources:
     """
 
@@ -88,6 +88,66 @@ class DeviceResources:
                 Issues a sync on the stream set for this instance.
 
         """
+class DeviceResourcesSNMG:
+    """
+
+        DeviceResourcesSNMG manages multi-GPU resources
+        in a single-node setup using RAFT's device_resources_snmg. Refer to
+        the header file raft/core/device_resources_snmg.hpp for interface level
+        details of this struct
+        Parameters
+        ----------
+        device_ids : Optional list to specify which devices will be used
+        Examples
+        --------
+        Basic usage:
+        >>> from pylibraft.common import DeviceResourcesSNMG
+        >>>
+        >>> # to use GPU IDs 0,1,2,3 on machine
+        >>> # handle = DeviceResourcesSNMG([0,1,2,3])
+        >>>
+        >>> # to use all GPUs on machine
+        >>> handle = DeviceResourcesSNMG()
+
+    """
+    @staticmethod
+    def __new__(type, *args, **kwargs):
+        """
+        Create and return a new object.  See help(type) for accurate signature.
+        """
+    @staticmethod
+    def __reduce_cython__(*args, **kwargs):
+        """
+        DeviceResourcesSNMG.__reduce_cython__(self)
+        """
+    @staticmethod
+    def __setstate_cython__(*args, **kwargs):
+        """
+        DeviceResourcesSNMG.__setstate_cython__(self, __pyx_state)
+        """
+    def __getstate__(self):
+        """
+        DeviceResourcesSNMG.__getstate__(self)
+        """
+    def __setstate__(self, state):
+        """
+        DeviceResourcesSNMG.__setstate__(self, state)
+        """
+    def getHandle(self):
+        """
+        DeviceResourcesSNMG.getHandle(self)
+
+                Return the pointer to the underlying raft::device_resources_snmg
+                instance as a size_t
+
+        """
+    def sync(self):
+        """
+        DeviceResourcesSNMG.sync(self)
+
+                Issues a sync on the stream set for this instance.
+
+        """
 class Handle(DeviceResources):
     """
 
@@ -164,11 +224,11 @@ class Handle(DeviceResources):
         """
 def __reduce_cython__(self):
     """
-    Handle.__reduce_cython__(self)
+    DeviceResourcesSNMG.__reduce_cython__(self)
     """
 def __setstate_cython__(self, __pyx_state):
     """
-    Handle.__setstate_cython__(self, __pyx_state)
+    DeviceResourcesSNMG.__setstate_cython__(self, __pyx_state)
     """
 def auto_sync_handle(f):
     """

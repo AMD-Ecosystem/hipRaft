@@ -1,7 +1,7 @@
 ..
     MIT License
 
-    Modifications Copyright (C) 2026 Advanced Micro Devices, Inc. All rights reserved.
+    Copyright (C) 2026 Advanced Micro Devices, Inc. All rights reserved.
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
@@ -21,24 +21,33 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     SOFTWARE.
 
-Utilities
-=========
-
-RAFT contains numerous utility functions and primitives that are easily usable.
-This page provides C++ API references for the publicly-exposed utility functions.
+Core Types
+==========
 
 .. role:: py(code)
    :language: c++
    :class: highlight
 
-Integer Arithmetic
-------------------
+Enumeration Types
+-----------------
 
-``#include <raft/util/integer_utils.hpp>``
+``#include <raft/core/types.hpp>``
 
 namespace *raft*
 
-.. doxygengroup:: integer_utils
+.. doxygengroup:: core_types
+    :project: RAFT
+    :members:
+    :content-only:
+
+Stream View
+-----------
+
+``#include <raft/core/stream_view.hpp>``
+
+namespace *raft*
+
+.. doxygengroup:: core_stream_view
     :project: RAFT
     :members:
     :content-only:

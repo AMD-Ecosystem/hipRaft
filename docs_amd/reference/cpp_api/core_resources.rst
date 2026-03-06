@@ -1,3 +1,26 @@
+..
+    MIT License
+
+    Modifications Copyright (C) 2026 Advanced Micro Devices, Inc. All rights reserved.
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
+
 Resources
 =========
 
@@ -25,7 +48,8 @@ namespace *raft::resource*
 Device Resources
 ----------------
 
-`raft::device_resources` is a convenience over using `raft::resources` directly. It provides accessor methods to retrieve resources such as the CUDA stream, stream pool, and handles to the various CUDA math libraries like cuBLAS and cuSOLVER.
+`raft::device_resources` is a convenience over using `raft::resources` directly. It provides accessor methods to retrieve
+resources such as the HIP stream, stream pool, and handles to the various ROCm math libraries like hipBLAS and hipSOLVER.
 
 ``#include <raft/core/device_resources.hpp>``
 
@@ -39,7 +63,7 @@ Device Resources Manager
 ------------------------
 
 While `raft::device_resources` provides a convenient way to access
-device-related resources for a sequence of RAFT calls, it is sometimes useful
+device-related resources for a sequence of hipRAFT calls, it is sometimes useful
 to be able to limit those resources across an entire application. For
 instance, in highly multi-threaded applications, it can be helpful to limit
 the total number of streams rather than relying on the default stream per
@@ -52,6 +76,23 @@ underlying device resources.
 namespace *raft::core*
 
 .. doxygenstruct:: raft::device_resources_manager
+    :project: RAFT
+    :members:
+
+SNMG Device Resources
+---------------------
+
+The `raft::device_resources_snmg` provides a convenient way to configure
+a SNMG (single-node multi-GPU) clique for MG algorithms. It initiates
+device-related resources for a set of devices. Calling RCCL-related functions
+in `raft/core/resource/nccl_comm.hpp` will initialize RCCL comm on each device resource.
+GPUs can be addressed and exchanges be made over multiple threads for performance.
+
+``#include <raft/core/device_resources_snmg.hpp>``
+
+namespace *raft::core*
+
+.. doxygenclass:: raft::device_resources_snmg
     :project: RAFT
     :members:
 
@@ -70,8 +111,11 @@ namespace *raft::resource*
      :members:
      :content-only:
 
-cuBLAS Handle
-~~~~~~~~~~~~~
+hipBLAS Handle
+~~~~~~~~~~~~~~
+
+On AMD platforms, the cuBLAS handle resource is backed by hipBLAS. The header
+name ``cublas_handle.hpp`` is retained for source compatibility with CUDA-based code.
 
 ``#include <raft/core/resource/cublas_handle.hpp>``
 
@@ -82,8 +126,11 @@ namespace *raft::resource*
      :members:
      :content-only:
 
-cuBLASLt Handle
-~~~~~~~~~~~~~~~
+hipBLASLt Handle
+~~~~~~~~~~~~~~~~
+
+On AMD platforms, the cuBLASLt handle resource is backed by hipBLASLt. The header
+name ``cublaslt_handle.hpp`` is retained for source compatibility with CUDA-based code.
 
 ``#include <raft/core/resource/cublaslt_handle.hpp>``
 
@@ -94,8 +141,8 @@ namespace *raft::resource*
      :members:
      :content-only:
 
-CUDA Stream
-~~~~~~~~~~~
+HIP Stream
+~~~~~~~~~~
 
 ``#include <raft/core/resource/cuda_stream.hpp>``
 
@@ -107,8 +154,8 @@ namespace *raft::resource*
      :content-only:
 
 
-CUDA Stream Pool
-~~~~~~~~~~~~~~~~
+HIP Stream Pool
+~~~~~~~~~~~~~~~
 
 ``#include <raft/core/resource/cuda_stream_pool.hpp>``
 
@@ -119,10 +166,14 @@ namespace *raft::resource*
     :members:
     :content-only:
 
-cuSolverDn Handle
-~~~~~~~~~~~~~~~~~
+hipSOLVER Dense Handle
+~~~~~~~~~~~~~~~~~~~~~~
+
+On AMD platforms, the cuSOLVER dense handle resource is backed by hipSOLVER. The header
+name ``cusolver_dn_handle.hpp`` is retained for source compatibility with CUDA-based code.
 
 ``#include <raft/core/resource/cusolver_dn_handle.hpp>``
+
 namespace *raft::resource*
 
  .. doxygengroup:: resource_cusolver_dn
@@ -130,8 +181,11 @@ namespace *raft::resource*
      :members:
      :content-only:
 
-cuSolverSp Handle
-~~~~~~~~~~~~~~~~~
+hipSOLVER Sparse Handle
+~~~~~~~~~~~~~~~~~~~~~~~
+
+On AMD platforms, the cuSOLVER sparse handle resource is backed by hipSOLVER. The header
+name ``cusolver_sp_handle.hpp`` is retained for source compatibility with CUDA-based code.
 
 ``#include <raft/core/resource/cusolver_sp_handle.hpp>``
 
@@ -142,8 +196,11 @@ namespace *raft::resource*
      :members:
      :content-only:
 
-cuSparse Handle
-~~~~~~~~~~~~~~~
+hipSPARSE Handle
+~~~~~~~~~~~~~~~~
+
+On AMD platforms, the cuSPARSE handle resource is backed by hipSPARSE. The header
+name ``cusparse_handle.hpp`` is retained for source compatibility with CUDA-based code.
 
 ``#include <raft/core/resource/cusparse_handle.hpp>``
 
@@ -203,8 +260,11 @@ namespace *raft::resource*
      :members:
      :content-only:
 
-Thrust Exec Policy
-~~~~~~~~~~~~~~~~~~
+rocThrust Exec Policy
+~~~~~~~~~~~~~~~~~~~~~
+
+On AMD platforms, the Thrust execution policy resource is backed by rocThrust. The header
+name ``thrust_policy.hpp`` is retained for source compatibility with CUDA-based code.
 
 ``#include <raft/core/resource/thrust_policy.hpp>``
 
@@ -216,7 +276,7 @@ namespace *raft::resource*
      :content-only:
 
 Custom runtime-shared resources
-~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 A custom resource is an arbitrary default-constructible C++ class.
 The consumer of the API can keep such a resource in the `raft::resources` handle.

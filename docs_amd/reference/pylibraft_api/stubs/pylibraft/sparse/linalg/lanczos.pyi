@@ -9,7 +9,7 @@ from pylibraft.common.handle import auto_sync_handle
 __all__: list[str] = ['Handle', 'auto_sync_handle', 'cai_wrapper', 'cp', 'device_ndarray', 'eigsh', 'np']
 def eigsh(*args, handle = None, **kwargs):
     """
-    eigsh(A, k=6, v0=None, ncv=None, maxiter=None, tol=0, seed=None, handle=None)
+    eigsh(A, k=6, which=u'LM', v0=None, ncv=None, maxiter=None, tol=0, seed=None, handle=None)
 
         Find ``k`` eigenvalues and eigenvectors of the real symmetric square
         matrix or complex Hermitian matrix ``A``.
@@ -23,6 +23,11 @@ def eigsh(*args, handle = None, **kwargs):
                 :class:`cupyx.scipy.sparse._csr.csr_matrix`
             k (int): The number of eigenvalues and eigenvectors to compute. Must be
                 ``1 <= k < n``.
+            which (str): 'LM' or 'LA' or 'SA'.
+                'LM': finds ``k`` largest (in magnitude) eigenvalues.
+                'LA': finds ``k`` largest (algebraic) eigenvalues.
+                'SA': finds ``k`` smallest (algebraic) eigenvalues.
+                'SM': finds ``k`` smallest (in magnitude) eigenvalues.
             v0 (ndarray): Starting vector for iteration. If ``None``, a random
                 unit vector is used.
             ncv (int): The number of Lanczos vectors generated. Must be

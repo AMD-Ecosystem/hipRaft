@@ -1,5 +1,5 @@
-NVTX
-====
+Profiling Ranges (NVTX / ROCTX)
+================================
 
 .. role:: py(code)
    :language: c++
@@ -7,9 +7,24 @@ NVTX
 
 ``#include <raft/core/nvtx.hpp>``
 
-namespace *raft::core*
+namespace *raft::common::nvtx*
 
 .. doxygennamespace:: raft::common::nvtx
     :project: RAFT
     :members:
     :content-only:
+
+.. note::
+
+   On AMD platforms, the profiling range support in this header is backed by
+   **ROCTX** (``roctx64``) rather than NVIDIA's NVTX library. The API and
+   header name are kept identical for source compatibility.
+
+   To enable profiling ranges, build hipRAFT with ``-DRAFT_NVTX=ON``. This
+   links against ``roctx64`` and defines the ``NVTX_ENABLED`` compile-time
+   macro. Profiling annotations can then be visualized with ROCm profiling
+   tools such as `ROCm Systems Profiler <https://rocm.docs.amd.com/projects/rocprofiler-systems/en/latest/>`_
+   or `rocprofv3 <https://rocm.docs.amd.com/projects/rocprofiler-sdk/en/latest/>`_.
+
+   Without ``-DRAFT_NVTX=ON``, all ``nvtx::range`` objects compile to no-ops
+   with zero overhead.

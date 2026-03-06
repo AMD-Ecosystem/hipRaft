@@ -1,7 +1,7 @@
 <!---
     MIT License
 
-    Modifications Copyright (C) 2025 Advanced Micro Devices, Inc. All rights reserved.
+    Modifications Copyright (C) 2025-2026 Advanced Micro Devices, Inc. All rights reserved.
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
@@ -35,22 +35,24 @@ hipRAFT currently provides C++ and Python APIs. The following instructions provi
 | MI250X              | CDNA2        | 64             | gfx90a      |
 | MI300A              | CDNA3        | 64             | gfx942      |
 | MI300X              | CDNA3        | 64             | gfx942      |
+| MI350X              | CDNA4        | 64             | gfx950      |
+| MI355X              | CDNA4        | 64             | gfx950      |
 
 ## Dependencies
 
 hipRAFT builds against the AMD ROCm software stack, that is the ROCm runtime, HIP compiler tool-chain, and a GPU driver that matches your ROCm version.
 
-Install ROCm 7.0.2, or the minimum version supported by the GPUs listed above, and make sure the `rocminfo` and `hipcc` commands are in your `PATH`. For more information, see [ROCm Installation](https://rocm.docs.amd.com/projects/install-on-linux/en/docs-7.0.2/).
+Install ROCm 7.2.1, or the minimum version supported by the GPUs listed above, and make sure the `rocminfo` and `hipcc` commands are in your `PATH`. For more information, see [ROCm Installation](https://rocm.docs.amd.com/projects/install-on-linux/en/docs-7.2.1/).
 
 | Name                                                                  | Version / Notes                              |
 | ----------------------------------------------------------            | -------------------------------------------- |
 | [`cmake`](https://cmake.org/)                                         | ≥ 3.31.0                                     |
 | [`ninja`](https://ninja-build.org/)                                   | ≥ 1.11.1                                     |
-| [`hipsolver`](https://rocm.docs.amd.com/projects/hipSOLVER/en/latest/)| Version that comes bundled with ROCm ≥ 7.0.2 |
-| [`hipblas`](https://rocm.docs.amd.com/projects/hipBLAS/en/latest/)    | Version that comes bundled with ROCm ≥ 7.0.2 |
-| [`hipblaslt`](https://rocm.docs.amd.com/projects/hipBLASLt/en/latest/)| Version that comes bundled with ROCm ≥ 7.0.2 |
-| [`hiprand`](https://rocm.docs.amd.com/projects/hipRAND/en/latest/)    | Version that comes bundled with ROCm ≥ 7.0.2 |
-| [`hipsparse`](https://rocm.docs.amd.com/projects/hipSPARSE/en/latest/)| Version that comes bundled with ROCm ≥ 7.0.2 |
+| [`hipsolver`](https://rocm.docs.amd.com/projects/hipSOLVER/en/latest/)| Version that comes bundled with ROCm ≥ 7.2.1 |
+| [`hipblas`](https://rocm.docs.amd.com/projects/hipBLAS/en/latest/)    | Version that comes bundled with ROCm ≥ 7.2.1 |
+| [`hipblaslt`](https://rocm.docs.amd.com/projects/hipBLASLt/en/latest/)| Version that comes bundled with ROCm ≥ 7.2.1 |
+| [`hiprand`](https://rocm.docs.amd.com/projects/hipRAND/en/latest/)    | Version that comes bundled with ROCm ≥ 7.2.1 |
+| [`hipsparse`](https://rocm.docs.amd.com/projects/hipSPARSE/en/latest/)| Version that comes bundled with ROCm ≥ 7.2.1 |
 | [`libblas-dev`](https://www.netlib.org/lapack/)                       | Tested with 3.12.0                           |
 | [`liblapack-dev`](https://www.netlib.org/lapack/)                     | Tested with 3.12.0                           |
 | [`SuiteSparse`](https://github.com/DrTimothyAldenDavis/SuiteSparse)   | Tested with 7.6.1                            |
@@ -58,11 +60,11 @@ Install ROCm 7.0.2, or the minimum version supported by the GPUs listed above, a
 | **\***[`hipMM`](https://github.com/ROCm-DS/hipMM)                     | 3.0.0                                        |
 | **\***[`hipCollections`](https://github.com/ROCm/hipCollections)      | 0.3.0                                        |
 | **\***[`libhipcxx`](https://github.com/ROCm/libhipcxx)                | 2.7.0                                        |
-| **\***[`hipCUB`](https://github.com/ROCm/hipCUB)                      | Version that comes bundled with ROCm ≥ 7.0.2 |
-| **\***[`rocThrust`](https://github.com/ROCm/rocThrust)                | Version that comes bundled with ROCm ≥ 7.0.2 |
-| **\*\***[`OpenMP`](https://www.openmp.org/)                           | Version that comes bundled with ROCm ≥ 7.0.2 |
+| **\***[`hipCUB`](https://github.com/ROCm/hipCUB)                      | Version that comes bundled with ROCm ≥ 7.2.1 |
+| **\***[`rocThrust`](https://github.com/ROCm/rocThrust)                | Version that comes bundled with ROCm ≥ 7.2.1 |
+| **\*\***[`OpenMP`](https://www.openmp.org/)                           | Version that comes bundled with ROCm ≥ 7.2.1 |
 | **Optional Dependencies**                                                                                            |
-| [`RCCL`](https://rocm.docs.amd.com/projects/rccl/en/latest/)          | Version that comes bundled with ROCm ≥ 7.0.2 |
+| [`RCCL`](https://rocm.docs.amd.com/projects/rccl/en/latest/)          | Version that comes bundled with ROCm ≥ 7.2.1 |
 | [`UCX`](https://github.com/openucx/ucx)                               | ≥ 1.17.0                                     |
 | [`Googletest`](https://github.com/google/googletest)                  | ≥ 1.13.0                                     |
 | [`Googlebench`](https://github.com/google/benchmark)                  | ≥ 1.13.0                                     |

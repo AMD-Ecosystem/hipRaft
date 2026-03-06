@@ -1,7 +1,7 @@
 ..
     MIT License
 
-    Modifications Copyright (C) 2026 Advanced Micro Devices, Inc. All rights reserved.
+    Copyright (C) 2026 Advanced Micro Devices, Inc. All rights reserved.
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
@@ -21,24 +21,31 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     SOFTWARE.
 
-Utilities
-=========
-
-RAFT contains numerous utility functions and primitives that are easily usable.
-This page provides C++ API references for the publicly-exposed utility functions.
+Error Handling
+==============
 
 .. role:: py(code)
    :language: c++
    :class: highlight
 
-Integer Arithmetic
-------------------
+Exceptions
+----------
 
-``#include <raft/util/integer_utils.hpp>``
+``#include <raft/core/error.hpp>``
 
 namespace *raft*
 
-.. doxygengroup:: integer_utils
+.. doxygengroup:: error_handling
+    :project: RAFT
+    :members:
+    :content-only:
+
+Assertion Macros
+----------------
+
+``#include <raft/core/error.hpp>``
+
+.. doxygengroup:: assertion
     :project: RAFT
     :members:
     :content-only:

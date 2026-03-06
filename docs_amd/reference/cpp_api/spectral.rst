@@ -1,7 +1,7 @@
 ..
     MIT License
 
-    Modifications Copyright (C) 2026 Advanced Micro Devices, Inc. All rights reserved.
+    Copyright (C) 2026 Advanced Micro Devices, Inc. All rights reserved.
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
@@ -21,24 +21,37 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     SOFTWARE.
 
-Utilities
-=========
-
-RAFT contains numerous utility functions and primitives that are easily usable.
-This page provides C++ API references for the publicly-exposed utility functions.
+Spectral
+========
 
 .. role:: py(code)
    :language: c++
    :class: highlight
 
-Integer Arithmetic
+This page provides C++ class references for the publicly-exposed elements of the `raft/spectral` package.
+The spectral methods in RAFT provide graph-based clustering and partitioning algorithms that operate on
+sparse matrix representations.
+
+Graph Partitioning
 ------------------
 
-``#include <raft/util/integer_utils.hpp>``
+``#include <raft/spectral/partition.cuh>``
 
-namespace *raft*
+namespace *raft::spectral*
 
-.. doxygengroup:: integer_utils
+.. doxygengroup:: spectral_partition
+    :project: RAFT
+    :members:
+    :content-only:
+
+Modularity Maximization
+-----------------------
+
+``#include <raft/spectral/modularity_maximization.cuh>``
+
+namespace *raft::spectral*
+
+.. doxygengroup:: spectral_modularity
     :project: RAFT
     :members:
     :content-only:
