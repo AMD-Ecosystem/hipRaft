@@ -82,7 +82,6 @@ BUILD_TYPE=Release
 BUILD_PRIMS_BENCH=OFF
 COMPILE_LIBRARY=OFF
 INSTALL_TARGET=install
-BUILD_REPORT_METRICS=""
 BUILD_REPORT_INCL_CACHE_STATS=OFF
 
 TEST_TARGETS="CORE_TEST;\
@@ -438,7 +437,6 @@ if (( NUMARGS == 0 )) || hasArg libraft || hasArg tests || hasArg bench-prims ||
           ${EXTRA_CMAKE_ARGS[@]:+"${EXTRA_CMAKE_ARGS[@]}"}
 
 
-  compile_start=$(date +%s)
   if [[ ${CMAKE_TARGET} != "" ]]; then
       echo "-- Compiling targets: ${CMAKE_TARGET}, verbose=${VERBOSE_FLAG}"
       if [[ ${INSTALL_TARGET} != "" ]]; then
@@ -447,9 +445,6 @@ if (( NUMARGS == 0 )) || hasArg libraft || hasArg tests || hasArg bench-prims ||
         cmake --build  "${LIBRAFT_BUILD_DIR}" ${VERBOSE_FLAG} -j"${PARALLEL_LEVEL}" --target "${CMAKE_TARGET}"
       fi
   fi
-  compile_end=$(date +%s)
-  compile_total=$(( compile_end - compile_start ))
-
 fi
 
 # Build and (optionally) install the pylibraft Python package
