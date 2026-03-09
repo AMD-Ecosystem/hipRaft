@@ -1,6 +1,6 @@
 # MIT License
 #
-# Copyright (C) 2025 Advanced Micro Devices, Inc. All rights reserved.
+# Copyright (C) 2025-2026 Advanced Micro Devices, Inc. All rights reserved.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -68,6 +68,7 @@ extensions = [
     "sphinx.ext.autosectionlabel",
     "sphinx.ext.autosummary",
     "sphinx.ext.doctest",
+    "sphinx.ext.napoleon",
     "sphinx_copybutton",
     "autoapi.extension"
 ]
@@ -80,7 +81,10 @@ breathe_projects = {"RAFT": "./doxygen/xml"}  # Ensure Doxygen XML is in ./xml
 breathe_default_project = "raft"
 
 autoapi_type = "python"
-autoapi_dirs = ["./reference/pylibraft_api/stubs"]
+autoapi_dirs = [
+    "./reference/pylibraft_api/stubs",
+    "./reference/hipraft_dask_api/stubs",
+]
 autoapi_file_patterns = ["*.pyi"]
 autoapi_add_toctree_entry = False
 
