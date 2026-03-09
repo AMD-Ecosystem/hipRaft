@@ -57,15 +57,15 @@ Install ROCm 7.2.1, or the minimum version supported by the GPUs listed above, a
 | [`liblapack-dev`](https://www.netlib.org/lapack/)                     | Tested with 3.12.0                           |
 | [`SuiteSparse`](https://github.com/DrTimothyAldenDavis/SuiteSparse)   | Tested with 7.6.1                            |
 | **Additional Required Dependencies**                                                                                 |
-| **\***[`hipMM`](https://github.com/ROCm-DS/hipMM)                     | 3.0.0                                        |
-| **\***[`hipCollections`](https://github.com/ROCm/hipCollections)      | 0.3.0                                        |
-| **\***[`libhipcxx`](https://github.com/ROCm/libhipcxx)                | 2.7.0                                        |
+| **\***[`hipMM`](https://github.com/ROCm-DS/hipMM)                     | 4.0.0                                        |
+| **\***[`hipCollections`](https://github.com/ROCm/hipCollections)      | 0.4.0                                        |
+| **\***[`libhipcxx`](https://github.com/ROCm/libhipcxx)                | 3.0.2                                        |
 | **\***[`hipCUB`](https://github.com/ROCm/hipCUB)                      | Version that comes bundled with ROCm ≥ 7.2.1 |
 | **\***[`rocThrust`](https://github.com/ROCm/rocThrust)                | Version that comes bundled with ROCm ≥ 7.2.1 |
 | **\*\***[`OpenMP`](https://www.openmp.org/)                           | Version that comes bundled with ROCm ≥ 7.2.1 |
 | **Optional Dependencies**                                                                                            |
 | [`RCCL`](https://rocm.docs.amd.com/projects/rccl/en/latest/)          | Version that comes bundled with ROCm ≥ 7.2.1 |
-| [`UCX`](https://github.com/openucx/ucx)                               | ≥ 1.17.0                                     |
+| [`UCX`](https://github.com/openucx/ucx)                               | ≥ 1.18.0                                     |
 | [`Googletest`](https://github.com/google/googletest)                  | ≥ 1.13.0                                     |
 | [`Googlebench`](https://github.com/google/benchmark)                  | ≥ 1.13.0                                     |
 | [`Doxygen`](https://github.com/doxygen/doxygen)                       | >=1.8.20                                     |

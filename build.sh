@@ -82,7 +82,6 @@ BUILD_TYPE=Release
 BUILD_PRIMS_BENCH=OFF
 COMPILE_LIBRARY=OFF
 INSTALL_TARGET=install
-BUILD_REPORT_INCL_CACHE_STATS=OFF
 
 TEST_TARGETS="CORE_TEST;\
 CORE_TEST_NOCUDA;\
@@ -415,11 +414,6 @@ if (( NUMARGS == 0 )) || hasArg libraft || hasArg tests || hasArg bench-prims ||
         echo "Building for *ALL* supported GPU architectures..."
     fi
 
-    # get the current count before the compile starts
-    CACHE_TOOL=${CACHE_TOOL:-sccache}
-    if [[ "$BUILD_REPORT_INCL_CACHE_STATS" == "ON" && -x "$(command -v "${CACHE_TOOL}")" ]]; then
-        "${CACHE_TOOL}" --zero-stats
-    fi
 
     mkdir -p "${LIBRAFT_BUILD_DIR}"
     cd "${LIBRAFT_BUILD_DIR}"
