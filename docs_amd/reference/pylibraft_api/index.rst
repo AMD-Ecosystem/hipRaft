@@ -26,13 +26,13 @@
 pylibraft
 =========
 
-``pylibraft`` is the single-GPU Python interface to hipRAFT's core algorithms and data
+``pylibraft`` is the Python interface to hipRAFT's core algorithms and data
 structures. It provides high-performance, GPU-accelerated primitives for common machine
 learning and data analytics operations, including device resource management, distance
 computations, random matrix generation, and sparse matrix utilities. ``pylibraft`` is
-designed for single-node, single-GPU workflows and integrates with the CUDA Array
-Interface for interoperability with other GPU-based Python libraries.
+designed to integrate with the CUDA Array Interface(which has been extended to support
+cupy and numba-hip) for interoperability with other GPU-based Python libraries.
 
-* :doc:`common`
+* :doc:`common```
 * :doc:`random`
 * :doc:`sparse`

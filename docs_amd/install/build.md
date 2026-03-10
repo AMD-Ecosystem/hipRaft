@@ -35,6 +35,7 @@ hipRAFT currently provides C++ and Python APIs. The following instructions provi
 | MI250X              | CDNA2        | 64             | gfx90a      |
 | MI300A              | CDNA3        | 64             | gfx942      |
 | MI300X              | CDNA3        | 64             | gfx942      |
+| MI325X              | CDNA3        | 64             | gfx942      |
 | MI350X              | CDNA4        | 64             | gfx950      |
 | MI355X              | CDNA4        | 64             | gfx950      |
 

@@ -114,7 +114,7 @@ namespace *raft::resource*
 hipBLAS Handle
 ~~~~~~~~~~~~~~
 
-On AMD platforms, the cuBLAS handle resource is backed by hipBLAS. The header
+The cuBLAS handle resource is backed by hipBLAS. The header
 name ``cublas_handle.hpp`` is retained for source compatibility with CUDA-based code.
 
 ``#include <raft/core/resource/cublas_handle.hpp>``
@@ -129,7 +129,7 @@ namespace *raft::resource*
 hipBLASLt Handle
 ~~~~~~~~~~~~~~~~
 
-On AMD platforms, the cuBLASLt handle resource is backed by hipBLASLt. The header
+The cuBLASLt handle resource is backed by hipBLASLt. The header
 name ``cublaslt_handle.hpp`` is retained for source compatibility with CUDA-based code.
 
 ``#include <raft/core/resource/cublaslt_handle.hpp>``
@@ -169,7 +169,7 @@ namespace *raft::resource*
 hipSOLVER Dense Handle
 ~~~~~~~~~~~~~~~~~~~~~~
 
-On AMD platforms, the cuSOLVER dense handle resource is backed by hipSOLVER. The header
+The cuSOLVER dense handle resource is backed by hipSOLVER. The header
 name ``cusolver_dn_handle.hpp`` is retained for source compatibility with CUDA-based code.
 
 ``#include <raft/core/resource/cusolver_dn_handle.hpp>``
@@ -184,7 +184,7 @@ namespace *raft::resource*
 hipSOLVER Sparse Handle
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-On AMD platforms, the cuSOLVER sparse handle resource is backed by hipSOLVER. The header
+The cuSOLVER sparse handle resource is backed by hipSOLVER. The header
 name ``cusolver_sp_handle.hpp`` is retained for source compatibility with CUDA-based code.
 
 ``#include <raft/core/resource/cusolver_sp_handle.hpp>``
@@ -199,7 +199,7 @@ namespace *raft::resource*
 hipSPARSE Handle
 ~~~~~~~~~~~~~~~~
 
-On AMD platforms, the cuSPARSE handle resource is backed by hipSPARSE. The header
+The cuSPARSE handle resource is backed by hipSPARSE. The header
 name ``cusparse_handle.hpp`` is retained for source compatibility with CUDA-based code.
 
 ``#include <raft/core/resource/cusparse_handle.hpp>``
@@ -263,7 +263,7 @@ namespace *raft::resource*
 rocThrust Exec Policy
 ~~~~~~~~~~~~~~~~~~~~~
 
-On AMD platforms, the Thrust execution policy resource is backed by rocThrust. The header
+The Thrust execution policy resource is backed by rocThrust. The header
 name ``thrust_policy.hpp`` is retained for source compatibility with CUDA-based code.
 
 ``#include <raft/core/resource/thrust_policy.hpp>``

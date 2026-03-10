@@ -28,9 +28,7 @@ In order to generate the Python API documentation from an environment where
 `raft-dask` is unavailable, the stubs must be generated. This can be done by
 running the following commands:
 
-From an environment with `raft-dask` installed (and `LD_LIBRARY_PATH` set to
-include the shared libraries, e.g.
-`/home/kjoseph/.local/share/mamba/envs/hipvs/lib`), run:
+From an environment with `raft-dask` installed, run:
 
 ```bash
 pip install pybind11-stubgen

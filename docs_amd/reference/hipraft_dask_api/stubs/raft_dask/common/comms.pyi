@@ -1,6 +1,6 @@
 # MIT License
 #
-# Copyright (C) 2026 Advanced Micro Devices, Inc. All rights reserved.
+# Modifications Copyright (C) 2026 Advanced Micro Devices, Inc. All rights reserved.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -40,7 +40,7 @@ __all__: list[str] = ['Comms', 'Handle', 'OrderedDict', 'UCX', 'default_client',
 class Comms:
     """
 
-        Initializes and manages underlying NCCL and UCX comms handles across
+        Initializes and manages underlying RCCL and UCX comms handles across
         the workers of a Dask cluster. It is expected that `init()` will be
         called explicitly. It is recommended to also call `destroy()` when
         the comms are no longer needed so the underlying resources can be
@@ -89,19 +89,19 @@ class Comms:
     def __init__(self, comms_p2p = False, client = None, verbose = False, streams_per_handle = 0, nccl_root_location = 'scheduler'):
         """
 
-            Construct a new CommsContext instance
+                Construct a new CommsContext instance
 
-            Parameters
-            ----------
-            comms_p2p : bool
-                        Initialize UCX endpoints?
-            client : dask.distributed.Client [optional]
-                     Dask client to use
-            verbose : bool
-                      Print verbose logging
-            nccl_root_location : string
-                      Indicates where the NCCL's root node should be located.
-                      ['client', 'worker', 'scheduler' (default)]
+                Parameters
+                ----------
+                comms_p2p : bool
+                            Initialize UCX endpoints?
+                client : dask.distributed.Client [optional]
+                         Dask client to use
+                verbose : bool
+                          Print verbose logging
+                nccl_root_location : string
+                          Indicates where the NCCL's root node should be located.
+                          ['client', 'worker', 'scheduler' (default)]
 
 
         """
@@ -110,28 +110,28 @@ class Comms:
     def destroy(self):
         """
 
-            Shuts down initialized comms and cleans up resources. This will
-            be called automatically by the Comms destructor, but may be called
-            earlier to save resources.
+                Shuts down initialized comms and cleans up resources. This will
+                be called automatically by the Comms destructor, but may be called
+                earlier to save resources.
 
         """
     def init(self, workers = None):
         """
 
-            Initializes the underlying comms. NCCL is required but
-            UCX is only initialized if `comms_p2p == True`
+                Initializes the underlying comms. NCCL is required but
+                UCX is only initialized if `comms_p2p == True`
 
-            Parameters
-            ----------
-            workers : Sequence
-                      Unique collection of workers for initializing comms.
+                Parameters
+                ----------
+                workers : Sequence
+                          Unique collection of workers for initializing comms.
 
         """
     def worker_info(self, workers):
         """
 
-            Builds a dictionary of { (worker_address, worker_port) :
-                                    (worker_rank, worker_port ) }
+                Builds a dictionary of { (worker_address, worker_port) :
+                                        (worker_rank, worker_port ) }
 
         """
 def _func_build_handle(sessionId, streams_per_handle, verbose, dask_worker = None):
@@ -293,7 +293,7 @@ def _get_worker_ip(worker_address):
 def get_raft_comm_state(sessionId, state_object = None, dask_worker = None):
     """
 
-        Retrieves cuML comms state on the scheduler node, for the given sessionId,
+        Retrieves RAFT comms state on the scheduler node, for the given sessionId,
         creating a new session if it does not exist. If no session id is given,
         returns the state dict for all sessions.
 
