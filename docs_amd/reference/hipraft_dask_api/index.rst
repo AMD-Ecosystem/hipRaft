@@ -26,6 +26,10 @@
 raft_dask
 =========
 
+.. warning::
+
+   ``raft_dask`` is experimental. Testing is limited and it may not be fully validated.
+
 ``raft_dask`` extends hipRAFT to multi-node, multi-GPU (MNMG) environments using Dask
 for distributed task scheduling. It provides communicator abstractions built on NCCL and
 UCX/UCXX that enable scalable collective operations (all-reduce, broadcast, gather, etc.)

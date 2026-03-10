@@ -42,3 +42,4 @@ hipRAFT ships two Python packages serving distinct roles:
   workloads. It builds on top of ``pylibraft`` and Dask to provide distributed
   communicator abstractions (NCCL, UCX/UCXX), enabling collective operations across GPU
   clusters. Use ``raft_dask`` when your workflow spans more than one GPU or node.
+  **Note:** ``raft_dask`` is experimental and has limited testing.
