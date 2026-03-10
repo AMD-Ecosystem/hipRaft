@@ -25,6 +25,24 @@ subtrees:
     title: C++ API reference
   - file: reference/reference-python.rst
     title: Python API reference
+    subtrees:
+    - entries:
+      - file: reference/pylibraft_api/index.rst
+        title: pylibraft
+        subtrees:
+        - entries:
+          - file: reference/pylibraft_api/common.rst
+            title: Common
+          - file: reference/pylibraft_api/random.rst
+            title: Random
+          - file: reference/pylibraft_api/sparse.rst
+            title: Sparse
+      - file: reference/hipraft_dask_api/index.rst
+        title: raft_dask
+        subtrees:
+        - entries:
+          - file: reference/hipraft_dask_api/common.rst
+            title: Common
 
 - caption: About
   entries:
