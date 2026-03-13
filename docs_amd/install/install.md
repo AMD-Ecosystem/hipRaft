@@ -42,7 +42,7 @@ The steps in this topic require a Conda installation. A minimal free version of 
 ## Install hipRAFT via AMD PyPI
 
 Packaged versions of hipRAFT and its dependencies are distributed via
-[AMD PyPI](https://pypi.amd.com/simple). This section discusses how to install
+[AMD PyPI](https://pypi.amd.com/rocm-7.2.1/simple/). This section discusses how to install
 hipRAFT via this package index.
 
 Create and activate a Conda environment with Python 3.12 as shown below:
@@ -55,5 +55,5 @@ conda activate hipraft
 hipRAFT can then be installed into this environment using pip and the AMD PyPI URL:
 
 ```bash
-pip install amd-pylibraft==1.0.0 --extra-index-url=https://pypi.amd.com/simple
+pip install amd-pylibraft==1.0.0 --index-url=https://pypi.amd.com/rocm-7.2.1/simple/
 ```
