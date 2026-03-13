@@ -264,6 +264,14 @@ micromamba activate pylibraft
 ```
 It is recommended to build the python wheels in a conda environment built from `all_rocm_arch-x86_64.yaml`. It is also possible to use `venv` but it is up to the user to install all the required packages in the environment.
 
+#### raft-dask overlay
+
+For raft-dask workloads, an overlay environment file is provided at `conda/environments/raft_dask_overlay_rocm_arch-x86_64.yaml`. Apply it on top of the base environment:
+
+```bash
+micromamba env update -n pylibraft --file conda/environments/raft_dask_overlay_rocm_arch-x86_64.yaml
+```
+
 ### Building and installing `pylibraft`
 The Python libraries can be built and installed using the build.sh script:
 
