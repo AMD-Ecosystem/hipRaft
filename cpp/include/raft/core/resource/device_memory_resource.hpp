@@ -310,8 +310,9 @@ namespace detail {
 inline auto get_workspace_adaptor(resources const& res)
   -> rmm::mr::limiting_resource_adaptor<rmm::mr::device_memory_resource>*
 {
-  res.add_resource_factory_if_not_present<workspace_resource_factory>(
-    resource_type::WORKSPACE_RESOURCE);
+  if (!res.has_resource_factory(resource_type::WORKSPACE_RESOURCE)) {
+    res.add_resource_factory(std::make_shared<workspace_resource_factory>());
+  }
   return res.get_resource<rmm::mr::limiting_resource_adaptor<rmm::mr::device_memory_resource>>(
     resource_type::WORKSPACE_RESOURCE);
 }
@@ -489,8 +490,9 @@ inline void set_large_workspace_resource(resources const& res, raft::mr::device_
 [[deprecated("use get_large_workspace_resource_ref() instead")]]
 inline auto get_large_workspace_resource(resources const& res) -> rmm::mr::device_memory_resource*
 {
-  res.add_resource_factory_if_not_present<large_workspace_resource_factory>(
-    resource_type::LARGE_WORKSPACE_RESOURCE);
+  if (!res.has_resource_factory(resource_type::LARGE_WORKSPACE_RESOURCE)) {
+    res.add_resource_factory(std::make_shared<large_workspace_resource_factory>());
+  }
   return res.get_resource<rmm::mr::device_memory_resource>(resource_type::LARGE_WORKSPACE_RESOURCE);
 };
 
