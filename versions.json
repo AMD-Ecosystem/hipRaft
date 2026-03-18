@@ -22,6 +22,11 @@
     },
     "rocthrust" : {
       "version" : "4.2.0"
+    },
+    "ucxx" : {
+      "version" : "0.1.0",
+      "git_url" : "https://$ENV{GITHUB_PASS}@github.com/AMD-AIOSS/hip-ucxx",
+      "git_tag" : "amd-integration"
     }
   }
 }
