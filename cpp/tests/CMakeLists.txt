@@ -181,6 +181,7 @@ if(BUILD_TESTS)
     linalg/multiply.cu
     linalg/norm.cu
     linalg/normalize.cu
+    linalg/pca.cu
     linalg/power.cu
     # cmake-format: off
     # linalg/randomized_svd.cu TODO: (HIP/AMD) Requires an equivalent of cusolverDnXgesvdr in hipSOLVER. See internal issue #93.
@@ -195,6 +196,7 @@ if(BUILD_TESTS)
     linalg/svd.cu
     linalg/ternary_op.cu
     linalg/transpose.cu
+    linalg/tsvd.cu
     linalg/unary_op.cu
     GPUS
     1
