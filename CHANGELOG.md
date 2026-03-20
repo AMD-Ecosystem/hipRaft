@@ -1,6 +1,39 @@
 # Changelog
 
-hipRAFT is AMD's port of NVIDIA's RAFT library, enabling 25.02 version of RAFT on AMD GPUs using the HIP platform.
+hipRAFT is AMD's port of NVIDIA's RAFT library, enabling RAFT on AMD GPUs using the HIP platform.
+
+## [Release Version 1.0.0] - 2026-04-01
+
+### Features
+- Upgraded upstream RAFT baseline from 25.02 to 25.10, incorporating new upstream primitives, performance improvements, and API changes
+- Added support for gfx950 AMD GPU architectures
+- Add TheRock-based Dockerfile with `HIP_PLATFORM` CMake configuration for TheRock CI/CD builds
+- Implement `RAFT_CUDA_TRY` error-checking macro for HIP runtime API calls, ensuring consistent error propagation on AMD GPUs
+- Port NN Descent graph construction kernel with wavefront-size-64 compatibility, adapting warp-synchronous primitives for CDNA architecture
+- Improve hipBLASLt GEMM device pointer mode handling to account for unsupported `HIPBLASLT_POINTER_MODE_ALPHA_DEVICE_VECTOR_BETA_HOST` mode
+
+### Bug Fixes
+- Fix OpenMP thread pool cleanup ordering to prevent HIP TLS (thread-local storage) destructor segfault at process exit
+- Resolve `constexpr` half-precision (`__half`) construction failure under HIP/AMD by using runtime initialization path
+- Work around hipBLASLt unsupported device pointer mode in GEMM unit tests by falling back to host pointer mode
+- Correct MST (Minimum Spanning Tree) solver for 64-wide wavefront execution, fixing reduction and ballot intrinsics
+- Resolve `Copy2DAsync` test race condition caused by missing stream synchronization before host-side validation
+- Fix missing RCCL header include path in `nccl_comm.hpp`
+- Zero-initialize input buffer margins in `gather` test kernels to eliminate non-deterministic read-of-uninitialized failures
+- Fix incorrect eigenvalue ordering in `lanczos_smallest` solver caused by off-by-one in Ritz value selection
+- Zero-initialize output bins in `histogram.cu` to prevent accumulation of stale values across repeated kernel launches
+- Enable `hip::std::optional` in neighborhood recall computation to replace missing `cuda::std::optional` on HIP
+
+### Build & Infrastructure
+- Switch HIP backend to `-fopenmp` compiler flags while preserving `FindOpenMP` CMake module for CUDA path
+- Update dependency branch names in versions.json
+- Bump ROCm base version to 7.2.1 in build infrastructure
+- Suppress `-Wdeprecated` and `-Wsign-compare` warnings when compiling gtest under hipcc
+- Fix pre-commit CMakeLists formatting violations
+
+### Limitations
+- Multi-Node/ Multi GPU is experimental
+- Raft-dask is experimental
 
 ## [Initial Release Version 0.1.0] - 2025-11-04
 
