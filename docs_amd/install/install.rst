@@ -1,0 +1,60 @@
+.. meta::
+   :description: hipRAFT documentation and API reference library
+   :keywords: Machine-Learning, Information-Retrieval, Primitives, Nearest-Neighbors, GPU, RAPIDS, ROCm-DS
+
+..
+   MIT License
+
+   Modifications Copyright (C) 2025-2026 Advanced Micro Devices, Inc. All rights reserved.
+
+   Permission is hereby granted, free of charge, to any person obtaining a copy
+   of this software and associated documentation files (the "Software"), to deal
+   in the Software without restriction, including without limitation the rights
+   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+   copies of the Software, and to permit persons to whom the Software is
+   furnished to do so, subject to the following conditions:
+
+   The above copyright notice and this permission notice shall be included in all
+   copies or substantial portions of the Software.
+
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+   SOFTWARE.
+
+******************
+Installing hipRAFT
+******************
+
+You can install hipRAFT via AMD PyPI as described below. This is recommended for users of the code. For developers interested in modifying or contributing to the Open Source hipRAFT component, see the :doc:`Build instructions <./build>`.
+
+Requirements
+============
+
+hipRAFT requires ROCm 7.2.1 running on a `ROCm-supported operating system <https://rocm.docs.amd.com/projects/install-on-linux/en/docs-7.2.1/reference/system-requirements.html#supported-operating-systems>`_. Using Ubuntu 22.04 or later is recommended.
+For more information, see `ROCm-DS system requirements <https://rocm.docs.amd.com/projects/rocm-ds/en/latest/install/install.html#system-requirements>`_.
+
+The steps in this topic require a Conda installation. A minimal free version of Conda is `Miniforge <https://conda-forge.org/download/>`_.
+
+Install hipRAFT via AMD PyPI
+=============================
+
+Packaged versions of hipRAFT and its dependencies are distributed via
+`AMD PyPI <https://pypi.amd.com/rocm-7.2.1/simple/>`_. This section discusses how to install
+hipRAFT via this package index.
+
+Create and activate a Conda environment with Python 3.12 as shown below:
+
+.. code-block:: bash
+
+   conda create --name hipraft python=3.12
+   conda activate hipraft
+
+hipRAFT can then be installed into this environment using pip and the AMD PyPI URL:
+
+.. code-block:: bash
+
+   pip install amd-pylibraft==1.0.0 --index-url=https://pypi.amd.com/rocm-7.2.1/simple/
