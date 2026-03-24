@@ -35,14 +35,13 @@ ARGS=$*
 # scripts, and that this script resides in the repo dir!
 REPODIR=$(cd "$(dirname "$0")"; pwd)
 
-VALIDARGS="clean libraft pylibraft raft-dask docs tests package bench-prims examples --uninstall  -v -g -n --compile-lib --compile-static-lib --allgpuarch --show_depr_warn -h"
+VALIDARGS="clean libraft pylibraft docs tests package bench-prims examples --uninstall  -v -g -n --compile-lib --compile-static-lib --allgpuarch --show_depr_warn -h"
 HELP="$0 [<target> ...] [<flag> ...] [--cmake-args=\"<args>\"] [--cache-tool=<tool>] [--limit-tests=<targets>] [--gpu-arch=\"arch\"]
  where <target> is:
    clean            - remove all existing build artifacts and configuration (start over)
    libraft          - build the raft C++ code only. Also builds the C-wrapper library
                       around the C++ code.
    pylibraft        - build the pylibraft Python package
-   raft-dask        - build the raft-dask Python package. This also requires pylibraft.
    docs             - build the documentation
    tests            - build the tests
    bench-prims      - build micro-benchmarks for primitives
@@ -65,7 +64,7 @@ HELP="$0 [<target> ...] [<flag> ...] [--cmake-args=\"<args>\"] [--cache-tool=<to
                                  to speedup the build process.
    -h                          - print this text
 
- default action (no args) is to build libraft, tests, pylibraft and raft-dask targets
+ default action (no args) is to build libraft, tests and pylibraft targets
 "
 LIBRAFT_BUILD_DIR=${LIBRAFT_BUILD_DIR:=${REPODIR}/cpp/build}
 EXAMPLES_BUILD_DIR=${REPODIR}/examples/build

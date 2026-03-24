@@ -7,7 +7,6 @@ hipRAFT is AMD's port of NVIDIA's RAFT library, enabling RAFT on AMD GPUs using 
 ### Features
 - Upgraded upstream RAFT baseline from 25.02 to 25.10, incorporating new upstream primitives, performance improvements, and API changes
 - Added support for gfx950 AMD GPU architectures
-- Add TheRock-based Dockerfile with `HIP_PLATFORM` CMake configuration for TheRock CI/CD builds
 - Implement `RAFT_CUDA_TRY` error-checking macro for HIP runtime API calls, ensuring consistent error propagation on AMD GPUs
 - Port NN Descent graph construction kernel with wavefront-size-64 compatibility, adapting warp-synchronous primitives for CDNA architecture
 - Improve hipBLASLt GEMM device pointer mode handling to account for unsupported `HIPBLASLT_POINTER_MODE_ALPHA_DEVICE_VECTOR_BETA_HOST` mode
