@@ -33,6 +33,6 @@ computations, random matrix generation, and sparse matrix utilities. ``pylibraft
 designed to integrate with the CUDA Array Interface(which has been extended to support
 cupy and numba-hip) for interoperability with other GPU-based Python libraries.
 
-* :doc:`common```
+* :doc:`common`
 * :doc:`random`
 * :doc:`sparse`
