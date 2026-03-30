@@ -31,12 +31,8 @@ Installing hipRAFT
 
 You can install hipRAFT via AMD PyPI as described below. This is recommended for users of the code. For developers interested in modifying or contributing to the Open Source hipRAFT component, see the :doc:`Build instructions <./build>`.
 
-Requirements
-============
-
-hipRAFT requires ROCm 7.2.0 or later on a `supported operating system <https://rocm.docs.amd.com/projects/install-on-linux/en/docs-7.2.1/reference/system-requirements.html#supported-operating-systems>`_ (Ubuntu 24.04 or 22.04 recommended). For additional requirements, see `ROCm-DS system requirements <https://advanced-micro-devices-demo--29.com.readthedocs.build/projects/rocm-ds-internal/en/29/install/install.html#system-requirements>`__.
-
-The steps in this topic require a Conda installation. A minimal free version of Conda is `Miniforge <https://conda-forge.org/download/>`_.
+See :ref:`sys-req` for information regarding supported operating systems, ROCm versions,
+and AMD GPUs before installing hipRAFT.
 
 Install hipRAFT via AMD PyPI
 =============================

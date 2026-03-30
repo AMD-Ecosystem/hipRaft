@@ -31,56 +31,14 @@ Building hipRAFT from source
 
 hipRAFT currently provides C++ and Python APIs. The following instructions provide steps to build and test hipRAFT from source files provided in the `https://github.com/ROCm-DS/hipRaft <https://github.com/ROCm-DS/hipRaft>`_ repository. To install hipRAFT for end users, see :doc:`Installing hipRAFT <./install>`.
 
-Tested on the following GPUs
-=============================
-
-.. list-table::
-   :header-rows: 1
-   :widths: 25 20 20 20
-
-   * - AMD Instinct GPU
-     - Architecture
-     - Wavefront Size
-     - LLVM target
-   * - MI355X
-     - CDNA4
-     - 64
-     - gfx950
-   * - MI350X
-     - CDNA4
-     - 64
-     - gfx950
-   * - MI325X
-     - CDNA3
-     - 64
-     - gfx942
-   * - MI300X
-     - CDNA3
-     - 64
-     - gfx942
-   * - MI300A
-     - CDNA3
-     - 64
-     - gfx942
-   * - MI250X
-     - CDNA2
-     - 64
-     - gfx90a
-   * - MI250
-     - CDNA2
-     - 64
-     - gfx90a
-   * - MI210
-     - CDNA2
-     - 64
-     - gfx90a
+See :ref:`sys-req` for information regarding supported operating systems, ROCm versions,
+and AMD GPUs before building and installing hipRAFT.
 
 Dependencies
 ============
 
+Install ROCm 7.2.0 or 7.2.1 and verify that the ``rocminfo`` and ``hipcc`` commands are available in your ``PATH``.
 hipRAFT builds against the AMD ROCm software stack, that is the ROCm runtime, HIP compiler tool-chain, and a GPU driver that matches your ROCm version.
-
-Install ROCm 7.2.0 or later (at minimum, a version that supports the GPUs listed above) and verify that the ``rocminfo`` and ``hipcc`` commands are available in your ``PATH``. For installation instructions, see `ROCm Installation <https://rocm.docs.amd.com/projects/install-on-linux/en/docs-7.2.1/>`_.
 
 .. list-table::
    :header-rows: 1

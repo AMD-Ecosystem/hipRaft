@@ -9,6 +9,8 @@ subtrees:
 
 - caption: Installation
   entries:
+  - file: install/system-requirements.rst
+    title: System requirements
   - file: install/install.rst
     title: Installing hipRAFT
   - file: install/build.rst

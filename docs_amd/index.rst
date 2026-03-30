@@ -55,6 +55,7 @@ The hipRAFT code is open and hosted at `https://github.com/ROCm-DS/hipRaft <http
 
   .. grid-item-card:: Installation
 
+    * :doc:`System requirements <install/system-requirements>`
     * :doc:`Installing hipRAFT <install/install>`
     * :doc:`Building hipRAFT <install/build>`
 
