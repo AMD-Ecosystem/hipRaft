@@ -1,3 +1,27 @@
+<!---
+    MIT License
+
+    Modifications Copyright (C) 2026 Advanced Micro Devices, Inc. All rights reserved.
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
+-->
+
 # Introduction
 
 Some example code, demonstrating the use of the hipRAFT library, are provided
@@ -13,7 +37,7 @@ CMake based build workflow.
 
 The C++ examples use the `libraft` library. The CMake scripts will automatically
 download the latest release and build it. There are some pre-requisites for successfully
-building the library. Please refer to the [Build and installation](../docs_amd/build_and_install/build_and_install.md#introduction)
+building the library. Please refer to the [Build and installation](../docs_amd/install/build.rst#introduction)
 documentation for instructions on how to set up your developer environment for building hipRAFT.
 
 The directory `<raft_source>/examples/cpp`, can be copied directly and used as a starting point
@@ -86,7 +110,7 @@ This example also demonstrates hipRAFT inter-op with custom HIP kernels and rocT
 # Python example
 
 The Python example depends on the `pylibraft` module, which can either be installed
-using pip or built from source following the instructions in [this](../docs_amd/build_and_install/build_and_install.md#building-and-installing-pylibraft) section.
+using pip or built from source following the instructions in [this](../docs_amd/install/build.rst#building-and-installing-pylibraft) section.
 The example generates a random directed-graph using the [pylibraft.random.rmat](reference/pylibraft_api/random:random) function. The
 generated graph is printed on the screen as an adjacency list. The output should look something
 like:

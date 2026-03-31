@@ -484,9 +484,7 @@ auto inputs_simple_bfloat16 = testing::Values(
 // HIP/AMD: Enable these
 // See:
 //      - [BUG] rocprim radix sort missing __hip_bfloat16 codec support
-//      https://github.com/AMD-AIOSS/hipRaft/issues/177
 //      - [BUG] hipcub::Traits missing UnsignedBits support for __hip_bfloat16
-//      https://github.com/AMD-AIOSS/hipRaft/issues/176
 //
 // using SimpleBFloat16Int = SelectK<__nv_bfloat16, uint32_t, params_simple>;
 // TEST_P(SimpleBFloat16Int, Run) { run(); }  // NOLINT

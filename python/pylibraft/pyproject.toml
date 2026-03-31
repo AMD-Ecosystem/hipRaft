@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Modifications Copyright (c) 2025 Advanced Micro Devices, Inc.
+# Modifications Copyright (c) 2025-2026 Advanced Micro Devices, Inc.
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -42,7 +42,7 @@ requires = [
 [project]
 name = "amd-pylibraft"
 dynamic = ["version"]
-description = "RAFT: Reusable Algorithms Functions and other Tools"
+description = "hipRAFT: Reusable Algorithms Functions and other Tools"
 readme = { file = "README.md", content-type = "text/markdown" }
 authors = [
     { name = "Advanced Micro Devices, Inc." },
@@ -78,6 +78,7 @@ test = [
 [project.urls]
 Homepage = "https://github.com/ROCm-DS/hipRaft"
 Documentation = "https://rocm.docs.amd.com/projects/hipRaft/en/latest/"
+"Issue Tracker" = "https://github.com/ROCm-DS/hipRaft/issues"
 
 [tool.isort]
 line_length = 79

@@ -26,7 +26,10 @@
 # list see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
-version_number = "1.0.0" # TODO: Parse this from a centralized location.
+import os
+_version_file = os.path.join(os.path.dirname(__file__), "..", "VERSION")
+with open(_version_file) as _f:
+    version_number = ".".join(str(int(p)) for p in _f.read().strip().split("."))
 left_nav_title = f"hipRAFT {version_number} documentation"
 
 # for PDF output on Read the Docs
@@ -48,7 +51,7 @@ html_context = {
 html_theme = "rocm_docs_theme"
 html_theme_options = {
     "flavor": "rocm-ds",
-    "repository_url": "https://github.com/AMD-AIOSS/hipRaft/"
+    "repository_url": "https://github.com/ROCm-DS/hipRaft/"
 }
 
 external_toc_path = "./sphinx/_toc.yml"
