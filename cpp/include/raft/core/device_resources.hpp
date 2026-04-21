@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2019-2025, NVIDIA CORPORATION.
+ * SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -48,7 +48,7 @@
 
 #include <rmm/cuda_stream_pool.hpp>
 #include <rmm/exec_policy.hpp>
-#include <rmm/mr/device_memory_resource.hpp>
+#include <rmm/resource_ref.hpp>
 
 #ifdef __HIP_PLATFORM_AMD__
 #include <raft/cublas_v2.h>
@@ -81,15 +81,11 @@ namespace raft {
 class device_resources : public resources {
  public:
   device_resources(const device_resources& handle,
-                   std::shared_ptr<rmm::mr::device_memory_resource> workspace_resource,
+                   raft::mr::device_resource workspace_resource,
                    std::optional<std::size_t> allocation_limit = std::nullopt)
     : resources{handle}
   {
-    // replace the resource factory for the workspace_resources
-    // Note: call the factory directly instead of the deprecated set_workspace_resource(shared_ptr)
-    // overload; the workspace_resource_factory(shared_ptr) constructor is not deprecated.
-    resources::add_resource_factory(
-      std::make_shared<resource::workspace_resource_factory>(workspace_resource, allocation_limit));
+    resource::set_workspace_resource(*this, std::move(workspace_resource), allocation_limit);
   }
 
   device_resources(const device_resources& handle) : resources{handle} {}
@@ -109,8 +105,8 @@ class device_resources : public resources {
    */
   device_resources(rmm::cuda_stream_view stream_view                  = rmm::cuda_stream_per_thread,
                    std::shared_ptr<rmm::cuda_stream_pool> stream_pool = {nullptr},
-                   std::shared_ptr<rmm::mr::device_memory_resource> workspace_resource = {nullptr},
-                   std::optional<std::size_t> allocation_limit = std::nullopt)
+                   std::optional<raft::mr::device_resource> workspace_resource = std::nullopt,
+                   std::optional<std::size_t> allocation_limit                 = std::nullopt)
     : resources{}
   {
     resources::add_resource_factory(std::make_shared<resource::device_id_resource_factory>());
@@ -119,11 +115,7 @@ class device_resources : public resources {
     resources::add_resource_factory(
       std::make_shared<resource::cuda_stream_pool_resource_factory>(stream_pool));
     if (workspace_resource) {
-      // Note: call the factory directly instead of the deprecated
-      // set_workspace_resource(shared_ptr) overload; the workspace_resource_factory(shared_ptr)
-      // constructor is not deprecated.
-      resources::add_resource_factory(std::make_shared<resource::workspace_resource_factory>(
-        workspace_resource, allocation_limit));
+      resource::set_workspace_resource(*this, std::move(*workspace_resource), allocation_limit);
     }
   }
 
@@ -250,7 +242,7 @@ class device_resources : public resources {
     return resource::get_subcomm(*this, key);
   }
 
-  rmm::mr::device_memory_resource* get_workspace_resource() const
+  rmm::mr::limiting_resource_adaptor* get_workspace_resource() const
   {
     return resource::get_workspace_resource(*this);
   }
