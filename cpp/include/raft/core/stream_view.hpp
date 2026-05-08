@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2022-2024, NVIDIA CORPORATION.
+ * SPDX-FileCopyrightText: Copyright (c) 2022-2026, NVIDIA CORPORATION.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -27,6 +27,7 @@
 
 #pragma once
 #include <raft/core/cuda_support.hpp>
+#include <raft/core/detail/macros.hpp>
 #include <raft/core/error.hpp>
 #include <raft/core/logger.hpp>
 #ifndef RAFT_DISABLE_CUDA
@@ -35,7 +36,7 @@
 #include <rmm/cuda_stream_view.hpp>
 #endif
 
-namespace raft {
+namespace RAFT_EXPORT raft {
 
 namespace detail {
 struct fail_stream_view {
@@ -126,4 +127,4 @@ auto static const stream_view_per_thread = stream_view{};
 
 /** @} */
 
-}  // namespace raft
+}  // namespace RAFT_EXPORT raft

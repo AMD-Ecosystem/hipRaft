@@ -1,6 +1,6 @@
 
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2023, NVIDIA CORPORATION.
+ * SPDX-FileCopyrightText: Copyright (c) 2023-2026, NVIDIA CORPORATION.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -28,12 +28,13 @@
 
 #pragma once
 
+#include <raft/core/detail/macros.hpp>
 #include <raft/core/logger.hpp>
 #include <raft/core/resources.hpp>
 #include <raft/core/span.hpp>
 #include <raft/core/sparse_types.hpp>
 
-namespace raft {
+namespace RAFT_EXPORT raft {
 
 /**
  * \defgroup coo_matrix COO Matrix
@@ -307,4 +308,4 @@ class coo_matrix
 
 /** @} */
 
-}  // namespace raft
+}  // namespace RAFT_EXPORT raft

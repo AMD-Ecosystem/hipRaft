@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2024, NVIDIA CORPORATION.
+ * SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -27,6 +27,7 @@
 
 #pragma once
 
+#include <raft/core/detail/macros.hpp>
 #include <raft/core/device_mdarray.hpp>
 #include <raft/core/device_mdspan.hpp>
 #include <raft/core/logger.hpp>
@@ -37,7 +38,8 @@
 #include <raft/util/cuda_utils.cuh>
 #include <raft/util/cudart_utils.hpp>
 
-namespace raft::matrix::detail {
+namespace RAFT_EXPORT raft {
+namespace matrix::detail {
 
 template <typename T, typename IdxT = int64_t>
 void gather_host_path(raft::resources const& res,
@@ -126,4 +128,5 @@ void sample_rows(raft::resources const& res,
   IdxT n_dim = output.extent(1);
   sample_rows<T, IdxT>(res, random_state, input, n_dim, n_rows_input, output);
 }
-}  // namespace raft::matrix::detail
+}  // namespace matrix::detail
+}  // namespace RAFT_EXPORT raft

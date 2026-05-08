@@ -100,7 +100,8 @@
 #include <utility>
 #include <vector>
 
-namespace raft::sparse::solver::detail {
+namespace RAFT_EXPORT raft {
+namespace sparse::solver::detail {
 
 template <typename T>
 RAFT_KERNEL kernel_triangular_populate(T* M, const T* beta, int n)
@@ -828,4 +829,5 @@ auto lanczos_compute_eigenpairs(
   }
 }
 
-}  // namespace raft::sparse::solver::detail
+}  // namespace sparse::solver::detail
+}  // namespace RAFT_EXPORT raft

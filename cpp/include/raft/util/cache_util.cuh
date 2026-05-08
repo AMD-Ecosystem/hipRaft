@@ -27,6 +27,7 @@
 
 #pragma once
 
+#include <raft/core/detail/macros.hpp>
 #include <raft/util/cuda_utils.cuh>
 
 #ifdef __HIP_PLATFORM_AMD__
@@ -36,7 +37,7 @@ namespace cub = hipcub;
 #include <cub/block/block_radix_sort.cuh>
 #endif
 
-namespace raft {
+namespace RAFT_EXPORT raft {
 namespace cache {
 
 /**
@@ -378,4 +379,4 @@ RAFT_KERNEL get_cache_idx(int* keys,
   }
 }
 };  // namespace cache
-};  // namespace raft
+};  // namespace RAFT_EXPORT raft

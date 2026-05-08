@@ -27,6 +27,7 @@
 
 #pragma once
 
+#include <raft/core/detail/macros.hpp>
 #include <raft/linalg/eltwise.cuh>
 #include <raft/linalg/reduce.cuh>
 #include <raft/util/cuda_utils.cuh>
@@ -35,7 +36,7 @@
 #include <hipcub/hipcub.hpp>
 namespace cub = hipcub;
 #endif
-namespace raft {
+namespace RAFT_EXPORT raft {
 namespace stats {
 namespace detail {
 
@@ -74,4 +75,4 @@ template <bool rowMajor, typename Type, typename IdxType = int>
 
 }  // namespace detail
 }  // namespace stats
-}  // namespace raft
+}  // namespace RAFT_EXPORT raft

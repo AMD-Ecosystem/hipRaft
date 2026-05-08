@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2019-2024, NVIDIA CORPORATION.
+ * SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -27,6 +27,7 @@
 
 #pragma once
 
+#include <raft/core/detail/macros.hpp>
 #include <raft/core/operators.hpp>
 #include <raft/linalg/unary_op.cuh>
 #include <raft/sparse/detail/cusparse_wrappers.h>
@@ -50,7 +51,7 @@
 #include <algorithm>
 #include <iostream>
 
-namespace raft {
+namespace RAFT_EXPORT raft {
 namespace sparse {
 namespace op {
 namespace detail {
@@ -121,4 +122,4 @@ void csr_row_slice_populate(value_idx start_offset,
 };  // namespace detail
 };  // namespace op
 };  // end NAMESPACE sparse
-};  // end NAMESPACE raft
+};  // namespace RAFT_EXPORT raft

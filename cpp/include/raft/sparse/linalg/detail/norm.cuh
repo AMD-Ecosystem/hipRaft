@@ -27,6 +27,7 @@
 
 #pragma once
 
+#include <raft/core/detail/macros.hpp>
 #include <raft/core/nvtx.hpp>
 #include <raft/core/operators.hpp>
 #include <raft/linalg/norm_types.hpp>
@@ -53,7 +54,7 @@
 #include <iostream>
 #include <limits>
 
-namespace raft {
+namespace RAFT_EXPORT raft {
 namespace sparse {
 namespace linalg {
 namespace detail {
@@ -250,4 +251,4 @@ void rowNormCsrCaller(const IdxType* ia,
 };  // end NAMESPACE detail
 };  // end NAMESPACE linalg
 };  // end NAMESPACE sparse
-};  // end NAMESPACE raft
+};  // namespace RAFT_EXPORT raft

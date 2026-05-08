@@ -27,6 +27,7 @@
 
 #pragma once
 
+#include <raft/core/detail/macros.hpp>
 #include <raft/sparse/coo.hpp>
 #include <raft/sparse/detail/cusparse_wrappers.h>
 #include <raft/sparse/detail/utils.h>
@@ -53,7 +54,7 @@
 
 #include <algorithm>
 
-namespace raft {
+namespace RAFT_EXPORT raft {
 namespace sparse {
 namespace op {
 namespace detail {
@@ -131,4 +132,4 @@ void coo_sort_by_weight(
 };  // namespace detail
 };  // namespace op
 };  // end NAMESPACE sparse
-};  // end NAMESPACE raft
+};  // namespace RAFT_EXPORT raft

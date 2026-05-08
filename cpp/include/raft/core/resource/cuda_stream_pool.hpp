@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2022-2024, NVIDIA CORPORATION.
+ * SPDX-FileCopyrightText: Copyright (c) 2022-2026, NVIDIA CORPORATION.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -27,6 +27,7 @@
 
 #pragma once
 
+#include <raft/core/detail/macros.hpp>
 #include <raft/core/resource/cuda_event.hpp>
 #include <raft/core/resource/cuda_stream.hpp>
 #include <raft/core/resource/detail/stream_sync_event.hpp>
@@ -41,7 +42,8 @@
 #include <cuda_runtime.h>
 #endif
 
-namespace raft::resource {
+namespace RAFT_EXPORT raft {
+namespace resource {
 
 class cuda_stream_pool_resource : public resource {
  public:
@@ -203,4 +205,5 @@ inline void wait_stream_pool_on_stream(const resources& res)
  * @}
  */
 
-}  // namespace raft::resource
+}  // namespace resource
+}  // namespace RAFT_EXPORT raft

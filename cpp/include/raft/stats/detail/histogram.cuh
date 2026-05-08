@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2019-2024, NVIDIA CORPORATION.
+ * SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -27,6 +27,7 @@
 
 #pragma once
 
+#include <raft/core/detail/macros.hpp>
 #include <raft/stats/stats_types.hpp>
 #include <raft/util/cuda_utils.cuh>
 #include <raft/util/cudart_utils.hpp>
@@ -40,7 +41,7 @@
 
 ///@todo: add cub's histogram as another option
 
-namespace raft {
+namespace RAFT_EXPORT raft {
 namespace stats {
 namespace detail {
 
@@ -505,4 +506,4 @@ void histogram(HistType type,
 
 };  // end namespace detail
 };  // end namespace stats
-};  // end namespace raft
+};  // namespace RAFT_EXPORT raft

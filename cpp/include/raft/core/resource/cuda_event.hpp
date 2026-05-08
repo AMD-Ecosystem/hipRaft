@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2022-2024, NVIDIA CORPORATION.
+ * SPDX-FileCopyrightText: Copyright (c) 2022-2026, NVIDIA CORPORATION.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -27,6 +27,7 @@
 
 #pragma once
 
+#include <raft/core/detail/macros.hpp>
 #include <raft/core/resource/resource_types.hpp>
 #include <raft/core/resources.hpp>
 #include <raft/util/cudart_utils.hpp>
@@ -37,7 +38,8 @@
 #include <cuda_runtime.h>
 #endif
 
-namespace raft::resource {
+namespace RAFT_EXPORT raft {
+namespace resource {
 
 class cuda_event_resource : public resource {
  public:
@@ -52,4 +54,5 @@ class cuda_event_resource : public resource {
  private:
   cudaEvent_t event_;
 };
-}  // namespace raft::resource
+}  // namespace resource
+}  // namespace RAFT_EXPORT raft

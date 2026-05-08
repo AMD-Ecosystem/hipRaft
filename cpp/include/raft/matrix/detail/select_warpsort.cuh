@@ -122,7 +122,8 @@ namespace cub = hipcub;
       }
  */
 
-namespace raft::matrix::detail::select::warpsort {
+namespace RAFT_EXPORT raft {
+namespace matrix::detail::select::warpsort {
 
 static constexpr int kMaxCapacity = 256;
 
@@ -1298,4 +1299,5 @@ void select_k(raft::resources const& res,
   }
 }
 
-}  // namespace raft::matrix::detail::select::warpsort
+}  // namespace matrix::detail::select::warpsort
+}  // namespace RAFT_EXPORT raft

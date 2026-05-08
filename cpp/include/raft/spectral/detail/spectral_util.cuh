@@ -27,6 +27,7 @@
 
 #pragma once
 
+#include <raft/core/detail/macros.hpp>
 #include <raft/core/resource/cublas_handle.hpp>
 #include <raft/core/resource/cuda_stream.hpp>
 #include <raft/core/resource/thrust_policy.hpp>
@@ -47,7 +48,7 @@
 
 #include <algorithm>
 
-namespace raft {
+namespace RAFT_EXPORT raft {
 namespace spectral {
 
 template <typename vertex_t, typename edge_t, typename weight_t>
@@ -186,4 +187,4 @@ bool construct_indicator(
 }
 
 }  // namespace spectral
-}  // namespace raft
+}  // namespace RAFT_EXPORT raft

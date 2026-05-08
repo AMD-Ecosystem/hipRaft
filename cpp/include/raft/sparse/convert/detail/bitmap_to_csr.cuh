@@ -27,6 +27,7 @@
 
 #pragma once
 
+#include <raft/core/detail/macros.hpp>
 #include <raft/core/detail/mdspan_util.cuh>  // detail::popc
 #include <raft/core/resource/cuda_stream.hpp>
 #include <raft/core/resource/thrust_policy.hpp>
@@ -53,7 +54,7 @@ namespace cub = hipcub;
 #include <thrust/fill.h>
 #include <thrust/scan.h>
 
-namespace raft {
+namespace RAFT_EXPORT raft {
 namespace sparse {
 namespace convert {
 namespace detail {
@@ -375,4 +376,4 @@ void bitmap_to_csr(raft::resources const& handle,
 };  // end NAMESPACE detail
 };  // end NAMESPACE convert
 };  // end NAMESPACE sparse
-};  // end NAMESPACE raft
+};  // namespace RAFT_EXPORT raft

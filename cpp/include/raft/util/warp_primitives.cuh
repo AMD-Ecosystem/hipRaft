@@ -27,6 +27,7 @@
 
 #pragma once
 
+#include <raft/core/detail/macros.hpp>
 #include <raft/core/operators.hpp>
 #include <raft/util/bitwise_operations.hpp>
 #include <raft/util/cuda_dev_essentials.cuh>
@@ -47,7 +48,7 @@ using bitmask_type = uint32_t;
 
 #include <stdint.h>
 
-namespace raft {
+namespace RAFT_EXPORT raft {
 
 /**
  * \return the full mask: all bits are set to 1.
@@ -290,4 +291,4 @@ DI int32_t warp_highest_active_lane(int predicate)
 // Undefine it to not affect any other source files
 #undef CUDART_VERSION
 #endif
-}  // namespace raft
+}  // namespace RAFT_EXPORT raft

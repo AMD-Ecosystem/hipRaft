@@ -27,6 +27,7 @@
 
 #pragma once
 
+#include <raft/core/detail/macros.hpp>
 #include <raft/core/resource/cublas_handle.hpp>
 #include <raft/core/resources.hpp>
 #include <raft/linalg/detail/cublas_wrappers.hpp>
@@ -51,7 +52,7 @@
 #include <algorithm>
 #include <cstddef>
 
-namespace raft {
+namespace RAFT_EXPORT raft {
 namespace matrix {
 namespace detail {
 
@@ -336,4 +337,4 @@ m_t getL2Norm(raft::resources const& handle, const m_t* in, idx_t size, cudaStre
 
 }  // end namespace detail
 }  // end namespace matrix
-}  // end namespace raft
+}  // namespace RAFT_EXPORT raft

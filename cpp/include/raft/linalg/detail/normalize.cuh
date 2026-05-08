@@ -26,6 +26,7 @@
 // SOFTWARE.
 
 #pragma once
+#include <raft/core/detail/macros.hpp>
 
 #ifdef __HIP_PLATFORM_AMD__
 #include <hipcub/hipcub.hpp>
@@ -36,7 +37,7 @@ namespace cub = hipcub;
 
 #include <raft/util/cuda_utils.cuh>
 
-namespace raft {
+namespace RAFT_EXPORT raft {
 namespace linalg {
 namespace detail {
 
@@ -211,4 +212,4 @@ void coalesced_normalize(Type* out,
 
 }  // namespace detail
 }  // namespace linalg
-}  // namespace raft
+}  // namespace RAFT_EXPORT raft

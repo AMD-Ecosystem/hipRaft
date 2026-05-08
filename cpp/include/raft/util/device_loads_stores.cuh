@@ -1,9 +1,10 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2021-2024, NVIDIA CORPORATION.
+ * SPDX-FileCopyrightText: Copyright (c) 2021-2026, NVIDIA CORPORATION.
  * SPDX-License-Identifier: Apache-2.0
  */
 #pragma once
 
+#include <raft/core/detail/macros.hpp>
 #include <raft/core/device_span.hpp>
 #include <raft/util/cuda_dev_essentials.cuh>  // DI
 
@@ -11,7 +12,7 @@
 
 #include <cstdint>  // uintX_t
 
-namespace raft {
+namespace RAFT_EXPORT raft {
 
 /**
  * @defgroup SmemStores Shared memory store operations
@@ -769,4 +770,4 @@ DI void stg(const int64_t& reg, void* addr, bool guard)
 
 /** @} */
 
-}  // namespace raft
+}  // namespace RAFT_EXPORT raft

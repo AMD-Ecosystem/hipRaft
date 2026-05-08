@@ -35,11 +35,12 @@
 
 #pragma once
 
+#include <raft/core/detail/macros.hpp>
 #include <raft/core/mdspan_types.hpp>
 #include <raft/core/resources.hpp>
 #include <raft/mr/host_memory_resource.hpp>
 
-namespace raft {
+namespace RAFT_EXPORT raft {
 
 /**
  * @brief A container backed by a host-accessible cuda::mr::synchronous_resource.
@@ -186,4 +187,4 @@ class host_container_policy {
 //   template <typename T> using host_vector_policy_default_allocator = host_container_policy<T>;
 // and use it as the ContainerPolicy default in the host matrix headers.
 
-}  // namespace raft
+}  // namespace RAFT_EXPORT raft

@@ -27,6 +27,7 @@
 
 #pragma once
 
+#include <raft/core/detail/macros.hpp>
 #include <raft/core/interruptible.hpp>
 #include <raft/linalg/eltwise.cuh>
 #include <raft/util/cuda_utils.cuh>
@@ -43,7 +44,7 @@ namespace cub = hipcub;
 
 #include <memory>
 
-namespace raft {
+namespace RAFT_EXPORT raft {
 namespace stats {
 namespace detail {
 
@@ -154,4 +155,4 @@ DataT dispersion(const DataT* centroids,
 
 }  // end namespace detail
 }  // end namespace stats
-}  // end namespace raft
+}  // namespace RAFT_EXPORT raft

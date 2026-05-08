@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2022-2024, NVIDIA CORPORATION.
+ * SPDX-FileCopyrightText: Copyright (c) 2022-2026, NVIDIA CORPORATION.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -29,6 +29,7 @@
 
 #include "cusolver_wrappers.hpp"
 
+#include <raft/core/detail/macros.hpp>
 #include <raft/core/resource/cusolver_dn_handle.hpp>
 #include <raft/core/resource/detail/stream_sync_event.hpp>
 #include <raft/core/resources.hpp>
@@ -45,7 +46,7 @@
 #include <cuda_runtime_api.h>
 #endif
 
-namespace raft {
+namespace RAFT_EXPORT raft {
 namespace linalg {
 namespace detail {
 
@@ -338,4 +339,4 @@ void eigJacobi(raft::resources const& handle,
 
 }  // namespace detail
 }  // namespace linalg
-}  // namespace raft
+}  // namespace RAFT_EXPORT raft

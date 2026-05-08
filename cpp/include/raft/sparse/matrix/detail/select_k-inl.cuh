@@ -27,6 +27,7 @@
 
 #pragma once
 
+#include <raft/core/detail/macros.hpp>
 #include <raft/core/device_csr_matrix.hpp>
 #include <raft/core/device_mdarray.hpp>
 #include <raft/core/device_mdspan.hpp>
@@ -44,7 +45,8 @@ namespace cub = hipcub;
 #endif
 #include <type_traits>
 
-namespace raft::sparse::matrix::detail {
+namespace RAFT_EXPORT raft {
+namespace sparse::matrix::detail {
 
 using namespace raft::matrix::detail;
 using raft::matrix::SelectAlgo;
@@ -241,4 +243,5 @@ void select_k(raft::resources const& handle,
   return;
 }
 
-}  // namespace raft::sparse::matrix::detail
+}  // namespace sparse::matrix::detail
+}  // namespace RAFT_EXPORT raft

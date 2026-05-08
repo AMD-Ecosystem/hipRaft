@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2019-2024, NVIDIA CORPORATION.
+ * SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -27,6 +27,7 @@
 
 #pragma once
 
+#include <raft/core/detail/macros.hpp>
 #include <raft/core/error.hpp>
 #include <raft/util/cuda_rt_essentials.hpp>
 
@@ -57,7 +58,7 @@
 #include <mutex>
 #include <string>
 
-namespace raft {
+namespace RAFT_EXPORT raft {
 
 /** Helper method to get to know warp size in device code */
 __device__ constexpr inline int warp_size()
@@ -563,4 +564,4 @@ constexpr inline auto upper_bound<__nv_bfloat16>() -> __nv_bfloat16
   return static_cast<__nv_bfloat16>(__bfloat16_constexpr{0x7f80u});
 }
 
-}  // namespace raft
+}  // namespace RAFT_EXPORT raft

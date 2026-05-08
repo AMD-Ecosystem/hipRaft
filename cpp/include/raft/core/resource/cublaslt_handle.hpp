@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2024, NVIDIA CORPORATION.
+ * SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -28,6 +28,7 @@
 #pragma once
 
 #include <raft/core/cublas_macros.hpp>
+#include <raft/core/detail/macros.hpp>
 #include <raft/core/resource/resource_types.hpp>
 #include <raft/core/resources.hpp>
 
@@ -39,7 +40,8 @@
 
 #include <memory>
 
-namespace raft::resource {
+namespace RAFT_EXPORT raft {
+namespace resource {
 
 class cublaslt_resource : public resource {
  public:
@@ -81,4 +83,5 @@ inline auto get_cublaslt_handle(resources const& res) -> cublasLtHandle_t
  * @}
  */
 
-}  // namespace raft::resource
+}  // namespace resource
+}  // namespace RAFT_EXPORT raft

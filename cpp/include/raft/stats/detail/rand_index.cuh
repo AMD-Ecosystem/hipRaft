@@ -63,6 +63,7 @@
 
 #pragma once
 
+#include <raft/core/detail/macros.hpp>
 #include <raft/core/interruptible.hpp>
 #include <raft/util/cuda_utils.cuh>
 #include <raft/util/cudart_utils.hpp>
@@ -78,7 +79,7 @@ namespace cub = hipcub;
 
 #include <math.h>
 
-namespace raft {
+namespace RAFT_EXPORT raft {
 namespace stats {
 namespace detail {
 
@@ -185,4 +186,4 @@ double compute_rand_index(const T* firstClusterArray,
 
 };  // end namespace detail
 };  // end namespace stats
-};  // end namespace raft
+};  // namespace RAFT_EXPORT raft

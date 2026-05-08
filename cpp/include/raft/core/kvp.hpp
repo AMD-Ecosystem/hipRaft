@@ -39,7 +39,7 @@ namespace cub = hipcub;
 #include <cub/util_type.cuh>
 #endif
 #endif
-namespace raft {
+namespace RAFT_EXPORT raft {
 /**
  * \brief A key identifier paired with a corresponding value
  *
@@ -99,4 +99,4 @@ RAFT_INLINE_FUNCTION KeyValuePair<_Key, _Value> shfl_xor(const KeyValuePair<_Key
                                     shfl_xor(input.value, laneMask, width, mask));
 }
 #endif
-}  // end namespace raft
+}  // namespace RAFT_EXPORT raft

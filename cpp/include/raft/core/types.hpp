@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2025, NVIDIA CORPORATION.
+ * SPDX-FileCopyrightText: Copyright (c) 2025-2026, NVIDIA CORPORATION.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -27,7 +27,8 @@
 
 #pragma once
 
-namespace raft {
+#include <raft/core/detail/macros.hpp>
+namespace RAFT_EXPORT raft {
 
 /**
  * @defgroup core_types Core enumeration types
@@ -43,4 +44,4 @@ enum class Apply { ALONG_ROWS, ALONG_COLUMNS };
 
 /** @} */
 
-}  // namespace raft
+}  // namespace RAFT_EXPORT raft

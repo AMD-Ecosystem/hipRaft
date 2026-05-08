@@ -27,6 +27,7 @@
 
 #pragma once
 
+#include <raft/core/detail/macros.hpp>
 #include <raft/core/resources.hpp>
 #include <raft/util/cuda_utils.cuh>
 #include <raft/util/vectorized.cuh>
@@ -38,7 +39,7 @@ namespace cub = hipcub;
 #include <cub/block/block_reduce.cuh>
 #endif
 
-namespace raft {
+namespace RAFT_EXPORT raft {
 namespace linalg {
 namespace detail {
 
@@ -112,4 +113,4 @@ void mapThenReduceImpl(OutType* out,
 
 };  // end namespace detail
 };  // end namespace linalg
-};  // end namespace raft
+};  // end namespace RAFT_EXPORT raft

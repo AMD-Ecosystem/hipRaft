@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2024-2025, NVIDIA CORPORATION.
+ * SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -29,6 +29,7 @@
 
 #include <raft/core/bitmap.cuh>
 #include <raft/core/bitset.cuh>
+#include <raft/core/detail/macros.hpp>
 #include <raft/core/device_csr_matrix.hpp>
 #include <raft/core/device_mdarray.hpp>
 #include <raft/core/device_mdspan.hpp>
@@ -45,7 +46,7 @@
 #include <rmm/cuda_device.hpp>
 #include <rmm/device_uvector.hpp>
 
-namespace raft {
+namespace RAFT_EXPORT raft {
 namespace sparse {
 namespace linalg {
 namespace detail {
@@ -179,4 +180,4 @@ void masked_matmul(raft::resources const& handle,
 }  // namespace detail
 }  // namespace linalg
 }  // namespace sparse
-}  // namespace raft
+}  // namespace RAFT_EXPORT raft

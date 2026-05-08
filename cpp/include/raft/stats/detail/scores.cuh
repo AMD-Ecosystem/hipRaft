@@ -27,6 +27,7 @@
 
 #pragma once
 
+#include <raft/core/detail/macros.hpp>
 #include <raft/linalg/eltwise.cuh>
 #include <raft/linalg/power.cuh>
 #include <raft/linalg/subtract.cuh>
@@ -51,7 +52,7 @@ namespace cub = hipcub;
 
 #define N_THREADS 512
 
-namespace raft {
+namespace RAFT_EXPORT raft {
 namespace stats {
 namespace detail {
 /**
@@ -232,4 +233,4 @@ void regression_metrics(const T* predictions,
 }
 }  // namespace detail
 }  // namespace stats
-}  // namespace raft
+}  // namespace RAFT_EXPORT raft

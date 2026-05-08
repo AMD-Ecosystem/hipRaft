@@ -36,6 +36,7 @@
 
 #include "contingencyMatrix.cuh"
 
+#include <raft/core/detail/macros.hpp>
 #include <raft/linalg/map_then_reduce.cuh>
 #include <raft/linalg/reduce.cuh>
 #include <raft/stats/histogram.cuh>
@@ -57,7 +58,7 @@ namespace cub = hipcub;
 
 #include <math.h>
 
-namespace raft {
+namespace RAFT_EXPORT raft {
 namespace stats {
 namespace detail {
 
@@ -221,4 +222,4 @@ double compute_adjusted_rand_index(const T* firstClusterArray,
 
 };  // end namespace detail
 };  // end namespace stats
-};  // end namespace raft
+};  // namespace RAFT_EXPORT raft

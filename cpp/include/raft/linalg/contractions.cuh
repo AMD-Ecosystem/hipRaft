@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2022-2025, NVIDIA CORPORATION.
+ * SPDX-FileCopyrightText: Copyright (c) 2022-2026, NVIDIA CORPORATION.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -32,7 +32,9 @@
 
 #include "detail/contractions.cuh"
 
-namespace raft {
+#include <raft/core/detail/macros.hpp>
+
+namespace RAFT_EXPORT raft {
 namespace linalg {
 
 /**
@@ -283,6 +285,6 @@ struct Policy2x8<half, _warp_size, _veclen> {
 using detail::Contractions_NT;
 
 }  // namespace linalg
-}  // namespace raft
+}  // namespace RAFT_EXPORT raft
 
 #endif

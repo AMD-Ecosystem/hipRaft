@@ -28,6 +28,7 @@
 #pragma once
 #include <raft/core/cuda_support.hpp>
 #include <raft/core/detail/copy.hpp>
+#include <raft/core/detail/macros.hpp>
 #include <raft/core/device_container_policy.hpp>
 #include <raft/core/error.hpp>
 #include <raft/core/host_container_policy.hpp>
@@ -61,7 +62,7 @@
 #include <raft/core/copy.hpp>
 #endif
 
-namespace raft {
+namespace RAFT_EXPORT raft {
 
 /**
  * @defgroup mdbuffer_apis multi-dimensional maybe-owning type
@@ -1020,4 +1021,4 @@ using enable_if_output_mdbuffer = std::enable_if_t<is_output_mdbuffer_v<Tn...>>;
 
 /** @} */
 
-}  // namespace raft
+}  // namespace RAFT_EXPORT raft

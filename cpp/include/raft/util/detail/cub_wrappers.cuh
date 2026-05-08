@@ -27,6 +27,8 @@
 
 #pragma once
 
+#include <raft/core/detail/macros.hpp>
+
 #include <rmm/device_uvector.hpp>
 
 #ifdef __HIP_PLATFORM_AMD__
@@ -36,7 +38,7 @@ namespace cub = hipcub;
 #include <cub/device/device_radix_sort.cuh>
 #endif
 
-namespace raft {
+namespace RAFT_EXPORT raft {
 
 /**
  * @brief Convenience wrapper over cub's SortPairs method
@@ -75,4 +77,4 @@ void sortPairs(rmm::device_uvector<char>& workspace,
                                                 stream));
 }
 
-}  // namespace raft
+}  // namespace RAFT_EXPORT raft

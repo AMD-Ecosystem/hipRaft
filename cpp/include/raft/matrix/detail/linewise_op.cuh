@@ -27,6 +27,7 @@
 
 #pragma once
 
+#include <raft/core/detail/macros.hpp>
 #include <raft/core/device_mdspan.hpp>
 #include <raft/core/error.hpp>
 #include <raft/core/mdspan.hpp>
@@ -38,7 +39,7 @@
 
 #include <algorithm>
 
-namespace raft {
+namespace RAFT_EXPORT raft {
 namespace matrix {
 namespace detail {
 
@@ -872,4 +873,4 @@ struct MatrixLinewiseOp {
 
 }  // end namespace detail
 }  // end namespace matrix
-}  // end namespace raft
+}  // namespace RAFT_EXPORT raft

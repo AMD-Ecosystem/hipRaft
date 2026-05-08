@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2022-2024, NVIDIA CORPORATION.
+ * SPDX-FileCopyrightText: Copyright (c) 2022-2026, NVIDIA CORPORATION.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -30,6 +30,7 @@
 
 #pragma once
 
+#include <raft/core/detail/macros.hpp>
 #ifdef __HIP_PLATFORM_AMD__
 #include <raft/cusolver.h>
 #else
@@ -46,7 +47,7 @@
 #define _CUSOLVER_ERR_TO_STR(err) \
   case err: return #err;
 
-namespace raft {
+namespace RAFT_EXPORT raft {
 
 /**
  * @ingroup error_handling
@@ -87,7 +88,7 @@ inline const char* cusolver_error_to_string(cusolverStatus_t err)
 
 }  // namespace detail
 }  // namespace linalg
-}  // namespace raft
+}  // namespace RAFT_EXPORT raft
 
 #undef _CUSOLVER_ERR_TO_STR
 

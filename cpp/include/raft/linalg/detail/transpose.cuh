@@ -29,6 +29,7 @@
 
 #include "cublas_wrappers.hpp"
 
+#include <raft/core/detail/macros.hpp>
 #include <raft/core/device_mdspan.hpp>
 #include <raft/core/resource/cublas_handle.hpp>
 #include <raft/core/resource/cuda_stream.hpp>
@@ -41,7 +42,7 @@
 
 #include <cmath>
 
-namespace raft {
+namespace RAFT_EXPORT raft {
 namespace linalg {
 namespace detail {
 
@@ -290,4 +291,4 @@ void transpose_col_major_impl(
 
 };  // end namespace detail
 };  // end namespace linalg
-};  // end namespace raft
+};  // end namespace RAFT_EXPORT raft

@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2020-2025, NVIDIA CORPORATION.
+ * SPDX-FileCopyrightText: Copyright (c) 2020-2026, NVIDIA CORPORATION.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -27,6 +27,7 @@
 
 #pragma once
 
+#include <raft/core/detail/macros.hpp>
 #include <raft/core/device_csr_matrix.hpp>
 #include <raft/core/device_span.hpp>
 #include <raft/core/resource/cublas_handle.hpp>
@@ -67,7 +68,7 @@
 // Get index of matrix entry
 #define IDX(i, j, lda) ((size_t)(i) + (j) * (lda))
 
-namespace raft {
+namespace RAFT_EXPORT raft {
 namespace spectral {
 namespace matrix {
 namespace detail {
@@ -522,4 +523,4 @@ struct modularity_matrix_t : laplacian_matrix_t<index_type, value_type, nnz_type
 }  // namespace detail
 }  // namespace matrix
 }  // namespace spectral
-}  // namespace raft
+}  // namespace RAFT_EXPORT raft

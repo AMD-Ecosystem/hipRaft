@@ -27,6 +27,7 @@
 
 #pragma once
 #include <raft/core/cuda_support.hpp>
+#include <raft/core/detail/macros.hpp>
 #include <raft/core/device_mdspan.hpp>
 #include <raft/core/error.hpp>
 #include <raft/core/host_mdspan.hpp>
@@ -48,7 +49,7 @@
 #endif
 #endif
 
-namespace raft {
+namespace RAFT_EXPORT raft {
 namespace detail {
 
 template <bool B,
@@ -564,4 +565,4 @@ mdspan_copyable_t<DstType, SrcType> copy(resources const& res, DstType&& dst, Sr
   }
 }
 }  // namespace detail
-}  // namespace raft
+}  // namespace RAFT_EXPORT raft

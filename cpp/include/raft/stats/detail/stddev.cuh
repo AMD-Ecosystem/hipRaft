@@ -27,6 +27,7 @@
 
 #pragma once
 
+#include <raft/core/detail/macros.hpp>
 #include <raft/core/operators.hpp>
 #include <raft/linalg/binary_op.cuh>
 #include <raft/linalg/reduce.cuh>
@@ -36,7 +37,7 @@
 #include <hipcub/hipcub.hpp>
 namespace cub = hipcub;
 #endif
-namespace raft {
+namespace RAFT_EXPORT raft {
 namespace stats {
 namespace detail {
 
@@ -128,4 +129,4 @@ void vars(Type* var,
 
 }  // namespace detail
 }  // namespace stats
-}  // namespace raft
+}  // namespace RAFT_EXPORT raft

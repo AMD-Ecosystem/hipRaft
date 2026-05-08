@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2025, NVIDIA CORPORATION.
+ * SPDX-FileCopyrightText: Copyright (c) 2025-2026, NVIDIA CORPORATION.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -26,6 +26,8 @@
 // SOFTWARE.
 
 #pragma once
+#include <raft/core/detail/macros.hpp>
+
 #ifdef __HIP_PLATFORM_AMD__
 #include <hip/hip_fp16.h>
 #else
@@ -34,7 +36,7 @@
 
 #include <type_traits>
 
-namespace raft {
+namespace RAFT_EXPORT raft {
 
 /**
  * Extension of std::is_floating_point to support CUDA types like __half.
@@ -47,4 +49,4 @@ struct is_floating_point {
 
 template <typename T>
 inline constexpr bool is_floating_point_v = is_floating_point<T>::value;
-}  // namespace raft
+}  // namespace RAFT_EXPORT raft

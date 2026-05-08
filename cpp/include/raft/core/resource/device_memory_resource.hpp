@@ -27,6 +27,7 @@
 
 #pragma once
 
+#include <raft/core/detail/macros.hpp>
 #include <raft/core/operators.hpp>
 #include <raft/core/resource/resource_types.hpp>
 #include <raft/core/resources.hpp>
@@ -43,7 +44,8 @@
 #include <memory>
 #include <optional>
 
-namespace raft::resource {
+namespace RAFT_EXPORT raft {
+namespace resource {
 
 /**
  * \defgroup device_memory_resource Device memory resources
@@ -343,4 +345,5 @@ inline void set_large_workspace_resource(resources const& res, raft::mr::device_
 
 /** @} */
 
-}  // namespace raft::resource
+}  // namespace resource
+}  // namespace RAFT_EXPORT raft

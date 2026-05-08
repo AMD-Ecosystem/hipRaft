@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2019-2025, NVIDIA CORPORATION.
+ * SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -27,6 +27,7 @@
 
 #pragma once
 
+#include <raft/core/detail/macros.hpp>
 #include <raft/core/error.hpp>
 
 #ifdef __HIP_PLATFORM_AMD__
@@ -59,7 +60,7 @@
 #define CUDA_VER_12_4_UP 1
 #endif
 
-namespace raft {
+namespace RAFT_EXPORT raft {
 
 /**
  * @ingroup error_handling
@@ -87,7 +88,7 @@ inline const char* cusparse_error_to_string(cusparseStatus_t err)
 
 }  // namespace detail
 }  // namespace sparse
-}  // namespace raft
+}  // namespace RAFT_EXPORT raft
 
 #undef _CUSPARSE_ERR_TO_STR
 

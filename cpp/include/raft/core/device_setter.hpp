@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2023-2024, NVIDIA CORPORATION.
+ * SPDX-FileCopyrightText: Copyright (c) 2023-2026, NVIDIA CORPORATION.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -26,6 +26,7 @@
 // SOFTWARE.
 
 #pragma once
+#include <raft/core/detail/macros.hpp>
 #include <raft/core/logger.hpp>
 #include <raft/util/cuda_rt_essentials.hpp>
 
@@ -34,7 +35,7 @@
 #else
 #include <cuda_runtime_api.h>
 #endif
-namespace raft {
+namespace RAFT_EXPORT raft {
 
 /**
  * @brief A scoped setter for the active CUDA device
@@ -79,4 +80,4 @@ struct device_setter {
   int prev_device_;
 };
 
-}  // namespace raft
+}  // namespace RAFT_EXPORT raft

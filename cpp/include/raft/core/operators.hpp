@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2022-2024, NVIDIA CORPORATION.
+ * SPDX-FileCopyrightText: Copyright (c) 2022-2026, NVIDIA CORPORATION.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -42,7 +42,7 @@
 #include <type_traits>
 #include <utility>
 
-namespace raft {
+namespace RAFT_EXPORT raft {
 
 /**
  * @defgroup operators Commonly used functors.
@@ -449,4 +449,4 @@ struct map_args_op {
 };
 
 /** @} */
-}  // namespace raft
+}  // namespace RAFT_EXPORT raft

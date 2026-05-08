@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2022-2023, NVIDIA CORPORATION.
+ * SPDX-FileCopyrightText: Copyright (c) 2022-2026, NVIDIA CORPORATION.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -30,7 +30,8 @@
 #include <raft/core/detail/macros.hpp>
 #include <raft/util/cuda_utils.cuh>
 
-namespace raft::util {
+namespace RAFT_EXPORT raft {
+namespace util {
 
 namespace {
 
@@ -258,4 +259,5 @@ class bitonic {
   }
 };
 
-}  // namespace raft::util
+}  // namespace util
+}  // namespace RAFT_EXPORT raft

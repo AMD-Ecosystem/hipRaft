@@ -27,6 +27,7 @@
 
 #pragma once
 
+#include <raft/core/detail/macros.hpp>
 #ifdef __HIP_PLATFORM_AMD__
 #include <hip/amd_detail/amd_warp_sync_functions.h>
 #endif
@@ -38,7 +39,7 @@
 
 #include <stdint.h>
 
-namespace raft {
+namespace RAFT_EXPORT raft {
 
 /**
  * @brief Logical-warp-level reduction
@@ -312,4 +313,4 @@ DI void logicalWarpReduceVector(T* acc, int lane_id, ReduceLambda reduce_op)
   }
 }
 
-}  // namespace raft
+}  // namespace RAFT_EXPORT raft

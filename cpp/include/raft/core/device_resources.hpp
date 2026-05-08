@@ -31,6 +31,7 @@
 #pragma once
 
 #include <raft/core/comms.hpp>
+#include <raft/core/detail/macros.hpp>
 #include <raft/core/resource/comms.hpp>
 #include <raft/core/resource/cublas_handle.hpp>
 #include <raft/core/resource/cuda_event.hpp>
@@ -72,7 +73,7 @@
 #include <utility>
 #include <vector>
 
-namespace raft {
+namespace RAFT_EXPORT raft {
 
 /**
  * @brief Main resource container object that stores all necessary resources
@@ -277,6 +278,6 @@ class stream_syncer {
   const device_resources& handle_;
 };  // class stream_syncer
 
-}  // namespace raft
+}  // namespace RAFT_EXPORT raft
 
 #endif

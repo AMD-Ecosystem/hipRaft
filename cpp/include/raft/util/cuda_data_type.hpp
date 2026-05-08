@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2024, NVIDIA CORPORATION.
+ * SPDX-FileCopyrightText: Copyright (c) 2024-2026, NVIDIA CORPORATION.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -27,6 +27,8 @@
 
 #pragma once
 
+#include <raft/core/detail/macros.hpp>
+
 #ifdef __HIP_PLATFORM_AMD__
 #include <hip/hip_fp16.h>
 #else
@@ -41,7 +43,7 @@
 
 #include <cstdint>
 
-namespace raft {
+namespace RAFT_EXPORT raft {
 
 template <typename T>
 constexpr auto get_cuda_data_type() -> cudaDataType_t;
@@ -101,4 +103,4 @@ inline constexpr auto get_cuda_data_type<double>() -> cudaDataType_t
 {
   return CUDA_R_64F;
 }
-}  // namespace raft
+}  // namespace RAFT_EXPORT raft

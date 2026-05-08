@@ -27,6 +27,7 @@
 
 #pragma once
 
+#include <raft/core/detail/macros.hpp>
 #include <raft/core/math.hpp>
 #include <raft/util/cudart_utils.hpp>
 
@@ -40,7 +41,7 @@ using namespace hip_warp_primitives;
 #include <cuda_fp16.h>
 #endif
 
-namespace raft {
+namespace RAFT_EXPORT raft {
 namespace sparse {
 namespace linalg {
 namespace detail {
@@ -200,4 +201,4 @@ void faster_dot_on_csr(raft::resources const& handle,
 }  // namespace detail
 }  // namespace linalg
 }  // namespace sparse
-}  // namespace raft
+}  // namespace RAFT_EXPORT raft

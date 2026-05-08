@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2020-2025, NVIDIA CORPORATION.
+ * SPDX-FileCopyrightText: Copyright (c) 2020-2026, NVIDIA CORPORATION.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -27,6 +27,7 @@
 
 #pragma once
 
+#include <raft/core/detail/macros.hpp>
 #include <raft/core/logger_macros.hpp>
 #include <raft/core/resource/cublas_handle.hpp>
 #include <raft/core/resource/cuda_stream.hpp>
@@ -50,7 +51,7 @@
 
 #include <tuple>
 
-namespace raft {
+namespace RAFT_EXPORT raft {
 namespace spectral {
 namespace detail {
 
@@ -111,4 +112,4 @@ void analyzeModularity(
 
 }  // namespace detail
 }  // namespace spectral
-}  // namespace raft
+}  // namespace RAFT_EXPORT raft

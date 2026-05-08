@@ -1,11 +1,12 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2023-2025, NVIDIA CORPORATION.
+ * SPDX-FileCopyrightText: Copyright (c) 2023-2026, NVIDIA CORPORATION.
  * SPDX-License-Identifier: Apache-2.0
  */
 
 #pragma once
 
 #include <raft/core/csr_matrix.hpp>
+#include <raft/core/detail/macros.hpp>
 #include <raft/core/host_container_policy.hpp>
 #include <raft/core/host_span.hpp>
 #include <raft/core/resources.hpp>
@@ -13,7 +14,7 @@
 
 #include <type_traits>
 
-namespace raft {
+namespace RAFT_EXPORT raft {
 
 /**
  * \defgroup host_csr_matrix Host CSR Matrix
@@ -412,4 +413,4 @@ auto make_host_compressed_structure_view(raft::host_span<IndptrType> indptr,
 
 /** @} */
 
-};  // namespace raft
+};  // namespace RAFT_EXPORT raft

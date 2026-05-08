@@ -29,6 +29,7 @@
 
 #include <raft/common/nccl_macros.hpp>
 #include <raft/core/comms.hpp>
+#include <raft/core/detail/macros.hpp>
 #include <raft/core/error.hpp>
 #include <raft/core/interruptible.hpp>
 
@@ -40,7 +41,7 @@
 
 #include <string>
 
-namespace raft {
+namespace RAFT_EXPORT raft {
 namespace comms {
 namespace detail {
 
@@ -122,4 +123,4 @@ inline status_t nccl_sync_stream(ncclComm_t comm, cudaStream_t stream)
 
 };  // namespace detail
 };  // namespace comms
-};  // namespace raft
+};  // namespace RAFT_EXPORT raft

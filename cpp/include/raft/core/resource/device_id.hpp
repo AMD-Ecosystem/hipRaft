@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2022-2024, NVIDIA CORPORATION.
+ * SPDX-FileCopyrightText: Copyright (c) 2022-2026, NVIDIA CORPORATION.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -27,6 +27,7 @@
 
 #pragma once
 
+#include <raft/core/detail/macros.hpp>
 #include <raft/core/resource/resource_types.hpp>
 #include <raft/core/resources.hpp>
 #include <raft/util/cudart_utils.hpp>
@@ -37,7 +38,8 @@
 #include <cuda_runtime.h>
 #endif
 
-namespace raft::resource {
+namespace RAFT_EXPORT raft {
+namespace resource {
 
 class device_id_resource : public resource {
  public:
@@ -87,4 +89,5 @@ inline int get_device_id(resources const& res)
 /**
  * @}
  */
-}  // namespace raft::resource
+}  // namespace resource
+}  // namespace RAFT_EXPORT raft

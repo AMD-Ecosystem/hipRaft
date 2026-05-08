@@ -27,6 +27,7 @@
 
 #pragma once
 
+#include <raft/core/detail/macros.hpp>
 #include <raft/util/cuda_utils.cuh>
 
 #ifdef __HIP_PLATFORM_AMD__
@@ -48,7 +49,7 @@ namespace cub = hipcub;
   devKeyValSortColumnPerRow<InType, OutType, blockSize, elemPT><<<rows, blockSize, 0, stream>>>( \
     keyIn, keyOut, valueInOut, rows, columns, std::numeric_limits<InType>::max())
 
-namespace raft {
+namespace RAFT_EXPORT raft {
 namespace matrix {
 namespace detail {
 
@@ -363,4 +364,4 @@ void sortColumnsPerRow(const InType* in,
 }
 };  // end namespace detail
 };  // end namespace matrix
-};  // end namespace raft
+};  // namespace RAFT_EXPORT raft
