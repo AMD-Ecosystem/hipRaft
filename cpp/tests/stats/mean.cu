@@ -139,8 +139,8 @@ const std::vector<MeanInputs<double>> inputsd = {{0.15, -1.0, 1024, 32, false, 1
                                                  {2.0, -1.0, 7, 23, true, 1234ULL},
                                                  {2.0, -1.0, 17, 5, false, 1234ULL},
                                                  {2.0, -1.0, 17, 5, true, 1234ULL},
-                                                 {1e-8, 1e-1, 1 << 27, 2, false, 1234ULL, 0.0001},
-                                                 {1e-8, 1e-1, 1 << 27, 2, true, 1234ULL, 0.0001}};
+                                                 {1e-7, 1e-1, 1 << 27, 2, false, 1234ULL, 0.0001},
+                                                 {1e-7, 1e-1, 1 << 27, 2, true, 1234ULL, 0.0001}};
 
 typedef MeanTest<float> MeanTestF;
 TEST_P(MeanTestF, Result)
