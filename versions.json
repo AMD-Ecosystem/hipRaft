@@ -2,31 +2,31 @@
   "packages": {
     "hipmm": {
       "version": "4.0.0",
-      "git_url": "https://$ENV{GITHUB_PASS}@github.com/AMD-AIOSS/hipmm",
-      "git_tag": "amd-integration"
+      "git_url": "https://github.com/ROCm-DS/hipMM",
+      "git_tag": "release/rocmds-26.03"
     },
     "rocmds_logger": {
       "version": "1.0.0",
-      "git_url": "https://$ENV{GITHUB_PASS}@github.com/AMD-AIOSS/rocmds-logger",
-      "git_tag": "amd-integration"
+      "git_url": "https://github.com/ROCm-DS/rocmds-logger",
+      "git_tag": "release/rocmds-26.03"
     },
     "libhipcxx" : {
       "version" : "3.0.2",
-      "git_url" : "https://$ENV{GITHUB_PASS}@github.com/AMD-AIOSS/libhipcxx",
-      "git_tag" : "amd-integration"
+      "git_url" : "https://github.com/ROCm-DS/libhipcxx",
+      "git_tag" : "release/rocmds-26.03"
     },
     "hipco" : {
       "version" : "0.4.0",
-      "git_url" : "https://$ENV{GITHUB_PASS}@github.com/AMD-AIOSS/hipCollections",
-      "git_tag" : "amd-integration"
+      "git_url" : "https://github.com/ROCm-DS/hipCollections",
+      "git_tag" : "release/rocmds-26.03"
     },
     "rocthrust" : {
       "version" : "4.2.0"
     },
     "ucxx" : {
       "version" : "0.1.0",
-      "git_url" : "https://$ENV{GITHUB_PASS}@github.com/AMD-AIOSS/hip-ucxx",
-      "git_tag" : "amd-integration"
+      "git_url" : "https://github.com/ROCm-DS/hip-ucxx",
+      "git_tag" : "release/rocmds-26.03"
     }
   }
 }
