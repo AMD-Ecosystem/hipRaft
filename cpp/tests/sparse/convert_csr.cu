@@ -61,7 +61,7 @@ typedef SparseConvertCSRTest<float> SortedCOOToCSR;
 TEST_P(SortedCOOToCSR, Result)
 {
   cudaStream_t stream;
-  cudaStreamCreate(&stream);
+  RAFT_CUDA_TRY(cudaStreamCreate(&stream));
 
   int nnz = 8;
 
@@ -82,7 +82,7 @@ TEST_P(SortedCOOToCSR, Result)
 
   ASSERT_TRUE(raft::devArrMatch<int>(out.data(), exp.data(), 4, raft::Compare<int>(), stream));
 
-  cudaStreamDestroy(stream);
+  RAFT_CUDA_TRY(cudaStreamDestroy(stream));
 
   delete[] in_h;
   delete[] exp_h;

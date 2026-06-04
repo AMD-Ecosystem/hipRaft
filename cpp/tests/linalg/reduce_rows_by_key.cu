@@ -64,7 +64,7 @@ void naiveReduceRowsByKey(const Type* d_A,
                           Type* d_sums,
                           cudaStream_t stream)
 {
-  cudaMemset(d_sums, 0, sizeof(Type) * nkeys * ncols);
+  RAFT_CUDA_TRY(cudaMemset(d_sums, 0, sizeof(Type) * nkeys * ncols));
 
   naiveReduceRowsByKeyKernel<<<dim3((ncols + 31) / 32, nkeys), dim3(32, 1), 0, stream>>>(
     d_A, lda, d_keys, d_weight, d_char_keys, nrows, ncols, nkeys, d_sums);
