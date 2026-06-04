@@ -45,7 +45,8 @@
 #include <raft/util/cuda_utils.cuh>                         // raft::ceildiv, raft::shfl
 
 #ifdef __HIP_PLATFORM_AMD__
-// TODO(HIP/AMD): Add distance based dependency
+#include <raft/distance/detail/fused_distance_nn/dispatch_fused_nn_ck.cuh>
+#include <raft/distance/distance_types.hpp>  // raft::distance::DistanceType
 #else
 #include <raft/distance/detail/fused_distance_nn/cutlass_base.cuh>
 #endif
@@ -93,6 +94,19 @@ void fusedL2NNImpl(OutT* min,
       <<<nblks, P::Nthreads, 0, stream>>>(min, m, maxVal, redOp);
     RAFT_CUDA_TRY(cudaGetLastError());
   }
+
+#ifdef __HIP_PLATFORM_AMD__
+  // CK MFMA fast path for the aligned fp32 regime (the ROCm replacement for the
+  // CUTLASS path); arbitrary shapes fall through to the SIMT kernel below. Both L2Expanded and
+  // L2SqrtExpanded route through fusedL2NNImpl; sqrt selects L2SqrtExpanded.
+  if (fused_nn_ck_can_dispatch<DataT, IdxT>(
+        m, n, k, xn, yn, raft::distance::DistanceType::L2Expanded)) {
+    fusedDistanceNN_ck_dispatch<DataT, OutT, IdxT, ReduceOpT, KVPReduceOpT>(
+      min, x, y, xn, yn, m, n, k, workspace, redOp, pairRedOp, sqrt,
+      raft::distance::DistanceType::L2Expanded, stream);
+    return;
+  }
+#endif
 
   namespace arch = raft::util::arch;
   using AccT     = DataT;

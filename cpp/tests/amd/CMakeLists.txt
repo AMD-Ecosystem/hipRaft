@@ -31,6 +31,13 @@ if(BUILD_TESTS)
         NAME SRC_LINALG_TEST PATH src_linalg/coalasced_reduction.cu LIB EXPLICIT_INSTANTIATE_ONLY
   )
 
+  # Composable Kernel MFMA backing for the expanded pairwise distances and fused
+  # 1-NN (the ROCm replacement for the CUTLASS SM80 path). Header-only: the test
+  # TU instantiates the public distance API, which routes to the CK fast path or
+  # the SIMT fallback.
+  ConfigureTest(NAME DISTANCE_CK_TEST PATH distance/ck_distance.cu)
+  ConfigureTest(NAME FUSED_NN_CK_TEST PATH distance/ck_fused_nn.cu)
+
   if(TARGET ucx::ucp
      AND TARGET ucx::ucs
      AND DEFINED MPI_FOUND

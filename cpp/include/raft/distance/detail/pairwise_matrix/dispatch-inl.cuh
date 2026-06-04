@@ -56,6 +56,12 @@
 #include <raft/distance/detail/pairwise_matrix/params.cuh>         // pairwise_matrix_params
 #include <raft/util/arch.cuh>                                      // raft::util::arch::SM_*
 
+#if defined(__HIP_PLATFORM_AMD__)
+// CUTLASS does not port to ROCm. The CK MFMA path backs the expanded distances
+// for the regime it supports; everything else takes the SIMT (sm60) fallback.
+#include <raft/distance/detail/pairwise_matrix/dispatch_ck.cuh>  // pairwise_matrix_ck_dispatch
+#endif
+
 // NOTE: to minimize compile times, we do not include dispatch_sm80.cuh.
 // Including dispatch_sm80.cuh can slow down compile times (due to CUTLASS).
 // Therefore, it is the including file's responsibility to include the correct
@@ -108,6 +114,20 @@ void pairwise_matrix_dispatch(OpT distance_op,
     m, n, k, ldx, ldy, ld_out, x, y, x_norm, y_norm, out, fin_op, is_row_major};
 
   if (!params.is_row_major) { params.flip_x_and_y(); }
+
+#if defined(__HIP_PLATFORM_AMD__)
+  // On ROCm there is no CUTLASS. For the expanded L2 / cosine distances, take the
+  // CK MFMA GEMM + fused epilogue (the ROCm reimplementation of the CUTLASS SM80
+  // path) when the tuned instance supports the shape (fp32, row-major, N%4==0,
+  // K%4==0). Arbitrary shapes and all other ops fall through to the SIMT (sm60)
+  // kernel below, which computes the identical distance.
+  if constexpr (is_ck_distance_op<OpT>::value) {
+    if (pairwise_matrix_ck_can_dispatch<OpT>(params)) {
+      pairwise_matrix_ck_dispatch(distance_op, params, stream);
+      return;
+    }
+  }
+#endif
 
   // Dispatch rule:
   // - execute CUTLASS-based kernel on SM_80 and above

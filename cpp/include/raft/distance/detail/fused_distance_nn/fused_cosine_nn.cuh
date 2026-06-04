@@ -38,7 +38,10 @@
 #include <raft/core/kvp.hpp>                             // raft::KeyValuePair
 #include <raft/core/operators.hpp>                       // raft::identity_op
 #include <raft/distance/detail/distance_ops/cosine.cuh>  // ops::l2_exp_distance_op
-#ifndef __HIP_PLATFORM_AMD__
+#ifdef __HIP_PLATFORM_AMD__
+#include <raft/distance/detail/fused_distance_nn/dispatch_fused_nn_ck.cuh>
+#include <raft/distance/distance_types.hpp>  // raft::distance::DistanceType
+#else
 #include <raft/distance/detail/fused_distance_nn/cutlass_base.cuh>
 #endif
 #include <raft/distance/detail/fused_distance_nn/helper_structs.cuh>
@@ -82,6 +85,19 @@ void fusedCosineNN(OutT* min,
   dim3 blk(P::Nthreads);
   constexpr auto maxVal = std::numeric_limits<DataT>::max();
   typedef KeyValuePair<IdxT, DataT> KVPair;
+
+#ifdef __HIP_PLATFORM_AMD__
+  // CK MFMA fast path for the aligned fp32 regime (the ROCm replacement for the
+  // CUTLASS path); arbitrary shapes fall through to the SIMT kernel below. The workspace memset
+  // and output init are done by the caller (fusedDistanceNNImpl).
+  if (fused_nn_ck_can_dispatch<DataT, IdxT>(
+        m, n, k, xn, yn, raft::distance::DistanceType::CosineExpanded)) {
+    fusedDistanceNN_ck_dispatch<DataT, OutT, IdxT, ReduceOpT, KVPReduceOpT>(
+      min, x, y, xn, yn, m, n, k, workspace, redOp, pairRedOp, sqrt,
+      raft::distance::DistanceType::CosineExpanded, stream);
+    return;
+  }
+#endif
 
   namespace arch = raft::util::arch;
   using AccT     = DataT;
