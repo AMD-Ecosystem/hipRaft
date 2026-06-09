@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2024, NVIDIA CORPORATION.
+ * SPDX-FileCopyrightText: Copyright (c) 2024-2025, NVIDIA CORPORATION.
  * SPDX-License-Identifier: Apache-2.0
  */
 #pragma once
@@ -14,7 +14,7 @@
 #include <raft/core/resource/device_memory_resource.hpp>
 #include <raft/core/resources.hpp>
 #include <raft/sparse/convert/csr.cuh>
-#include <raft/sparse/distance/detail/utils.cuh>
+#include <raft/sparse/linalg/detail/utils.cuh>
 #include <raft/sparse/linalg/sddmm.hpp>
 #include <raft/util/cuda_utils.cuh>
 #include <raft/util/cudart_utils.hpp>
@@ -78,7 +78,7 @@ void masked_matmul(raft::resources const& handle,
                                 *alpha,
                                 *beta);
   } else {
-    raft::sparse::distance::detail::faster_dot_on_csr(handle,
+    raft::sparse::linalg::detail::faster_dot_on_csr(handle,
                                                       C.get_elements().data(),
                                                       compressed_C_view.get_nnz(),
                                                       compressed_C_view.get_indptr().data(),
@@ -141,7 +141,7 @@ void masked_matmul(raft::resources const& handle,
                                 *alpha,
                                 *beta);
   } else {
-    raft::sparse::distance::detail::faster_dot_on_csr(handle,
+    raft::sparse::linalg::detail::faster_dot_on_csr(handle,
                                                       C.get_elements().data(),
                                                       compressed_C_view.get_nnz(),
                                                       compressed_C_view.get_indptr().data(),
