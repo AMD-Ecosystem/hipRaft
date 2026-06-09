@@ -28,7 +28,11 @@ if(BUILD_TESTS)
 
   ConfigureTest(NAME WARP_PRIMITIVES PATH warp_primitives/warp_primitives.cu)
 
-  if(TARGET ucx::ucp
+  # NOTE(HIP/AMD): raft_distributed is only created when ucxx::ucxx is present (raft-dask phase);
+  # the standalone libraft C++ gate builds without it, so guard these tests on the target existing
+  # to match the producer-side guard in cpp/CMakeLists.txt.
+  if(TARGET raft_distributed
+     AND TARGET ucx::ucp
      AND TARGET ucx::ucs
      AND MPI_CXX_FOUND
   )
