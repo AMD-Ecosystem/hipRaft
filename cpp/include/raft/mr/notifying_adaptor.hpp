@@ -71,7 +71,7 @@ class notifier {
  *                   semantics, or a ref type for non-owning semantics.
  */
 template <typename Upstream>
-class notifying_adaptor : public cuda::forward_property<notifying_adaptor<Upstream>, Upstream> {
+class notifying_adaptor {
   Upstream upstream_;
   std::shared_ptr<notifier> notifier_;
 
@@ -137,8 +137,65 @@ class notifying_adaptor : public cuda::forward_property<notifying_adaptor<Upstre
     return upstream_ == other.upstream_;
   }
 
+  [[nodiscard]] bool operator!=(notifying_adaptor const& other) const noexcept
+  {
+    return !(*this == other);
+  }
+
   [[nodiscard]] auto upstream_resource() noexcept -> Upstream& { return upstream_; }
   [[nodiscard]] auto upstream_resource() const noexcept -> Upstream const& { return upstream_; }
+
+  /**
+   * @brief Forwards a (non-dynamic) property query to the wrapped upstream resource.
+   *
+   * This SFINAE-constrained friend mirrors RMM's cccl_async_resource_ref pattern: it
+   * participates only for properties the upstream actually has, and forwards the static
+   * accessibility properties (host_accessible / device_accessible) to the upstream.
+   *
+   * We deliberately do NOT inherit cuda::forward_property: that base injects its own
+   * get_property(..., dynamic_accessibility_property) overload that collides with
+   * libhipcxx's default get_property for that property (this adaptor is not in
+   * __disable_default_dynamic_accessibility_property), making the query ambiguous and
+   * causing the adaptor to fail the cuda::mr::resource_ref / any_resource concept checks.
+   *
+   * dynamic_accessibility_property is handled by the dedicated overload below instead of
+   * forwarding, because in this libhipcxx/RMM pairing the upstream resource_ref wrappers
+   * do not themselves answer that query unambiguously; we derive it from the (forwarded)
+   * static accessibility properties exactly as libhipcxx's own default does.
+   */
+  template <
+    typename Property,
+    std::enable_if_t<!std::is_same_v<Property, cuda::mr::dynamic_accessibility_property>, int> = 0>
+  friend auto constexpr get_property(notifying_adaptor const& self, Property prop) noexcept
+    -> decltype(get_property(std::declval<Upstream const&>(), prop))
+  {
+    return get_property(self.upstream_, prop);
+  }
+
+  /**
+   * @brief Answers the dynamic accessibility query from the forwarded static properties.
+   *
+   * Mirrors libhipcxx's default implementation
+   * (cuda::mr::get_property(.., dynamic_accessibility_property)) but is anchored on this
+   * adaptor type so it is found unambiguously (the libhipcxx default is disabled for this
+   * type via the __disable_default_dynamic_accessibility_property specialization below).
+   */
+  friend constexpr cuda::mr::__memory_accessibility get_property(
+    notifying_adaptor const&, cuda::mr::dynamic_accessibility_property) noexcept
+  {
+    return cuda::mr::__memory_accessibility_from_static_properties<
+      cuda::has_property<notifying_adaptor, cuda::mr::host_accessible>,
+      cuda::has_property<notifying_adaptor, cuda::mr::device_accessible>>();
+  }
 };
 
 }  // namespace raft::mr
+
+// Opt this adaptor out of libhipcxx's default dynamic_accessibility_property
+// get_property, so only the dedicated overload above answers the query (otherwise both
+// are equally viable and the call is ambiguous, breaking concept conformance).
+namespace cuda::mr {
+template <typename Upstream>
+inline constexpr bool
+  __disable_default_dynamic_accessibility_property<::raft::mr::notifying_adaptor<Upstream>> = true;
+}  // namespace cuda::mr
