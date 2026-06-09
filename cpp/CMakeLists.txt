@@ -165,7 +165,7 @@ if(CUDA_BACKEND)
   )
 else()
   # HIP runtime
-  rapids_hip_init_runtime(USE_STATIC ${CUDA_STATIC_RUNTIME})
+  rapids_hip_init_runtime(USE_STATIC OFF)
   # * find HIP package
   # * determine GPU architectures
   # * enable the CMake CUDA language
