@@ -448,33 +448,17 @@ if [ -n "${RAPIDS_PY_VERSION:-}" ]; then
 fi
 
 # Build and (optionally) install the pylibraft Python package
-# <<<<<<< OLD CODE from edfc5cf8 (c8feda29) - COMMENTED OUT
-#
-# # Replace spaces with semicolons in SKBUILD_EXTRA_CMAKE_ARGS
-# SKBUILD_EXTRA_CMAKE_ARGS="${EXTRA_CMAKE_ARGS[*]// /;}"
-# if (( NUMARGS == 0 )) || hasArg pylibraft || hasArg raft-dask; then
-#     # Build and install libraft pip package
-#     SKBUILD_CMAKE_ARGS="-DCMAKE_CXX_COMPILER=hipcc;-DCMAKE_PREFIX_PATH=${INSTALL_PREFIX};${SKBUILD_EXTRA_CMAKE_ARGS}" \
-#         python -m pip install --no-deps --no-build-isolation "${REPODIR}"/python/libraft
-#     # Build and install pylibraft pip package
-#     SKBUILD_CMAKE_ARGS="-DCMAKE_CXX_COMPILER=hipcc;-DCMAKE_PREFIX_PATH=${INSTALL_PREFIX};${SKBUILD_EXTRA_CMAKE_ARGS}" \
-#         python -m pip install --no-deps --no-build-isolation "${REPODIR}"/python/pylibraft
-# =======
+# NOTE(HIP/AMD): keep the AMD hipcc + INSTALL_PREFIX injection (rocThrust/rocPrim require CXX==hipcc,
+# see EXTRA_CMAKE_HIP_ARGS above) on top of upstream's PYTHON_ARGS_FOR_INSTALL limited-API structure.
 if (( NUMARGS == 0 )) || hasArg pylibraft; then
-    SKBUILD_CMAKE_ARGS="${SKBUILD_EXTRA_CMAKE_ARGS}" \
+    SKBUILD_CMAKE_ARGS="-DCMAKE_CXX_COMPILER=hipcc;-DCMAKE_PREFIX_PATH=${INSTALL_PREFIX};${SKBUILD_EXTRA_CMAKE_ARGS}" \
         python -m pip install "${PYTHON_ARGS_FOR_INSTALL[@]}" "${REPODIR}"/python/pylibraft
-# >>>>>>> END NEW CODE (c8feda29)
 fi
 
 # Build and (optionally) install the raft-dask Python package
 if (( NUMARGS == 0 )) || hasArg raft-dask; then
-# <<<<<<< OLD CODE from edfc5cf8 (c8feda29) - COMMENTED OUT
-#     SKBUILD_CMAKE_ARGS="-DCMAKE_CXX_COMPILER=hipcc;-DCMAKE_PREFIX_PATH=${INSTALL_PREFIX};${SKBUILD_EXTRA_CMAKE_ARGS}" \
-#         python -m pip install --no-deps --no-build-isolation "${REPODIR}"/python/raft-dask
-# =======
-    SKBUILD_CMAKE_ARGS="${SKBUILD_EXTRA_CMAKE_ARGS}" \
+    SKBUILD_CMAKE_ARGS="-DCMAKE_CXX_COMPILER=hipcc;-DCMAKE_PREFIX_PATH=${INSTALL_PREFIX};${SKBUILD_EXTRA_CMAKE_ARGS}" \
         python -m pip install "${PYTHON_ARGS_FOR_INSTALL[@]}" "${REPODIR}"/python/raft-dask
-# >>>>>>> END NEW CODE (c8feda29)
 fi
 
 if hasArg docs; then
