@@ -161,6 +161,12 @@
 #ifndef CUSPARSE_SPMV_ALG_DEFAULT
 #define CUSPARSE_SPMV_ALG_DEFAULT HIPSPARSE_SPMV_ALG_DEFAULT
 #endif
+#ifndef CUSPARSE_SPMV_COO_ALG1
+#define CUSPARSE_SPMV_COO_ALG1 HIPSPARSE_SPMV_COO_ALG1
+#endif
+#ifndef CUSPARSE_SPMV_COO_ALG2
+#define CUSPARSE_SPMV_COO_ALG2 HIPSPARSE_SPMV_COO_ALG2
+#endif
 
 // functions
 #ifndef cusparsecoo2csr
@@ -262,8 +268,14 @@
 #ifndef cusparseDestroyDnMat
 #define cusparseDestroyDnMat hipsparseDestroyDnMat
 #endif
+#ifndef cusparseCreateCoo
+#define cusparseCreateCoo hipsparseCreateCoo
+#endif
 #ifndef cusparseCreateCsr
 #define cusparseCreateCsr hipsparseCreateCsr
+#endif
+#ifndef cusparseGetErrorString
+#define cusparseGetErrorString hipsparseGetErrorString
 #endif
 #ifndef cusparseCreateDnVec
 #define cusparseCreateDnVec hipsparseCreateDnVec
