@@ -13,7 +13,12 @@
 #include <raft/util/cuda_utils.cuh>
 #include <raft/util/cudart_utils.hpp>
 
+#ifdef __HIP_PLATFORM_AMD__
+#include <hipcub/device/device_histogram.hpp>
+namespace cub = hipcub;
+#else
 #include <cub/device/device_histogram.cuh>
+#endif
 
 #include <gtest/gtest.h>
 

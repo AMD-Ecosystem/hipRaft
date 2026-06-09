@@ -34,7 +34,12 @@
 #include <rmm/device_scalar.hpp>
 #include <rmm/device_uvector.hpp>
 
+#ifdef __HIP_PLATFORM_AMD__
+#include <hipcub/device/device_radix_sort.hpp>
+namespace cub = hipcub;
+#else
 #include <cub/device/device_radix_sort.cuh>
+#endif
 #include <thrust/count.h>
 #include <thrust/device_ptr.h>
 #include <thrust/reduce.h>
