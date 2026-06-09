@@ -150,15 +150,17 @@ class host_container_policy {
   raft::mr::host_resource_ref ref_ = raft::mr::get_default_host_resource();
 };
 
-// NOTE(HIP/AMD): This specialization is necessary,
-// as it is matched against a template template
-// parameter which only accepts one nested template parameter
-// (and host_vector_policy has two parameters, although one is defaulted).
-// This is a workaround for a problem specific to clang for
-// which the compile option -frelaxed-template-template-args might
-// be used. Unfortunately, this compiler flag is not compatible
-// with rocthrust.
-template <typename T>
-using host_vector_policy_default_allocator = host_vector_policy<T>;
+// NOTE(HIP/AMD, 26.04): An AMD workaround alias
+//   template <typename T> using host_vector_policy_default_allocator = host_vector_policy<T>;
+// used to live here, to feed a single-nested-param template-template parameter
+// (`template <typename T> typename ContainerPolicy`) when the old `host_vector_policy`
+// had two params. Upstream #2835 renamed it to the single-param `host_container_policy`
+// (above) and updated host_coo_matrix.hpp / host_csr_matrix.hpp / host_mdarray.hpp to
+// default to it directly, so the alias became dead code pointing at a deleted symbol and
+// was removed. REVISIT: if a future change reintroduces a multi-param host policy and a
+// template-template-arg mismatch resurfaces (clang + rocthrust, -frelaxed-template-template-args
+// incompatible), restore a single-param alias like:
+//   template <typename T> using host_vector_policy_default_allocator = host_container_policy<T>;
+// and use it as the ContainerPolicy default in the host matrix headers.
 
 }  // namespace raft
