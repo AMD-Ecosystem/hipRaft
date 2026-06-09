@@ -13,7 +13,7 @@
     "libhipcxx" : {
       "version" : "3.0.2",
       "git_url" : "https://$ENV{GITHUB_PASS}@github.com/AMD-AIOSS/libhipcxx",
-      "git_tag" : "upgrade/3.2_base_enable"
+      "git_tag" : "upgrade/3.3.4_enable"
     },
     "hipco" : {
       "version" : "0.4.0",
