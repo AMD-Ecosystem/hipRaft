@@ -115,7 +115,7 @@ struct equal_to_i_op {
   template <typename Tuple_>
   __host__ __device__ void operator()(Tuple_ t)
   {
-    cuda::std::get<1>(t) = (cuda::std::get<0>(t) == i) ? (value_type_t)1.0 : (value_type_t)0.0;
+    thrust::get<1>(t) = (thrust::get<0>(t) == i) ? (value_type_t)1.0 : (value_type_t)0.0;
   }
 };
 }  // namespace
@@ -138,13 +138,12 @@ bool construct_indicator(
   auto cublas_h           = resource::get_cublas_handle(handle);
   auto thrust_exec_policy = resource::get_thrust_policy(handle);
 
-  thrust::for_each(
-    thrust_exec_policy,
-    thrust::make_zip_iterator(cuda::std::make_tuple(thrust::device_pointer_cast(clusters),
-                                                    thrust::device_pointer_cast(part_i.raw()))),
-    thrust::make_zip_iterator(cuda::std::make_tuple(thrust::device_pointer_cast(clusters + n),
-                                                    thrust::device_pointer_cast(part_i.raw() + n))),
-    equal_to_i_op<vertex_t, weight_t>(index));
+  thrust::for_each(thrust_exec_policy,
+                   thrust::make_zip_iterator(thrust::device_pointer_cast(clusters),
+                                             thrust::device_pointer_cast(part_i.raw())),
+                   thrust::make_zip_iterator(thrust::device_pointer_cast(clusters + n),
+                                             thrust::device_pointer_cast(part_i.raw() + n)),
+                   equal_to_i_op<vertex_t, weight_t>(index));
   RAFT_CHECK_CUDA(stream);
 
   // Compute size of ith partition

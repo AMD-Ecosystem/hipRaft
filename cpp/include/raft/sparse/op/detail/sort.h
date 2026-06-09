@@ -64,11 +64,11 @@ struct TupleComp {
     operator()(const one& t1, const two& t2)
   {
     // sort first by each sample's color,
-    if (cuda::std::get<0>(t1) < cuda::std::get<0>(t2)) return true;
-    if (cuda::std::get<0>(t1) > cuda::std::get<0>(t2)) return false;
+    if (thrust::get<0>(t1) < thrust::get<0>(t2)) return true;
+    if (thrust::get<0>(t1) > thrust::get<0>(t2)) return false;
 
     // then sort by value in descending order
-    return cuda::std::get<1>(t1) < cuda::std::get<1>(t2);
+    return thrust::get<1>(t1) < thrust::get<1>(t2);
   }
 };
 
@@ -87,7 +87,7 @@ struct TupleComp {
 template <typename T, typename IdxT = int, typename nnz_t>
 void coo_sort(IdxT m, IdxT n, nnz_t nnz, IdxT* rows, IdxT* cols, T* vals, cudaStream_t stream)
 {
-  auto coo_indices = thrust::make_zip_iterator(cuda::std::make_tuple(rows, cols));
+  auto coo_indices = thrust::make_zip_iterator(rows, cols);
 
   // get all the colors in contiguous locations so we can map them to warps.
   thrust::sort_by_key(rmm::exec_policy(stream), coo_indices, coo_indices + nnz, vals, TupleComp());
@@ -122,7 +122,7 @@ void coo_sort_by_weight(
 {
   thrust::device_ptr<value_t> t_data = thrust::device_pointer_cast(data);
 
-  auto first = thrust::make_zip_iterator(cuda::std::make_tuple(rows, cols));
+  auto first = thrust::make_zip_iterator(rows, cols);
 
   thrust::sort_by_key(rmm::exec_policy(stream), t_data, t_data + nnz, first);
 }

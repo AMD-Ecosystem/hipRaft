@@ -174,7 +174,7 @@ void create_ref(OutType* out_ref,
                 cudaStream_t stream)
 {
   if constexpr (is_kvp<InType>::value) {
-    auto policy = thrust::cuda::par.on(stream);
+    auto policy = thrust::hip::par.on(stream);
     rmm::device_uvector<InType> tmp(len, stream);
 
     // tmp = in1 + in2
@@ -337,7 +337,7 @@ class MapOffsetTest : public ::testing::TestWithParam<MapInputs<OutType, IdxType
       KVPScaleOp op{scalar};
 
       // Use thrust to create reference for KVP type
-      auto policy = thrust::cuda::par.on(stream);
+      auto policy = thrust::hip::par.on(stream);
       thrust::transform(policy,
                         cuda::counting_iterator<IdxType>(0),
                         cuda::counting_iterator<IdxType>(len),
