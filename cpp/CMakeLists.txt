@@ -504,45 +504,52 @@ endif()
 
 # ##################################################################################################
 # * raft_distributed -------------------------------------------------------------------------------
-add_library(raft_distributed INTERFACE)
+# NOTE(HIP/AMD): raft_distributed links ucxx::ucxx unconditionally. hip-ucxx is only pinned/fetched
+# during the raft-dask phase, so guard the whole target on the ucxx::ucxx target being present. When
+# absent (e.g. the standalone libraft C++ gate), raft_distributed and its ucxx exports/installs are
+# simply skipped; when present they build exactly as before.
+if(TARGET ucxx::ucxx)
+  add_library(raft_distributed INTERFACE)
 
-if(TARGET raft_distributed AND (NOT TARGET raft::distributed))
-  add_library(raft::distributed ALIAS raft_distributed)
-endif()
+  if(TARGET raft_distributed AND (NOT TARGET raft::distributed))
+    add_library(raft::distributed ALIAS raft_distributed)
+  endif()
 
-set_target_properties(raft_distributed PROPERTIES EXPORT_NAME distributed)
+  set_target_properties(raft_distributed PROPERTIES EXPORT_NAME distributed)
 
-if(CUDA_BACKEND)
-  rapids_find_generate_module(
-    NCCL
-    HEADER_NAMES nccl.h
-    LIBRARY_NAMES nccl
-    BUILD_EXPORT_SET raft-distributed-exports
-    INSTALL_EXPORT_SET raft-distributed-exports
-  )
-  rapids_export_package(BUILD NCCL raft-distributed-exports)
-  rapids_export_package(INSTALL NCCL raft-distributed-exports)
-else()
-  rapids_export_package(BUILD rccl raft-distributed-exports)
-  rapids_export_package(INSTALL rccl raft-distributed-exports)
-endif()
+  if(CUDA_BACKEND)
+    rapids_find_generate_module(
+      NCCL
+      HEADER_NAMES nccl.h
+      LIBRARY_NAMES nccl
+      BUILD_EXPORT_SET raft-distributed-exports
+      INSTALL_EXPORT_SET raft-distributed-exports
+    )
+    rapids_export_package(BUILD NCCL raft-distributed-exports)
+    rapids_export_package(INSTALL NCCL raft-distributed-exports)
+  else()
+    rapids_export_package(BUILD rccl raft-distributed-exports)
+    rapids_export_package(INSTALL rccl raft-distributed-exports)
+  endif()
 
-rapids_export_package(
-  BUILD ucxx raft-distributed-exports COMPONENTS ucxx python GLOBAL_TARGETS ucxx::ucxx ucxx::python
-)
-rapids_export_package(
-  INSTALL ucxx raft-distributed-exports COMPONENTS ucxx python GLOBAL_TARGETS ucxx::ucxx
+  rapids_export_package(
+    BUILD ucxx raft-distributed-exports COMPONENTS ucxx python GLOBAL_TARGETS ucxx::ucxx
                                                                               ucxx::python
-)
+  )
+  rapids_export_package(
+    INSTALL ucxx raft-distributed-exports COMPONENTS ucxx python GLOBAL_TARGETS ucxx::ucxx
+                                                                                ucxx::python
+  )
 
-# ucx is a requirement for raft_distributed, but its config is not safe to be found multiple times,
-# so rather than exporting a package dependency on it above we rely on consumers to find it
-# themselves. Once https://github.com/rapidsai/ucxx/issues/173 is resolved we can export it above
-# again.
-target_link_libraries(
-  raft_distributed INTERFACE ucx::ucs ucx::ucp ucxx::ucxx
-                             $<IF:$<BOOL:${CUDA_BACKEND}>,NCCL::NCCL,roc::rccl>
-)
+  # ucx is a requirement for raft_distributed, but its config is not safe to be found multiple
+  # times, so rather than exporting a package dependency on it above we rely on consumers to find it
+  # themselves. Once https://github.com/rapidsai/ucxx/issues/173 is resolved we can export it above
+  # again.
+  target_link_libraries(
+    raft_distributed INTERFACE ucx::ucs ucx::ucp ucxx::ucxx
+                               $<IF:$<BOOL:${CUDA_BACKEND}>,NCCL::NCCL,roc::rccl>
+  )
+endif()
 
 # ##################################################################################################
 # * install targets-----------------------------------------------------------
@@ -589,12 +596,15 @@ if(TARGET raft_lib)
   )
 endif()
 
-install(
-  TARGETS raft_distributed
-  DESTINATION ${lib_dir}
-  COMPONENT distributed
-  EXPORT raft-distributed-exports
-)
+# NOTE(HIP/AMD): only install raft_distributed when it was actually created (ucxx::ucxx present).
+if(TARGET raft_distributed)
+  install(
+    TARGETS raft_distributed
+    DESTINATION ${lib_dir}
+    COMPONENT distributed
+    EXPORT raft-distributed-exports
+  )
+endif()
 
 install(
   DIRECTORY include/raft
@@ -654,8 +664,16 @@ endif()
   )
 endif()
 
-set(raft_components compiled distributed)
-set(raft_export_sets raft-compiled-exports raft-distributed-exports)
+set(raft_components compiled)
+set(raft_export_sets raft-compiled-exports)
+# NOTE(HIP/AMD): only export the `distributed` component when raft_distributed exists (ucxx::ucxx
+# present). hip-ucxx is pinned at the raft-dask phase; the standalone C++ gate builds without it.
+set(raft_distributed_global_target "")
+if(TARGET raft_distributed)
+  list(APPEND raft_components distributed)
+  list(APPEND raft_export_sets raft-distributed-exports)
+  set(raft_distributed_global_target distributed)
+endif()
 if(TARGET raft_lib)
   list(APPEND raft_components compiled)
   list(APPEND raft_export_sets raft-compiled-lib-exports)
@@ -696,7 +714,7 @@ rapids_export(
   EXPORT_SET raft-exports
   COMPONENTS ${raft_components}
   COMPONENTS_EXPORT_SET ${raft_export_sets}
-  GLOBAL_TARGETS raft compiled distributed
+  GLOBAL_TARGETS raft compiled ${raft_distributed_global_target}
   NAMESPACE raft::
   DOCUMENTATION doc_string
   FINAL_CODE_BLOCK code_string
@@ -709,7 +727,7 @@ rapids_export(
   EXPORT_SET raft-exports
   COMPONENTS ${raft_components}
   COMPONENTS_EXPORT_SET ${raft_export_sets}
-  GLOBAL_TARGETS raft compiled distributed
+  GLOBAL_TARGETS raft compiled ${raft_distributed_global_target}
   DOCUMENTATION doc_string
   NAMESPACE raft::
   FINAL_CODE_BLOCK code_string
