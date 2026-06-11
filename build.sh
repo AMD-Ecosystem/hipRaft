@@ -122,8 +122,6 @@ PYTHON_ARGS_FOR_INSTALL=(
     -v
     --no-build-isolation
     --no-deps
-    --config-settings
-    "rapidsai.disable-cuda=true"
 )
 
 # Default to Ninja if generator is not specified
