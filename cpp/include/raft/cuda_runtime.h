@@ -65,9 +65,6 @@
 #ifndef cudaDevAttrComputeCapabilityMinor
 #define cudaDevAttrComputeCapabilityMinor hipDeviceAttributeComputeCapabilityMinor
 #endif
-#ifndef cudaDevAttrHostRegisterReadOnlySupported
-#define cudaDevAttrHostRegisterReadOnlySupported hipDeviceAttributeHostRegisterReadOnlySupported
-#endif
 #ifndef cudaDevAttrL2CacheSize
 #define cudaDevAttrL2CacheSize hipDeviceAttributeL2CacheSize
 #endif
@@ -79,9 +76,6 @@
 #endif
 #ifndef cudaDevAttrMemoryPoolsSupported
 #define cudaDevAttrMemoryPoolsSupported hipDeviceAttributeMemoryPoolsSupported
-#endif
-#ifndef cudaDevAttrMemoryPoolSupportedHandleTypes
-#define cudaDevAttrMemoryPoolSupportedHandleTypes hipDevAttrMemoryPoolSupportedHandleTypes
 #endif
 #ifndef cudaDevAttrMultiProcessorCount
 #define cudaDevAttrMultiProcessorCount hipDeviceAttributeMultiprocessorCount
