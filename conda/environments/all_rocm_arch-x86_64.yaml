@@ -24,9 +24,10 @@ channels:
 - conda-forge
 dependencies:
 - doxygen
-- cython=3.0.0
-- python=3.10
+- cython>=3.2.2
+- python=3.11
 - scikit-build-core>=0.10.0
+- ninja
 - pip
 - pip-tools
 - pytest==7.*
