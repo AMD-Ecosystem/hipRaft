@@ -337,6 +337,7 @@ void test_transpose_with_mdspan(const TransposeMdspanInputs<T>& param)
   if constexpr (std::is_same_v<T, half>) {
     std::vector<half> out_h(len);
     raft::copy(out_h.data(), out.data_handle(), len, resource::get_cuda_stream(handle));
+    resource::sync_stream(handle, stream);
     ASSERT_TRUE(validate_half(out_ref_h.data(), out_h.data(), param.tolerance, len));
   } else {
     ASSERT_TRUE(raft::devArrMatch(
@@ -459,6 +460,7 @@ void test_transpose_submatrix(const TransposeSubmatrixInputs<T>& param)
     std::vector<half> out_h(sub_len);
 
     raft::copy(out_h.data(), out.data_handle(), sub_len, resource::get_cuda_stream(handle));
+    resource::sync_stream(handle, stream);
     ASSERT_TRUE(validate_half(out_ref_h.data(), out_h.data(), param.tolerance, sub_len));
   } else {
     ASSERT_TRUE(raft::devArrMatch(out_ref.data_handle(),
