@@ -26,7 +26,8 @@
     "ucxx" : {
       "version" : "0.1.0",
       "git_url" : "https://$ENV{GITHUB_PASS}@github.com/AMD-AIOSS/hip-ucxx",
-      "git_tag" : "amd-integration"
+      "git_tag" : "amd-integration",
+      "source_subdir" : "cpp"
     }
   }
 }
