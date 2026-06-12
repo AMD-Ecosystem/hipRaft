@@ -1,6 +1,7 @@
 #!/bin/bash
 
-# Copyright (c) 2023-2024, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2023-2026, NVIDIA CORPORATION.
+# SPDX-License-Identifier: Apache-2.0
 
 # Modifications Copyright (c) 2025 Advanced Micro Devices, Inc.
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -58,6 +59,10 @@ cd "$BUILD_DIR"
 export CC=hipcc
 export CXX=hipcc
 
+# EXTRA_CMAKE_ARGS is intentionally unquoted below so that a string holding
+# multiple flags (see its documented format above) word-splits into separate
+# cmake arguments instead of one malformed argument.
+# shellcheck disable=SC2086
 cmake \
  -DCMAKE_BUILD_TYPE="${BUILD_TYPE}" \
  -DCMAKE_HIP_ARCHITECTURES="NATIVE" \

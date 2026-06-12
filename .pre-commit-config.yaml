@@ -345,6 +345,7 @@ repos:
           (?x)^(
             cpp/include/raft/neighbors/detail/faiss_select/|
             cpp/include/raft/thirdparty/|
+            cpp/include/raft/cuda_runtime[.]h$|
             docs/source/sphinxext/github_link[.]py$|
             cpp/include/raft/core/detail/mdspan_numpy_serializer[.]hpp$|
             cpp/include/raft/core/mdarray[.]hpp$|
