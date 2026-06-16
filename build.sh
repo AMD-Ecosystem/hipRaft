@@ -55,7 +55,7 @@ HELP="$0 [<target> ...] [<flag> ...] [--cmake-args=\"<args>\"] [--cache-tool=<to
    --compile-lib               - compile shared library for all components
    --compile-static-lib        - compile static library for all components
    --limit-tests               - semicolon-separated list of test executables to compile (e.g. NEIGHBORS_TEST;CLUSTER_TEST)
-   --limit-bench-prims         - semicolon-separated list of prims benchmark executables to compute (e.g. NEIGHBORS_PRIMS_BENCH;CLUSTER_PRIMS_BENCH)
+   --limit-bench-prims         - semicolon-separated list of prims benchmark executables to compute (e.g. MATRIX_BENCH;LINALG_BENCH)
    --allgpuarch                - build for all supported GPU architectures
    --gpu-arch=\"arch\"           - build for specific GPU architectures e.g --gpu-arch=\"gfx90a\"
    --show_depr_warn            - show cmake deprecation warnings
@@ -80,6 +80,12 @@ BUILD_ALL_GPU_ARCH=0
 BUILD_TESTS=OFF
 BUILD_TYPE=Release
 BUILD_PRIMS_BENCH=OFF
+PRIMS_BENCH_TARGETS="CORE_BENCH;\
+UTIL_BENCH;\
+LINALG_BENCH;\
+MATRIX_BENCH;\
+RANDOM_BENCH;\
+SPARSE_BENCH"
 COMPILE_LIBRARY=OFF
 INSTALL_TARGET=install
 
@@ -363,13 +369,8 @@ if hasArg bench-prims; then
     BUILD_PRIMS_BENCH=ON
     CMAKE_TARGET="${CMAKE_TARGET};${PRIMS_BENCH_TARGETS}"
 
-    # Force compile library when needed benchmark targets are specified
-    if [[ $CMAKE_TARGET == *"CLUSTER_PRIMS_BENCH"* || \
-          $CMAKE_TARGET == *"MATRIX_PRIMS_BENCH"* || \
-          $CMAKE_TARGET == *"NEIGHBORS_PRIMS_BENCH"* ]]; then
-      echo "-- Enabling compiled lib for benchmarks"
-      COMPILE_LIBRARY=ON
-    fi
+    echo "-- Enabling compiled lib for benchmarks"
+    COMPILE_LIBRARY=ON
 fi
 
 if hasArg --show_depr_warn; then

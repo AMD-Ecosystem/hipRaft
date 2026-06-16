@@ -1,0 +1,93 @@
+#!/usr/bin/env bash
+# MIT License
+#
+# Copyright (c) 2026 Advanced Micro Devices, Inc.
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+# Prepare the build environment: install OS packages, cmake, UCX, and OpenMPI.
+#
+# Required environment variables:
+#   HIPRAFT_UCX_PREINSTALLED, HIPRAFT_OPENMPI_PREINSTALLED,
+#   INSTALL_DIR, CMAKE_VERSION, ROCM_SPECIFIER
+#
+# Optional environment variables:
+#   HIPRAFT_UCX_FULL_VERSION       -- UCX version (default: 1.17.0)
+#   HIPRAFT_OPENMPI_MAJOR_VERSION  -- OpenMPI major version dir (default: v5.0)
+#   HIPRAFT_OPENMPI_FULL_VERSION   -- OpenMPI full version (default: 5.0.6)
+#   ROCM_HOME                      -- ROCm installation path
+#   MAX_JOBS                       -- parallel make jobs
+
+set -euxo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${SCRIPT_DIR}/_helpers.sh"
+require_envs HIPRAFT_UCX_PREINSTALLED HIPRAFT_OPENMPI_PREINSTALLED INSTALL_DIR CMAKE_VERSION ROCM_SPECIFIER
+
+os_id=$(. /etc/os-release; echo "$ID")
+os_id_like=$(. /etc/os-release; echo "$ID_LIKE")
+
+if [[ "${os_id}" == *"ubuntu"* ]]; then
+    apt install -y libblas-dev liblapack-dev ninja-build libsuitesparse-dev patchelf
+elif [[ "${os_id_like}" == *"rhel"* ]]; then
+    dnf install -y openblas-devel lapack-devel ninja-build suitesparse-devel patchelf
+fi
+
+# Prepare the build environment. Prefer the conda env created by the pipeline
+# (when HIPRAFT_CONDA_ENV is set); otherwise fall back to a dedicated python venv.
+if ! activate_hipraft_conda_env; then
+    python3 -m venv --clear "${INSTALL_DIR}/venv/hipraft_dev"
+    activate_hipraft_venv
+fi
+pip install --upgrade pip
+pip install --force-reinstall cmake${CMAKE_VERSION:+==${CMAKE_VERSION}}
+pip install scikit-build-core auditwheel cython pytest "numba<0.62" fastrlock
+
+if [[ "${HIPRAFT_UCX_PREINSTALLED}" == "false" ]]; then
+    wget "https://github.com/openucx/ucx/releases/download/v${HIPRAFT_UCX_FULL_VERSION}/ucx-${HIPRAFT_UCX_FULL_VERSION}.tar.gz"
+    tar xzf "ucx-${HIPRAFT_UCX_FULL_VERSION}.tar.gz"
+    cd "ucx-${HIPRAFT_UCX_FULL_VERSION}"
+    env -i PATH="${PATH}" CC=gcc CXX=g++ ./contrib/configure-release --prefix=/usr --with-rocm="${ROCM_HOME}"
+    make -j "${MAX_JOBS}"
+    make install
+    cd -
+    rm -rf ucx*
+fi
+
+if [[ "${HIPRAFT_OPENMPI_PREINSTALLED}" == "false" ]]; then
+    wget "https://download.open-mpi.org/release/open-mpi/${HIPRAFT_OPENMPI_MAJOR_VERSION}/openmpi-${HIPRAFT_OPENMPI_FULL_VERSION}.tar.bz2"
+    bzip2 -d "openmpi-${HIPRAFT_OPENMPI_FULL_VERSION}.tar.bz2"
+    tar -xvf "openmpi-${HIPRAFT_OPENMPI_FULL_VERSION}.tar"
+    cd "openmpi-${HIPRAFT_OPENMPI_FULL_VERSION}"
+    env -i PATH="${PATH}" CC=gcc CXX=g++ ./configure --prefix=/usr --with-ucx=/usr --with-rocm="${ROCM_HOME}"
+    env -i PATH="${PATH}" CC=gcc CXX=g++ make -j "${MAX_JOBS}"
+    env -i PATH="${PATH}" CC=gcc CXX=g++ make install
+    cd -
+    rm -rf openmpi*
+fi
+
+if [[ "${ROCM_SPECIFIER}" != "therock:"* ]]; then
+    if [[ "${os_id}" == *"ubuntu"* ]]; then
+        rocm_suffix=$(apt list --installed 2>/dev/null | grep rocm-core | grep -v rocm-core-asan | cut -d '/' -f1 | sed 's,rocm-core,,g')
+        apt install -y "rocthrust-dev${rocm_suffix}" "hipcub${rocm_suffix}" "hipblas${rocm_suffix}" "hipblas-dev${rocm_suffix}" "hipfft${rocm_suffix}" "hipsparse${rocm_suffix}" "hiprand${rocm_suffix}" "rocsolver${rocm_suffix}" "rocrand-dev${rocm_suffix}" "rccl-dev${rocm_suffix}" "hipsolver${rocm_suffix}"
+    elif [[ "${os_id_like}" == *"rhel"* ]]; then
+        rocm_suffix=$(rpm -qa | grep '^rocm-core[0-9]' | grep -v asan | head -1 | sed 's,rocm-core,,; s,-.*,,')
+        dnf install -y "rocthrust-devel${rocm_suffix}" "hipcub${rocm_suffix}" "hipblas${rocm_suffix}" "hipblas-devel${rocm_suffix}" "hipfft${rocm_suffix}" "hipsparse${rocm_suffix}" "hiprand${rocm_suffix}" "rocsolver${rocm_suffix}" "rocrand-devel${rocm_suffix}" "rccl-devel${rocm_suffix}" "hipsolver${rocm_suffix}"
+    fi
+fi

@@ -235,6 +235,21 @@ create_logger_macros(RAFT "raft::default_logger()" include/raft/core)
 # CCCL before rmm/cuco so we get the right version of CCCL
 include(cmake/thirdparty/get_cccl.cmake)
 
+# When CPM_cuco_SOURCE is set, CPM uses add_subdirectory (instead of find_package) for
+# hipcollections. This causes hipcollections' get_cccl.cmake to call rapids_cpm_hipccl() a second
+# time, which loads the generated hipccl-dependencies.cmake from within the hipcollections
+# subdirectory scope. That file tries to set IMPORTED_GLOBAL on these targets, but CMake 3.24+ only
+# allows IMPORTED_GLOBAL promotion from the same directory scope that originally imported the
+# target. Since rocprim and hipcub are imported via raw find_package() (not through rapids_cpm_find,
+# which auto-promotes via rapids_cmake_make_global), they must be promoted here at the top level
+# before hipcollections is added as a subdirectory.
+if(NOT CUDA_BACKEND)
+  set(_cccl_global_promote_targets roc::rocprim_hip hip::hipcub roc::rocthrust)
+  include(${rapids-cmake-dir}/cmake/make_global.cmake)
+  rapids_cmake_make_global(_cccl_global_promote_targets)
+  unset(_cccl_global_promote_targets)
+endif()
+
 if(CUDA_BACKEND)
   include(${rapids-cmake-dir}/cpm/cuco.cmake)
   rapids_cpm_cuco(BUILD_EXPORT_SET raft-exports INSTALL_EXPORT_SET raft-exports)
@@ -260,6 +275,12 @@ endif()
 if(BUILD_PRIMS_BENCH)
   include(${rapids-cmake-dir}/cpm/gbench.cmake)
   rapids_cpm_gbench(BUILD_STATIC)
+  # Google Benchmark's __COUNTER__ usage triggers -Wc2y-extensions with HIP/clang
+  foreach(_bench_tgt benchmark benchmark_main)
+    if(TARGET ${_bench_tgt})
+      target_compile_options(${_bench_tgt} PRIVATE -Wno-c2y-extensions)
+    endif()
+  endforeach()
 endif()
 
 # ##################################################################################################
