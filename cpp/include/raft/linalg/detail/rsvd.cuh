@@ -382,8 +382,15 @@ void rsvdFixedRank(raft::resources const& handle,
         handle, Uhat_dup.data(), l, l, Uhat.data(), S_vec_tmp.data(), stream, tol, max_sweeps);
     else
       raft::linalg::eigDC(handle, Uhat_dup.data(), l, l, Uhat.data(), S_vec_tmp.data(), stream);
-    raft::matrix::sqrt(handle,
-                       make_device_matrix_view<math_t, int, col_major>(S_vec_tmp.data(), 1, l));
+
+    // BBt is mathematically PSD; clamp any negative eigenvalues (numerical noise from
+    // FP32 GEMM rounding, observed on gfx942) to zero before sqrt to prevent NaN propagation.
+    raft::linalg::unary_op(
+      handle,
+      make_device_vector_view<const math_t>(S_vec_tmp.data(), l),
+      make_device_vector_view<math_t>(S_vec_tmp.data(), l),
+      [] __device__(math_t x) { return raft::sqrt(max(x, math_t(0))); });
+
 
     auto S_vec_view = make_device_matrix_view<math_t, int, col_major>(S_vec, 1, k);
     raft::matrix::slice(
@@ -418,11 +425,14 @@ void rsvdFixedRank(raft::resources const& handle,
       RAFT_CUDA_TRY(cudaMemsetAsync(Sinv.data(), 0, sizeof(math_t) * k * k, stream));
       rmm::device_uvector<math_t> UhatSinv(l * k, stream);
       RAFT_CUDA_TRY(cudaMemsetAsync(UhatSinv.data(), 0, sizeof(math_t) * l * k, stream));
-      math_t scalar = 1.0;
-      raft::matrix::reciprocal(
+      // Pseudoinverse: zero singular values get zero reciprocal rather than Inf.
+      // Negative eigenvalues were already clamped to zero before sqrt above,
+      // so S_vec_tmp[i] == 0 for those entries — guard against 1/0 here.
+      raft::linalg::unary_op(
         handle,
-        make_device_matrix_view<math_t, int, col_major>(S_vec_tmp.data(), l, 1),
-        make_host_scalar_view<math_t>(&scalar));
+        make_device_vector_view<const math_t>(S_vec_tmp.data(), l),
+        make_device_vector_view<math_t>(S_vec_tmp.data(), l),
+        [] __device__(math_t x) { return x > math_t(0) ? math_t(1) / x : math_t(0); });
       raft::matrix::set_diagonal(handle,
                                  make_device_vector_view<const math_t>(S_vec_tmp.data() + p, k),
                                  make_device_matrix_view<math_t>(Sinv.data(), k, k));
