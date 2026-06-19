@@ -504,10 +504,10 @@ endif()
 
 # ##################################################################################################
 # * raft_distributed -------------------------------------------------------------------------------
-# NOTE(HIP/AMD): raft_distributed links ucxx::ucxx unconditionally. hip-ucxx is only pinned/fetched
-# during the raft-dask phase, so guard the whole target on the ucxx::ucxx target being present. When
-# absent (e.g. the standalone libraft C++ gate), raft_distributed and its ucxx exports/installs are
-# simply skipped; when present they build exactly as before.
+#   NOTE(HIP/AMD): raft_distributed links ucxx::ucxx unconditionally. hip-ucxx is only
+#   pinned/fetched during the raft-dask phase, so guard the whole target on the ucxx::ucxx target
+#   being present. When absent (e.g. the standalone libraft C++ gate), raft_distributed and its ucxx
+#   exports/installs are simply skipped; when present they build exactly as before.
 if(TARGET ucxx::ucxx)
   add_library(raft_distributed INTERFACE)
 
@@ -779,7 +779,11 @@ set(CPACK_RPM_PACKAGE_REQUIRES_LIST openblas-devel lapack-devel suitesparse-deve
 # Other ROCmDS packages
 include("${rapids-cmake-dir}/cpm/detail/package_details.cmake")
 macro(append_rocmds_package pkg_name deb_name rpm_name)
-  rapids_cpm_package_details(${pkg_name} version repository tag shallow exclude)
+  # `rapids_cpm_package_details` was deprecated in 25.10 and removed in 26.02; calling it is a
+  # FATAL_ERROR whenever the consuming project sets rapids-cmake-version >= 26.02 (e.g. the cuVS
+  # wheel build, where libcuvs-python stamps 26.04 into scope before add_subdirectory'ing raft). Use
+  # the internal helper, whose arg list adds a `subdir` slot after `tag`.
+  rapids_cpm_package_details_internal(${pkg_name} version repository tag subdir shallow exclude)
   list(APPEND CPACK_DEBIAN_PACKAGE_DEPENDS "${deb_name} (= ${version})")
   list(APPEND CPACK_RPM_PACKAGE_REQUIRES_LIST "${rpm_name} = ${version}")
 endmacro()
