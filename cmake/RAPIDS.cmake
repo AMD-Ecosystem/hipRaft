@@ -50,7 +50,7 @@ if(NOT rapids-cmake-repo)
     set(rapids-cmake-repo $ENV{RAPIDS_CMAKE_REPO})
   else()
     # Define a default repo if the user doesn't set one
-    set(rapids-cmake-repo "AMD-AIOSS/ROCmDS-CMake")
+    set(rapids-cmake-repo "ROCm-DS/ROCmDS-CMake")
   endif()
 endif()
 
@@ -60,7 +60,7 @@ if(NOT rapids-cmake-branch)
     set(rapids-cmake-branch $ENV{RAPIDS_CMAKE_BRANCH})
   else()
     # Define a default branch if the user doesn't set one
-    set(rapids-cmake-branch "develop/rapids-26.04")
+    set(rapids-cmake-branch "release/rocmds-25.10")
   endif()
 endif()
 
