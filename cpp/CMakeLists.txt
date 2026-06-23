@@ -215,24 +215,25 @@ create_logger_macros(RAFT "raft::default_logger()" include/raft/core)
 # CCCL before rmm so we get the right version of CCCL
 include(cmake/thirdparty/get_cccl.cmake)
 
-# When CPM_cuco_SOURCE is set, CPM uses add_subdirectory (instead of find_package) for
-# hipcollections. This causes hipcollections' get_cccl.cmake to call rapids_cpm_hipccl() a second
-# time, which loads the generated hipccl-dependencies.cmake from within the hipcollections
-# subdirectory scope. That file tries to set IMPORTED_GLOBAL on these targets, but CMake 3.24+ only
-# allows IMPORTED_GLOBAL promotion from the same directory scope that originally imported the
-# target. Since rocprim and hipcub are imported via raw find_package() (not through rapids_cpm_find,
-# which auto-promotes via rapids_cmake_make_global), they must be promoted here at the top level
-# before hipcollections is added as a subdirectory.
+# rocprim, hipcub and rocthrust are imported via raw find_package() (not through rapids_cpm_find,
+# which auto-promotes via rapids_cmake_make_global), so promote them to global scope here at the top
+# level. This avoids partial export-set errors (e.g. roc::rocprim_hip defined but roc::rocprim not)
+# when downstream packages re-process these targets from a different directory scope.
+#
+# Promote the COMPLETE export set of each package, not just the target raft links against:
+# rocprim-targets.cmake exports {roc::rocprim, roc::rocprim_hip} and rocthrust-targets.cmake exports
+# {roc::rocthrust, roc::hipstdpar}. If only one target from a set is global, a downstream
+# find_package() (e.g. via rapids_cpm_cuco -> hipccl) sees a partial set and fails with "Some (but
+# not all) targets in this export set were already defined."
 if(NOT CUDA_BACKEND)
-  set(_cccl_global_promote_targets roc::rocprim_hip hip::hipcub roc::rocthrust)
+  set(_cccl_global_promote_targets roc::rocprim roc::rocprim_hip hip::hipcub roc::rocthrust
+                                   roc::hipstdpar
+  )
   include(${rapids-cmake-dir}/cmake/make_global.cmake)
   rapids_cmake_make_global(_cccl_global_promote_targets)
   unset(_cccl_global_promote_targets)
 endif()
 
-# FIXME(HIP/AMD): the original ordering of getting RMM before hipCo leads to a CMake configuration
-# error where roc::rocprim target is not defined, but target roc::rocprim_hip is defined. This makes
-# CMake configuration of rocprim fail. Further investigation tbd.
 include(cmake/thirdparty/get_rmm.cmake)
 
 if(BUILD_TESTS)
