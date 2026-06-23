@@ -5,7 +5,7 @@
 # cmake-format: on
 # =============================================================================
 
-# Modifications Copyright (c) 2024-2025 Advanced Micro Devices, Inc. Permission is hereby granted,
+# Modifications Copyright (c) 2024-2026 Advanced Micro Devices, Inc. Permission is hereby granted,
 # free of charge, to any person obtaining a copy of this software and associated documentation files
 # (the "Software"), to deal in the Software without restriction, including without limitation the
 # rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the
@@ -17,6 +17,8 @@
 # AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
 # ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR
 # THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+# cmake-format: on
+# =============================================================================
 
 # cmake-lint: disable=W0106
 
@@ -43,7 +45,6 @@ if(NOT "${RAPIDS_CMAKE_MODULE_PATH}" STREQUAL "")
   list(APPEND CMAKE_MODULE_PATH "${RAPIDS_CMAKE_MODULE_PATH}")
   # NOTE(HIP/AMD): needed to set rapids-cmake-dir variable
   include(rapids-cmake)
-  return()
 else()
   include("${CMAKE_CURRENT_LIST_DIR}/RAPIDS.cmake")
 endif()
