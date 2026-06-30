@@ -33,13 +33,13 @@ System requirements
 
 This topic lists the system requirements for using hipRAFT.
 
-* ROCm version: `7.2.3 <https://rocm.docs.amd.com/projects/install-on-linux/en/docs-7.2.3/>`__, `7.2.2 <https://rocm.docs.amd.com/projects/install-on-linux/en/docs-7.2.2/>`__, `7.2.1 <https://rocm.docs.amd.com/projects/install-on-linux/en/docs-7.2.1/>`__, or `7.2.0 <https://rocm.docs.amd.com/projects/install-on-linux/en/docs-7.2.0/>`__
+* ROCm version: `7.2.3 <https://rocm.docs.amd.com/projects/install-on-linux/en/docs-7.2.3/>`__
 * Operating Systems: Ubuntu 24.04 and 22.04
 * AMD Instinct GPUs:
 
-  - MI350X / MI355X (GPU target gfx950)
-  - MI300A / MI300X (GPU target gfx942)
-  - MI250X / MI250 / MI210 (GPU target gfx90a)
+  - MI355X (GPU target gfx950)
+  - MI325X / MI300X (GPU target gfx942)
+  - MI250 / MI210 (GPU target gfx90a)
 
 * Python versions: 3.10, 3.11, 3.12, 3.13
 
