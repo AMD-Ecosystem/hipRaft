@@ -43,8 +43,11 @@ dependencies = [
     "amd-libraft==2.0.*",
     "numpy>=1.23,<3.0a0",
     "amd_hipmm==5.*",
-    "hip-python==7.*",
-    "hip-python-as-cuda==7.*",
+    # NOTE(HIP/AMD): AMD substitutes upstream `cuda-python` with the AMD pair
+    # `rocm-bindings-hip` + `hip-python-interop` (the latter exposes a `cuda.*`
+    # namespace backed by HIP).
+    "hip-python-interop>=7.2.3",
+    "rocm-bindings-hip>=7.2.3",
 ]
 classifiers = [
     "Intended Audience :: Developers",
