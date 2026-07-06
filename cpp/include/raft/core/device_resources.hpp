@@ -119,10 +119,11 @@ class device_resources : public resources {
     resources::add_resource_factory(
       std::make_shared<resource::cuda_stream_pool_resource_factory>(stream_pool));
     if (workspace_resource) {
-      // Note: call the factory directly instead of the deprecated set_workspace_resource(shared_ptr)
-      // overload; the workspace_resource_factory(shared_ptr) constructor is not deprecated.
-      resources::add_resource_factory(
-        std::make_shared<resource::workspace_resource_factory>(workspace_resource, allocation_limit));
+      // Note: call the factory directly instead of the deprecated
+      // set_workspace_resource(shared_ptr) overload; the workspace_resource_factory(shared_ptr)
+      // constructor is not deprecated.
+      resources::add_resource_factory(std::make_shared<resource::workspace_resource_factory>(
+        workspace_resource, allocation_limit));
     }
   }
 

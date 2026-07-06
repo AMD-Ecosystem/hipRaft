@@ -1,3 +1,4 @@
+# cmake-format: off
 # MIT License
 #
 # Copyright (C) 2024-2026 Advanced Micro Devices, Inc. All rights reserved.
@@ -19,6 +20,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+# cmake-format: on
 
 # NOTE(HIP/AMD): This overrides must be placed in a separate file according to
 # https://discourse.cmake.org/t/extend-list-of-file-extensions-for-a-language-globally-for-the-whole-project/7307/6

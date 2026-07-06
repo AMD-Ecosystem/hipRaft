@@ -46,7 +46,6 @@
 #endif
 
 #include <cuda/std/tuple>
-
 #include <thrust/device_ptr.h>
 #include <thrust/iterator/zip_iterator.h>
 #include <thrust/scan.h>

@@ -27,15 +27,20 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
 import os
+
 _version_file = os.path.join(os.path.dirname(__file__), "..", "VERSION")
 with open(_version_file) as _f:
-    version_number = ".".join(str(int(p)) for p in _f.read().strip().split("."))
+    version_number = ".".join(
+        str(int(p)) for p in _f.read().strip().split(".")
+    )
 left_nav_title = f"hipRAFT {version_number} documentation"
 
 # for PDF output on Read the Docs
 project = "hipRAFT"
 author = "Advanced Micro Devices, Inc."
-copyright = "Copyright (c) 2026 Advanced Micro Devices, Inc. All rights reserved."
+copyright = (
+    "Copyright (c) 2026 Advanced Micro Devices, Inc. All rights reserved."
+)
 version = version_number
 release = version_number
 cpp_maximum_signature_line_length = 10
@@ -45,13 +50,11 @@ all_article_info_author = ""
 
 external_projects_current_project = "hipRAFT"
 
-html_context = {
-    "docs_header_version": "26.03"
-}
+html_context = {"docs_header_version": "26.03"}
 html_theme = "rocm_docs_theme"
 html_theme_options = {
     "flavor": "rocm-ds",
-    "repository_url": "https://github.com/ROCm-DS/hipRaft/"
+    "repository_url": "https://github.com/ROCm-DS/hipRaft/",
 }
 
 external_toc_path = "./sphinx/_toc.yml"
@@ -73,7 +76,7 @@ extensions = [
     "sphinx.ext.doctest",
     "sphinx.ext.napoleon",
     "sphinx_copybutton",
-    "autoapi.extension"
+    "autoapi.extension",
 ]
 
 myst_heading_anchors = 4  # or deeper if needed

@@ -390,12 +390,10 @@ void rsvdFixedRank(raft::resources const& handle,
 
     // BBt is mathematically PSD; clamp any negative eigenvalues (numerical noise from
     // FP32 GEMM rounding, observed on gfx942) to zero before sqrt to prevent NaN propagation.
-    raft::linalg::unary_op(
-      handle,
-      make_device_vector_view<const math_t>(S_vec_tmp.data(), l),
-      make_device_vector_view<math_t>(S_vec_tmp.data(), l),
-      [] __device__(math_t x) { return raft::sqrt(max(x, math_t(0))); });
-
+    raft::linalg::unary_op(handle,
+                           make_device_vector_view<const math_t>(S_vec_tmp.data(), l),
+                           make_device_vector_view<math_t>(S_vec_tmp.data(), l),
+                           [] __device__(math_t x) { return raft::sqrt(max(x, math_t(0))); });
 
     auto S_vec_view = make_device_matrix_view<math_t, int, col_major>(S_vec, 1, k);
     raft::matrix::slice(

@@ -5,6 +5,7 @@
 # cmake-format: on
 # =============================================================================
 
+# cmake-format: off
 # MIT License
 #
 # Modifications Copyright (C) 2024-2026 Advanced Micro Devices, Inc. All rights reserved.
@@ -26,6 +27,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+# cmake-format: on
 
 if(DISABLE_DEPRECATION_WARNINGS)
   list(APPEND RAFT_CXX_FLAGS -Wno-deprecated-declarations -DRAFT_HIDE_DEPRECATION_WARNINGS)

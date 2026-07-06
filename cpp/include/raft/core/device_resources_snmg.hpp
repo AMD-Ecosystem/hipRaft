@@ -31,12 +31,12 @@
 #include <raft/core/resource/multi_gpu.hpp>
 #include <raft/core/resource/resource_types.hpp>
 
-#include <omp.h>
-
 #include <rmm/cuda_device.hpp>
 #include <rmm/mr/device_memory_resource.hpp>
 #include <rmm/mr/per_device_resource.hpp>
 #include <rmm/mr/pool_memory_resource.hpp>
+
+#include <omp.h>
 
 #include <memory>
 #include <unordered_set>
