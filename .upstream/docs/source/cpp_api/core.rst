@@ -15,6 +15,7 @@ expose in public APIs.
    :caption: Contents:
 
    core_resources.rst
+   core_logger.rst
    core_kvp.rst
    core_nvtx.rst
    core_interruptible.rst
