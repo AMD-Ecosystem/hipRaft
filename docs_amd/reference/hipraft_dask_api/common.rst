@@ -26,8 +26,8 @@ Common
 
 This page provides ``raft_dask`` class and function references for the
 publicly-exposed elements of the ``raft_dask.common`` package, which
-implements Multi-Node Multi-GPU (MNMG) communicator support via NCCL
-and UCX/UCXX.
+implements Multi-Node Multi-GPU (MNMG) communicator support via RCCL
+(AMD's ROCm implementation of the NCCL API) and UCX/UCXX.
 
 .. role:: py(code)
    :language: python
@@ -59,8 +59,8 @@ UCX
     :no-index:
 
 
-NCCL
-####
+NCCL / RCCL
+###########
 
 .. autoapiclass:: raft_dask.common.nccl.nccl
     :members:

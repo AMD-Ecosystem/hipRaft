@@ -37,8 +37,13 @@
 namespace raft {
 namespace spectral {
 
+/**
+ * @defgroup spectral_modularity Spectral modularity maximization
+ * @{
+ */
+
 //===================================================
-// Analysis of graph partition
+// Analysis of graph modularity
 // =========================================================
 
 /// Compute modularity

@@ -23,7 +23,7 @@
 
 .. meta::
   :description: hipRAFT documentation and API reference library
-  :keywords: Graph, Graph-algorithms, Graph-analysis, Graph-processing, Complex-networks, rocGraph, hipGraph, cuGraph, NetworkX, GPU, RAPIDS, ROCm-DS
+  :keywords: Machine-Learning, Information-Retrieval, Primitives, Nearest-Neighbors, Linear-Algebra, Sparse, GPU, RAPIDS, ROCm-DS
 
 .. _hipraft-cpp:
 

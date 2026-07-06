@@ -24,24 +24,24 @@
 
 # Generating the stubs
 
-In order to generate the Python API documentation from an environment where
-`raft-dask` is unavailable, the stubs must be generated. This can be done by
-running the following commands:
+The Python API reference is built with `sphinx-autoapi` from `.pyi` type stubs
+so that the documentation can be generated in environments where `raft-dask` is
+not installed. The generated stubs (under `stubs/`) are checked into the
+repository and are auto-generated, so they only need to be regenerated when the
+`raft_dask` public API changes.
 
-From an environment with `raft-dask` installed, run:
+To regenerate them, run the script from a Python environment with `raft_dask`
+(and its Dask/UCX dependencies) and `pybind11-stubgen` installed:
 
 ```bash
 pip install pybind11-stubgen
-cd <HIPRAFT_ROOT>/docs_amd/reference/hipraft_dask_api
-pybind11-stubgen --ignore-all-errors --output-dir stubs raft_dask
-pybind11-stubgen --ignore-all-errors --output-dir stubs raft_dask.common
-pybind11-stubgen --ignore-all-errors --output-dir stubs raft_dask.common.comms
-pybind11-stubgen --ignore-all-errors --output-dir stubs raft_dask.common.comms_utils
-pybind11-stubgen --ignore-all-errors --output-dir stubs raft_dask.common.nccl
-pybind11-stubgen --ignore-all-errors --output-dir stubs raft_dask.common.ucx
-pybind11-stubgen --ignore-all-errors --output-dir stubs raft_dask.common.utils
+./generate_stubs.sh
 ```
 
-The generated stubs are checked into the repository, so this step should only
-be necessary if the API has changed. These stubs are then used by the
-`autoapi.extension` to generate the API documentation.
+The script runs `pybind11-stubgen` over the curated list of public `raft_dask`
+submodules (the compiled Cython extensions are not reliably discovered by
+`pkgutil.walk_packages`, so they are enumerated explicitly in the script). When
+a new public module is added, add it both to the `MODULES` list in
+`generate_stubs.sh` and to the relevant `autoapi` directive in the `*.rst`
+pages. The stubs are then consumed by the `autoapi` extension to generate the
+API documentation.

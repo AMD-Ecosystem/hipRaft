@@ -527,8 +527,6 @@ DI void block_copy(raft::device_span<T> dst, const raft::device_span<T> src)
 
 /** @} */
 
-/** @} */
-
 /**
  * @defgroup GlobalStores Global Store Operations
  * @{

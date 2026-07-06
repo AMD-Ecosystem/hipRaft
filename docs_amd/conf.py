@@ -50,7 +50,7 @@ all_article_info_author = ""
 
 external_projects_current_project = "hipRAFT"
 
-html_context = {"docs_header_version": "26.03"}
+html_context = {"docs_header_version": "26.06"}
 html_theme = "rocm_docs_theme"
 html_theme_options = {
     "flavor": "rocm-ds",
@@ -97,3 +97,4 @@ autoapi_add_toctree_entry = False
 source_suffix = {
     ".rst": "restructuredtext",
 }
+external_projects_remote_repository = ""

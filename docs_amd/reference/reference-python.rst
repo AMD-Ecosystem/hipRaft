@@ -22,8 +22,8 @@
     SOFTWARE.
 
 .. meta::
-  :description: hipGRAPH documentation and API reference library
-  :keywords: Graph, Graph-algorithms, Graph-analysis, Graph-processing, Complex-networks, rocGraph, hipGraph, cuGraph, NetworkX, GPU, RAPIDS, ROCm-DS
+  :description: hipRAFT documentation and API reference library
+  :keywords: Machine-Learning, Information-Retrieval, Primitives, Nearest-Neighbors, Linear-Algebra, Sparse, GPU, RAPIDS, ROCm-DS
 
 .. _hipraft-python:
 
@@ -40,6 +40,7 @@ hipRAFT ships two Python packages serving distinct roles:
 
 * :doc:`hipraft_dask_api/index` is a complementary package for multi-node, multi-GPU
   workloads. It builds on top of ``pylibraft`` and Dask to provide distributed
-  communicator abstractions (NCCL, UCX/UCXX), enabling collective operations across GPU
+  communicator abstractions (RCCL, AMD's ROCm implementation of the NCCL API, and
+  UCX/UCXX), enabling collective operations across GPU
   clusters. Use ``raft_dask`` when your workflow spans more than one GPU or node.
   **Note:** ``raft_dask`` is experimental and has limited testing.

@@ -64,11 +64,9 @@ namespace *raft::linalg*
     :members:
     :content-only:
 
-
-.. _linalg-mean-squared-error:
-
 Mean Squared Error
 ------------------
+
 
 ``#include <raft/linalg/mean_squared_error.cuh>``
 

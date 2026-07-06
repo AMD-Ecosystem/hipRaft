@@ -410,7 +410,6 @@ The directory structure will resemble the following:
    |-- __init__.py
    |-- _version.py
    |-- include
-   |   |-- cuco
    |   |-- raft
    |   |-- raft_runtime
    |   |-- rapids

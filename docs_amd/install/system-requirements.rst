@@ -22,8 +22,8 @@
     SOFTWARE.
 
 .. meta::
-  :description: hipDF documentation and API reference library
-  :keywords: hipDF, cuDF, Pandas, ROCm-DS, API, documentation
+  :description: hipRAFT documentation and API reference library
+  :keywords: Machine-Learning, Information-Retrieval, Primitives, Nearest-Neighbors, GPU, RAPIDS, ROCm-DS
 
 .. _sys-req:
 

@@ -52,4 +52,4 @@ hipRAFT can then be installed into this environment using pip and the AMD PyPI U
 
 .. code-block:: bash
 
-   pip install amd-pylibraft==1.0.0 --extra-index-url=https://pypi.amd.com/rocm-7.2.3/simple/
+   pip install amd-pylibraft==2.0.0 --extra-index-url=https://pypi.amd.com/rocm-7.2.3/simple/
