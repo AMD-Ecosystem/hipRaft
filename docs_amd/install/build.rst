@@ -37,7 +37,7 @@ and AMD GPUs before building and installing hipRAFT.
 Dependencies
 ============
 
-Install ROCm 7.2.0 or 7.2.1 and verify that the ``rocminfo`` and ``hipcc`` commands are available in your ``PATH``.
+Install ROCm 7.2.3 and verify that the ``rocminfo`` and ``hipcc`` commands are available in your ``PATH``.
 hipRAFT builds against the AMD ROCm software stack, that is the ROCm runtime, HIP compiler tool-chain, and a GPU driver that matches your ROCm version.
 
 .. list-table::
@@ -51,15 +51,15 @@ hipRAFT builds against the AMD ROCm software stack, that is the ROCm runtime, HI
    * - `ninja <https://ninja-build.org/>`_
      - ≥ 1.11.1
    * - `hipsolver <https://rocm.docs.amd.com/projects/hipSOLVER/en/latest/>`_
-     - Version that comes bundled with ROCm ≥ 7.2.0
+     - Version that comes bundled with ROCm ≥ 7.2.3
    * - `hipblas <https://rocm.docs.amd.com//projects/hipBLAS/en/latest/>`_
-     - Version that comes bundled with ROCm ≥ 7.2.0
+     - Version that comes bundled with ROCm ≥ 7.2.3
    * - `hipblaslt <https://rocm.docs.amd.com/projects/hipBLASLt/en/latest/>`_
-     - Version that comes bundled with ROCm ≥ 7.2.0
+     - Version that comes bundled with ROCm ≥ 7.2.3
    * - `hiprand <https://rocm.docs.amd.com/projects/hipRAND/en/latest/>`_
-     - Version that comes bundled with ROCm ≥ 7.2.0
+     - Version that comes bundled with ROCm ≥ 7.2.3
    * - `hipsparse <https://rocm.docs.amd.com/projects/hipSPARSE/en/latest/>`_
-     - Version that comes bundled with ROCm ≥ 7.2.0
+     - Version that comes bundled with ROCm ≥ 7.2.3
    * - `libblas-dev <https://www.netlib.org/lapack/>`_
      - Tested with 3.12.0
    * - `liblapack-dev <https://www.netlib.org/lapack/>`_
@@ -75,15 +75,15 @@ hipRAFT builds against the AMD ROCm software stack, that is the ROCm runtime, HI
    * - **\*** `libhipcxx <https://github.com/ROCm/libhipcxx>`_
      - 3.0.2
    * - **\*** `hipCUB <https://github.com/ROCm/hipCUB>`_
-     - Version that comes bundled with ROCm ≥ 7.2.0
+     - Version that comes bundled with ROCm ≥ 7.2.3
    * - **\*** `rocThrust <https://github.com/ROCm/rocThrust>`_
-     - Version that comes bundled with ROCm ≥ 7.2.0
+     - Version that comes bundled with ROCm ≥ 7.2.3
    * - **\*\*** `OpenMP <https://www.openmp.org/>`_
-     - Version that comes bundled with ROCm ≥ 7.2.0
+     - Version that comes bundled with ROCm ≥ 7.2.3
    * - **Optional Dependencies**
      -
    * - `RCCL <https://rocm.docs.amd.com/projects/rccl/en/latest/>`_
-     - Version that comes bundled with ROCm ≥ 7.2.0
+     - Version that comes bundled with ROCm ≥ 7.2.3
    * - `UCX <https://github.com/openucx/ucx>`_
      - ≥ 1.18.0
    * - `Googletest <https://github.com/google/googletest>`_
