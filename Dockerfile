@@ -23,7 +23,7 @@
 # SOFTWARE.
 
 ARG UBUNTU="24.04"
-ARG ROCM=7.2.1
+ARG ROCM=7.2.3
 # TODO: Change the BASE to point to the public ROCm 7 image when it becomes available
 ARG BASE=rocm/dev-ubuntu-${UBUNTU}:${ROCM}-complete
 FROM ${BASE}

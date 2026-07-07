@@ -32,7 +32,7 @@ dependencies:
 - distributed
 - pytest-timeout
 - pip:
-  - --extra-index-url https://pypi.amd.com/simple
+  - --extra-index-url https://pypi.amd.com/rocm-7.2.3/simple/
   - amd-dask-hip==1.0.*
   - amd-libhipucxx==0.1.*
   - amd-hipucxx==0.1.*

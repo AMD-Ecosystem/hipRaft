@@ -2,7 +2,7 @@
 
 hipRAFT is AMD's port of NVIDIA's RAFT library, enabling RAFT on AMD GPUs using the HIP platform.
 
-## [Release Version 1.0.0] - 2026-04-01
+## [Release Version 1.0.0] - 2026-07-10
 
 ### Features
 - Upgraded upstream RAFT baseline from 25.02 to 25.10, incorporating new upstream primitives, performance improvements, and API changes
@@ -26,7 +26,7 @@ hipRAFT is AMD's port of NVIDIA's RAFT library, enabling RAFT on AMD GPUs using 
 ### Build & Infrastructure
 - Switch HIP backend to `-fopenmp` compiler flags while preserving `FindOpenMP` CMake module for CUDA path
 - Update dependency branch names in versions.json
-- Bump ROCm base version to 7.2.1 in build infrastructure
+- Bump ROCm base version to 7.2.3 in build infrastructure
 - Suppress `-Wdeprecated` and `-Wsign-compare` warnings when compiling gtest under hipcc
 - Fix pre-commit CMakeLists formatting violations
 

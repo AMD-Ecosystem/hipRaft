@@ -53,7 +53,7 @@ requires-python = ">=3.10"
 dependencies = [
     "amd-libraft==1.0.*",
     "numpy>=1.23,<3.0a0",
-    "amd_hipmm==4.*",
+    "amd-hipmm==4.*",
     "hip-python==7.*",
     "hip-python-as-cuda==7.*",
 ]
