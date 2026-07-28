@@ -23,7 +23,7 @@
 
 .. meta::
   :description: hipRAFT documentation and API reference library
-  :keywords: hipRAFT, RAFT, hipVS, cuVS, Pandas, ROCm-DS, API, documentation
+  :keywords: hipRAFT, RAFT, hipVS, cuVS, Pandas, AMD Data Science, API, documentation
 
 .. _sys-req:
 
