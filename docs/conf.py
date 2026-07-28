@@ -27,7 +27,7 @@ html_context = {
 html_theme = "rocm_docs_theme"
 html_theme_options = {
     "flavor": "rocm-ds", 
-    "repository_url": "https://github.com/ROCm-DS/hipRaft/"
+    "repository_url": "https://github.com/AMD-Ecosystem/hipRaft/"
 }
 
 external_toc_path = "./sphinx/_toc.yml"
