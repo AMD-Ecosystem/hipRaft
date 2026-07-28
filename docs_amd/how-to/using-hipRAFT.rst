@@ -1,6 +1,6 @@
 .. meta::
    :description: hipRAFT documentation and API reference
-   :keywords: Machine-Learning, Information-Retrieval, Primitives, GPU, RAPIDS, ROCm-DS
+   :keywords: Machine-Learning, Information-Retrieval, Primitives, GPU, RAPIDS, AMD Data Science
 
 ..
    MIT License
