@@ -29,7 +29,7 @@
 Building hipRAFT from source
 ****************************
 
-hipRAFT currently provides C++ and Python APIs. The following instructions provide steps to build and test hipRAFT from source files provided in the `https://github.com/ROCm-DS/hipRaft <https://github.com/ROCm-DS/hipRaft>`_ repository. To install hipRAFT for end users, see :doc:`Installing hipRAFT <./install>`.
+hipRAFT currently provides C++ and Python APIs. The following instructions provide steps to build and test hipRAFT from source files provided in the `https://github.com/AMD-Ecosystem/hipRaft <https://github.com/AMD-Ecosystem/hipRaft>`_ repository. To install hipRAFT for end users, see :doc:`Installing hipRAFT <./install>`.
 
 See :ref:`sys-req` for information regarding supported operating systems, ROCm versions,
 and AMD GPUs before building and installing hipRAFT.
@@ -68,7 +68,7 @@ hipRAFT builds against the AMD ROCm software stack, that is the ROCm runtime, HI
      - Tested with 7.6.1
    * - **Additional Required Dependencies**
      -
-   * - **\*** `hipMM <https://github.com/ROCm-DS/hipMM>`_
+   * - **\*** `hipMM <https://github.com/AMD-Ecosystem/hipMM>`_
      - 4.0.0
    * - **\*** `hipCollections <https://github.com/ROCm/hipCollections>`_
      - 0.4.0
@@ -95,7 +95,7 @@ hipRAFT builds against the AMD ROCm software stack, that is the ROCm runtime, HI
 
 .. note::
 
-   **\*** - If not found locally the CMake build system will attempt to download a compatible version using `ROCmDS-cmake <https://github.com/ROCm-DS/ROCmDS-cmake>`_.
+   **\*** - If not found locally the CMake build system will attempt to download a compatible version using `ROCmDS-cmake <https://github.com/AMD-Ecosystem/ROCmDS-cmake>`_.
 
    **\*\*** - The ``OpenMP`` toolchain is automatically installed as part of the standard ROCm installation and is available under ``/opt/rocm-{version}/llvm``.
 
@@ -143,7 +143,7 @@ The following section discusses building the C++ library.
 Header-only C++
 ---------------
 
-``build.sh`` uses `ROCmDS-cmake <https://github.com/ROCm-DS/ROCmDS-cmake>`_, which will automatically download any dependencies that are not already installed.
+``build.sh`` uses `ROCmDS-cmake <https://github.com/AMD-Ecosystem/ROCmDS-cmake>`_, which will automatically download any dependencies that are not already installed.
 
 The following example will download the needed dependencies and install the hipRAFT headers into ``$INSTALL_PREFIX/include/hipRAFT``.
 
