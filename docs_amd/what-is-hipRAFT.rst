@@ -1,6 +1,6 @@
 .. meta::
    :description: hipRAFT documentation and API reference
-   :keywords: Machine-Learning, Information-Retrieval, Primitives, GPU, RAPIDS, ROCm-DS
+   :keywords: Machine-Learning, Information-Retrieval, Primitives, GPU, RAPIDS, AMD Data Science
 
 ..
    MIT License
@@ -45,7 +45,7 @@ the accelerated functions in hipRAFT:
      - Description
 
    * - `Core <./reference/cpp_api/core.html>`_
-     - `cpp/include/raft/core/* <https://github.com/ROCm-DS/hipRaft/tree/release/rocmds-26.03/cpp/include/raft/core>`_
+     - `cpp/include/raft/core/* <https://github.com/AMD-Ecosystem/hipRaft/tree/release/rocmds-26.03/cpp/include/raft/core>`_
      - * Spans, buffers, and memory allocation policies and containers.
        * GPU Resource Management – Streams, events, device properties.
        * Logging & Debugging – Logging macros, profiling utilities.
@@ -55,11 +55,11 @@ the accelerated functions in hipRAFT:
           * The API in ``raft/core/interruptible.hpp`` are not supported.
 
    * - **Label**
-     - `cpp/include/raft/label/* <https://github.com/ROCm-DS/hipRaft/tree/release/rocmds-26.03/cpp/include/raft/label>`_
+     - `cpp/include/raft/label/* <https://github.com/AMD-Ecosystem/hipRaft/tree/release/rocmds-26.03/cpp/include/raft/label>`_
      - These APIs provide functionalities for handling and processing class labels in machine learning and graph-based algorithms. They focus on extracting unique labels, mapping labels to a monotonically increasing order, and merging different label sets.
 
    * - `Linear Algebra <./reference/cpp_api/linalg.html>`_
-     - `cpp/include/raft/linalg/* <https://github.com/ROCm-DS/hipRaft/tree/release/rocmds-26.03/cpp/include/raft/linalg>`_
+     - `cpp/include/raft/linalg/* <https://github.com/AMD-Ecosystem/hipRaft/tree/release/rocmds-26.03/cpp/include/raft/linalg>`_
      - APIs that abstract common BLAS routines, standard linear system solvers, factorization and eigenvalue solvers.
 
        * Known issues:
@@ -67,18 +67,18 @@ the accelerated functions in hipRAFT:
           * ``raft::linalg::randomized_svd`` is not supported.
 
    * - `Matrix <./reference/cpp_api/matrix.html>`_
-     - `cpp/include/raft/matrix/* <https://github.com/ROCm-DS/hipRaft/tree/release/rocmds-26.03/cpp/include/raft/matrix>`_
+     - `cpp/include/raft/matrix/* <https://github.com/AMD-Ecosystem/hipRaft/tree/release/rocmds-26.03/cpp/include/raft/matrix>`_
      - The hipRAFT matrix API extends matrix operations beyond ``raft::linalg``, offering utilities for arithmetic (power, ratio, reciprocal, sign-flip, square root), manipulation (initialization, reversing, thresholding), ordering (argmax, argmin, select-K, sorting), and reductions (matrix norms).
 
    * - `Solver <./reference/cpp_api/solver.html>`_
-     - `cpp/include/raft/solver/* <https://github.com/ROCm-DS/hipRaft/tree/release/rocmds-26.03/cpp/include/raft/solver>`_
+     - `cpp/include/raft/solver/* <https://github.com/AMD-Ecosystem/hipRaft/tree/release/rocmds-26.03/cpp/include/raft/solver>`_
      - Solvers supported:
 
        * ``LinearAssignmentProblem`` solver(alternating tree Hungarian Algorithm) from ``cpp/include/raft/solver/linear_assignment.cuh``
        * ``Minimum spanning tree`` solver is supported from ``cpp/include/raft/sparse/mst/mst.hpp``
 
    * - `Sparse <./reference/cpp_api/sparse.html>`_
-     - `cpp/include/raft/sparse/* <https://github.com/ROCm-DS/hipRaft/tree/release/rocmds-26.03/cpp/include/raft/sparse>`_
+     - `cpp/include/raft/sparse/* <https://github.com/AMD-Ecosystem/hipRaft/tree/release/rocmds-26.03/cpp/include/raft/sparse>`_
      - Provides GPU-accelerated operations for sparse matrices, including arithmetic, normalization, multiplication, slicing, and solvers for eigenvalues and graph problems, optimizing large-scale computations.
 
        * Known issues:
@@ -86,15 +86,15 @@ the accelerated functions in hipRAFT:
           * ``raft::sparse::linalg::masked_matmul`` is not supported for ``half`` type.
 
    * - `Utilities <./reference/cpp_api/utils.html>`_
-     - `cpp/include/raft/util/* <https://github.com/ROCm-DS/hipRaft/tree/release/rocmds-26.03/cpp/include/raft/util>`_
+     - `cpp/include/raft/util/* <https://github.com/AMD-Ecosystem/hipRaft/tree/release/rocmds-26.03/cpp/include/raft/util>`_
      - Miscellaneous utility/helper functions
 
    * - **Common**
-     - `cpp/include/raft/common/* <https://github.com/ROCm-DS/hipRaft/tree/release/rocmds-26.03/cpp/include/raft/common>`_
+     - `cpp/include/raft/common/* <https://github.com/AMD-Ecosystem/hipRaft/tree/release/rocmds-26.03/cpp/include/raft/common>`_
      - Miscellaneous common functions used across various modules.
 
    * - `Random <./reference/cpp_api/random.html>`_
-     - `cpp/include/raft/random/* <https://github.com/ROCm-DS/hipRaft/tree/release/rocmds-26.03/cpp/include/raft/random>`_
+     - `cpp/include/raft/random/* <https://github.com/AMD-Ecosystem/hipRaft/tree/release/rocmds-26.03/cpp/include/raft/random>`_
      - Miscellaneous functions for random number generation.
 
        * Known issues:

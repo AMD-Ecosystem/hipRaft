@@ -23,7 +23,7 @@
 
 .. meta::
   :description: hipRAFT documentation and API reference library
-  :keywords: Machine-Learning, Information-Retrieval, Primitives, Nearest-Neighbors, GPU, RAPIDS, ROCm-DS
+  :keywords: Machine-Learning, Information-Retrieval, Primitives, Nearest-Neighbors, GPU, RAPIDS, AMD Data Science
 
 .. _hipraft:
 
@@ -31,11 +31,11 @@
 hipRAFT documentation
 ********************************************************************
 
-hipRAFT is a library of fundamental algorithms and primitives for machine-learning and data-mining workloads that can be run on AMD GPUs. It is part of the AMD ROCm Data Science toolkit (ROCm-DS), an open-source software collection for high-performance data science applications. Forked from the RAPIDS® RAFT project, hipRAFT brings the same rich functionality to the :doc:`HIP <hip:index>`/:doc:`ROCm <rocm:index>` stack while preserving the directory structure, file naming, and API naming, to minimize porting friction for developers using both projects. It offers both a modern C++ interface for systems developers and fully featured Python bindings for rapid prototyping and data-science workflows. For more information, see :doc:`What is hipRAFT? <what-is-hipRAFT>`
+hipRAFT is a library of fundamental algorithms and primitives for machine-learning and data-mining workloads that can be run on AMD GPUs. It is part of the AMD Data Science toolkit, an open-source software collection for high-performance data science applications. Forked from the RAPIDS® RAFT project, hipRAFT brings the same rich functionality to the :doc:`HIP <hip:index>`/:doc:`ROCm <rocm:index>` stack while preserving the directory structure, file naming, and API naming, to minimize porting friction for developers using both projects. It offers both a modern C++ interface for systems developers and fully featured Python bindings for rapid prototyping and data-science workflows. For more information, see :doc:`What is hipRAFT? <what-is-hipRAFT>`
 
 Key highlights in hipRAFT v1.0.0 include:
 
-* Full integration with the ROCm-DS ecosystem – Serves as the computational foundation for hipGRAPH and hipVS, providing shared GPU-accelerated primitives across all components.
+* Full integration with the AMD Data Science ecosystem – Serves as the computational foundation for hipGRAPH and hipVS, providing shared GPU-accelerated primitives across all components.
 * Expanded C++ and Python support – Offers a modern C++ interface for system-level integration and Python bindings for rapid prototyping and data-science workflows.
 * Rich module coverage – Delivers accelerated functionality across core domains, including:
 
@@ -48,7 +48,7 @@ Key highlights in hipRAFT v1.0.0 include:
 
 * Performance and resource management improvements – Enhanced GPU memory handling, logging, and profiling utilities for efficient large-scale computation.
 
-The hipRAFT code is open and hosted at `https://github.com/ROCm-DS/hipRaft <https://github.com/ROCm-DS/hipRaft>`_.
+The hipRAFT code is open and hosted at `https://github.com/AMD-Ecosystem/hipRaft <https://github.com/AMD-Ecosystem/hipRaft>`_.
 
 .. grid:: 2
   :gutter: 3
@@ -69,6 +69,6 @@ The hipRAFT code is open and hosted at `https://github.com/ROCm-DS/hipRaft <http
     * :ref:`Python API reference <hipraft-python>`
 
 
-To contribute to the documentation refer to `Contributing to ROCm-DS  <https://rocm.docs.amd.com/projects/rocm-ds/en/latest/contribute/contributing.html>`_.
+To contribute to the documentation refer to `Contributing to AMD Data Science  <https://rocm.docs.amd.com/projects/rocm-ds/en/latest/contribute/contributing.html>`_.
 
 You can find licensing information on the `Licensing <https://rocm.docs.amd.com/projects/rocm-ds/en/latest/about/license.html>`_ page.
