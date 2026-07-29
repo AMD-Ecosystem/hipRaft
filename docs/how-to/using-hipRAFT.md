@@ -3,7 +3,7 @@
 myst:
   html_meta:
     "description": "hipRAFT documentation and API reference library"
-    "keywords": "Machine-Learning, Information-Retrieval, Primitives, Nearest-Neighbors, GPU, RAPIDS, ROCm-DS"
+    "keywords": "Machine-Learning, Information-Retrieval, Primitives, Nearest-Neighbors, GPU, RAPIDS, AMD Data Science"
 ---
 -->
 

@@ -3,13 +3,13 @@
 myst:
   html_meta:
     "description": "hipRAFT documentation and API reference library"
-    "keywords": "Machine-Learning, Information-Retrieval, Primitives, Nearest-Neighbors, GPU, RAPIDS, ROCm-DS"
+    "keywords": "Machine-Learning, Information-Retrieval, Primitives, Nearest-Neighbors, GPU, RAPIDS, AMD Data Science"
 ---
 -->
 
 # Building hipRAFT from source
 
-hipRAFT currently provides C++ and Python APIs. The following instructions provide steps to build and test hipRAFT from source files provided in the [https://github.com/ROCm-DS/hipRaft](https://github.com/ROCm-DS/hipRaft) repository. To install hipRAFT for end users, see [Installing hipRAFT](./install.md). 
+hipRAFT currently provides C++ and Python APIs. The following instructions provide steps to build and test hipRAFT from source files provided in the [https://github.com/AMD-Ecosystem/hipRaft](https://github.com/AMD-Ecosystem/hipRaft) repository. To install hipRAFT for end users, see [Installing hipRAFT](./install.md). 
 
 ## Tested on the following GPUs
 
@@ -40,7 +40,7 @@ Install ROCm 7.0.2, or the minimum version supported by the GPUs listed above, a
 | [`liblapack-dev`](https://www.netlib.org/lapack/)                                           | Tested with 3.12.0                           |
 | [`SuiteSparse`](https://github.com/DrTimothyAldenDavis/SuiteSparse)                         | Tested with 7.6.1                            |
 | **Additional Required Dependencies**                                                                                                       |
-| **\***[`hipMM`](https://github.com/ROCm-DS/hipMM)                                           | 3.0.0                                        |
+| **\***[`hipMM`](https://github.com/AMD-Ecosystem/hipMM)                                           | 3.0.0                                        |
 | **\***[`hipCollections`](https://github.com/ROCm/hipCollections)                            | 0.3.0                                        |
 | **\***[`libhipcxx`](https://github.com/ROCm/libhipcxx)                                      | 2.7.0                                        |
 | **\***[`hipCUB`](https://github.com/ROCm/rocm-libraries/tree/develop/projects/hipcub)       | Version that comes bundled with ROCm ≥ 7.0.2 |
@@ -53,7 +53,7 @@ Install ROCm 7.0.2, or the minimum version supported by the GPUs listed above, a
 | [`Googlebench`](https://github.com/google/benchmark)                                        | ≥ 1.13.0                                     |
 | [`Doxygen`](https://github.com/doxygen/doxygen)                                             | >=1.8.20                                     |
 
-> `*` - If not found locally the CMake build system will attempt to download a compatible version using [ROCmDS-cmake](https://github.com/ROCm-DS/ROCmDS-cmake). 
+> `*` - If not found locally the CMake build system will attempt to download a compatible version using [ROCmDS-cmake](https://github.com/AMD-Ecosystem/ROCmDS-cmake). 
 >
 > `**` - The `OpenMP` toolchain is automatically installed as part of the standard ROCm installation and is available under /`opt/rocm-{version}/llvm`.
 
@@ -94,7 +94,7 @@ export CMAKE_PREFIX_PATH=/opt/rocm/lib/cmake # Set CMAKE_PREFIX_PATH to point to
 
 ### Header-only C++
 
-`build.sh` uses [ROCmDS-cmake](https://github.com/ROCm-DS/ROCmDS-cmake), which will automatically download any dependencies that are not already installed.
+`build.sh` uses [ROCmDS-cmake](https://github.com/AMD-Ecosystem/ROCmDS-cmake), which will automatically download any dependencies that are not already installed.
 
 The following example will download the needed dependencies and install the hipRAFT headers into `$INSTALL_PREFIX/include/hipRAFT`.
 
