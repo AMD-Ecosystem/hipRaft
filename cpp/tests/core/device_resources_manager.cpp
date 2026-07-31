@@ -33,6 +33,9 @@
 #include <rmm/mr/pool_memory_resource.hpp>
 
 #include <cuda/memory_resource>
+#ifdef __HIP_PLATFORM_AMD__
+#include <raft/cuda_runtime.h>
+#else
 #include <cuda_runtime_api.h>
 #endif
 
