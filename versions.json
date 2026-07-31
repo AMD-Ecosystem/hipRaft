@@ -3,7 +3,7 @@
     "hipmm": {
       "version": "5.0.0",
       "git_url": "https://$ENV{GITHUB_PASS}@github.com/AMD-AIOSS/hipmm",
-      "git_tag": "development/kjoseph/upgrade_to_rapids_26.04_conflict_resolution"
+      "git_tag": "develop/rapids-26.06"
     },
     "rocmds_logger": {
       "version": "2.0.0",
@@ -13,7 +13,7 @@
     "libhipcxx" : {
       "version" : "3.0.2",
       "git_url" : "https://$ENV{GITHUB_PASS}@github.com/AMD-AIOSS/libhipcxx",
-      "git_tag" : "upgrade/3.3.4_enable"
+      "git_tag" : "upgrade/3.4.0_base_enable"
     },
     "hipco" : {
       "version" : "0.4.0",
