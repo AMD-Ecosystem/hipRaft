@@ -58,9 +58,8 @@ int main()
     raft::device_resources dev_resources;
 
     // Set pool memory resource with 1 GiB initial pool size. All allocations use the same pool.
-    rmm::mr::pool_memory_resource<rmm::mr::device_memory_resource> pool_mr(
-        rmm::mr::get_current_device_resource(), 1024 * 1024 * 1024ull);
-    rmm::mr::set_current_device_resource(&pool_mr);
+    auto pool_mr = rmm::mr::set_current_device_resource(rmm::mr::pool_memory_resource(
+        rmm::mr::get_current_device_resource_ref(), 1024 * 1024 * 1024ull));
 
     // Alternatively, one could define a pool allocator for temporary arrays (used within RAFT
     // algorithms). In that case only the internal arrays would use the pool, any other allocation
