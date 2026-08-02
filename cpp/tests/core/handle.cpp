@@ -297,7 +297,12 @@ TEST(Raft, WorkspaceResource)
   raft::handle_t handle;
 
   // The returned resource is always a limiting adaptor
-  rmm::device_async_resource_ref orig_mr{
+  // (HIP/AMD) Upstream #2996 (Migrate RMM usage to CCCL MR design) removed the two assertions that
+  // read `orig_mr` but left the declaration behind, so it is dead in upstream 26.06 as well. AMD
+  // builds with -Wall -Werror and, unlike the GPU flag list, CXX_WARNINGS_DISABLE_LIST in
+  // cmake/modules/ConfigureHIP.cmake does not carry -Wno-unused-variable, so this is a hard build
+  // failure here. Marked maybe_unused rather than deleted to keep the file in sync with upstream.
+  [[maybe_unused]] rmm::device_async_resource_ref orig_mr{
     resource::get_workspace_resource(handle)->get_upstream_resource()};
 
   // Let's create a pooled resource

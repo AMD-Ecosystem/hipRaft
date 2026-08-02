@@ -65,7 +65,7 @@ void gather_host_path(raft::resources const& res,
   if (device_prop.unifiedAddressing) {
     rmm::device_uvector<T> backing_storage(n_rows_input * ld,
                                            raft::resource::get_cuda_stream(res),
-                                           raft::resource::get_large_workspace_resource(res));
+                                           raft::resource::get_large_workspace_resource_ref(res));
     raft::copy(
       backing_storage.data(), input, n_rows_input * ld, raft::resource::get_cuda_stream(res));
     auto device_dataset = raft::make_device_strided_matrix_view<const T, IdxT>(
