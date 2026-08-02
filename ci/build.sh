@@ -234,6 +234,8 @@ build_examples() {
         cmake_args+=("-DCPM_rapids_logger_SOURCE=${SRC_DIR}/rocmds_logger")
     fi
 
+    cmake_args+=("-DFETCHCONTENT_SOURCE_DIR_RAPIDS-CMAKE=${SRC_DIR}/rapids-cmake")
+
     if [[ "${SCCACHE_ENABLE:-false}" == "true" ]]; then
         cmake_args+=("-DCMAKE_HIP_COMPILER_LAUNCHER=sccache")
         cmake_args+=("-DCMAKE_CXX_COMPILER_LAUNCHER=sccache")
