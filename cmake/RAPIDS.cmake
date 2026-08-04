@@ -36,7 +36,6 @@
 
 # cmake-lint: disable=W0106
 
-# NOTE(HIP/AMD): AMD-AIOSS/ROCmDS-CMake is private; fetch via SSH git clone instead of HTTPS zip.
 if(NOT rapids-cmake-fetch-via-git)
   set(rapids-cmake-fetch-via-git ON)
 endif()
