@@ -250,14 +250,25 @@ include(cmake/thirdparty/get_cccl.cmake)
 # {roc::rocthrust, roc::hipstdpar}. If only one target from a set is global, a downstream
 # find_package() (e.g. via rapids_cpm_cuco -> hipccl) sees a partial set and fails with "Some (but
 # not all) targets in this export set were already defined."
-if(NOT CUDA_BACKEND)
-  set(_cccl_global_promote_targets roc::rocprim roc::rocprim_hip hip::hipcub roc::rocthrust
-                                   roc::hipstdpar
-  )
-  include(${rapids-cmake-dir}/cmake/make_global.cmake)
-  rapids_cmake_make_global(_cccl_global_promote_targets)
-  unset(_cccl_global_promote_targets)
-endif()
+set(_cccl_global_promote_targets
+    roc::rocprim
+    roc::rocprim_hip
+    hip::hipcub
+    roc::rocthrust
+    roc::hipstdpar
+    CCCL::CCCL
+    CCCL::Thrust
+    CCCL::CUB
+    CCCL::libcudacxx
+    libcudacxx::libcudacxx
+    hipCCL::hipCCL
+    hipCCL::hipcub
+    hipCCL::rocThrust
+    hipCCL::libhipcxx
+)
+include(${rapids-cmake-dir}/cmake/make_global.cmake)
+rapids_cmake_make_global(_cccl_global_promote_targets)
+unset(_cccl_global_promote_targets)
 
 include(cmake/thirdparty/get_rmm.cmake)
 
