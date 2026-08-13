@@ -139,8 +139,12 @@ const std::vector<MeanInputs<double>> inputsd = {{0.15, -1.0, 1024, 32, false, 1
                                                  {2.0, -1.0, 7, 23, true, 1234ULL},
                                                  {2.0, -1.0, 17, 5, false, 1234ULL},
                                                  {2.0, -1.0, 17, 5, true, 1234ULL},
-                                                 {1e-8, 1e-1, 1 << 27, 2, false, 1234ULL, 0.0001},
-                                                 {1e-8, 1e-1, 1 << 27, 2, true, 1234ULL, 0.0001}};
+                                                 // For N=2^27 draws of normal(0.1, 1e-4) the mean's
+                                                 // sampling SE is stddev/sqrt(N) ~ 8.6e-9, so a correct
+                                                 // result deviates from 0.1 by a few sigma; the tolerance
+                                                 // must exceed that (the reduction itself is exact).
+                                                 {5e-8, 1e-1, 1 << 27, 2, false, 1234ULL, 0.0001},
+                                                 {5e-8, 1e-1, 1 << 27, 2, true, 1234ULL, 0.0001}};
 
 typedef MeanTest<float> MeanTestF;
 TEST_P(MeanTestF, Result)

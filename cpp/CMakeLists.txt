@@ -65,6 +65,33 @@ project(
   LANGUAGES ${lang_list}
 )
 
+# RDNA targets (gfx10xx/gfx11xx) run a 32-lane wavefront. The cuco hashmap
+# dependency selects its lane width at configure time from USE_WARPSIZE_32, so
+# auto-enable it when every requested HIP architecture is a wave32 target. This
+# keeps the runtime warp-size query (raft::host_warp_size / device raft::WarpSize)
+# and the cuco tile width consistent. CUDA and CDNA (wave64) builds are unchanged.
+if(NOT CUDA_BACKEND AND DEFINED CMAKE_HIP_ARCHITECTURES)
+  set(_raft_all_wave32 TRUE)
+  set(_raft_any_wave32 FALSE)
+  foreach(_arch ${CMAKE_HIP_ARCHITECTURES})
+    if(_arch MATCHES "^gfx10" OR _arch MATCHES "^gfx11" OR _arch MATCHES "^gfx12")
+      set(_raft_any_wave32 TRUE)
+    else()
+      set(_raft_all_wave32 FALSE)
+    endif()
+  endforeach()
+  if(_raft_any_wave32 AND NOT _raft_all_wave32)
+    message(FATAL_ERROR "RAFT: cannot mix wave32 (gfx10xx/gfx11xx/gfx12xx) and "
+                        "wave64 (gfx9xx) architectures in one build; the cuco "
+                        "dependency selects a single lane width via USE_WARPSIZE_32. "
+                        "Build wave32 and wave64 targets separately.")
+  endif()
+  if(_raft_all_wave32)
+    set(USE_WARPSIZE_32 ON CACHE BOOL "Use wave size 32 (e.g. gfx1100)" FORCE)
+    message(STATUS "RAFT: wave32 architecture(s) detected; enabling USE_WARPSIZE_32")
+  endif()
+endif()
+
 # Write the version header
 rapids_cmake_write_version_file(include/raft/version_config.hpp)
 
