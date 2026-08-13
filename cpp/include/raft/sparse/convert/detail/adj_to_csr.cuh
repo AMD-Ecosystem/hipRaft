@@ -180,8 +180,8 @@ void adj_to_csr(raft::resources const& handle,
   int dev_id, sm_count, blocks_per_sm;
   RAFT_CUDA_TRY(cudaGetDevice(&dev_id));
   RAFT_CUDA_TRY(cudaDeviceGetAttribute(&sm_count, cudaDevAttrMultiProcessorCount, dev_id));
-  cudaOccupancyMaxActiveBlocksPerMultiprocessor(
-    &blocks_per_sm, adj_to_csr_kernel<index_t>, adj_to_csr_tpb, 0);
+  RAFT_CUDA_TRY(cudaOccupancyMaxActiveBlocksPerMultiprocessor(
+    &blocks_per_sm, adj_to_csr_kernel<index_t>, adj_to_csr_tpb, 0));
 
   index_t max_active_blocks = sm_count * blocks_per_sm;
   index_t blocks_per_row    = raft::ceildiv(max_active_blocks, num_rows);

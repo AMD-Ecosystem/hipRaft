@@ -149,7 +149,7 @@ typedef COOSymmetrizeTest<float> COOSymmetrize;
 TEST_P(COOSymmetrize, Result)
 {
   cudaStream_t stream;
-  cudaStreamCreate(&stream);
+  RAFT_CUDA_TRY(cudaStreamCreate(&stream));
 
   int nnz = 8;
 
@@ -183,7 +183,7 @@ TEST_P(COOSymmetrize, Result)
   ASSERT_TRUE(raft::devArrMatch<int>(out.cols(), exp_cols_h, out.nnz, raft::Compare<int>()));
   ASSERT_TRUE(raft::devArrMatch<float>(out.vals(), exp_vals_h, out.nnz, raft::Compare<float>()));
 
-  cudaStreamDestroy(stream);
+  RAFT_CUDA_TRY(cudaStreamDestroy(stream));
 
   delete[] in_rows_h;
   delete[] in_cols_h;
