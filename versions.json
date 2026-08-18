@@ -3,12 +3,12 @@
     "hipmm": {
       "version": "5.0.0",
       "git_url": "https://$ENV{GITHUB_PASS}@github.com/AMD-AIOSS/hipmm",
-      "git_tag": "develop/rapids-26.06"
+      "git_tag": "amd-integration"
     },
     "rocmds_logger": {
       "version": "2.0.0",
       "git_url": "https://$ENV{GITHUB_PASS}@github.com/AMD-AIOSS/rocmds-logger",
-      "git_tag": "upgrade/kejoseph/cherry_pick_v0.2.3"
+      "git_tag": "amd-integration"
     },
     "libhipcxx" : {
       "version" : "3.0.2",
@@ -18,7 +18,7 @@
     "hipco" : {
       "version" : "0.4.0",
       "git_url" : "https://$ENV{GITHUB_PASS}@github.com/AMD-AIOSS/hipCollections",
-      "git_tag" : "upgrade/26.04-merge-resolution"
+      "git_tag" : "amd-integration"
     },
     "rocthrust" : {
       "version" : "4.2.0"
