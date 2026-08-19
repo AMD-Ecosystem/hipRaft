@@ -1,6 +1,6 @@
 // MIT License
 //
-// Copyright (c) 2024-2025 Advanced Micro Devices, Inc.
+// Copyright (C) 2024-2026 Advanced Micro Devices, Inc. All rights reserved.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -19,6 +19,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
+
 #pragma once
 
 // FIXME(HIP/AMD): hipsparse does not want CUDART_VERSION to be set, as otherwise
@@ -161,6 +162,12 @@
 #ifndef CUSPARSE_SPMV_ALG_DEFAULT
 #define CUSPARSE_SPMV_ALG_DEFAULT HIPSPARSE_SPMV_ALG_DEFAULT
 #endif
+#ifndef CUSPARSE_SPMV_COO_ALG1
+#define CUSPARSE_SPMV_COO_ALG1 HIPSPARSE_SPMV_COO_ALG1
+#endif
+#ifndef CUSPARSE_SPMV_COO_ALG2
+#define CUSPARSE_SPMV_COO_ALG2 HIPSPARSE_SPMV_COO_ALG2
+#endif
 
 // functions
 #ifndef cusparsecoo2csr
@@ -262,8 +269,14 @@
 #ifndef cusparseDestroyDnMat
 #define cusparseDestroyDnMat hipsparseDestroyDnMat
 #endif
+#ifndef cusparseCreateCoo
+#define cusparseCreateCoo hipsparseCreateCoo
+#endif
 #ifndef cusparseCreateCsr
 #define cusparseCreateCsr hipsparseCreateCsr
+#endif
+#ifndef cusparseGetErrorString
+#define cusparseGetErrorString hipsparseGetErrorString
 #endif
 #ifndef cusparseCreateDnVec
 #define cusparseCreateDnVec hipsparseCreateDnVec

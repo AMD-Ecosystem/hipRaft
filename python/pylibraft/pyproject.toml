@@ -1,16 +1,5 @@
-# Copyright (c) 2022, NVIDIA CORPORATION.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-FileCopyrightText: Copyright (c) 2022-2026, NVIDIA CORPORATION.
+# SPDX-License-Identifier: Apache-2.0
 
 # Modifications Copyright (c) 2025-2026 Advanced Micro Devices, Inc.
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -35,8 +24,8 @@ build-backend = "scikit_build_core.build"
 requires = [
     "cython>=3.0.0,<3.1.0a0",
     "scikit-build-core[pyproject]>=0.10.0",
-    "amd-libhipmm==4.*",
-    "amd-hipmm==4.*"
+    "amd-libhipmm==5.*",
+    "amd-hipmm==5.*"
 ]
 
 [project]
@@ -48,22 +37,25 @@ authors = [
     { name = "Advanced Micro Devices, Inc." },
     { name = "NVIDIA Corporation" },
 ]
-license = { text = "Apache 2.0 AND MIT" }
-requires-python = ">=3.10"
+license = "Apache-2.0"
+requires-python = ">=3.11"
 dependencies = [
-    "amd-libraft==1.0.*",
+    "amd-libraft==2.0.*",
     "numpy>=1.23,<3.0a0",
-    "amd_hipmm==4.*",
-    "hip-python==7.*",
-    "hip-python-as-cuda==7.*",
+    "amd_hipmm==5.*",
+    # NOTE(HIP/AMD): AMD substitutes upstream `cuda-python` with the AMD pair
+    # `rocm-bindings-hip` + `hip-python-interop` (the latter exposes a `cuda.*`
+    # namespace backed by HIP).
+    "hip-python-interop>=7.2.3",
+    "rocm-bindings-hip>=7.2.3",
 ]
 classifiers = [
     "Intended Audience :: Developers",
     "Programming Language :: Python",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
 ]
 
 [project.optional-dependencies]
@@ -80,47 +72,22 @@ Homepage = "https://github.com/ROCm-DS/hipRaft"
 Documentation = "https://rocm.docs.amd.com/projects/hipRaft/en/latest/"
 "Issue Tracker" = "https://github.com/ROCm-DS/hipRaft/issues"
 
-[tool.isort]
-line_length = 79
-multi_line_output = 3
-include_trailing_comma = true
-force_grid_wrap = 0
-combine_as_imports = true
-order_by_type = true
-known_dask = [
+[tool.ruff]
+extend = "../../pyproject.toml"
+
+[tool.ruff.lint.isort]
+known-first-party = [
+    "pylibraft",
+]
+
+[tool.ruff.lint.isort.sections]
+dask = [
     "dask",
     "distributed",
     "dask_cuda",
 ]
-known_rapids = [
+rapids = [
     "rmm",
-]
-known_first_party = [
-    "pylibraft",
-]
-default_section = "THIRDPARTY"
-sections = [
-    "FUTURE",
-    "STDLIB",
-    "THIRDPARTY",
-    "DASK",
-    "RAPIDS",
-    "FIRSTPARTY",
-    "LOCALFOLDER",
-]
-skip = [
-    "thirdparty",
-    ".eggs",
-    ".git",
-    ".hg",
-    ".mypy_cache",
-    ".tox",
-    ".venv",
-    "_build",
-    "buck-out",
-    "build",
-    "dist",
-    "__init__.py",
 ]
 
 [tool.scikit-build]
@@ -133,6 +100,7 @@ ninja.make-fallback = false
 sdist.exclude = ["*tests*"]
 sdist.reproducible = true
 wheel.packages = ["pylibraft"]
+wheel.py-api = "cp311" # overridden in CI builds by arguments from `ci/build_wheel_*.sh` scripts.
 
 [tool.scikit-build.metadata.version]
 provider = "scikit_build_core.metadata.regex"
@@ -144,8 +112,8 @@ select = [
     "distro-too-large-compressed",
 ]
 
-# PyPI limit is 100 MiB, fail CI before we get too close to that
-max_allowed_size_compressed = '2M'
+# PyPI hard limit is 1GiB, but try to keep these as small as possible
+max_allowed_size_compressed = '2Mi'
 
 [tool.pytest.ini_options]
 filterwarnings = [

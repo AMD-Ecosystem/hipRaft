@@ -1,17 +1,6 @@
 /*
- * Copyright (c) 2021-2024, NVIDIA CORPORATION.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * SPDX-FileCopyrightText: Copyright (c) 2021-2026, NVIDIA CORPORATION.
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 #pragma once
@@ -31,7 +20,7 @@
  * the whole function, while the range `epoch_scope` spans an iteration
  * (and appears 5 times in the timeline).
  * \code{.cpp}
- * #include <raft/common/nvtx.hpp>
+ * #include <raft/core/nvtx.hpp>
  * void some_function(int k){
  *   // Begins a NVTX range with the message "some_function_{k}"
  *   // The range ends when some_function() returns
@@ -52,7 +41,7 @@
  *
  * The example below defines a domain and uses it in a function.
  * \code{.cpp}
- * #include <raft/common/nvtx.hpp>
+ * #include <raft/core/nvtx.hpp>
  *
  * struct my_app_domain {
  *   static constexpr char const* name{"my application"};

@@ -1,37 +1,29 @@
 /*
- * Copyright (c) 2019-2024, NVIDIA CORPORATION.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * SPDX-FileCopyrightText: Copyright (c) 2019-2025, NVIDIA CORPORATION.
+ * SPDX-License-Identifier: Apache-2.0
  */
 
-/*
- * Modifications Copyright (c) 2024-2025 Advanced Micro Devices, Inc.
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- */
+// MIT License
+//
+// Modifications Copyright (C) 2024-2026 Advanced Micro Devices, Inc. All rights reserved.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 
 #pragma once
 
@@ -177,7 +169,7 @@ inline void cusparsecoosortByRow(  // NOLINT
 }
 /** @} */
 
-#if not defined CUDA_ENFORCE_LOWER and CUDA_VER_10_1_UP
+#if not defined CUDA_ENFORCE_LOWER
 /**
  * @defgroup cusparse Create CSR operations
  * @{
@@ -296,6 +288,126 @@ inline cusparseStatus_t cusparsecreatecsr(cusparseSpMatDescr_t* spMatDescr,
                            CUDA_R_64F);
 }
 /** @} */
+
+/**
+ * @defgroup cusparse Create COO operations
+ * @{
+ */
+template <typename ValueT, typename RowIndicesType, typename ColIndicesType>
+cusparseStatus_t cusparsecreatecoo(cusparseSpMatDescr_t* spMatDescr,
+                                   int64_t rows,
+                                   int64_t cols,
+                                   int64_t nnz,
+                                   RowIndicesType* cooRowInd,
+                                   ColIndicesType* cooColInd,
+                                   ValueT* cooValues);
+
+template <>
+inline cusparseStatus_t cusparsecreatecoo(cusparseSpMatDescr_t* spMatDescr,
+                                          int64_t rows,
+                                          int64_t cols,
+                                          int64_t nnz,
+                                          int32_t* cooRowInd,
+                                          int32_t* cooColInd,
+                                          float* cooValues)
+{
+  return cusparseCreateCoo(spMatDescr,
+                           rows,
+                           cols,
+                           nnz,
+                           cooRowInd,
+                           cooColInd,
+                           cooValues,
+                           CUSPARSE_INDEX_32I,
+                           CUSPARSE_INDEX_BASE_ZERO,
+                           CUDA_R_32F);
+}
+
+template <>
+inline cusparseStatus_t cusparsecreatecoo(cusparseSpMatDescr_t* spMatDescr,
+                                          int64_t rows,
+                                          int64_t cols,
+                                          int64_t nnz,
+                                          int32_t* cooRowInd,
+                                          int32_t* cooColInd,
+                                          double* cooValues)
+{
+  return cusparseCreateCoo(spMatDescr,
+                           rows,
+                           cols,
+                           nnz,
+                           cooRowInd,
+                           cooColInd,
+                           cooValues,
+                           CUSPARSE_INDEX_32I,
+                           CUSPARSE_INDEX_BASE_ZERO,
+                           CUDA_R_64F);
+}
+
+template <>
+inline cusparseStatus_t cusparsecreatecoo(cusparseSpMatDescr_t* spMatDescr,
+                                          int64_t rows,
+                                          int64_t cols,
+                                          int64_t nnz,
+                                          int32_t* cooRowInd,
+                                          int32_t* cooColInd,
+                                          half* cooValues)
+{
+  return cusparseCreateCoo(spMatDescr,
+                           rows,
+                           cols,
+                           nnz,
+                           cooRowInd,
+                           cooColInd,
+                           cooValues,
+                           CUSPARSE_INDEX_32I,
+                           CUSPARSE_INDEX_BASE_ZERO,
+                           CUDA_R_16F);
+}
+
+template <>
+inline cusparseStatus_t cusparsecreatecoo(cusparseSpMatDescr_t* spMatDescr,
+                                          int64_t rows,
+                                          int64_t cols,
+                                          int64_t nnz,
+                                          int64_t* cooRowInd,
+                                          int64_t* cooColInd,
+                                          float* cooValues)
+{
+  return cusparseCreateCoo(spMatDescr,
+                           rows,
+                           cols,
+                           nnz,
+                           cooRowInd,
+                           cooColInd,
+                           cooValues,
+                           CUSPARSE_INDEX_64I,
+                           CUSPARSE_INDEX_BASE_ZERO,
+                           CUDA_R_32F);
+}
+
+template <>
+inline cusparseStatus_t cusparsecreatecoo(cusparseSpMatDescr_t* spMatDescr,
+                                          int64_t rows,
+                                          int64_t cols,
+                                          int64_t nnz,
+                                          int64_t* cooRowInd,
+                                          int64_t* cooColInd,
+                                          double* cooValues)
+{
+  return cusparseCreateCoo(spMatDescr,
+                           rows,
+                           cols,
+                           nnz,
+                           cooRowInd,
+                           cooColInd,
+                           cooValues,
+                           CUSPARSE_INDEX_64I,
+                           CUSPARSE_INDEX_BASE_ZERO,
+                           CUDA_R_64F);
+}
+/** @} */
+
 /**
  * @defgroup cusparse CreateDnVec operations
  * @{
@@ -543,7 +655,7 @@ inline cusparseStatus_t cusparsecsrmv(cusparseHandle_t handle,
 /** @} */
 #endif
 
-#if not defined CUDA_ENFORCE_LOWER and CUDA_VER_10_1_UP
+#if not defined CUDA_ENFORCE_LOWER
 /**
  * @defgroup Csrmm cusparse csrmm operations
  * @{
@@ -875,73 +987,6 @@ inline cusparseStatus_t cusparsecsrmm(cusparseHandle_t handle,
  * @defgroup Gemmi cusparse gemmi operations
  * @{
  */
-#if CUDART_VERSION < 12000
-template <typename T>
-cusparseStatus_t cusparsegemmi(  // NOLINT
-  cusparseHandle_t handle,
-  int m,
-  int n,
-  int k,
-  int nnz,
-  const T* alpha,
-  const T* A,
-  int lda,
-  const T* cscValB,
-  const int* cscColPtrB,
-  const int* cscRowIndB,
-  const T* beta,
-  T* C,
-  int ldc,
-  cudaStream_t stream);
-template <>
-inline cusparseStatus_t cusparsegemmi(cusparseHandle_t handle,
-                                      int m,
-                                      int n,
-                                      int k,
-                                      int nnz,
-                                      const float* alpha,
-                                      const float* A,
-                                      int lda,
-                                      const float* cscValB,
-                                      const int* cscColPtrB,
-                                      const int* cscRowIndB,
-                                      const float* beta,
-                                      float* C,
-                                      int ldc,
-                                      cudaStream_t stream)
-{
-  CUSPARSE_CHECK(cusparseSetStream(handle, stream));
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-  return cusparseSgemmi(
-    handle, m, n, k, nnz, alpha, A, lda, cscValB, cscColPtrB, cscRowIndB, beta, C, ldc);
-#pragma GCC diagnostic pop
-}
-template <>
-inline cusparseStatus_t cusparsegemmi(cusparseHandle_t handle,
-                                      int m,
-                                      int n,
-                                      int k,
-                                      int nnz,
-                                      const double* alpha,
-                                      const double* A,
-                                      int lda,
-                                      const double* cscValB,
-                                      const int* cscColPtrB,
-                                      const int* cscRowIndB,
-                                      const double* beta,
-                                      double* C,
-                                      int ldc,
-                                      cudaStream_t stream)
-{
-  CUSPARSE_CHECK(cusparseSetStream(handle, stream));
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-  return cusparseDgemmi(
-    handle, m, n, k, nnz, alpha, A, lda, cscValB, cscColPtrB, cscRowIndB, beta, C, ldc);
-#pragma GCC diagnostic pop
-}
-#else  // CUDART >= 12.0
 template <typename T>
 cusparseStatus_t cusparsegemmi(  // NOLINT
   cusparseHandle_t handle,
@@ -1011,7 +1056,6 @@ cusparseStatus_t cusparsegemmi(  // NOLINT
   CUSPARSE_CHECK(cusparseDestroyDnMat(matC));
   return return_value;
 }
-#endif
 /** @} */
 
 /**
@@ -1279,7 +1323,6 @@ inline cusparseStatus_t cusparsecsr2dense_buffersize(cusparseHandle_t handle,
                                                      cudaStream_t stream,
                                                      bool row_major)
 {
-#if CUDART_VERSION >= 11020
   cusparseOrder_t order = row_major ? CUSPARSE_ORDER_ROW : CUSPARSE_ORDER_COL;
 
   cusparseSpMatDescr_t matA;
@@ -1305,12 +1348,6 @@ inline cusparseStatus_t cusparsecsr2dense_buffersize(cusparseHandle_t handle,
   RAFT_CUSPARSE_TRY_NO_THROW(cusparseDestroySpMat(matA));
   RAFT_CUSPARSE_TRY_NO_THROW(cusparseDestroyDnMat(matB));
 
-#else
-
-  cusparseStatus_t result = CUSPARSE_STATUS_SUCCESS;
-  buffer_size[0]          = 0;
-
-#endif
   return result;
 }
 
@@ -1329,7 +1366,6 @@ inline cusparseStatus_t cusparsecsr2dense_buffersize(cusparseHandle_t handle,
                                                      cudaStream_t stream,
                                                      bool row_major)
 {
-#if CUDART_VERSION >= 11020
   cusparseOrder_t order = row_major ? CUSPARSE_ORDER_ROW : CUSPARSE_ORDER_COL;
   cusparseSpMatDescr_t matA;
   cusparsecreatecsr(&matA,
@@ -1353,12 +1389,6 @@ inline cusparseStatus_t cusparsecsr2dense_buffersize(cusparseHandle_t handle,
 
   RAFT_CUSPARSE_TRY_NO_THROW(cusparseDestroySpMat(matA));
   RAFT_CUSPARSE_TRY_NO_THROW(cusparseDestroyDnMat(matB));
-
-#else
-  cusparseStatus_t result = CUSPARSE_STATUS_SUCCESS;
-  buffer_size[0]          = 0;
-
-#endif
 
   return result;
 }
@@ -1395,7 +1425,6 @@ inline cusparseStatus_t cusparsecsr2dense(cusparseHandle_t handle,
 {
   CUSPARSE_CHECK(cusparseSetStream(handle, stream));
 
-#if CUDART_VERSION >= 11020
   cusparseOrder_t order = row_major ? CUSPARSE_ORDER_ROW : CUSPARSE_ORDER_COL;
   cusparseSpMatDescr_t matA;
   cusparsecreatecsr(&matA,
@@ -1421,9 +1450,6 @@ inline cusparseStatus_t cusparsecsr2dense(cusparseHandle_t handle,
   RAFT_CUSPARSE_TRY_NO_THROW(cusparseDestroyDnMat(matB));
 
   return result;
-#else
-  return cusparseScsr2dense(handle, m, n, descrA, csrValA, csrRowPtrA, csrColIndA, A, lda);
-#endif
 }
 template <>
 inline cusparseStatus_t cusparsecsr2dense(cusparseHandle_t handle,
@@ -1442,7 +1468,6 @@ inline cusparseStatus_t cusparsecsr2dense(cusparseHandle_t handle,
 {
   CUSPARSE_CHECK(cusparseSetStream(handle, stream));
 
-#if CUDART_VERSION >= 11020
   cusparseOrder_t order = row_major ? CUSPARSE_ORDER_ROW : CUSPARSE_ORDER_COL;
   cusparseSpMatDescr_t matA;
   cusparsecreatecsr(&matA,
@@ -1468,10 +1493,6 @@ inline cusparseStatus_t cusparsecsr2dense(cusparseHandle_t handle,
   RAFT_CUSPARSE_TRY_NO_THROW(cusparseDestroyDnMat(matB));
 
   return result;
-#else
-
-  return cusparseDcsr2dense(handle, m, n, descrA, csrValA, csrRowPtrA, csrColIndA, A, lda);
-#endif
 }
 
 /** @} */

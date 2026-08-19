@@ -1,26 +1,15 @@
 /*
- * Copyright (c) 2022-2024, NVIDIA CORPORATION.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * SPDX-FileCopyrightText: Copyright (c) 2022-2026, NVIDIA CORPORATION.
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 #pragma once
 
-#include <raft/common/nvtx.hpp>
 #include <raft/core/device_mdarray.hpp>
 #include <raft/core/device_mdspan.hpp>
 #include <raft/core/host_mdarray.hpp>
 #include <raft/core/host_mdspan.hpp>
+#include <raft/core/nvtx.hpp>
 #include <raft/core/operators.hpp>
 #include <raft/core/pinned_mdarray.hpp>
 #include <raft/core/pinned_mdspan.hpp>
@@ -534,18 +523,18 @@ void gather_if(const InputIteratorT in,
  */
 template <typename T, typename IdxT, typename Accessor, typename MatIdxT = int64_t>
 void gather_buff(
-  raft::mdspan<const T, raft::matrix_extent<IdxT>, raft::layout_stride, Accessor> dataset,
+  raft::mdspan<const T, raft::matrix_extent<MatIdxT>, raft::layout_stride, Accessor> dataset,
   host_vector_view<const IdxT, MatIdxT> indices,
   MatIdxT offset,
   pinned_matrix_view<T, MatIdxT> buff)
 {
   raft::common::nvtx::range<common::nvtx::domain::raft> fun_scope("gather_host_buff");
-  IdxT batch_size = std::min<IdxT>(buff.extent(0), indices.extent(0) - offset);
+  MatIdxT batch_size = std::min<MatIdxT>(buff.extent(0), indices.extent(0) - offset);
 
 #pragma omp for
-  for (IdxT i = 0; i < batch_size; i++) {
+  for (MatIdxT i = 0; i < batch_size; i++) {
     IdxT in_idx = indices(offset + i);
-    for (IdxT k = 0; k < buff.extent(1); k++) {
+    for (MatIdxT k = 0; k < buff.extent(1); k++) {
       buff(i, k) = dataset(in_idx, k);
     }
   }
@@ -554,9 +543,9 @@ void gather_buff(
 template <typename T, typename IdxT, typename MatIdxT = int64_t>
 void gather(raft::resources const& res,
             raft::mdspan<const T,
-                         raft::matrix_extent<IdxT>,
+                         raft::matrix_extent<MatIdxT>,
                          raft::layout_stride,
-                         raft::host_device_accessor<std::experimental::default_accessor<const T>,
+                         raft::host_device_accessor<cuda::std::default_accessor<const T>,
                                                     raft::memory_type::host>> dataset,
             device_vector_view<const IdxT, MatIdxT> indices,
             raft::device_matrix_view<T, MatIdxT> output)
@@ -580,7 +569,9 @@ void gather(raft::resources const& res,
   auto out_tmp2 = raft::make_pinned_matrix<T, MatIdxT>(res, max_batch_size, n_dim);
 
   // Usually a limited number of threads provide sufficient bandwidth for gathering data.
+#if defined(_OPENMP)
   int n_threads = std::min(omp_get_max_threads(), 32);
+#endif
 
   // The gather_buff function has a parallel for loop. We start the the omp parallel
   // region here, to avoid repeated overhead within the device_offset loop.
@@ -617,11 +608,11 @@ void gather(raft::resources const& res,
             device_vector_view<const IdxT, MatIdxT> indices,
             raft::device_matrix_view<T, MatIdxT> output)
 {
-  raft::mdspan<const T,
-               raft::matrix_extent<IdxT>,
-               raft::layout_stride,
-               raft::host_device_accessor<std::experimental::default_accessor<const T>,
-                                          raft::memory_type::host>>
+  raft::mdspan<
+    const T,
+    raft::matrix_extent<MatIdxT>,
+    raft::layout_stride,
+    raft::host_device_accessor<cuda::std::default_accessor<const T>, raft::memory_type::host>>
     dataset_ = raft::make_host_strided_matrix_view<const T, MatIdxT>(
       dataset.data_handle(), dataset.extent(0), dataset.extent(1), dataset.extent(1));
 

@@ -1,37 +1,29 @@
 /*
- * Copyright (c) 2020-2024, NVIDIA CORPORATION.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * SPDX-FileCopyrightText: Copyright (c) 2020-2026, NVIDIA CORPORATION.
+ * SPDX-License-Identifier: Apache-2.0
  */
 
-/*
- * Modifications Copyright (c) 2024-2026 Advanced Micro Devices, Inc.
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- */
+// MIT License
+//
+// Modifications Copyright (C) 2024-2026 Advanced Micro Devices, Inc. All rights reserved.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 
 #pragma once
 
@@ -44,11 +36,12 @@
 #include <rmm/device_scalar.hpp>
 #include <rmm/device_uvector.hpp>
 
+#include <cuda/functional>
+#include <cuda/std/tuple>
 #include <thrust/copy.h>
 #include <thrust/device_ptr.h>
 #include <thrust/execution_policy.h>
 #include <thrust/fill.h>
-#include <thrust/functional.h>
 #include <thrust/host_vector.h>
 #include <thrust/iterator/zip_iterator.h>
 #include <thrust/reduce.h>
@@ -56,7 +49,6 @@
 #include <thrust/sort.h>
 #include <thrust/transform.h>
 #include <thrust/transform_reduce.h>
-#include <thrust/tuple.h>
 #include <thrust/unique.h>
 
 #ifdef __HIP_PLATFORM_AMD__
@@ -228,11 +220,11 @@ alteration_t MST_solver<vertex_t, edge_t, weight_t, alteration_t>::alteration_ma
   auto new_end = thrust::unique(policy, tmp.begin(), tmp.end());
 
   // min(a[i+1]-a[i])/2
-  auto begin = thrust::make_zip_iterator(thrust::make_tuple(tmp.begin(), tmp.begin() + 1));
-  auto end   = thrust::make_zip_iterator(thrust::make_tuple(new_end - 1, new_end));
+  auto begin = thrust::make_zip_iterator(tmp.begin(), tmp.begin() + 1);
+  auto end   = thrust::make_zip_iterator(new_end - 1, new_end);
   auto init  = tmp.element(1, stream) - tmp.element(0, stream);
   auto max   = thrust::transform_reduce(
-    policy, begin, end, alteration_functor<weight_t>(), init, thrust::minimum<weight_t>());
+    policy, begin, end, alteration_functor<weight_t>(), init, cuda::minimum<weight_t>());
   // Enforce distinct weights if initial edge weights are identical by returning
   // a value of 1
   return max > 0 ? max / static_cast<alteration_t>(2) : 1;
@@ -415,16 +407,15 @@ void MST_solver<vertex_t, edge_t, weight_t, alteration_t>::append_src_dst_pair(
   edge_t curr_mst_edge_count = prev_mst_edge_count.value(stream);
 
   // iterator to end of mst edges added to final output in previous iteration
-  auto src_dst_zip_end =
-    thrust::make_zip_iterator(thrust::make_tuple(mst_src + curr_mst_edge_count,
-                                                 mst_dst + curr_mst_edge_count,
-                                                 mst_weights + curr_mst_edge_count));
+  auto src_dst_zip_end = thrust::make_zip_iterator(mst_src + curr_mst_edge_count,
+                                                   mst_dst + curr_mst_edge_count,
+                                                   mst_weights + curr_mst_edge_count);
 
   // iterator to new mst edges found
-  auto temp_src_dst_zip_begin = thrust::make_zip_iterator(
-    thrust::make_tuple(temp_src.begin(), temp_dst.begin(), temp_weights.begin()));
-  auto temp_src_dst_zip_end = thrust::make_zip_iterator(
-    thrust::make_tuple(temp_src.end(), temp_dst.end(), temp_weights.end()));
+  auto temp_src_dst_zip_begin =
+    thrust::make_zip_iterator(temp_src.begin(), temp_dst.begin(), temp_weights.begin());
+  auto temp_src_dst_zip_end =
+    thrust::make_zip_iterator(temp_src.end(), temp_dst.end(), temp_weights.end());
 
   // copy new mst edges to final output
   thrust::copy_if(policy,

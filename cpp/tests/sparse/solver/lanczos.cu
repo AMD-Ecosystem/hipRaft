@@ -1,38 +1,33 @@
 /*
- * Copyright (c) 2019-2024, NVIDIA CORPORATION.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * SPDX-FileCopyrightText: Copyright (c) 2019-2026, NVIDIA CORPORATION.
+ * SPDX-License-Identifier: Apache-2.0
  */
 
-// Modifications Copyright (c) 2024-2025 Advanced Micro Devices, Inc.
+// MIT License
+//
+// Modifications Copyright (C) 2025-2026 Advanced Micro Devices, Inc. All rights reserved.
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 
 #include "../../test_utils.cuh"
 
+#include <raft/core/device_coo_matrix.hpp>
 #include <raft/core/device_mdarray.hpp>
 #include <raft/core/device_mdspan.hpp>
 #include <raft/core/mdspan.hpp>
@@ -42,14 +37,15 @@
 #include <raft/random/rmat_rectangular_generator.cuh>
 #include <raft/random/rng.cuh>
 #include <raft/random/rng_state.hpp>
+#include <raft/sparse/convert/coo.cuh>
 #include <raft/sparse/convert/csr.cuh>
 #include <raft/sparse/coo.hpp>
 #include <raft/sparse/linalg/degree.cuh>
 #include <raft/sparse/linalg/symmetrize.cuh>
 #include <raft/sparse/op/reduce.cuh>
 #include <raft/sparse/op/sort.cuh>
+#include <raft/sparse/solver/lanczos.cuh>
 #include <raft/sparse/solver/lanczos_types.hpp>
-#include <raft/spectral/eigen_solvers.cuh>
 #include <raft/spectral/matrix_wrappers.hpp>
 #include <raft/util/cudart_utils.hpp>
 
@@ -67,9 +63,7 @@
 #include <test_utils.h>
 
 #include <algorithm>
-#include <cmath>
 #include <cstdint>
-#include <iostream>
 
 namespace raft::sparse::solver {
 
@@ -226,19 +220,72 @@ class rmat_lanczos_tests
     auto csr_matrix = raft::make_device_csr_matrix_view<ValueType, IndexType, IndexType, IndexType>(
       const_cast<ValueType*>(symmetric_coo.vals()), csr_structure);
 
-    std::get<0>(stats) =
-      raft::sparse::solver::lanczos_compute_smallest_eigenvectors<IndexType, ValueType>(
-        handle,
-        config,
-        csr_matrix,
-        std::make_optional(v0.view()),
-        eigenvalues.view(),
-        eigenvectors.view());
+    std::get<0>(stats) = raft::sparse::solver::lanczos_compute_eigenpairs<IndexType, ValueType>(
+      handle,
+      config,
+      csr_matrix,
+      std::make_optional(v0.view()),
+      eigenvalues.view(),
+      eigenvectors.view());
 
     ASSERT_TRUE(raft::devArrMatch<ValueType>(eigenvalues.data_handle(),
                                              expected_eigenvalues.data_handle(),
                                              n_components,
                                              raft::CompareApprox<ValueType>(1e-5),
+                                             stream));
+
+    // Reproducibility test - run again with same seed and verify exact match
+    raft::device_vector<ValueType, uint32_t, raft::col_major> eigenvalues2 =
+      raft::make_device_vector<ValueType, uint32_t, raft::col_major>(handle, n_components);
+    raft::device_matrix<ValueType, uint32_t, raft::col_major> eigenvectors2 =
+      raft::make_device_matrix<ValueType, uint32_t, raft::col_major>(
+        handle, symmetric_coo.n_rows, n_components);
+
+    raft::sparse::solver::lanczos_compute_eigenpairs<IndexType, ValueType>(
+      handle,
+      config,
+      csr_matrix,
+      std::make_optional(v0.view()),
+      eigenvalues2.view(),
+      eigenvectors2.view());
+
+    ASSERT_TRUE(raft::devArrMatch<ValueType>(eigenvalues.data_handle(),
+                                             eigenvalues2.data_handle(),
+                                             n_components,
+                                             raft::Compare<ValueType>(),
+                                             stream));
+
+    // Also test with COO matrix - use the existing symmetric_coo directly
+    // Create COO matrix view from the existing COO data
+    auto coo_structure =
+      raft::make_device_coordinate_structure_view<IndexType, IndexType, IndexType>(
+        symmetric_coo.rows(),
+        symmetric_coo.cols(),
+        symmetric_coo.n_rows,
+        symmetric_coo.n_rows,
+        symmetric_coo.nnz);
+
+    auto coo_matrix = raft::make_device_coo_matrix_view<ValueType, IndexType, IndexType, IndexType>(
+      symmetric_coo.vals(), coo_structure);
+
+    raft::device_vector<ValueType, uint32_t, raft::col_major> eigenvalues_coo =
+      raft::make_device_vector<ValueType, uint32_t, raft::col_major>(handle, n_components);
+    raft::device_matrix<ValueType, uint32_t, raft::col_major> eigenvectors_coo =
+      raft::make_device_matrix<ValueType, uint32_t, raft::col_major>(
+        handle, symmetric_coo.n_rows, n_components);
+
+    std::get<0>(stats) = raft::sparse::solver::lanczos_compute_eigenpairs<IndexType, ValueType>(
+      handle,
+      config,
+      coo_matrix,
+      std::make_optional(v0.view()),
+      eigenvalues_coo.view(),
+      eigenvectors_coo.view());
+
+    ASSERT_TRUE(raft::devArrMatch<ValueType>(eigenvalues_coo.data_handle(),
+                                             expected_eigenvalues.data_handle(),
+                                             n_components,
+                                             raft::CompareApprox<ValueType>(1e-4),
                                              stream));
   }
 
@@ -291,6 +338,20 @@ class lanczos_tests : public ::testing::TestWithParam<lanczos_inputs<IndexType, 
 
   void Run()
   {
+    int runtimeVersion;
+    cudaError_t result = cudaRuntimeGetVersion(&runtimeVersion);
+
+    if (result == cudaSuccess) {
+      int major = runtimeVersion / 1000;
+      int minor = (runtimeVersion % 1000) / 10;
+
+      // Skip SM gtests for CUDA 13.1.x
+      // See https://github.com/rapidsai/raft/issues/2705
+      if (major == 13 && minor == 1 && params.which == raft::sparse::solver::LANCZOS_WHICH::SM) {
+        GTEST_SKIP();
+      }
+    }
+
     raft::random::uniform<ValueType>(handle, rng, v0.view(), 0, 1);
     std::tuple<IndexType, ValueType, IndexType> stats;
 
@@ -307,16 +368,68 @@ class lanczos_tests : public ::testing::TestWithParam<lanczos_inputs<IndexType, 
     auto csr_matrix = raft::make_device_csr_matrix_view<ValueType, IndexType, IndexType, IndexType>(
       const_cast<ValueType*>(vals.data_handle()), csr_structure);
 
-    std::get<0>(stats) =
-      raft::sparse::solver::lanczos_compute_smallest_eigenvectors<IndexType, ValueType>(
-        handle,
-        config,
-        csr_matrix,
-        std::make_optional(v0.view()),
-        eigenvalues.view(),
-        eigenvectors.view());
+    std::get<0>(stats) = raft::sparse::solver::lanczos_compute_eigenpairs<IndexType, ValueType>(
+      handle,
+      config,
+      csr_matrix,
+      std::make_optional(v0.view()),
+      eigenvalues.view(),
+      eigenvectors.view());
 
     ASSERT_TRUE(raft::devArrMatch<ValueType>(eigenvalues.data_handle(),
+                                             expected_eigenvalues.data_handle(),
+                                             params.n_components,
+                                             raft::CompareApprox<ValueType>(1e-5),
+                                             stream));
+
+    // Reproducibility test - run again with same seed and verify exact match
+    raft::device_vector<ValueType, uint32_t, raft::col_major> eigenvalues2 =
+      raft::make_device_vector<ValueType, uint32_t, raft::col_major>(handle, params.n_components);
+    raft::device_matrix<ValueType, uint32_t, raft::col_major> eigenvectors2 =
+      raft::make_device_matrix<ValueType, uint32_t, raft::col_major>(
+        handle, n, params.n_components);
+
+    raft::sparse::solver::lanczos_compute_eigenpairs<IndexType, ValueType>(
+      handle,
+      config,
+      csr_matrix,
+      std::make_optional(v0.view()),
+      eigenvalues2.view(),
+      eigenvectors2.view());
+
+    ASSERT_TRUE(raft::devArrMatch<ValueType>(eigenvalues.data_handle(),
+                                             eigenvalues2.data_handle(),
+                                             params.n_components,
+                                             raft::Compare<ValueType>(),
+                                             stream));
+
+    // Also test with COO matrix (convert CSR to COO format)
+    raft::device_vector<IndexType, uint32_t, raft::row_major> coo_rows =
+      raft::make_device_vector<IndexType, uint32_t, raft::row_major>(handle, nnz);
+    raft::sparse::convert::csr_to_coo(rows.data_handle(), n, coo_rows.data_handle(), nnz, stream);
+
+    auto coo_structure =
+      raft::make_device_coordinate_structure_view<IndexType, IndexType, IndexType>(
+        coo_rows.data_handle(), cols.data_handle(), n, n, nnz);
+
+    auto coo_matrix = raft::make_device_coo_matrix_view<ValueType, IndexType, IndexType, IndexType>(
+      vals.data_handle(), coo_structure);
+
+    raft::device_vector<ValueType, uint32_t, raft::col_major> eigenvalues_coo =
+      raft::make_device_vector<ValueType, uint32_t, raft::col_major>(handle, params.n_components);
+    raft::device_matrix<ValueType, uint32_t, raft::col_major> eigenvectors_coo =
+      raft::make_device_matrix<ValueType, uint32_t, raft::col_major>(
+        handle, n, params.n_components);
+
+    std::get<0>(stats) = raft::sparse::solver::lanczos_compute_eigenpairs<IndexType, ValueType>(
+      handle,
+      config,
+      coo_matrix,
+      std::make_optional(v0.view()),
+      eigenvalues_coo.view(),
+      eigenvectors_coo.view());
+
+    ASSERT_TRUE(raft::devArrMatch<ValueType>(eigenvalues_coo.data_handle(),
                                              expected_eigenvalues.data_handle(),
                                              params.n_components,
                                              raft::CompareApprox<ValueType>(1e-5),

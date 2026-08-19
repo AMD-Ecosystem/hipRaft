@@ -1,23 +1,30 @@
 #!/bin/bash
 
-# Copyright (c) 2020-2024, NVIDIA CORPORATION.
+# SPDX-FileCopyrightText: Copyright (c) 2020-2026, NVIDIA CORPORATION.
+# SPDX-License-Identifier: Apache-2.0
 
-# Modifications Copyright (c) 2024-2026 Advanced Micro Devices, Inc.
+# MIT License
+#
+# Modifications Copyright (C) 2024-2026 Advanced Micro Devices, Inc. All rights reserved.
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
 # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 # AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-# THE SOFTWARE.
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 #
 # raft build scripts
 
@@ -54,8 +61,8 @@ HELP="$0 [<target> ...] [<flag> ...] [--cmake-args=\"<args>\"] [--cache-tool=<to
    --uninstall                 - uninstall files for specified targets which were built and installed prior
    --compile-lib               - compile shared library for all components
    --compile-static-lib        - compile static library for all components
-   --limit-tests               - semicolon-separated list of test executables to compile (e.g. NEIGHBORS_TEST;CLUSTER_TEST)
-   --limit-bench-prims         - semicolon-separated list of prims benchmark executables to compute (e.g. MATRIX_BENCH;LINALG_BENCH)
+   --limit-tests               - semicolon-separated list of test executables to compile (e.g. MATRIX_TEST;STATS_TEST)
+   --limit-bench-prims         - semicolon-separated list of prims benchmark executables to compute (e.g. MATRIX_PRIMS_BENCH)
    --allgpuarch                - build for all supported GPU architectures
    --gpu-arch=\"arch\"           - build for specific GPU architectures e.g --gpu-arch=\"gfx90a\"
    --show_depr_warn            - show cmake deprecation warnings
@@ -99,7 +106,6 @@ LINALG_TEST;\
 MATRIX_SELECT_LARGE_TEST;\
 MATRIX_SELECT_TEST;\
 MATRIX_TEST;\
-NEIGHBORS_TEST;\
 RANDOM_TEST;\
 SOLVERS_TEST;\
 SPARSE_TEST;\
@@ -117,6 +123,12 @@ EXTRA_CMAKE_HIP_ARGS="-DCMAKE_CXX_COMPILER=hipcc"
 INSTALL_PREFIX=${INSTALL_PREFIX:=${PREFIX:=${CONDA_PREFIX:=$LIBRAFT_BUILD_DIR/install}}}
 PARALLEL_LEVEL=${PARALLEL_LEVEL:=$(nproc)}
 BUILD_ABI=${BUILD_ABI:=ON}
+
+PYTHON_ARGS_FOR_INSTALL=(
+    -v
+    --no-build-isolation
+    --no-deps
+)
 
 # Default to Ninja if generator is not specified
 export CMAKE_GENERATOR="${CMAKE_GENERATOR:=Ninja}"
@@ -349,16 +361,7 @@ if hasArg tests || (( NUMARGS == 0 )); then
     CMAKE_TARGET="${CMAKE_TARGET};${TEST_TARGETS}"
 
     # Force compile library when needed test targets are specified
-    if [[ $CMAKE_TARGET == *"CLUSTER_TEST"* || \
-          $CMAKE_TARGET == *"DISTANCE_TEST"* || \
-          $CMAKE_TARGET == *"MATRIX_TEST"* || \
-          $CMAKE_TARGET == *"NEIGHBORS_ANN_BRUTE_FORCE_TEST"* || \
-          $CMAKE_TARGET == *"NEIGHBORS_ANN_CAGRA_TEST"* || \
-          $CMAKE_TARGET == *"NEIGHBORS_ANN_IVF_TEST"* || \
-          $CMAKE_TARGET == *"NEIGHBORS_TEST"* || \
-          $CMAKE_TARGET == *"RANDOM_SRC_TEST"* || \
-          $CMAKE_TARGET == *"SPARSE_DIST_TEST" || \
-          $CMAKE_TARGET == *"SPARSE_NEIGHBORS_TEST"* || \
+    if [[ $CMAKE_TARGET == *"MATRIX_TEST"* || \
           $CMAKE_TARGET == *"STATS_TEST"* ]]; then
       echo "-- Enabling compiled lib for gtests"
       COMPILE_LIBRARY=ON
@@ -442,23 +445,24 @@ if (( NUMARGS == 0 )) || hasArg libraft || hasArg tests || hasArg bench-prims ||
   fi
 fi
 
-# Build and (optionally) install the pylibraft Python package
+# If `RAPIDS_PY_VERSION` is set, use that as the lower-bound for the stable ABI CPython version
+if [ -n "${RAPIDS_PY_VERSION:-}" ]; then
+    RAPIDS_PY_API="cp${RAPIDS_PY_VERSION//./}"
+    PYTHON_ARGS_FOR_INSTALL+=("--config-settings" "skbuild.wheel.py-api=${RAPIDS_PY_API}")
+fi
 
-# Replace spaces with semicolons in SKBUILD_EXTRA_CMAKE_ARGS
-SKBUILD_EXTRA_CMAKE_ARGS="${EXTRA_CMAKE_ARGS[*]// /;}"
-if (( NUMARGS == 0 )) || hasArg pylibraft || hasArg raft-dask; then
-    # Build and install libraft pip package
+# Build and (optionally) install the pylibraft Python package
+# NOTE(HIP/AMD): keep the AMD hipcc + INSTALL_PREFIX injection (rocThrust/rocPrim require CXX==hipcc,
+# see EXTRA_CMAKE_HIP_ARGS above) on top of upstream's PYTHON_ARGS_FOR_INSTALL limited-API structure.
+if (( NUMARGS == 0 )) || hasArg pylibraft; then
     SKBUILD_CMAKE_ARGS="-DCMAKE_CXX_COMPILER=hipcc;-DCMAKE_PREFIX_PATH=${INSTALL_PREFIX};${SKBUILD_EXTRA_CMAKE_ARGS}" \
-        python -m pip install --no-deps --no-build-isolation "${REPODIR}"/python/libraft
-    # Build and install pylibraft pip package
-    SKBUILD_CMAKE_ARGS="-DCMAKE_CXX_COMPILER=hipcc;-DCMAKE_PREFIX_PATH=${INSTALL_PREFIX};${SKBUILD_EXTRA_CMAKE_ARGS}" \
-        python -m pip install --no-deps --no-build-isolation "${REPODIR}"/python/pylibraft
+        python -m pip install "${PYTHON_ARGS_FOR_INSTALL[@]}" "${REPODIR}"/python/pylibraft
 fi
 
 # Build and (optionally) install the raft-dask Python package
 if (( NUMARGS == 0 )) || hasArg raft-dask; then
     SKBUILD_CMAKE_ARGS="-DCMAKE_CXX_COMPILER=hipcc;-DCMAKE_PREFIX_PATH=${INSTALL_PREFIX};${SKBUILD_EXTRA_CMAKE_ARGS}" \
-        python -m pip install --no-deps --no-build-isolation "${REPODIR}"/python/raft-dask
+        python -m pip install "${PYTHON_ARGS_FOR_INSTALL[@]}" "${REPODIR}"/python/raft-dask
 fi
 
 if hasArg docs; then

@@ -1,20 +1,11 @@
 /*
- * Copyright (c) 2021-2025, NVIDIA CORPORATION.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * SPDX-FileCopyrightText: Copyright (c) 2021-2026, NVIDIA CORPORATION.
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 #pragma once
+
+#include <raft/core/detail/nvtx_range_stack.hpp>
 
 #include <rmm/cuda_stream_view.hpp>
 
@@ -157,6 +148,7 @@ inline void push_range_name(const char* name)
   event_attrib.messageType           = NVTX_MESSAGE_TYPE_ASCII;
   event_attrib.message.ascii         = name;
   nvtxDomainRangePushEx(domain_store<Domain>::value(), &event_attrib);
+  detail::range_name_stack_instance.push(name);
 }
 
 template <typename Domain, typename... Args>
@@ -179,12 +171,13 @@ inline void push_range(const char* format, Args... args)
 template <typename Domain>
 inline void pop_range()
 {
+  detail::range_name_stack_instance.pop();
   nvtxDomainRangePop(domain_store<Domain>::value());
 }
 
 }  // namespace raft::common::nvtx::detail
 
-#else  // NVTX_ENABLED
+#else   // NVTX_ENABLED
 
 namespace raft::common::nvtx::detail {
 
@@ -199,5 +192,4 @@ inline void pop_range()
 }
 
 }  // namespace raft::common::nvtx::detail
-
 #endif  // NVTX_ENABLED

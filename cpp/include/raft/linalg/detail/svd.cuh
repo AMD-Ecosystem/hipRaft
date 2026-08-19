@@ -1,17 +1,6 @@
 /*
- * Copyright (c) 2022-2024, NVIDIA CORPORATION.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * SPDX-FileCopyrightText: Copyright (c) 2022-2026, NVIDIA CORPORATION.
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 #pragma once
@@ -19,18 +8,19 @@
 #include "cublas_wrappers.hpp"
 #include "cusolver_wrappers.hpp"
 
-#include <raft/common/nvtx.hpp>
+#include <raft/core/nvtx.hpp>
 #include <raft/core/resource/cublas_handle.hpp>
 #include <raft/core/resource/cuda_stream.hpp>
 #include <raft/core/resource/cusolver_dn_handle.hpp>
 #include <raft/core/resources.hpp>
 #include <raft/linalg/eig.cuh>
 #include <raft/linalg/gemm.cuh>
+#include <raft/linalg/matrix_vector.cuh>
 #include <raft/linalg/transpose.cuh>
 #include <raft/matrix/diagonal.cuh>
-#include <raft/matrix/math.cuh>
 #include <raft/matrix/norm.cuh>
 #include <raft/matrix/reverse.cuh>
+#include <raft/matrix/sqrt.cuh>
 #include <raft/util/cuda_utils.cuh>
 #include <raft/util/cudart_utils.hpp>
 
@@ -150,7 +140,11 @@ void svdEig(raft::resources const& handle,
   raft::matrix::row_reverse(handle,
                             make_device_matrix_view<math_t, idx_t, col_major>(S, n_cols, idx_t(1)));
 
-  raft::matrix::seqRoot(S, S, alpha, n_cols, stream, true);
+  raft::matrix::weighted_sqrt(
+    handle,
+    make_device_matrix_view<math_t, idx_t, col_major>(S, n_cols, idx_t(1)),
+    make_host_scalar_view<math_t>(&alpha),
+    true);
 
   if (gen_left_vec) {
     raft::linalg::gemm(handle,
@@ -166,7 +160,10 @@ void svdEig(raft::resources const& handle,
                        alpha,
                        beta,
                        stream);
-    raft::matrix::matrixVectorBinaryDivSkipZero<false, true>(U, S, n_rows, n_cols, stream);
+    raft::linalg::binary_div_skip_zero<raft::Apply::ALONG_ROWS>(
+      handle,
+      make_device_matrix_view<math_t, idx_t, col_major>(U, n_rows, n_cols),
+      make_device_vector_view<const math_t, idx_t>(S, n_cols));
   }
 }
 

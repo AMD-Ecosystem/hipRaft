@@ -1,25 +1,15 @@
 /*
+ * SPDX-FileCopyrightText: Copyright (2019) Sandia Corporation
+ * SPDX-FileCopyrightText: Copyright (c) 2022-2026, NVIDIA CORPORATION.
+ * SPDX-License-Identifier: Apache-2.0 AND BSD-3-Clause
+ */
+/*
  * Copyright (2019) Sandia Corporation
  *
  * The source code is licensed under the 3-clause BSD license found in the LICENSE file
  * thirdparty/LICENSES/mdarray.license
  */
 
-/*
- * Copyright (c) 2022-2024, NVIDIA CORPORATION.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 #pragma once
 #ifndef RAFT_DISABLE_CUDA
 #include <raft/core/detail/span.hpp>  // dynamic_extent
@@ -31,7 +21,7 @@
 
 #include <rmm/cuda_stream_view.hpp>
 #include <rmm/device_uvector.hpp>
-#include <rmm/mr/device/per_device_resource.hpp>
+#include <rmm/mr/per_device_resource.hpp>
 #include <rmm/resource_ref.hpp>
 
 #include <thrust/device_ptr.h>
@@ -94,15 +84,10 @@ class device_uvector {
   using const_iterator = const_pointer;
 
  public:
-  ~device_uvector()                         = default;
-  device_uvector(device_uvector&&) noexcept = default;
-  device_uvector(device_uvector const& that) : data_{that.data_, that.data_.stream()} {}
-
-  auto operator=(device_uvector<T> const& that) -> device_uvector<T>&
-  {
-    data_ = rmm::device_uvector<T>{that.data_, that.data_.stream()};
-    return *this;
-  }
+  ~device_uvector()                                                       = default;
+  device_uvector(device_uvector&&) noexcept                               = default;
+  device_uvector(device_uvector const& that)                              = delete;
+  auto operator=(device_uvector<T> const& that) -> device_uvector<T>&     = delete;
   auto operator=(device_uvector<T>&& that) noexcept -> device_uvector<T>& = default;
 
   /**
@@ -149,7 +134,7 @@ class device_uvector {
  * @brief A container policy for device mdarray.
  */
 template <typename ElementType>
-class device_uvector_policy {
+class device_container_policy {
  public:
   using element_type   = ElementType;
   using container_type = device_uvector<element_type>;
@@ -159,8 +144,8 @@ class device_uvector_policy {
   using reference       = device_reference<element_type>;
   using const_reference = device_reference<element_type const>;
 
-  using accessor_policy       = std::experimental::default_accessor<element_type>;
-  using const_accessor_policy = std::experimental::default_accessor<element_type const>;
+  using accessor_policy       = cuda::std::default_accessor<element_type>;
+  using const_accessor_policy = cuda::std::default_accessor<element_type const>;
 
  public:
   auto create(raft::resources const& res, size_t n) -> container_type
@@ -168,8 +153,8 @@ class device_uvector_policy {
     return container_type(n, resource::get_cuda_stream(res), mr_);
   }
 
-  constexpr device_uvector_policy() = default;
-  explicit device_uvector_policy(rmm::device_async_resource_ref mr) noexcept : mr_(mr) {}
+  constexpr device_container_policy() = default;
+  explicit device_container_policy(rmm::device_async_resource_ref mr) noexcept : mr_(mr) {}
 
   [[nodiscard]] constexpr auto access(container_type& c, size_t n) const noexcept -> reference
   {
@@ -185,7 +170,7 @@ class device_uvector_policy {
   [[nodiscard]] auto make_accessor_policy() const noexcept { return const_accessor_policy{}; }
 
  private:
-  rmm::device_async_resource_ref mr_{rmm::mr::get_current_device_resource()};
+  rmm::device_async_resource_ref mr_{rmm::mr::get_current_device_resource_ref()};
 };
 
 }  // namespace raft
@@ -204,7 +189,7 @@ template <typename T>
 using device_uvector = detail::fail_container<T>;
 
 template <typename ElementType>
-using device_uvector_policy = detail::fail_container_policy<ElementType>;
+using device_container_policy = detail::fail_container_policy<ElementType>;
 
 }  // namespace raft
 #endif

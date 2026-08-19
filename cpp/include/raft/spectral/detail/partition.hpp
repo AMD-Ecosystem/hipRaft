@@ -1,45 +1,37 @@
 /*
- * Copyright (c) 2019-2024, NVIDIA CORPORATION.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * SPDX-FileCopyrightText: Copyright (c) 2019-2025, NVIDIA CORPORATION.
+ * SPDX-License-Identifier: Apache-2.0
  */
-/*
- * Modifications Copyright (c) 2024-2025 Advanced Micro Devices, Inc.
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- */
+
+// MIT License
+//
+// Modifications Copyright (C) 2024-2026 Advanced Micro Devices, Inc. All rights reserved.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
 #pragma once
 
 #include <raft/core/resource/cublas_handle.hpp>
 #include <raft/core/resource/cuda_stream.hpp>
 #include <raft/linalg/detail/cublas_wrappers.hpp>
 #include <raft/sparse/linalg/laplacian.cuh>
-#include <raft/spectral/cluster_solvers.cuh>
 #include <raft/spectral/detail/spectral_util.cuh>
-#include <raft/spectral/eigen_solvers.cuh>
 #include <raft/spectral/matrix_wrappers.hpp>
 
 #ifdef __HIP_PLATFORM_AMD__
@@ -60,88 +52,6 @@
 namespace raft {
 namespace spectral {
 namespace detail {
-
-// =========================================================
-// Spectral partitioner
-// =========================================================
-
-/// Compute spectral graph partition
-/** Compute partition for a weighted undirected graph. This
- *  partition attempts to minimize the cost function:
- *    Cost = \sum_i (Edges cut by ith partition)/(Vertices in ith partition)
- *
- *  @param G Weighted graph in CSR format
- *  @param nClusters Number of partitions.
- *  @param nEigVecs Number of eigenvectors to compute.
- *  @param maxIter_lanczos Maximum number of Lanczos iterations.
- *  @param restartIter_lanczos Maximum size of Lanczos system before
- *    implicit restart.
- *  @param tol_lanczos Convergence tolerance for Lanczos method.
- *  @param maxIter_kmeans Maximum number of k-means iterations.
- *  @param tol_kmeans Convergence tolerance for k-means algorithm.
- *  @param clusters (Output, device memory, n entries) Partition
- *    assignments.
- *  @param iters_lanczos On exit, number of Lanczos iterations
- *    performed.
- *  @param iters_kmeans On exit, number of k-means iterations
- *    performed.
- *  @return statistics: number of eigensolver iterations, .
- */
-template <typename vertex_t,
-          typename weight_t,
-          typename nnz_t,
-          typename EigenSolver,
-          typename ClusterSolver>
-std::tuple<vertex_t, weight_t, vertex_t> partition(
-  raft::resources const& handle,
-  spectral::matrix::sparse_matrix_t<vertex_t, weight_t, nnz_t> const& csr_m,
-  EigenSolver const& eigen_solver,
-  ClusterSolver const& cluster_solver,
-  vertex_t* __restrict__ clusters,
-  weight_t* eigVals,
-  weight_t* eigVecs)
-{
-  RAFT_EXPECTS(clusters != nullptr, "Null clusters buffer.");
-  RAFT_EXPECTS(eigVals != nullptr, "Null eigVals buffer.");
-  RAFT_EXPECTS(eigVecs != nullptr, "Null eigVecs buffer.");
-
-  auto stream   = resource::get_cuda_stream(handle);
-  auto cublas_h = resource::get_cublas_handle(handle);
-
-  std::tuple<vertex_t, weight_t, vertex_t>
-    stats;  //{iters_eig_solver,residual_cluster,iters_cluster_solver} // # iters eigen solver,
-            // cluster solver residual, # iters cluster solver
-
-  vertex_t n = csr_m.nrows_;
-
-  // -------------------------------------------------------
-  // Spectral partitioner
-  // -------------------------------------------------------
-
-  // Compute eigenvectors of Laplacian
-
-  // Initialize Laplacian
-  auto laplacian =
-    raft::sparse::linalg::compute_graph_laplacian(handle, csr_m.to_csr_matrix_view());
-
-  auto eigen_config = eigen_solver.get_config();
-  auto nEigVecs     = eigen_config.n_eigVecs;
-
-  // Compute smallest eigenvalues and eigenvectors
-  std::get<0>(stats) =
-    eigen_solver.solve_smallest_eigenvectors(handle, laplacian.view(), eigVals, eigVecs);
-
-  // Whiten eigenvector matrix
-  transform_eigen_matrix(handle, n, nEigVecs, eigVecs);
-
-  // Find partition clustering
-  auto pair_cluster = cluster_solver.solve(handle, n, nEigVecs, eigVecs, clusters);
-
-  std::get<1>(stats) = pair_cluster.first;
-  std::get<2>(stats) = pair_cluster.second;
-
-  return stats;
-}
 
 // =========================================================
 // Analysis of graph partition
@@ -199,7 +109,7 @@ void analyzePartition(raft::resources const& handle,
   for (i = 0; i < nClusters; ++i) {
     // Construct indicator vector for ith partition
     if (!construct_indicator(handle, i, n, clustersize, partEdgesCut, clusters, part_i, Lx, L)) {
-      WARNING("empty partition");
+      RAFT_LOG_WARN("empty partition");
       continue;
     }
 

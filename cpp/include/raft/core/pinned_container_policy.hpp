@@ -1,137 +1,39 @@
 /*
- * Copyright (c) 2023-2024, NVIDIA CORPORATION.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-/*
- * Modifications Copyright (c) 2024 Advanced Micro Devices, Inc.
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
+ * SPDX-FileCopyrightText: Copyright (c) 2023-2026, NVIDIA CORPORATION.
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 #pragma once
+#include <raft/core/host_container_policy.hpp>
 #include <raft/core/mdspan_types.hpp>
 #include <raft/core/resources.hpp>
 
-#include <cstddef>
 #ifndef RAFT_DISABLE_CUDA
-
-#ifdef __HIP_PLATFORM_AMD__
-#include <thrust/system/hip/memory_resource.h>
-#else
-#include <cuda_runtime.h>
-
-#include <type_traits>
-#endif
+#include <raft/core/resource/pinned_memory_resource.hpp>
 #else
 #include <raft/core/detail/fail_container_policy.hpp>
 #endif
 
 namespace raft {
 #ifndef RAFT_DISABLE_CUDA
-
-/**
- * @brief A thin wrapper over cudaMallocHost/cudaFreeHost for implementing the pinned mdarray
- * container policy.
- *
- */
-template <typename T>
-struct pinned_container {
-  using value_type = std::remove_cv_t<T>;
-
- private:
-  value_type* data_ = nullptr;
-
- public:
-  using size_type = std::size_t;
-
-  using reference       = value_type&;
-  using const_reference = value_type const&;
-
-  using pointer       = value_type*;
-  using const_pointer = value_type const*;
-
-  using iterator       = pointer;
-  using const_iterator = const_pointer;
-
-  explicit pinned_container(std::size_t size)
-  {
-    RAFT_CUDA_TRY(cudaMallocHost(&data_, size * sizeof(value_type)));
-  }
-  ~pinned_container() noexcept
-  {
-    if (data_ != nullptr) { RAFT_CUDA_TRY_NO_THROW(cudaFreeHost(data_)); }
-  }
-
-  pinned_container(pinned_container&& other) { std::swap(this->data_, other.data_); }
-  pinned_container& operator=(pinned_container&& other)
-  {
-    std::swap(this->data_, other.data_);
-    return *this;
-  }
-  pinned_container(pinned_container const&) = delete;  // Copying disallowed: one array one owner
-  pinned_container& operator=(pinned_container const&) = delete;
-
-  /**
-   * @brief Index operator that returns a reference to the actual data.
-   */
-  template <typename Index>
-  auto operator[](Index i) noexcept -> reference
-  {
-    return data_[i];
-  }
-  /**
-   * @brief Index operator that returns a reference to the actual data.
-   */
-  template <typename Index>
-  auto operator[](Index i) const noexcept -> const_reference
-  {
-    return data_[i];
-  }
-
-  [[nodiscard]] auto data() noexcept -> pointer { return data_; }
-  [[nodiscard]] auto data() const noexcept -> const_pointer { return data_; }
-};
-
 /**
  * @brief A container policy for pinned mdarray.
  */
 template <typename ElementType>
-struct pinned_vector_policy {
+struct pinned_container_policy {
   using element_type          = ElementType;
-  using container_type        = pinned_container<element_type>;
+  using container_type        = host_container<element_type, raft::mr::host_device_resource_ref>;
   using pointer               = typename container_type::pointer;
   using const_pointer         = typename container_type::const_pointer;
   using reference             = typename container_type::reference;
   using const_reference       = typename container_type::const_reference;
-  using accessor_policy       = std::experimental::default_accessor<element_type>;
-  using const_accessor_policy = std::experimental::default_accessor<element_type const>;
+  using accessor_policy       = cuda::std::default_accessor<element_type>;
+  using const_accessor_policy = cuda::std::default_accessor<element_type const>;
 
-  auto create(raft::resources const&, size_t n) -> container_type { return container_type(n); }
+  auto create(raft::resources const& res, size_t n) -> container_type
+  {
+    return container_type(n, raft::resource::get_pinned_memory_resource_ref(res));
+  }
 
   [[nodiscard]] constexpr auto access(container_type& c, size_t n) const noexcept -> reference
   {
@@ -148,6 +50,6 @@ struct pinned_vector_policy {
 };
 #else
 template <typename ElementType>
-using pinned_vector_policy = detail::fail_container_policy<ElementType>;
+using pinned_container_policy = detail::fail_container_policy<ElementType>;
 #endif
 }  // namespace raft

@@ -1,24 +1,24 @@
 {
   "packages": {
     "hipmm": {
-      "version": "4.0.0",
+      "version": "5.0.0",
       "git_url": "https://$ENV{GITHUB_PASS}@github.com/AMD-AIOSS/hipmm",
-      "git_tag": "amd-integration"
+      "git_tag": "development/kjoseph/upgrade_to_rapids_26.04_conflict_resolution"
     },
     "rocmds_logger": {
-      "version": "1.0.0",
+      "version": "2.0.0",
       "git_url": "https://$ENV{GITHUB_PASS}@github.com/AMD-AIOSS/rocmds-logger",
-      "git_tag": "amd-integration"
+      "git_tag": "upgrade/kejoseph/cherry_pick_v0.2.3"
     },
     "libhipcxx" : {
       "version" : "3.0.2",
       "git_url" : "https://$ENV{GITHUB_PASS}@github.com/AMD-AIOSS/libhipcxx",
-      "git_tag" : "amd-integration"
+      "git_tag" : "upgrade/3.3.4_enable"
     },
     "hipco" : {
       "version" : "0.4.0",
       "git_url" : "https://$ENV{GITHUB_PASS}@github.com/AMD-AIOSS/hipCollections",
-      "git_tag" : "amd-integration"
+      "git_tag" : "upgrade/26.04-merge-resolution"
     },
     "rocthrust" : {
       "version" : "4.2.0"

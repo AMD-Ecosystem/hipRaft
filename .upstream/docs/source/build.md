@@ -38,10 +38,10 @@ Use the following command, depending on your CUDA version, to install all of the
 
 ```bash
 # CUDA 13
-mamba install -c rapidsai -c conda-forge -c nvidia raft-dask pylibraft cuda-version=13.0
+mamba install -c rapidsai -c conda-forge raft-dask pylibraft cuda-version=13.1
 
 # CUDA 12
-mamba install -c rapidsai -c conda-forge -c nvidia raft-dask pylibraft cuda-version=12.9
+mamba install -c rapidsai -c conda-forge raft-dask pylibraft cuda-version=12.9
 ```
 
 Note that the above commands will also install `libraft-headers` and `libraft`.
@@ -50,10 +50,10 @@ You can also install the conda packages individually using the `mamba` command a
 
 ```bash
 # CUDA 13
-mamba install -c rapidsai -c conda-forge -c nvidia libraft-headers cuda-version=13.0
+mamba install -c rapidsai -c conda-forge libraft-headers cuda-version=13.1
 
 # CUDA 12
-mamba install -c rapidsai -c conda-forge -c nvidia libraft-headers cuda-version=12.9
+mamba install -c rapidsai -c conda-forge libraft-headers cuda-version=12.9
 ```
 
 ## Installing Python through Pip
@@ -62,12 +62,12 @@ mamba install -c rapidsai -c conda-forge -c nvidia libraft-headers cuda-version=
 
 ```bash
 # CUDA 13
-pip install pylibraft-cu13 --extra-index-url=https://pypi.nvidia.com
-pip install raft-dask-cu13 --extra-index-url=https://pypi.nvidia.com
+pip install pylibraft-cu13
+pip install raft-dask-cu13
 
 # CUDA 12
-pip install pylibraft-cu12 --extra-index-url=https://pypi.nvidia.com
-pip install raft-dask-cu12 --extra-index-url=https://pypi.nvidia.com
+pip install pylibraft-cu12
+pip install raft-dask-cu12
 ```
 
 ## Building C++ and Python from source
@@ -75,19 +75,17 @@ pip install raft-dask-cu12 --extra-index-url=https://pypi.nvidia.com
 ### CUDA/GPU Requirements
 - cmake 3.26.4+
 - GCC 9.3+ (9.5.0+ recommended)
-- CUDA Toolkit 12.0+
+- CUDA Toolkit 12.2+
 - NVIDIA driver 450.80.02+
 - Ampere architecture or better (compute capability >= 8.0)
 
 ### Build Dependencies
 
-In addition to the libraries included with cudatoolkit 12.0+, there are some other dependencies below for building RAFT from source. Many of the dependencies are optional and depend only on the primitives being used. All of these can be installed with cmake or [rapids-cpm](https://github.com/rapidsai/rapids-cmake#cpm) and many of them can be installed with [conda](https://anaconda.org).
+In addition to the libraries included with cudatoolkit 12.2+, there are some other dependencies below for building RAFT from source. Many of the dependencies are optional and depend only on the primitives being used. All of these can be installed with cmake or [rapids-cpm](https://github.com/rapidsai/rapids-cmake#cpm) and many of them can be installed with [conda](https://anaconda.org).
 
 #### Required
 - [RMM](https://github.com/rapidsai/rmm) corresponding to RAFT version.
 - [Thrust](https://github.com/NVIDIA/thrust) v1.17 / [CUB](https://github.com/NVIDIA/cub)
-- [cuCollections](https://github.com/NVIDIA/cuCollections) - Used in `raft::sparse::distance` API.
-- [CUTLASS](https://github.com/NVIDIA/cutlass)  v2.9.1 - Used in `raft::distance` API.
 
 #### Optional
 - [NCCL](https://github.com/NVIDIA/nccl) - Used in `raft::comms` API and needed to build `raft-dask`.
@@ -100,7 +98,7 @@ In addition to the libraries included with cudatoolkit 12.0+, there are some oth
 
 Conda environment scripts are provided for installing the necessary dependencies to build both the C++ and Python libraries from source. It is preferred to use `mamba`, as it provides significant speedup over `conda`:
 ```bash
-mamba env create --name rapids_raft -f conda/environments/all_cuda-130_arch-x86_64.yaml
+mamba env create --name rapids_raft -f conda/environments/all_cuda-131_arch-$(uname -m).yaml
 mamba activate rapids_raft
 ```
 
@@ -110,7 +108,7 @@ The recommended way to build and install RAFT from source is to use the `build.s
 
 ### Header-only C++
 
-`build.sh` uses [rapids-cmake](https://github.com/rapidsai/rapids-cmake), which will automatically download any dependencies which are not already installed. It's important to note that while all the headers will be installed and available, some parts of the RAFT API depend on libraries like CUTLASS, which will need to be explicitly enabled in `build.sh`.
+`build.sh` uses [rapids-cmake](https://github.com/rapidsai/rapids-cmake), which will automatically download any dependencies which are not already installed.
 
 The following example will download the needed dependencies and install the RAFT headers into `$INSTALL_PREFIX/include/raft`.
 ```bash
@@ -180,7 +178,7 @@ The benchmarks are broken apart by algorithm category, so you will find several 
 It can take sometime to compile all of the benchmarks. You can build individual benchmarks by providing a semicolon-separated list to the `--limit-bench-prims` option in `build.sh`:
 
 ```bash
-./build.sh libraft bench-prims -n --limit-bench=NEIGHBORS_PRIMS_BENCH;MATRIX_PRIMS_BENCH;LINALG_PRIMS_BENCH
+./build.sh libraft bench-prims -n --limit-bench=MATRIX_PRIMS_BENCH;LINALG_PRIMS_BENCH
 ```
 
 ### Python libraries
@@ -241,7 +239,6 @@ RAFT's CMake has the following configurable flags available:
 | BUILD_PRIMS_BENCH               | ON, OFF              | OFF | Compile benchmarks                                                           |
 | CUDA_ENABLE_KERNELINFO          | ON, OFF              | OFF | Enables `kernelinfo` in nvcc. This is useful for `compute-sanitizer`         |
 | CUDA_ENABLE_LINEINFO            | ON, OFF              | OFF | Enable the -lineinfo option for nvcc                                         |
-| CUDA_STATIC_RUNTIME             | ON, OFF              | OFF | Statically link the CUDA runtime                                             |
 | CUDA_STATIC_MATH_LIBRARIES      | ON, OFF              | OFF | Statically link the CUDA math libraries                                      |
 | DETECT_CONDA_ENV                | ON, OFF              | ON  | Enable detection of conda environment for dependencies                       |
 | raft_FIND_COMPONENTS            | compiled distributed |     | Configures the optional components as a space-separated list                 |
@@ -274,12 +271,12 @@ Note that some additional compiler flags might need to be added when building ag
 target_compile_options(your_target_name PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:--expt-extended-lambda --expt-relaxed-constexpr>)
 ```
 
-Further, it's important that the language level be set to at least C++ 17. This can be done with cmake:
+Further, it's important that the language level be set to at least C++ 20. This can be done with cmake:
 ```cmake
 set_target_properties(your_target_name
-PROPERTIES CXX_STANDARD                        17
+PROPERTIES CXX_STANDARD                        20
            CXX_STANDARD_REQUIRED               ON
-           CUDA_STANDARD                       17
+           CUDA_STANDARD                       20
            CUDA_STANDARD_REQUIRED              ON
            POSITION_INDEPENDENT_CODE           ON
            INTERFACE_POSITION_INDEPENDENT_CODE ON)
@@ -289,8 +286,8 @@ PROPERTIES CXX_STANDARD                        17
 
 The `raft::raft` CMake target is made available when including RAFT into your CMake project but additional CMake targets can be made available by adding to the `COMPONENTS` option in CMake's `find_package(raft)` (refer to [CMake docs](https://cmake.org/cmake/help/latest/command/find_package.html#basic-signature) to learn more). The components should be separated by spaces. The `raft::raft` target will always be available. Note that the `distributed` component also exports additional dependencies.
 
-| Component   | Target              | Description                                              | Base Dependencies                      |
-|-------------|---------------------|----------------------------------------------------------|----------------------------------------|
-| n/a         | `raft::raft`        | Full RAFT header library                                 | CUDA toolkit, RMM, NVTX, CCCL, CUTLASS |
-| compiled    | `raft::compiled`    | Pre-compiled template instantiations and runtime library | raft::raft                             |
-| distributed | `raft::distributed` | Dependencies for `raft::comms` APIs                      | raft::raft, UCX, NCCL
+| Component   | Target              | Description                                              | Base Dependencies             |
+|-------------|---------------------|----------------------------------------------------------|-------------------------------|
+| n/a         | `raft::raft`        | Full RAFT header library                                 | CUDA toolkit, RMM, NVTX, CCCL |
+| compiled    | `raft::compiled`    | Pre-compiled template instantiations and runtime library | raft::raft                    |
+| distributed | `raft::distributed` | Dependencies for `raft::comms` APIs                      | raft::raft, UCX, NCCL         |

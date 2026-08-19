@@ -1,22 +1,11 @@
 /*
- * Copyright (c) 2025, NVIDIA CORPORATION.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * SPDX-FileCopyrightText: Copyright (c) 2025-2026, NVIDIA CORPORATION.
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 // MIT License
 //
-// Modifications Copyright (C) 2026 Advanced Micro Devices, Inc. All rights reserved.
+// Modifications Copyright (C) 2025-2026 Advanced Micro Devices, Inc. All rights reserved.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -42,8 +31,14 @@
 #include <raft/core/resource/multi_gpu.hpp>
 #include <raft/core/resource/resource_types.hpp>
 
+#include <rmm/cuda_device.hpp>
+#include <rmm/mr/device_memory_resource.hpp>
+#include <rmm/mr/per_device_resource.hpp>
+#include <rmm/mr/pool_memory_resource.hpp>
+
 #include <omp.h>
 
+#include <memory>
 #include <unordered_set>
 #include <vector>
 
@@ -109,6 +104,10 @@ class device_resources_snmg : public device_resources {
   device_resources_snmg& operator=(device_resources_snmg&&) = delete;
   ~device_resources_snmg()
   {
+    for (int device_id : pool_device_ids_) {
+      rmm::mr::reset_per_device_resource_ref(rmm::cuda_device_id{device_id});
+    }
+
     /*
       Users of device_resources_snmg typically follow a pattern such as:
 
@@ -134,19 +133,34 @@ class device_resources_snmg : public device_resources {
     // Pre-condition is that all enqueued work has been completed and all threads have exited their
     // parallel regions.
     omp_pause_resource_all(omp_pause_hard);
-  };
+  }
 
   /**
    * @brief Set a memory pool on all GPUs of the multi-gpu world
    */
-  void set_memory_pool(int percent_of_free_memory) const
+  void set_memory_pool(int percent_of_free_memory)
   {
+    if (!per_device_pools_.empty()) {
+      for (int device_id : pool_device_ids_) {
+        rmm::mr::reset_per_device_resource_ref(rmm::cuda_device_id{device_id});
+      }
+      per_device_pools_.clear();
+      pool_device_ids_.clear();
+    }
+
     int world_size = raft::resource::get_num_ranks(*this);
-    for (int gpu_id = 0; gpu_id < world_size; gpu_id++) {
-      const raft::resources& dev_res = raft::resource::set_current_device_to_rank(*this, gpu_id);
-      // check limit for each device
-      size_t limit = rmm::percent_of_free_device_memory(percent_of_free_memory);
-      raft::resource::set_workspace_to_pool_resource(dev_res, limit);
+    for (int rank = 0; rank < world_size; rank++) {
+      const raft::resources& dev_res = raft::resource::set_current_device_to_rank(*this, rank);
+
+      int device_id = raft::resource::get_device_id(dev_res);
+      pool_device_ids_.push_back(device_id);
+
+      per_device_pools_.push_back(
+        std::make_unique<rmm::mr::pool_memory_resource<rmm::mr::device_memory_resource>>(
+          rmm::mr::get_current_device_resource_ref(),
+          rmm::percent_of_free_device_memory(percent_of_free_memory)));
+      rmm::mr::set_per_device_resource_ref(rmm::cuda_device_id{device_id},
+                                           *per_device_pools_.back());
     }
     RAFT_CUDA_TRY(cudaSetDevice(main_gpu_id_));
   }
@@ -187,6 +201,9 @@ class device_resources_snmg : public device_resources {
     }
   }
   int main_gpu_id_;
+  std::vector<std::unique_ptr<rmm::mr::pool_memory_resource<rmm::mr::device_memory_resource>>>
+    per_device_pools_;
+  std::vector<int> pool_device_ids_;
 };  // class device_resources_snmg
 
 }  // namespace raft

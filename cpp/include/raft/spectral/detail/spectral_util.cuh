@@ -1,18 +1,29 @@
 /*
- * Copyright (c) 2020-2024, NVIDIA CORPORATION.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * SPDX-FileCopyrightText: Copyright (c) 2020-2026, NVIDIA CORPORATION.
+ * SPDX-License-Identifier: Apache-2.0
  */
+
+// MIT License
+//
+// Modifications Copyright (C) 2025-2026 Advanced Micro Devices, Inc. All rights reserved.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 
 #pragma once
 
@@ -24,15 +35,15 @@
 #include <raft/spectral/matrix_wrappers.hpp>
 #include <raft/util/cudart_utils.hpp>
 
+#include <cuda/iterator>
+#include <cuda/std/functional>
+#include <cuda/std/tuple>
 #include <thrust/device_ptr.h>
 #include <thrust/fill.h>
 #include <thrust/for_each.h>
-#include <thrust/functional.h>
-#include <thrust/iterator/constant_iterator.h>
 #include <thrust/iterator/zip_iterator.h>
 #include <thrust/reduce.h>
 #include <thrust/transform.h>
-#include <thrust/tuple.h>
 
 #include <algorithm>
 
@@ -64,9 +75,9 @@ void transform_eigen_matrix(raft::resources const& handle,
     thrust::transform(thrust_exec_policy,
                       thrust::device_pointer_cast(eigVecs + IDX(0, i, n)),
                       thrust::device_pointer_cast(eigVecs + IDX(0, i + 1, n)),
-                      thrust::make_constant_iterator(mean),
+                      cuda::make_constant_iterator(mean),
                       thrust::device_pointer_cast(eigVecs + IDX(0, i, n)),
-                      thrust::minus<weight_t>());
+                      cuda::std::minus<weight_t>());
     RAFT_CHECK_CUDA(stream);
 
     // TODO: Call from public API when ready
@@ -78,9 +89,9 @@ void transform_eigen_matrix(raft::resources const& handle,
     thrust::transform(thrust_exec_policy,
                       thrust::device_pointer_cast(eigVecs + IDX(0, i, n)),
                       thrust::device_pointer_cast(eigVecs + IDX(0, i + 1, n)),
-                      thrust::make_constant_iterator(std),
+                      cuda::make_constant_iterator(std),
                       thrust::device_pointer_cast(eigVecs + IDX(0, i, n)),
-                      thrust::divides<weight_t>());
+                      cuda::std::divides<weight_t>());
     RAFT_CHECK_CUDA(stream);
   }
 
@@ -149,13 +160,12 @@ bool construct_indicator(
   auto cublas_h           = resource::get_cublas_handle(handle);
   auto thrust_exec_policy = resource::get_thrust_policy(handle);
 
-  thrust::for_each(
-    thrust_exec_policy,
-    thrust::make_zip_iterator(thrust::make_tuple(thrust::device_pointer_cast(clusters),
-                                                 thrust::device_pointer_cast(part_i.raw()))),
-    thrust::make_zip_iterator(thrust::make_tuple(thrust::device_pointer_cast(clusters + n),
-                                                 thrust::device_pointer_cast(part_i.raw() + n))),
-    equal_to_i_op<vertex_t, weight_t>(index));
+  thrust::for_each(thrust_exec_policy,
+                   thrust::make_zip_iterator(thrust::device_pointer_cast(clusters),
+                                             thrust::device_pointer_cast(part_i.raw())),
+                   thrust::make_zip_iterator(thrust::device_pointer_cast(clusters + n),
+                                             thrust::device_pointer_cast(part_i.raw() + n)),
+                   equal_to_i_op<vertex_t, weight_t>(index));
   RAFT_CHECK_CUDA(stream);
 
   // Compute size of ith partition

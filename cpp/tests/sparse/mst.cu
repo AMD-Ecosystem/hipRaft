@@ -1,24 +1,13 @@
 /*
- * Copyright (c) 2020-2024, NVIDIA CORPORATION.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * SPDX-FileCopyrightText: Copyright (c) 2020-2026, NVIDIA CORPORATION.
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 #include "../test_utils.cuh"
 
 #include <raft/core/resource/cuda_stream.hpp>
 #include <raft/core/resources.hpp>
-#include <raft/sparse/mst/mst.cuh>
+#include <raft/sparse/solver/mst.cuh>
 #include <raft/util/cudart_utils.hpp>
 
 #include <rmm/device_buffer.hpp>
@@ -122,8 +111,8 @@ weight_t prims(CSRHost<vertex_t, edge_t, weight_t>& csr_h)
 template <typename vertex_t, typename edge_t, typename weight_t>
 class MSTTest : public ::testing::TestWithParam<MSTTestInput<vertex_t, edge_t, weight_t>> {
  protected:
-  std::pair<raft::Graph_COO<vertex_t, edge_t, weight_t>,
-            raft::Graph_COO<vertex_t, edge_t, weight_t>>
+  std::pair<raft::sparse::solver::Graph_COO<vertex_t, edge_t, weight_t>,
+            raft::sparse::solver::Graph_COO<vertex_t, edge_t, weight_t>>
   mst_gpu()
   {
     edge_t* offsets   = static_cast<edge_t*>(csr_d.offsets.data());
@@ -151,7 +140,7 @@ class MSTTest : public ::testing::TestWithParam<MSTTestInput<vertex_t, edge_t, w
     vertex_t* color_ptr = thrust::raw_pointer_cast(color.data());
 
     if (iterations == 0) {
-      MST_solver<vertex_t, edge_t, weight_t, float> symmetric_solver(
+      raft::sparse::solver::MST_solver<vertex_t, edge_t, weight_t, float> symmetric_solver(
         handle,
         offsets,
         indices,
@@ -165,7 +154,7 @@ class MSTTest : public ::testing::TestWithParam<MSTTestInput<vertex_t, edge_t, w
         0);
       auto symmetric_result = symmetric_solver.solve();
 
-      MST_solver<vertex_t, edge_t, weight_t, float> non_symmetric_solver(
+      raft::sparse::solver::MST_solver<vertex_t, edge_t, weight_t, float> non_symmetric_solver(
         handle,
         offsets,
         indices,
@@ -184,7 +173,7 @@ class MSTTest : public ::testing::TestWithParam<MSTTestInput<vertex_t, edge_t, w
 
       return std::make_pair(std::move(symmetric_result), std::move(non_symmetric_result));
     } else {
-      MST_solver<vertex_t, edge_t, weight_t, float> intermediate_solver(
+      raft::sparse::solver::MST_solver<vertex_t, edge_t, weight_t, float> intermediate_solver(
         handle,
         offsets,
         indices,
@@ -198,7 +187,7 @@ class MSTTest : public ::testing::TestWithParam<MSTTestInput<vertex_t, edge_t, w
         iterations);
       auto intermediate_result = intermediate_solver.solve();
 
-      MST_solver<vertex_t, edge_t, weight_t, float> symmetric_solver(
+      raft::sparse::solver::MST_solver<vertex_t, edge_t, weight_t, float> symmetric_solver(
         handle,
         offsets,
         indices,
@@ -232,7 +221,7 @@ class MSTTest : public ::testing::TestWithParam<MSTTestInput<vertex_t, edge_t, w
                  resource::get_cuda_stream(handle));
       symmetric_result.n_edges = total_edge_size;
 
-      MST_solver<vertex_t, edge_t, weight_t, float> non_symmetric_solver(
+      raft::sparse::solver::MST_solver<vertex_t, edge_t, weight_t, float> non_symmetric_solver(
         handle,
         offsets,
         indices,

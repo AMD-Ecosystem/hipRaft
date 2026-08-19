@@ -1,17 +1,6 @@
 /*
- * Copyright (c) 2023-2024, NVIDIA CORPORATION.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * SPDX-FileCopyrightText: Copyright (c) 2023-2026, NVIDIA CORPORATION.
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 #pragma once
@@ -44,7 +33,7 @@ namespace raft {
 template <typename ElementType,
           typename Extents,
           typename LayoutPolicy                        = layout_c_contiguous,
-          template <typename> typename ContainerPolicy = device_uvector_policy>
+          template <typename> typename ContainerPolicy = device_container_policy>
 class temporary_device_buffer {
   using view_type        = device_mdspan<ElementType, Extents, LayoutPolicy>;
   using index_type       = typename Extents::index_type;
@@ -175,7 +164,7 @@ class temporary_device_buffer {
 template <typename ElementType,
           typename IndexType                           = std::uint32_t,
           typename LayoutPolicy                        = layout_c_contiguous,
-          template <typename> typename ContainerPolicy = device_uvector_policy,
+          template <typename> typename ContainerPolicy = device_container_policy,
           size_t... Extents>
 auto make_temporary_device_buffer(raft::resources const& handle,
                                   ElementType* data,
@@ -217,7 +206,7 @@ auto make_temporary_device_buffer(raft::resources const& handle,
 template <typename ElementType,
           typename IndexType                           = std::uint32_t,
           typename LayoutPolicy                        = layout_c_contiguous,
-          template <typename> typename ContainerPolicy = device_uvector_policy,
+          template <typename> typename ContainerPolicy = device_container_policy,
           size_t... Extents>
 auto make_readonly_temporary_device_buffer(raft::resources const& handle,
                                            ElementType* data,
@@ -260,7 +249,7 @@ auto make_readonly_temporary_device_buffer(raft::resources const& handle,
 template <typename ElementType,
           typename IndexType                           = std::uint32_t,
           typename LayoutPolicy                        = layout_c_contiguous,
-          template <typename> typename ContainerPolicy = device_uvector_policy,
+          template <typename> typename ContainerPolicy = device_container_policy,
           size_t... Extents,
           typename = std::enable_if_t<not std::is_const_v<ElementType>>>
 auto make_writeback_temporary_device_buffer(raft::resources const& handle,

@@ -1,37 +1,29 @@
 /*
- * Copyright (c) 2018-2024, NVIDIA CORPORATION.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * SPDX-FileCopyrightText: Copyright (c) 2018-2025, NVIDIA CORPORATION.
+ * SPDX-License-Identifier: Apache-2.0
  */
 
-/*
- * Modifications Copyright (c) 2025 Advanced Micro Devices, Inc.
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- */
+// MIT License
+//
+// Modifications Copyright (C) 2024-2026 Advanced Micro Devices, Inc. All rights reserved.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 
 #include "../test_utils.cuh"
 
@@ -286,14 +278,14 @@ template <typename T, typename IndexType>
   RAFT_EXPECTS(in.stride(0) == 1 || in.stride(1) == 1, "Unsupported matrix layout.");
   if (in.stride(1) == 1) {
     // row-major submatrix
-    std::array<size_t, 2> strides{in.extent(0), 1};
+    cuda::std::array<size_t, 2> strides{in.extent(0), 1};
     auto layout = layout_stride::mapping<matrix_extent<size_t>>{exts, strides};
     raft::device_matrix<T, IndexType, layout_stride> out{handle, layout, policy};
     ::raft::linalg::transpose(handle, in, out.view());
     return out;
   } else {
     // col-major submatrix
-    std::array<size_t, 2> strides{1, in.extent(1)};
+    cuda::std::array<size_t, 2> strides{1, in.extent(1)};
     auto layout = layout_stride::mapping<matrix_extent<size_t>>{exts, strides};
     raft::device_matrix<T, IndexType, layout_stride> out{handle, layout, policy};
     ::raft::linalg::transpose(handle, in, out.view());
@@ -446,9 +438,9 @@ void test_transpose_submatrix(const TransposeSubmatrixInputs<T>& param)
   raft::copy(out_ref.data_handle(), out_ref_h.data(), sub_len, resource::get_cuda_stream(handle));
   resource::sync_stream(handle, stream);
 
-  auto in_submat = std::experimental::submdspan(in.view(),
-                                                std::make_tuple(param.row_beg, param.row_end),
-                                                std::make_tuple(param.col_beg, param.col_end));
+  auto in_submat = cuda::std::submdspan(in.view(),
+                                        cuda::std::tuple{param.row_beg, param.row_end},
+                                        cuda::std::tuple{param.col_beg, param.col_end});
 
   static_assert(std::is_same_v<typename decltype(in_submat)::layout_type, layout_stride>);
   auto out = transpose(handle, in_submat);

@@ -1,44 +1,36 @@
 /*
- * Copyright (c) 2023-2024, NVIDIA CORPORATION.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * SPDX-FileCopyrightText: Copyright (c) 2023-2026, NVIDIA CORPORATION.
+ * SPDX-License-Identifier: Apache-2.0
  */
 
-/*
- * Modifications Copyright (c) 2025 Advanced Micro Devices, Inc.
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- */
+// MIT License
+//
+// Modifications Copyright (C) 2025-2026 Advanced Micro Devices, Inc. All rights reserved.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 
 #pragma once
 
 #include <raft/core/bitset.hpp>
 #include <raft/core/device_container_policy.hpp>
 #include <raft/core/device_mdarray.hpp>
-#include <raft/core/resource/thrust_policy.hpp>
+#include <raft/core/operators.hpp>
 #include <raft/core/resources.hpp>
 #include <raft/linalg/map.cuh>
 #include <raft/linalg/reduce.cuh>
@@ -47,8 +39,7 @@
 #include <raft/util/popc.cuh>
 
 #include <rmm/device_scalar.hpp>
-
-#include <thrust/for_each.h>
+#include <rmm/device_uvector.hpp>
 
 namespace raft::core {
 
@@ -200,7 +191,6 @@ void bitset_view<bitset_t, index_t>::repeat(const raft::resources& res,
                                             index_t times,
                                             bitset_t* output_device_ptr) const
 {
-  auto thrust_policy                 = raft::resource::get_thrust_policy(res);
   constexpr index_t bits_per_element = sizeof(bitset_t) * 8;
 
   if (bitset_len_ % bits_per_element == 0) {
@@ -269,10 +259,12 @@ void bitset<bitset_t, index_t>::resize(const raft::resources& res,
   bitset_len_ = new_bitset_len;
   if (old_size < new_size) {
     // If the new size is larger, set the new bits to the default value
-    thrust::fill_n(raft::resource::get_thrust_policy(res),
-                   bitset_.data() + old_size,
-                   new_size - old_size,
-                   default_value ? ~bitset_t{0} : bitset_t{0});
+    auto new_elements_view = raft::make_device_vector_view<bitset_t, index_t>(
+      bitset_.data() + old_size, new_size - old_size);
+    raft::linalg::map(res,
+                      new_elements_view,
+                      raft::const_op<bitset_t>{default_value ? static_cast<bitset_t>(-1)
+                                                             : static_cast<bitset_t>(0)});
   }
 }
 
@@ -297,12 +289,17 @@ void bitset<bitset_t, index_t>::set(const raft::resources& res,
                                     bool set_value)
 {
   auto this_bitset_view = view();
-  thrust::for_each_n(raft::resource::get_thrust_policy(res),
-                     mask_index.data_handle(),
-                     mask_index.extent(0),
-                     [this_bitset_view, set_value] __device__(const index_t sample_index) {
-                       this_bitset_view.set(sample_index, set_value);
-                     });
+  // Use mask_index as output since we're just writing back the same values
+  auto mask_index_output = raft::make_device_vector_view<index_t, index_t>(
+    const_cast<index_t*>(mask_index.data_handle()), mask_index.extent(0));
+  raft::linalg::map_offset(
+    res,
+    mask_index_output,
+    [this_bitset_view, set_value] __device__(index_t idx, const index_t sample_index) -> index_t {
+      this_bitset_view.set(sample_index, set_value);
+      return sample_index;  // Return the input value as output (in-place)
+    },
+    mask_index);
 }
 
 template <typename bitset_t, typename index_t>
@@ -319,10 +316,11 @@ void bitset<bitset_t, index_t>::flip(const raft::resources& res)
 template <typename bitset_t, typename index_t>
 void bitset<bitset_t, index_t>::reset(const raft::resources& res, bool default_value)
 {
-  thrust::fill_n(raft::resource::get_thrust_policy(res),
-                 bitset_.data(),
-                 n_elements(),
-                 default_value ? ~bitset_t{0} : bitset_t{0});
+  auto bitset_view = raft::make_device_vector_view<bitset_t, index_t>(bitset_.data(), n_elements());
+  raft::linalg::map(
+    res,
+    bitset_view,
+    raft::const_op<bitset_t>{default_value ? static_cast<bitset_t>(-1) : static_cast<bitset_t>(0)});
 }
 
 template <typename bitset_t, typename index_t>

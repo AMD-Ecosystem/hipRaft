@@ -1,37 +1,29 @@
 /*
- * Copyright (c) 2022-2023, NVIDIA CORPORATION.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * SPDX-FileCopyrightText: Copyright (c) 2022-2026, NVIDIA CORPORATION.
+ * SPDX-License-Identifier: Apache-2.0
  */
 
-/*
- * Modifications Copyright (c) 2025 Advanced Micro Devices, Inc.
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- */
+// MIT License
+//
+// Modifications Copyright (C) 2025-2026 Advanced Micro Devices, Inc. All rights reserved.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 
 #pragma once
 
@@ -43,10 +35,11 @@
 #include <raft/util/integer_utils.hpp>
 #include <raft/util/pow2_utils.cuh>
 #include <raft/util/vectorized.cuh>
+#include <raft/util/vectorized_kvp.cuh>
 
 #include <rmm/cuda_stream_view.hpp>
 
-#include <thrust/tuple.h>
+#include <cuda/std/tuple>
 
 namespace raft::linalg::detail {
 
@@ -71,13 +64,13 @@ __device__ __forceinline__ void map_kernel_mainloop(
   OutT* out_ptr, IdxT offset, IdxT len, Func f, const InTs*... in_ptrs, std::index_sequence<Is...>)
 {
   TxN_t<OutT, R> wide;
-  thrust::tuple<TxN_t<InTs, R>...> wide_args;
+  cuda::std::tuple<TxN_t<InTs, R>...> wide_args;
   if (offset + R <= len) {
-    (thrust::get<Is>(wide_args).load(in_ptrs, offset), ...);
+    (cuda::std::get<Is>(wide_args).load(in_ptrs, offset), ...);
 #pragma unroll
     for (int j = 0; j < R; ++j) {
       wide.val.data[j] = map_apply<PassOffset, OutT, IdxT, Func, InTs...>(
-        f, offset + j, thrust::get<Is>(wide_args).val.data[j]...);
+        f, offset + j, cuda::std::get<Is>(wide_args).val.data[j]...);
     }
     wide.store(out_ptr, offset);
   }
@@ -139,6 +132,9 @@ struct ratio_selector {
   template <typename T>
   constexpr static auto ignoring_alignment() -> ratio_selector
   {
+    // Types without IOType specializations must use ratio=1 (non-vectorized access)
+    if constexpr (!is_vectorizable_type<T>::value) { return ratio_selector{1, 0}; }
+
     constexpr bool T_evenly_fits_in_cache_line = (kCoalescedVectorSize % sizeof(T)) == 0;
 
     if constexpr (T_evenly_fits_in_cache_line) {

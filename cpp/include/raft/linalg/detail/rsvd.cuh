@@ -1,36 +1,30 @@
 /*
- * Copyright (c) 2018-2023, NVIDIA CORPORATION.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * SPDX-FileCopyrightText: Copyright (c) 2018-2026, NVIDIA CORPORATION.
+ * SPDX-License-Identifier: Apache-2.0
  */
-/*
- * Modifications Copyright (c) 2024-2025 Advanced Micro Devices, Inc.
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- */
+
+// MIT License
+//
+// Modifications Copyright (C) 2025-2026 Advanced Micro Devices, Inc. All rights reserved.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
 #pragma once
 
 #include <raft/core/resource/cublas_handle.hpp>
@@ -42,9 +36,10 @@
 #include <raft/linalg/svd.cuh>
 #include <raft/linalg/transpose.cuh>
 #include <raft/matrix/diagonal.cuh>
-#include <raft/matrix/math.cuh>
+#include <raft/matrix/reciprocal.cuh>
 #include <raft/matrix/reverse.cuh>
 #include <raft/matrix/slice.cuh>
+#include <raft/matrix/sqrt.cuh>
 #include <raft/matrix/triangular.cuh>
 #include <raft/random/rng.cuh>
 #include <raft/thrust_execution_policy.h>
@@ -392,14 +387,13 @@ void rsvdFixedRank(raft::resources const& handle,
         handle, Uhat_dup.data(), l, l, Uhat.data(), S_vec_tmp.data(), stream, tol, max_sweeps);
     else
       raft::linalg::eigDC(handle, Uhat_dup.data(), l, l, Uhat.data(), S_vec_tmp.data(), stream);
-    thrust::for_each(THRUST_EXECUTION_POLICY.on(stream),
-                     S_vec_tmp.data(),
-                     S_vec_tmp.data() + l,
-                     [] __device__(math_t & x) {
-                       if (x < 0 && std::abs(x) < math_t(1e-6))
-                         x = std::numeric_limits<math_t>::denorm_min();
-                     });
-    raft::matrix::seqRoot(S_vec_tmp.data(), l, stream);
+
+    // BBt is mathematically PSD; clamp any negative eigenvalues (numerical noise from
+    // FP32 GEMM rounding, observed on gfx942) to zero before sqrt to prevent NaN propagation.
+    raft::linalg::unary_op(handle,
+                           make_device_vector_view<const math_t>(S_vec_tmp.data(), l),
+                           make_device_vector_view<math_t>(S_vec_tmp.data(), l),
+                           [] __device__(math_t x) { return raft::sqrt(max(x, math_t(0))); });
 
     auto S_vec_view = make_device_matrix_view<math_t, int, col_major>(S_vec, 1, k);
     raft::matrix::slice(
@@ -434,7 +428,14 @@ void rsvdFixedRank(raft::resources const& handle,
       RAFT_CUDA_TRY(cudaMemsetAsync(Sinv.data(), 0, sizeof(math_t) * k * k, stream));
       rmm::device_uvector<math_t> UhatSinv(l * k, stream);
       RAFT_CUDA_TRY(cudaMemsetAsync(UhatSinv.data(), 0, sizeof(math_t) * l * k, stream));
-      raft::matrix::reciprocal(S_vec_tmp.data(), l, stream);
+      // Pseudoinverse: zero singular values get zero reciprocal rather than Inf.
+      // Negative eigenvalues were already clamped to zero before sqrt above,
+      // so S_vec_tmp[i] == 0 for those entries — guard against 1/0 here.
+      raft::linalg::unary_op(
+        handle,
+        make_device_vector_view<const math_t>(S_vec_tmp.data(), l),
+        make_device_vector_view<math_t>(S_vec_tmp.data(), l),
+        [] __device__(math_t x) { return x > math_t(0) ? math_t(1) / x : math_t(0); });
       raft::matrix::set_diagonal(handle,
                                  make_device_vector_view<const math_t>(S_vec_tmp.data() + p, k),
                                  make_device_matrix_view<math_t>(Sinv.data(), k, k));

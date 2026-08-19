@@ -1,28 +1,32 @@
 # =============================================================================
-# Copyright (c) 2020-2024, NVIDIA CORPORATION.
-#
-# Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
-# in compliance with the License. You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software distributed under the License
-# is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
-# or implied. See the License for the specific language governing permissions and limitations under
-# the License.
+# cmake-format: off
+# SPDX-FileCopyrightText: Copyright (c) 2020-2026, NVIDIA CORPORATION.
+# SPDX-License-Identifier: Apache-2.0
+# cmake-format: on
 
-# Modifications Copyright (c) 2024-2026 Advanced Micro Devices, Inc. Permission is hereby granted,
-# free of charge, to any person obtaining a copy of this software and associated documentation files
-# (the "Software"), to deal in the Software without restriction, including without limitation the
-# rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the
-# Software, and to permit persons to whom the Software is furnished to do so, subject to the
-# following conditions: The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software. THE SOFTWARE IS PROVIDED "AS IS", WITHOUT
-# WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR
-# THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+# cmake-format: off
+# MIT License
+#
+# Modifications Copyright (C) 2024-2026 Advanced Micro Devices, Inc. All rights reserved.
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+# cmake-format: on
 
 cmake_minimum_required(VERSION 3.30.4 FATAL_ERROR)
 
@@ -65,6 +69,9 @@ project(
   LANGUAGES ${lang_list}
 )
 
+# Disable C++20 module scanning (not using modules, just C++20 features)
+set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
+
 # Write the version header
 rapids_cmake_write_version_file(include/raft/version_config.hpp)
 
@@ -87,7 +94,6 @@ option(CUDA_ENABLE_KERNELINFO "Enable kernel resource usage info" OFF)
 option(CUDA_ENABLE_LINEINFO
        "Enable the -lineinfo option for nvcc (useful for cuda-memcheck / profiler)" OFF
 )
-option(CUDA_STATIC_RUNTIME "Statically link the CUDA runtime" OFF)
 option(CUDA_STATIC_MATH_LIBRARIES "Statically link the CUDA math libraries" OFF)
 option(CUDA_LOG_COMPILE_TIME "Write a log of compilation times to nvcc_compile_log.csv" OFF)
 option(DETECT_CONDA_ENV "Enable detection of conda environment for dependencies" ON)
@@ -126,7 +132,6 @@ message(VERBOSE "RAFT: Disable OpenMP: ${DISABLE_OPENMP}")
 message(VERBOSE "RAFT: Enable kernel resource usage info: ${CUDA_ENABLE_KERNELINFO}")
 message(VERBOSE "RAFT: Enable lineinfo in nvcc: ${CUDA_ENABLE_LINEINFO}")
 message(VERBOSE "RAFT: Enable nvtx markers: ${RAFT_NVTX}")
-message(VERBOSE "RAFT: Statically link the CUDA runtime: ${CUDA_STATIC_RUNTIME}")
 message(VERBOSE "RAFT: Statically link the CUDA math libraries: ${CUDA_STATIC_MATH_LIBRARIES}")
 
 # Set RMM logging level
@@ -173,7 +178,7 @@ endif()
 
 if(CUDA_BACKEND)
   # CUDA runtime
-  rapids_cuda_init_runtime(USE_STATIC ${CUDA_STATIC_RUNTIME})
+  rapids_cuda_init_runtime(USE_STATIC ON)
   # * find CUDAToolkit package
   # * determine GPU architectures
   # * enable the CMake CUDA language
@@ -185,7 +190,7 @@ if(CUDA_BACKEND)
   )
 else()
   # HIP runtime
-  rapids_hip_init_runtime(USE_STATIC ${CUDA_STATIC_RUNTIME})
+  rapids_hip_init_runtime(USE_STATIC OFF)
   # * find HIP package
   # * determine GPU architectures
   # * enable the CMake CUDA language
@@ -232,37 +237,29 @@ include(${rapids-cmake-dir}/cpm/rocmds_logger.cmake)
 rapids_cpm_rapids_logger(BUILD_EXPORT_SET raft-exports INSTALL_EXPORT_SET raft-exports)
 create_logger_macros(RAFT "raft::default_logger()" include/raft/core)
 
-# CCCL before rmm/cuco so we get the right version of CCCL
+# CCCL before rmm so we get the right version of CCCL
 include(cmake/thirdparty/get_cccl.cmake)
 
-# When CPM_cuco_SOURCE is set, CPM uses add_subdirectory (instead of find_package) for
-# hipcollections. This causes hipcollections' get_cccl.cmake to call rapids_cpm_hipccl() a second
-# time, which loads the generated hipccl-dependencies.cmake from within the hipcollections
-# subdirectory scope. That file tries to set IMPORTED_GLOBAL on these targets, but CMake 3.24+ only
-# allows IMPORTED_GLOBAL promotion from the same directory scope that originally imported the
-# target. Since rocprim and hipcub are imported via raw find_package() (not through rapids_cpm_find,
-# which auto-promotes via rapids_cmake_make_global), they must be promoted here at the top level
-# before hipcollections is added as a subdirectory.
+# rocprim, hipcub and rocthrust are imported via raw find_package() (not through rapids_cpm_find,
+# which auto-promotes via rapids_cmake_make_global), so promote them to global scope here at the top
+# level. This avoids partial export-set errors (e.g. roc::rocprim_hip defined but roc::rocprim not)
+# when downstream packages re-process these targets from a different directory scope.
+#
+# Promote the COMPLETE export set of each package, not just the target raft links against:
+# rocprim-targets.cmake exports {roc::rocprim, roc::rocprim_hip} and rocthrust-targets.cmake exports
+# {roc::rocthrust, roc::hipstdpar}. If only one target from a set is global, a downstream
+# find_package() (e.g. via rapids_cpm_cuco -> hipccl) sees a partial set and fails with "Some (but
+# not all) targets in this export set were already defined."
 if(NOT CUDA_BACKEND)
-  set(_cccl_global_promote_targets roc::rocprim_hip hip::hipcub roc::rocthrust)
+  set(_cccl_global_promote_targets roc::rocprim roc::rocprim_hip hip::hipcub roc::rocthrust
+                                   roc::hipstdpar
+  )
   include(${rapids-cmake-dir}/cmake/make_global.cmake)
   rapids_cmake_make_global(_cccl_global_promote_targets)
   unset(_cccl_global_promote_targets)
 endif()
 
-if(CUDA_BACKEND)
-  include(${rapids-cmake-dir}/cpm/cuco.cmake)
-  rapids_cpm_cuco(BUILD_EXPORT_SET raft-exports INSTALL_EXPORT_SET raft-exports)
-else()
-  include(${rapids-cmake-dir}/cpm/hipco.cmake)
-  rapids_cpm_hipco(BUILD_EXPORT_SET raft-exports INSTALL_EXPORT_SET raft-exports)
-endif()
-
-# FIXME(HIP/AMD): the original ordering of getting RMM before hipCo leads to a CMake configuration
-# error where roc::rocprim target is not defined, but target roc::rocprim_hip is defined. This makes
-# CMake configuration of rocprim fail. Further investigation tbd.
 include(cmake/thirdparty/get_rmm.cmake)
-# include(cmake/thirdparty/get_cutlass.cmake)
 
 if(BUILD_TESTS)
   include(${rapids-cmake-dir}/cpm/gtest.cmake)
@@ -301,10 +298,7 @@ target_include_directories(
 )
 
 # Keep RAFT as lightweight as possible. Only CUDA libs and rmm should be used in global target.
-target_link_libraries(
-  raft INTERFACE rapids_logger::rapids_logger rmm::rmm cuco::cuco
-                 $<$<BOOL:${CUDA_BACKEND}>:nvidia::cutlass::cutlass> CCCL::CCCL
-)
+target_link_libraries(raft INTERFACE rapids_logger::rapids_logger rmm::rmm CCCL::CCCL)
 
 target_compile_features(raft INTERFACE cxx_std_17 $<BUILD_INTERFACE:cuda_std_17>)
 target_compile_options(
@@ -457,9 +451,9 @@ if(RAFT_COMPILE_LIBRARY)
   )
   set_target_properties(
     raft_objs
-    PROPERTIES CXX_STANDARD 17
+    PROPERTIES CXX_STANDARD 20
                CXX_STANDARD_REQUIRED ON
-               CUDA_STANDARD 17
+               CUDA_STANDARD 20
                CUDA_STANDARD_REQUIRED ON
                POSITION_INDEPENDENT_CODE ON
   )
@@ -536,45 +530,52 @@ endif()
 
 # ##################################################################################################
 # * raft_distributed -------------------------------------------------------------------------------
-add_library(raft_distributed INTERFACE)
+#   NOTE(HIP/AMD): raft_distributed links ucxx::ucxx unconditionally. hip-ucxx is only
+#   pinned/fetched during the raft-dask phase, so guard the whole target on the ucxx::ucxx target
+#   being present. When absent (e.g. the standalone libraft C++ gate), raft_distributed and its ucxx
+#   exports/installs are simply skipped; when present they build exactly as before.
+if(TARGET ucxx::ucxx)
+  add_library(raft_distributed INTERFACE)
 
-if(TARGET raft_distributed AND (NOT TARGET raft::distributed))
-  add_library(raft::distributed ALIAS raft_distributed)
-endif()
+  if(TARGET raft_distributed AND (NOT TARGET raft::distributed))
+    add_library(raft::distributed ALIAS raft_distributed)
+  endif()
 
-set_target_properties(raft_distributed PROPERTIES EXPORT_NAME distributed)
+  set_target_properties(raft_distributed PROPERTIES EXPORT_NAME distributed)
 
-if(CUDA_BACKEND)
-  rapids_find_generate_module(
-    NCCL
-    HEADER_NAMES nccl.h
-    LIBRARY_NAMES nccl
-    BUILD_EXPORT_SET raft-distributed-exports
-    INSTALL_EXPORT_SET raft-distributed-exports
-  )
-  rapids_export_package(BUILD NCCL raft-distributed-exports)
-  rapids_export_package(INSTALL NCCL raft-distributed-exports)
-else()
-  rapids_export_package(BUILD rccl raft-distributed-exports)
-  rapids_export_package(INSTALL rccl raft-distributed-exports)
-endif()
+  if(CUDA_BACKEND)
+    rapids_find_generate_module(
+      NCCL
+      HEADER_NAMES nccl.h
+      LIBRARY_NAMES nccl
+      BUILD_EXPORT_SET raft-distributed-exports
+      INSTALL_EXPORT_SET raft-distributed-exports
+    )
+    rapids_export_package(BUILD NCCL raft-distributed-exports)
+    rapids_export_package(INSTALL NCCL raft-distributed-exports)
+  else()
+    rapids_export_package(BUILD rccl raft-distributed-exports)
+    rapids_export_package(INSTALL rccl raft-distributed-exports)
+  endif()
 
-rapids_export_package(
-  BUILD ucxx raft-distributed-exports COMPONENTS ucxx python GLOBAL_TARGETS ucxx::ucxx ucxx::python
-)
-rapids_export_package(
-  INSTALL ucxx raft-distributed-exports COMPONENTS ucxx python GLOBAL_TARGETS ucxx::ucxx
+  rapids_export_package(
+    BUILD ucxx raft-distributed-exports COMPONENTS ucxx python GLOBAL_TARGETS ucxx::ucxx
                                                                               ucxx::python
-)
+  )
+  rapids_export_package(
+    INSTALL ucxx raft-distributed-exports COMPONENTS ucxx python GLOBAL_TARGETS ucxx::ucxx
+                                                                                ucxx::python
+  )
 
-# ucx is a requirement for raft_distributed, but its config is not safe to be found multiple times,
-# so rather than exporting a package dependency on it above we rely on consumers to find it
-# themselves. Once https://github.com/rapidsai/ucxx/issues/173 is resolved we can export it above
-# again.
-target_link_libraries(
-  raft_distributed INTERFACE ucx::ucs ucx::ucp ucxx::ucxx
-                             $<IF:$<BOOL:${CUDA_BACKEND}>,NCCL::NCCL,roc::rccl>
-)
+  # ucx is a requirement for raft_distributed, but its config is not safe to be found multiple
+  # times, so rather than exporting a package dependency on it above we rely on consumers to find it
+  # themselves. Once https://github.com/rapidsai/ucxx/issues/173 is resolved we can export it above
+  # again.
+  target_link_libraries(
+    raft_distributed INTERFACE ucx::ucs ucx::ucp ucxx::ucxx
+                               $<IF:$<BOOL:${CUDA_BACKEND}>,NCCL::NCCL,roc::rccl>
+  )
+endif()
 
 # ##################################################################################################
 # * install targets-----------------------------------------------------------
@@ -621,24 +622,20 @@ if(TARGET raft_lib)
   )
 endif()
 
-install(
-  TARGETS raft_distributed
-  DESTINATION ${lib_dir}
-  COMPONENT distributed
-  EXPORT raft-distributed-exports
-)
+# NOTE(HIP/AMD): only install raft_distributed when it was actually created (ucxx::ucxx present).
+if(TARGET raft_distributed)
+  install(
+    TARGETS raft_distributed
+    DESTINATION ${lib_dir}
+    COMPONENT distributed
+    EXPORT raft-distributed-exports
+  )
+endif()
 
 install(
   DIRECTORY include/raft
   COMPONENT raft
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-)
-
-# Temporary install of raft.hpp while the file is removed
-install(
-  FILES include/raft.hpp
-  COMPONENT raft
-  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/raft
 )
 
 install(
@@ -693,8 +690,16 @@ endif()
   )
 endif()
 
-set(raft_components compiled distributed)
-set(raft_export_sets raft-compiled-exports raft-distributed-exports)
+set(raft_components compiled)
+set(raft_export_sets raft-compiled-exports)
+# NOTE(HIP/AMD): only export the `distributed` component when raft_distributed exists (ucxx::ucxx
+# present). hip-ucxx is pinned at the raft-dask phase; the standalone C++ gate builds without it.
+set(raft_distributed_global_target "")
+if(TARGET raft_distributed)
+  list(APPEND raft_components distributed)
+  list(APPEND raft_export_sets raft-distributed-exports)
+  set(raft_distributed_global_target distributed)
+endif()
 if(TARGET raft_lib)
   list(APPEND raft_components compiled)
   list(APPEND raft_export_sets raft-compiled-lib-exports)
@@ -735,7 +740,7 @@ rapids_export(
   EXPORT_SET raft-exports
   COMPONENTS ${raft_components}
   COMPONENTS_EXPORT_SET ${raft_export_sets}
-  GLOBAL_TARGETS raft compiled distributed
+  GLOBAL_TARGETS raft compiled ${raft_distributed_global_target}
   NAMESPACE raft::
   DOCUMENTATION doc_string
   FINAL_CODE_BLOCK code_string
@@ -748,7 +753,7 @@ rapids_export(
   EXPORT_SET raft-exports
   COMPONENTS ${raft_components}
   COMPONENTS_EXPORT_SET ${raft_export_sets}
-  GLOBAL_TARGETS raft compiled distributed
+  GLOBAL_TARGETS raft compiled ${raft_distributed_global_target}
   DOCUMENTATION doc_string
   NAMESPACE raft::
   FINAL_CODE_BLOCK code_string
@@ -765,6 +770,8 @@ endif()
 # * build test executable ----------------------------------------------------
 
 if(BUILD_TESTS)
+  # include CTest module -- automatically calls enable_testing()
+  include(CTest)
   add_subdirectory(tests)
 endif()
 
@@ -798,7 +805,11 @@ set(CPACK_RPM_PACKAGE_REQUIRES_LIST openblas-devel lapack-devel suitesparse-deve
 # Other ROCmDS packages
 include("${rapids-cmake-dir}/cpm/detail/package_details.cmake")
 macro(append_rocmds_package pkg_name deb_name rpm_name)
-  rapids_cpm_package_details(${pkg_name} version repository tag shallow exclude)
+  # `rapids_cpm_package_details` was deprecated in 25.10 and removed in 26.02; calling it is a
+  # FATAL_ERROR whenever the consuming project sets rapids-cmake-version >= 26.02 (e.g. the cuVS
+  # wheel build, where libcuvs-python stamps 26.04 into scope before add_subdirectory'ing raft). Use
+  # the internal helper, whose arg list adds a `subdir` slot after `tag`.
+  rapids_cpm_package_details_internal(${pkg_name} version repository tag subdir shallow exclude)
   list(APPEND CPACK_DEBIAN_PACKAGE_DEPENDS "${deb_name} (= ${version})")
   list(APPEND CPACK_RPM_PACKAGE_REQUIRES_LIST "${rpm_name} = ${version}")
 endmacro()

@@ -1,7 +1,7 @@
 <!---
     MIT License
 
-    Modifications Copyright (C) 2025 Advanced Micro Devices, Inc. All rights reserved.
+    Copyright (C) 2025-2026 Advanced Micro Devices, Inc. All rights reserved.
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
@@ -24,19 +24,25 @@
 
 # Generating the stubs
 
-In order to generate the python API documentation from an environment where amd-pylibraft is unavailable, the stubs must be generated. This can be done by running the following commands:
+The Python API reference is built with `sphinx-autoapi` from `.pyi` type stubs so
+that the documentation can be generated in environments where `amd-pylibraft` is
+not installed. The generated stubs (under `stubs/`) are checked into the
+repository and are auto-generated, so they only need to be regenerated when the
+`pylibraft` public API changes.
 
-```bash
-
-From an environment with `amd-pylibraft` installed run:
+To regenerate them, run the script from a Python environment with `pylibraft`
+and `pybind11-stubgen` installed:
 
 ```bash
 pip install pybind11-stubgen
-cd <HIPRAFT_ROOT>/docs/reference/pylibraft_api
-pybind11-stubgen --ignore-all-errors pylibraft.common
-pybind11-stubgen --ignore-all-errors pylibraft.common.interruptible
-pybind11-stubgen --ignore-all-errors pylibraft.common.cai_wrapper
-pybind11-stubgen --ignore-all-errors pylibraft.random.rmat_rectangular_generator
-pybind11-stubgen --ignore-all-errors pylibraft.sparse.linalg.eigsh
+export ROCM_HOME=/opt/rocm   # required for the cupy-backed modules (e.g. lanczos)
+./generate_stubs.sh
 ```
-The generated stubs are checked into the repository, so this step should only be necessary if the API has changed. These stubs are then used by the autoapi.extension to generate the API documentation.
+
+The script runs `pybind11-stubgen` over the curated list of public `pylibraft`
+submodules (the compiled Cython extensions are not reliably discovered by
+`pkgutil.walk_packages`, so they are enumerated explicitly in the script). When
+a new public module is added, add it both to the `MODULES` list in
+`generate_stubs.sh` and to the relevant `autoapi` directive in the `*.rst`
+pages. The stubs are then consumed by the `autoapi` extension to generate the
+API documentation.

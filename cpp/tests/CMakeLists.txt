@@ -1,29 +1,33 @@
 # =============================================================================
-# Copyright (c) 2021-2024, NVIDIA CORPORATION.
-#
-# Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
-# in compliance with the License. You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software distributed under the License
-# is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
-# or implied. See the License for the specific language governing permissions and limitations under
-# the License.
+# cmake-format: off
+# SPDX-FileCopyrightText: Copyright (c) 2021-2026, NVIDIA CORPORATION.
+# SPDX-License-Identifier: Apache-2.0
+# cmake-format: on
 # =============================================================================
 
-# Modifications Copyright (c) 2024-2025 Advanced Micro Devices, Inc. Permission is hereby granted,
-# free of charge, to any person obtaining a copy of this software and associated documentation files
-# (the "Software"), to deal in the Software without restriction, including without limitation the
-# rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the
-# Software, and to permit persons to whom the Software is furnished to do so, subject to the
-# following conditions: The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software. THE SOFTWARE IS PROVIDED "AS IS", WITHOUT
-# WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR
-# THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+# cmake-format: off
+# MIT License
+#
+# Modifications Copyright (C) 2024-2026 Advanced Micro Devices, Inc. All rights reserved.
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+# cmake-format: on
 
 # NOTE(HIP/AMD): make *.cu files HIP lang files
 set(CMAKE_USER_MAKE_RULES_OVERRIDE "${CMAKE_CURRENT_LIST_DIR}/../../overrides.cmake")
@@ -77,9 +81,9 @@ function(ConfigureTest)
     ${TEST_NAME}
     PROPERTIES RUNTIME_OUTPUT_DIRECTORY "$<BUILD_INTERFACE:${RAFT_BINARY_DIR}/gtests>"
                INSTALL_RPATH "\$ORIGIN/../../../lib"
-               CXX_STANDARD 17
+               CXX_STANDARD 20
                CXX_STANDARD_REQUIRED ON
-               CUDA_STANDARD 17
+               CUDA_STANDARD 20
                CUDA_STANDARD_REQUIRED ON
   )
   target_compile_options(
@@ -113,6 +117,8 @@ if(BUILD_TESTS)
     NAME
     CORE_TEST
     PATH
+    core/allocation_tracking.cpp
+    core/monitor_resources.cu
     core/bitmap.cu
     core/bitset.cu
     core/device_resources_manager.cpp
@@ -137,14 +143,13 @@ if(BUILD_TESTS)
     core/span.cu
     core/stream_view.cpp
     core/temporary_device_buffer.cu
-    test.cpp
     LIB
     EXPLICIT_INSTANTIATE_ONLY
   )
 
   ConfigureTest(
-    NAME CORE_TEST PATH core/stream_view.cpp core/mdspan_copy.cpp LIB EXPLICIT_INSTANTIATE_ONLY
-    NOCUDA
+    NAME CORE_TEST PATH core/stream_view.cpp core/mdspan_copy.cpp core/host_memory_resource.cpp
+    core/allocation_tracking.cpp LIB EXPLICIT_INSTANTIATE_ONLY NOCUDA
   )
 
   list(APPEND EXT_HEADER_TEST_SOURCES ext_headers/raft_core_logger.cpp)
@@ -187,6 +192,7 @@ if(BUILD_TESTS)
     linalg/multiply.cu
     linalg/norm.cu
     linalg/normalize.cu
+    linalg/pca.cu
     linalg/power.cu
     # cmake-format: off
     # linalg/randomized_svd.cu TODO: (HIP/AMD) Requires an equivalent of cusolverDnXgesvdr in hipSOLVER. See internal issue #93.
@@ -201,6 +207,7 @@ if(BUILD_TESTS)
     linalg/svd.cu
     linalg/ternary_op.cu
     linalg/transpose.cu
+    linalg/tsvd.cu
     linalg/unary_op.cu
     GPUS
     1
@@ -299,11 +306,6 @@ if(BUILD_TESTS)
     1
     PERCENT
     100
-  )
-
-  ConfigureTest(
-    NAME NEIGHBORS_TEST PATH neighbors/haversine.cu neighbors/ball_cover.cu
-    neighbors/epsilon_neighborhood.cu LIB EXPLICIT_INSTANTIATE_ONLY
   )
 
   ConfigureTest(

@@ -1,36 +1,29 @@
 /*
- * Copyright (c) 2022-2024, NVIDIA CORPORATION.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * SPDX-FileCopyrightText: Copyright (c) 2022-2026, NVIDIA CORPORATION.
+ * SPDX-License-Identifier: Apache-2.0
  */
-/*
- * Modifications Copyright (c) 2024-2025 Advanced Micro Devices, Inc.
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- */
+
+// MIT License
+//
+// Modifications Copyright (C) 2024-2026 Advanced Micro Devices, Inc. All rights reserved.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 
 #include "../test_utils.cuh"
 
@@ -38,11 +31,20 @@
 #include <raft/core/device_mdarray.hpp>
 #include <raft/core/host_container_policy.hpp>
 #include <raft/core/host_mdarray.hpp>
+#include <raft/core/managed_mdarray.hpp>
 #include <raft/core/managed_mdspan.hpp>
 #include <raft/core/mdspan.hpp>
+#include <raft/core/pinned_mdarray.hpp>
 #include <raft/core/resource/cuda_stream.hpp>
+#include <raft/core/resource/device_memory_resource.hpp>
+#include <raft/core/resource/managed_memory_resource.hpp>
+#include <raft/core/resource/pinned_memory_resource.hpp>
 #include <raft/core/resource/thrust_policy.hpp>
 #include <raft/core/resources.hpp>
+#include <raft/mr/host_device_resource.hpp>
+#include <raft/mr/host_memory_resource.hpp>
+#include <raft/mr/mmap_memory_resource.hpp>
+#include <raft/pmr/resource_adaptor.hpp>
 #include <raft/util/cuda_utils.cuh>
 #include <raft/util/cudart_utils.hpp>
 
@@ -50,17 +52,19 @@
 #include <rmm/device_uvector.hpp>
 #include <rmm/device_vector.hpp>
 #include <rmm/exec_policy.hpp>
+#include <rmm/resource_ref.hpp>
 
+#include <cuda/iterator>
 #include <thrust/device_vector.h>
 #include <thrust/execution_policy.h>
 #include <thrust/for_each.h>
-#include <thrust/iterator/counting_iterator.h>
 #include <thrust/sequence.h>
 
 #include <gtest/gtest.h>
 
+#include <memory_resource>
+
 namespace {
-namespace stdex = std::experimental;
 void check_status(int32_t* d_status, rmm::cuda_stream_view stream)
 {
   stream.synchronize();
@@ -75,15 +79,15 @@ void test_mdspan()
   auto stream = rmm::cuda_stream_default;
   rmm::device_uvector<float> a{16ul, stream};
   thrust::sequence(rmm::exec_policy(stream), a.begin(), a.end());
-  stdex::mdspan<float, stdex::extents<int, raft::dynamic_extent, raft::dynamic_extent>> span{
-    a.data(), 4, 4};
+  cuda::std::mdspan<float, cuda::std::extents<int, raft::dynamic_extent, raft::dynamic_extent>>
+    span{a.data(), 4, 4};
   thrust::device_vector<int32_t> status(1, 0);
   auto p_status = status.data().get();
   thrust::for_each_n(
-    rmm::exec_policy(stream), thrust::make_counting_iterator(0ul), 4, [=] __device__(size_t i) {
+    rmm::exec_policy(stream), cuda::make_counting_iterator(0ul), 4, [=] __device__(size_t i) {
       auto v = span(0, i);
       if (v != i) { raft::myAtomicAdd(p_status, 1); }
-      auto k = stdex::submdspan(span, 0, stdex::full_extent);
+      auto k = cuda::std::submdspan(span, 0, cuda::std::full_extent);
       if (k(i) != i) { raft::myAtomicAdd(p_status, 1); }
     });
   check_status(p_status, stream);
@@ -107,7 +111,7 @@ TEST(MDArray, Policy) { test_uvector_policy(); }
 
 void test_mdarray_basic()
 {
-  using matrix_extent = stdex::extents<int, dynamic_extent, dynamic_extent>;
+  using matrix_extent = cuda::std::extents<int, dynamic_extent, dynamic_extent>;
   raft::resources handle;
   auto s = resource::get_cuda_stream(handle);
   {
@@ -118,7 +122,7 @@ void test_mdarray_basic()
     using mdarray_t = device_mdarray<float, matrix_extent, layout_c_contiguous>;
     auto policy     = mdarray_t::container_policy_type{};
     static_assert(
-      std::is_same_v<typename decltype(policy)::accessor_type, device_uvector_policy<float>>);
+      std::is_same_v<typename decltype(policy)::accessor_type, device_container_policy<float>>);
     device_mdarray<float, matrix_extent, layout_c_contiguous> array{handle, layout, policy};
 
     array(0, 3) = 1;
@@ -130,7 +134,7 @@ void test_mdarray_basic()
     thrust::device_vector<int32_t> status(1, 0);
     auto p_status = status.data().get();
     thrust::for_each_n(rmm::exec_policy(s),
-                       thrust::make_counting_iterator(0ul),
+                       cuda::make_counting_iterator(0ul),
                        1,
                        [d_view, p_status] __device__(auto i) {
                          if (d_view(0, 3) != 1) { myAtomicAdd(p_status, 1); }
@@ -144,7 +148,7 @@ void test_mdarray_basic()
     ASSERT_EQ(arr(0, 3), 1);
     auto const_d_view = arr.view();
     thrust::for_each_n(rmm::exec_policy(s),
-                       thrust::make_counting_iterator(0ul),
+                       cuda::make_counting_iterator(0ul),
                        1,
                        [const_d_view, p_status] __device__(auto i) {
                          if (const_d_view(0, 3) != 1) { myAtomicAdd(p_status, 1); }
@@ -167,29 +171,46 @@ void test_mdarray_basic()
      * host policy
      */
     using mdarray_t = host_mdarray<float, matrix_extent, layout_c_contiguous>;
-    mdarray_t::container_policy_type policy;
-    static_assert(
-      std::is_same_v<typename decltype(policy)::accessor_type, host_vector_policy<float>>);
-    layout_c_contiguous::mapping<matrix_extent> layout{matrix_extent{4, 4}};
-    host_mdarray<float, matrix_extent, layout_c_contiguous> array{handle, layout, policy};
 
-    array(0, 3) = 1;
-    ASSERT_EQ(array(0, 3), 1);
-    auto h_view = array.view();
-    static_assert(decltype(h_view)::accessor_type::is_host_type::value);
-    thrust::for_each_n(thrust::host, thrust::make_counting_iterator(0ul), 1, [h_view](auto i) {
-      ASSERT_EQ(h_view(0, 3), 1);
-    });
+    raft::mr::mmap_memory_resource mmap_mr_default;
+    raft::mr::mmap_memory_resource mmap_mr_hugepages{raft::mr::kMmapRequestHugePages};
+    raft::mr::mmap_memory_resource mmap_mr_huge_file{raft::mr::kMmapRequestHugePages |
+                                                     raft::mr::kMmapFileBacked};
+    std::pmr::synchronized_pool_resource pool_mr{std::pmr::get_default_resource()};
 
-    //    static_assert(std::is_nothrow_default_constructible<mdarray_t>::value);
+    // std::pmr resources: wrap in resource_adaptor, pass to make_host_mdarray
+    for (auto* mr :
+         {std::pmr::get_default_resource(), static_cast<std::pmr::memory_resource*>(&pool_mr)}) {
+      raft::pmr::resource_adaptor adaptor{mr};
+      auto array = make_host_mdarray<float>(handle, adaptor, make_extents<uint32_t>(4u, 4u));
+
+      array(0, 3) = 1;
+      ASSERT_EQ(array(0, 3), 1);
+      auto h_view = array.view();
+      static_assert(decltype(h_view)::accessor_type::is_host_type::value);
+      thrust::for_each_n(thrust::host, cuda::make_counting_iterator(0ul), 1, [h_view](auto i) {
+        ASSERT_EQ(h_view(0, 3), 1);
+      });
+    }
+
+    // cuda::mr resources (mmap): use make_host_mdarray with raft::mr::host_resource_ref
+    for (auto* mr : {&mmap_mr_default, &mmap_mr_hugepages, &mmap_mr_huge_file}) {
+      auto array = make_host_mdarray<float>(handle, *mr, make_extents<uint32_t>(16u));
+      array(3)   = 1;
+      ASSERT_EQ(array(3), 1);
+    }
+
+    static_assert(!std::is_nothrow_default_constructible<mdarray_t>::value);
     static_assert(std::is_nothrow_move_constructible<mdarray_t>::value);
     static_assert(std::is_nothrow_move_assignable<mdarray_t>::value);
+    static_assert(!std::is_copy_constructible<mdarray_t>::value);
+    static_assert(!std::is_copy_assignable<mdarray_t>::value);
   }
   {
     /**
      * static extent
      */
-    using static_extent = stdex::extents<int, 16, 16>;
+    using static_extent = cuda::std::extents<int, 16, 16>;
     layout_c_contiguous::mapping<static_extent> layout{static_extent{}};
     using mdarray_t = device_mdarray<float, static_extent, layout_c_contiguous>;
     mdarray_t::container_policy_type policy{};
@@ -215,7 +236,7 @@ template <typename BasicMDarray, typename PolicyFn, typename ThrustPolicy>
 void test_mdarray_copy_move(ThrustPolicy exec, PolicyFn make_policy)
 {
   raft::resources handle;
-  using matrix_extent = stdex::extents<size_t, dynamic_extent, dynamic_extent>;
+  using matrix_extent = cuda::std::extents<size_t, dynamic_extent, dynamic_extent>;
   layout_c_contiguous::mapping<matrix_extent> layout{matrix_extent{4, 4}};
 
   using mdarray_t = BasicMDarray;
@@ -235,34 +256,6 @@ void test_mdarray_copy_move(ThrustPolicy exec, PolicyFn make_policy)
   };
 
   {
-    // copy ctor
-    auto policy = make_policy();
-    mdarray_t arr{handle, layout, policy};
-    thrust::sequence(exec, arr.data_handle(), arr.data_handle() + arr.size());
-    mdarray_t arr_copy_construct{arr};
-    check_eq(arr, arr_copy_construct);
-
-    auto const& ref = arr;
-    mdarray_t arr_copy_construct_1{ref};
-    check_eq(ref, arr_copy_construct_1);
-  }
-
-  {
-    // copy assign
-    auto policy = make_policy();
-    mdarray_t arr{handle, layout, policy};
-    thrust::sequence(exec, arr.data_handle(), arr.data_handle() + arr.size());
-    mdarray_t arr_copy_assign{handle, layout, policy};
-    arr_copy_assign = arr;
-    check_eq(arr, arr_copy_assign);
-
-    auto const& ref = arr;
-    mdarray_t arr_copy_assign_1{handle, layout, policy};
-    arr_copy_assign_1 = ref;
-    check_eq(ref, arr_copy_assign_1);
-  }
-
-  {
     // move ctor
     auto policy = make_policy();
     mdarray_t arr{handle, layout, policy};
@@ -279,14 +272,13 @@ void test_mdarray_copy_move(ThrustPolicy exec, PolicyFn make_policy)
     thrust::sequence(exec, arr.data_handle(), arr.data_handle() + arr.size());
     mdarray_t arr_move_assign{handle, layout, policy};
     arr_move_assign = std::move(arr);
-    ASSERT_EQ(arr.data_handle(), nullptr);
     check_eq(arr_origin, arr_move_assign);
   }
 }
 
-TEST(MDArray, CopyMove)
+TEST(MDArray, Move)
 {
-  using matrix_extent = stdex::extents<size_t, dynamic_extent, dynamic_extent>;
+  using matrix_extent = cuda::std::extents<size_t, dynamic_extent, dynamic_extent>;
   using d_matrix_t    = device_mdarray<float, matrix_extent>;
   using policy_t      = typename d_matrix_t::container_policy_type;
   raft::resources handle;
@@ -294,7 +286,7 @@ TEST(MDArray, CopyMove)
   test_mdarray_copy_move<d_matrix_t>(rmm::exec_policy(s), []() { return policy_t{}; });
 
   using h_matrix_t = host_mdarray<float, matrix_extent>;
-  test_mdarray_copy_move<h_matrix_t>(thrust::host, []() { return host_vector_policy<float>{}; });
+  test_mdarray_copy_move<h_matrix_t>(thrust::host, []() { return host_container_policy<float>{}; });
 
   {
     d_matrix_t arr{handle};
@@ -303,9 +295,11 @@ TEST(MDArray, CopyMove)
     d_matrix_t::layout_type::mapping<matrix_extent> layout{extents};
     d_matrix_t non_dft{handle, layout, policy};
 
-    arr = non_dft;
-    ASSERT_NE(arr.data_handle(), non_dft.data_handle());
-    ASSERT_EQ(arr.extent(0), non_dft.extent(0));
+    d_matrix_t arr_orig = std::move(arr);
+    arr                 = std::move(non_dft);
+    ASSERT_NE(arr.data_handle(), arr_orig.data_handle());
+    ASSERT_EQ(arr_orig.extent(0), 0);
+    ASSERT_EQ(arr.extent(0), 3);
   }
   {
     h_matrix_t arr(handle);
@@ -315,9 +309,11 @@ TEST(MDArray, CopyMove)
     h_matrix_t::layout_type::mapping<matrix_extent> layout{extents};
     h_matrix_t non_dft{handle, layout, policy};
 
-    arr = non_dft;
-    ASSERT_NE(arr.data_handle(), non_dft.data_handle());
-    ASSERT_EQ(arr.extent(0), non_dft.extent(0));
+    h_matrix_t arr_orig = std::move(arr);
+    arr                 = std::move(non_dft);
+    ASSERT_NE(arr.data_handle(), arr_orig.data_handle());
+    ASSERT_EQ(arr_orig.extent(0), 0);
+    ASSERT_EQ(arr.extent(0), 3);
   }
 }
 
@@ -396,7 +392,7 @@ void test_factory_methods()
     thrust::device_vector<int32_t> status(1, 0);
     auto p_status = status.data().get();
     thrust::for_each_n(rmm::exec_policy(resource::get_cuda_stream(handle)),
-                       thrust::make_counting_iterator(0),
+                       cuda::make_counting_iterator(0),
                        1,
                        [=] __device__(auto i) {
                          if (view(i) != 17.0) { myAtomicAdd(p_status, 1); }
@@ -417,16 +413,95 @@ void test_factory_methods()
     ASSERT_EQ(view(0), 17.0);
   }
 
-  // managed
+  // managed mdarray (sync allocation, no stream)
   {
     raft::resources handle;
-    auto mda = make_device_vector<int>(handle, 10);
+    auto m_vec = make_managed_vector<float>(handle, 10);
+    ASSERT_EQ(m_vec.extent(0), 10);
+    m_vec(0) = 42.0f;
+    ASSERT_EQ(m_vec(0), 42.0f);
 
-    auto mdv = make_managed_mdspan(mda.data_handle(), raft::vector_extent<int>{10});
-
+    auto mdv = make_managed_mdspan(m_vec.data_handle(), raft::vector_extent<int>{10});
     static_assert(decltype(mdv)::accessor_type::is_managed_accessible, "Not managed mdspan");
-
     ASSERT_EQ(mdv.size(), 10);
+  }
+
+  // pinned mdarray (sync allocation, no stream)
+  {
+    raft::resources handle;
+    auto p_vec = make_pinned_vector<float>(handle, 10);
+    ASSERT_EQ(p_vec.extent(0), 10);
+    p_vec(0) = 7.0f;
+    ASSERT_EQ(p_vec(0), 7.0f);
+  }
+
+  // managed memory resource: get/set with default
+  {
+    raft::resources handle;
+    auto ref  = raft::resource::get_managed_memory_resource_ref(handle);
+    void* ptr = ref.allocate_sync(256);
+    ASSERT_NE(ptr, nullptr);
+    ref.deallocate_sync(ptr, 256);
+  }
+
+  // managed memory resource: set custom, allocate through mdarray
+  {
+    raft::resources handle;
+    raft::resource::set_managed_memory_resource(handle, cuda::mr::legacy_managed_memory_resource{});
+    auto m_vec = make_managed_vector<float>(handle, 10);
+    m_vec(0)   = 99.0f;
+    ASSERT_EQ(m_vec(0), 99.0f);
+  }
+
+  // pinned memory resource: get/set with default
+  {
+    raft::resources handle;
+    auto ref  = raft::resource::get_pinned_memory_resource_ref(handle);
+    void* ptr = ref.allocate_sync(256);
+    ASSERT_NE(ptr, nullptr);
+    ref.deallocate_sync(ptr, 256);
+  }
+
+  // pinned memory resource: set custom, allocate through mdarray
+  {
+    raft::resources handle;
+    raft::resource::set_pinned_memory_resource(handle, cuda::mr::legacy_pinned_memory_resource{});
+    auto p_vec = make_pinned_vector<float>(handle, 10);
+    p_vec(0)   = 55.0f;
+    ASSERT_EQ(p_vec(0), 55.0f);
+  }
+
+  // shared semantics: two resources objects share the same MR
+  {
+    raft::resources handle1;
+    raft::resource::set_managed_memory_resource(handle1,
+                                                cuda::mr::legacy_managed_memory_resource{});
+    raft::resources handle2{handle1};
+    auto ref1 = raft::resource::get_managed_memory_resource_ref(handle1);
+    auto ref2 = raft::resource::get_managed_memory_resource_ref(handle2);
+    ASSERT_EQ(ref1, ref2);
+  }
+
+  // get_default_host_resource: default ref is usable
+  {
+    auto ref  = raft::mr::get_default_host_resource();
+    void* ptr = ref.allocate_sync(128);
+    ASSERT_NE(ptr, nullptr);
+    ref.deallocate_sync(ptr, 128);
+  }
+
+  // set_default_host_resource: install mmap, allocate through default policy
+  {
+    raft::mr::mmap_memory_resource mmap_mr;
+    raft::mr::set_default_host_resource(mmap_mr);
+
+    auto ref  = raft::mr::get_default_host_resource();
+    void* ptr = ref.allocate_sync(4096);
+    ASSERT_NE(ptr, nullptr);
+    ref.deallocate_sync(ptr, 4096);
+
+    // restore default
+    raft::mr::set_default_host_resource(raft::mr::new_delete_resource());
   }
 }
 }  // anonymous namespace
@@ -460,7 +535,7 @@ TEST(MDArray, FuncArg)
     check_matrix_layout(d_matrix.view());
 
     auto slice =
-      stdex::submdspan(d_matrix.view(), std::make_tuple(2ul, 4ul), std::make_tuple(2ul, 5ul));
+      cuda::std::submdspan(d_matrix.view(), cuda::std::tuple{2ul, 4ul}, cuda::std::tuple{2ul, 5ul});
     static_assert(slice.is_strided());
     ASSERT_EQ(slice.extent(0), 2);
     ASSERT_EQ(slice.extent(1), 3);
@@ -495,11 +570,12 @@ void test_mdspan_layout_right_padded()
     static constexpr int X = -1;
     int data_padded[]      = {1, 2, 3, 4, 5, X, X, X, 6, 7, 8, 9, 10, X, X, X};
 
-    using extents_type = stdex::extents<size_t, stdex::dynamic_extent, stdex::dynamic_extent>;
+    using extents_type =
+      cuda::std::extents<size_t, cuda::std::dynamic_extent, cuda::std::dynamic_extent>;
     using padded_layout_row_major =
-      stdex::layout_right_padded<detail::padding<int, alignment_bytes>::value>;
-    using padded_mdspan    = stdex::mdspan<int, extents_type, padded_layout_row_major>;
-    using row_major_mdspan = stdex::mdspan<int, extents_type, stdex::layout_right>;
+      raft::layout_right_padded_impl<detail::padding<int, alignment_bytes>::value>;
+    using padded_mdspan    = cuda::std::mdspan<int, extents_type, padded_layout_row_major>;
+    using row_major_mdspan = cuda::std::mdspan<int, extents_type, cuda::std::layout_right>;
 
     padded_layout_row_major::mapping<extents_type> layout{extents_type{n_rows, n_cols}};
 
@@ -520,7 +596,7 @@ TEST(MDSpan, LayoutRightPadded) { test_mdspan_layout_right_padded(); }
 
 void test_mdarray_padding()
 {
-  using extents_type = stdex::extents<size_t, dynamic_extent, dynamic_extent>;
+  using extents_type = cuda::std::extents<size_t, dynamic_extent, dynamic_extent>;
   raft::resources handle;
   auto s = resource::get_cuda_stream(handle);
   {
@@ -533,14 +609,14 @@ void test_mdarray_padding()
      * padded device array
      */
     using padded_layout_row_major =
-      stdex::layout_right_padded<detail::padding<float, alignment_bytes>::value>;
+      raft::layout_right_padded_impl<detail::padding<float, alignment_bytes>::value>;
 
     using padded_mdarray_type = device_mdarray<float, extents_type, padded_layout_row_major>;
     padded_layout_row_major::mapping<extents_type> layout(extents_type(rows, cols));
 
     auto device_policy = padded_mdarray_type::container_policy_type{};
     static_assert(std::is_same_v<typename decltype(device_policy)::accessor_type,
-                                 device_uvector_policy<float>>);
+                                 device_container_policy<float>>);
     padded_mdarray_type padded_device_array{handle, layout, device_policy};
 
     // direct access mdarray
@@ -554,7 +630,7 @@ void test_mdarray_padding()
     thrust::device_vector<int32_t> status(1, 0);
     auto p_status = status.data().get();
     thrust::for_each_n(rmm::exec_policy(),
-                       thrust::make_counting_iterator(0ul),
+                       cuda::make_counting_iterator(0ul),
                        1,
                        [d_view, p_status] __device__(size_t i) {
                          if (d_view(0, 3) != 1) { myAtomicAdd(p_status, 1); }
@@ -568,7 +644,7 @@ void test_mdarray_padding()
     ASSERT_EQ(arr(0, 3), 1);
     auto const_d_view = arr.view();
     thrust::for_each_n(rmm::exec_policy(s),
-                       thrust::make_counting_iterator(0ul),
+                       cuda::make_counting_iterator(0ul),
                        1,
                        [const_d_view, p_status] __device__(size_t i) {
                          if (const_d_view(0, 3) != 1) { myAtomicAdd(p_status, 1); }
@@ -578,7 +654,7 @@ void test_mdarray_padding()
     // initialize with sequence
     thrust::for_each_n(
       rmm::exec_policy(s),
-      thrust::make_counting_iterator(0ul),
+      cuda::make_counting_iterator(0ul),
       rows * cols,
       [d_view, rows, cols] __device__(size_t i) { d_view(i / cols, i % cols) = i; });
 
@@ -588,7 +664,7 @@ void test_mdarray_padding()
       using padded_mdspan_type = device_mdspan<float, extents_type, padded_layout_row_major>;
       auto padded_span         = padded_mdspan_type(data_padded, layout);
       thrust::for_each_n(rmm::exec_policy(s),
-                         thrust::make_counting_iterator(0ul),
+                         cuda::make_counting_iterator(0ul),
                          rows * cols,
                          [padded_span, rows, cols, p_status] __device__(size_t i) {
                            if (padded_span(i / cols, i % cols) != i) myAtomicAdd(p_status, 1);
@@ -631,7 +707,7 @@ TEST(MDArray, Padding) { test_mdarray_padding(); }
 
     auto device_policy = padded_mdarray_type::container_policy_type{s};
     static_assert(std::is_same_v<typename decltype(device_policy)::accessor_type,
-                                 detail::device_uvector_policy<float>>);
+                                 detail::device_container_policy<float>>);
     padded_mdarray_type padded_device_array{handle, layout, device_policy};
 
     // test status
@@ -644,7 +720,7 @@ TEST(MDArray, Padding) { test_mdarray_padding(); }
       static_assert(std::is_same_v<typename decltype(d_view)::layout_type, layout_padded_general>);
       thrust::for_each_n(
         rmm::exec_policy(s),
-        thrust::make_counting_iterator(0ul),
+        cuda::make_counting_iterator(0ul),
         rows * cols,
         [d_view, rows, cols] __device__(size_t i) { d_view(i / cols, i % cols) = i; });
     }
@@ -654,7 +730,7 @@ TEST(MDArray, Padding) { test_mdarray_padding(); }
       auto data_padded = padded_device_array.data();
       auto padded_span = padded_mdspan_type(data_padded, layout);
       thrust::for_each_n(rmm::exec_policy(s),
-                         thrust::make_counting_iterator(0ul),
+                         cuda::make_counting_iterator(0ul),
                          rows * cols,
                          [padded_span, rows, cols, p_status] __device__(size_t i) {
                            if (padded_span(i / cols, i % cols) != i) myAtomicAdd(p_status, 1);
@@ -667,7 +743,7 @@ TEST(MDArray, Padding) { test_mdarray_padding(); }
       auto padded_span  = padded_device_array.view();
       auto subspan_full = stdex::submdspan(padded_span, stdex::full_extent, stdex::full_extent);
       thrust::for_each_n(rmm::exec_policy(s),
-                         thrust::make_counting_iterator(0ul),
+                         cuda::make_counting_iterator(0ul),
                          cols * rows,
                          [subspan_full, padded_span, rows, cols, p_status] __device__(size_t i) {
                            if (subspan_full(i / cols, i % cols) != padded_span(i / cols, i % cols))
@@ -685,7 +761,7 @@ TEST(MDArray, Padding) { test_mdarray_padding(); }
       auto padded_span = padded_device_array.view();
       auto row3        = stdex::submdspan(padded_span, 3, stdex::full_extent);
       thrust::for_each_n(rmm::exec_policy(s),
-                         thrust::make_counting_iterator(0ul),
+                         cuda::make_counting_iterator(0ul),
                          cols,
                          [row3, padded_span, p_status] __device__(size_t i) {
                            if (row3(i) != padded_span(3, i)) myAtomicAdd(p_status, 1);
@@ -701,7 +777,7 @@ TEST(MDArray, Padding) { test_mdarray_padding(); }
       auto padded_span = padded_device_array.view();
       auto col1        = stdex::submdspan(padded_span, stdex::full_extent, 1);
       thrust::for_each_n(rmm::exec_policy(s),
-                         thrust::make_counting_iterator(0ul),
+                         cuda::make_counting_iterator(0ul),
                          rows,
                          [col1, padded_span, p_status] __device__(size_t i) {
                            if (col1(i) != padded_span(i, 1)) myAtomicAdd(p_status, 1);
@@ -718,7 +794,7 @@ TEST(MDArray, Padding) { test_mdarray_padding(); }
       auto subspan =
         stdex::submdspan(padded_span, std::make_tuple(1ul, 4ul), std::make_tuple(2ul, 5ul));
       thrust::for_each_n(rmm::exec_policy(s),
-                         thrust::make_counting_iterator(0ul),
+                         cuda::make_counting_iterator(0ul),
                          (rows - 1) * (cols - 2),
                          [subspan, rows, cols, padded_span, p_status] __device__(size_t i) {
                            size_t idx = i / (cols - 2);
@@ -739,7 +815,7 @@ TEST(MDArray, Padding) { test_mdarray_padding(); }
       auto subspan =
         stdex::submdspan(padded_span, std::make_tuple(1ul, 4ul), std::make_tuple(2ul, 5ul));
       thrust::for_each_n(rmm::exec_policy(s),
-                         thrust::make_counting_iterator(0ul),
+                         cuda::make_counting_iterator(0ul),
                          (rows - 1) * (cols - 2),
                          [subspan, rows, cols, padded_span, p_status] __device__(size_t i) {
                            size_t idx = i / (cols - 2);
@@ -764,7 +840,7 @@ struct TestElement1 {
 
 void test_mdspan_padding_by_type()
 {
-  using extents_type = stdex::extents<size_t, dynamic_extent, dynamic_extent>;
+  using extents_type = cuda::std::extents<size_t, dynamic_extent, dynamic_extent>;
   raft::resources handle;
   auto s = rmm::cuda_stream_default;
 
@@ -778,7 +854,7 @@ void test_mdspan_padding_by_type()
 
     // manually check strides for row major (c style) padding
     {
-      using padded_layout_row_major = stdex::layout_right_padded<
+      using padded_layout_row_major = raft::layout_right_padded_impl<
         detail::padding<std::remove_cv_t<std::remove_reference_t<TestElement1>>,
                         alignment_bytes>::value>;
 
@@ -792,7 +868,7 @@ void test_mdspan_padding_by_type()
       auto padded_span       = padded_device_array.view();
       thrust::for_each_n(
         rmm::exec_policy(s),
-        thrust::make_counting_iterator(0ul),
+        cuda::make_counting_iterator(0ul),
         rows * cols,
         [rows, cols, padded_span, alignment_elements, p_status] __device__(size_t i) {
           size_t idx = i / cols;
@@ -806,7 +882,7 @@ void test_mdspan_padding_by_type()
 
     // manually check strides for col major (f style) padding
     {
-      using padded_layout_col_major = stdex::layout_left_padded<
+      using padded_layout_col_major = raft::layout_left_padded_impl<
         detail::padding<std::remove_cv_t<std::remove_reference_t<TestElement1>>,
                         alignment_bytes>::value>;
       using padded_mdarray_type =
@@ -819,7 +895,7 @@ void test_mdspan_padding_by_type()
       auto padded_span       = padded_device_array.view();
       thrust::for_each_n(
         rmm::exec_policy(s),
-        thrust::make_counting_iterator(0ul),
+        cuda::make_counting_iterator(0ul),
         rows * cols,
         [rows, cols, padded_span, alignment_elements, p_status] __device__(size_t i) {
           size_t idx = i / cols;
@@ -837,7 +913,7 @@ TEST(MDSpan, MDSpanPaddingType) { test_mdspan_padding_by_type(); }
 
 void test_mdspan_aligned_matrix()
 {
-  using extents_type = stdex::extents<size_t, dynamic_extent, dynamic_extent>;
+  using extents_type = cuda::std::extents<size_t, dynamic_extent, dynamic_extent>;
   raft::resources handle;
   constexpr int rows = 2;
   constexpr int cols = 10;
@@ -861,7 +937,7 @@ void test_mdspan_aligned_matrix()
   // now work with device memory
   // use simple 1D array to allocate some space
   auto s          = rmm::cuda_stream_default;
-  using extent_1d = stdex::extents<size_t, dynamic_extent>;
+  using extent_1d = cuda::std::extents<size_t, dynamic_extent>;
   layout_c_contiguous::mapping<extent_1d> layout_1d{extent_1d{rows * 32}};
   using mdarray_t    = device_mdarray<long, extent_1d, layout_c_contiguous>;
   auto device_policy = mdarray_t::container_policy_type{};
@@ -879,7 +955,7 @@ void test_mdspan_aligned_matrix()
   thrust::device_vector<int32_t> status(1, 0);
   auto p_status = status.data().get();
   thrust::for_each_n(rmm::exec_policy(s),
-                     thrust::make_counting_iterator(0ul),
+                     cuda::make_counting_iterator(0ul),
                      rows * cols,
                      [rows, cols, my_aligned_device_span, p_status] __device__(size_t i) {
                        size_t idx = i / cols;
@@ -922,19 +998,19 @@ void test_mdarray_unravel()
 
   // examples from numpy unravel_index
   {
-    auto coord = unravel_index(22, matrix_extent<int>{7, 6}, stdex::layout_right{});
+    auto coord = unravel_index(22, matrix_extent<int>{7, 6}, cuda::std::layout_right{});
     static_assert(std::tuple_size<decltype(coord)>::value == 2);
     ASSERT_EQ(std::get<0>(coord), 3);
     ASSERT_EQ(std::get<1>(coord), 4);
   }
   {
-    auto coord = unravel_index(41, matrix_extent<int>{7, 6}, stdex::layout_right{});
+    auto coord = unravel_index(41, matrix_extent<int>{7, 6}, cuda::std::layout_right{});
     static_assert(std::tuple_size<decltype(coord)>::value == 2);
     ASSERT_EQ(std::get<0>(coord), 6);
     ASSERT_EQ(std::get<1>(coord), 5);
   }
   {
-    auto coord = unravel_index(37, matrix_extent<int>{7, 6}, stdex::layout_right{});
+    auto coord = unravel_index(37, matrix_extent<int>{7, 6}, cuda::std::layout_right{});
     static_assert(std::tuple_size<decltype(coord)>::value == 2);
     ASSERT_EQ(std::get<0>(coord), 6);
     ASSERT_EQ(std::get<1>(coord), 1);
@@ -958,7 +1034,7 @@ void test_mdarray_unravel()
     auto m   = make_device_matrix<float, size_t>(handle, 7, 6);
     auto m_v = m.view();
     thrust::for_each_n(resource::get_thrust_policy(handle),
-                       thrust::make_counting_iterator(0ul),
+                       cuda::make_counting_iterator(0ul),
                        m_v.size(),
                        [=] HD(size_t i) {
                          auto coord =
@@ -968,7 +1044,7 @@ void test_mdarray_unravel()
     thrust::device_vector<int32_t> status(1, 0);
     auto p_status = status.data().get();
     thrust::for_each_n(resource::get_thrust_policy(handle),
-                       thrust::make_counting_iterator(0ul),
+                       cuda::make_counting_iterator(0ul),
                        m_v.size(),
                        [=] __device__(size_t i) {
                          auto coord =
@@ -982,5 +1058,40 @@ void test_mdarray_unravel()
 }  // anonymous namespace
 
 TEST(MDArray, Unravel) { test_mdarray_unravel(); }
+
+void test_device_resource_bridge_unwrap()
+{
+  auto stream = rmm::cuda_stream_default;
+
+  // holder2 is created from a bridge wrapping holder1's any_resource.
+  // After holder1 (and its bridge) are destroyed, holder2 must still work —
+  // proving the bridge was unwrapped and the any_resource was copied out.
+  std::unique_ptr<resource::device_memory_resource> holder2;
+  {
+    auto any_res = raft::mr::device_resource{rmm::mr::get_current_device_resource_ref()};
+    resource::device_memory_resource holder1{any_res};
+
+    // get_resource() lazily creates a bridge
+    auto* bridge_ptr = static_cast<rmm::mr::device_memory_resource*>(holder1.get_resource());
+
+    // Wrap bridge in a non-owning shared_ptr; holder1 owns the bridge
+    auto shared_bridge = std::shared_ptr<rmm::mr::device_memory_resource>(
+      bridge_ptr, [](rmm::mr::device_memory_resource*) {});
+
+    // The shared_ptr constructor detects the bridge and copies the any_resource
+    holder2 = std::make_unique<resource::device_memory_resource>(shared_bridge);
+  }
+  // holder1 is destroyed; the bridge is freed.
+  // holder2 survives because it copied the any_resource, not the bridge pointer.
+
+  auto ref = resource::device_memory_resource::make_ref(
+    static_cast<rmm::mr::device_memory_resource*>(holder2->get_resource()));
+
+  void* ptr = ref.allocate(stream, 1024);
+  ASSERT_NE(ptr, nullptr);
+  ref.deallocate(stream, ptr, 1024);
+}
+
+TEST(MDArray, DeviceResourceBridgeUnwrap) { test_device_resource_bridge_unwrap(); }
 
 }  // namespace raft
