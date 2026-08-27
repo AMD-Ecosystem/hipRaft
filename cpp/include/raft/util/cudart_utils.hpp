@@ -506,7 +506,7 @@ namespace {  // NOLINT
  */
 #ifdef __HIP_PLATFORM_AMD__
 
-#if ROCM_VERSION_MAJOR >= 7 && ROCM_VERSION_MINOR >= 11
+#if ROCM_VERSION_MAJOR > 7 || (ROCM_VERSION_MAJOR == 7 && ROCM_VERSION_MINOR >= 11)
 // See https://github.com/ROCm/rocm-systems/commit/96f6b6e2512bddcdd783ab62be930cb1712a372d
 struct __half_constexpr : __half {
   constexpr explicit inline __half_constexpr(uint16_t u) : __half(__half_raw{.x = u}) {}
