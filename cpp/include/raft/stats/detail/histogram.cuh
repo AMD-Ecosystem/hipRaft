@@ -60,7 +60,12 @@ dim3 computeGridDim(IdxT nrows, IdxT ncols, const void* kernel)
   RAFT_CUDA_TRY(
     cudaOccupancyMaxActiveBlocksPerMultiprocessor(&occupancy, kernel, ThreadsPerBlock, 0));
   const auto maxBlks = occupancy * raft::getMultiProcessorCount();
-  int nblksx         = raft::ceildiv<int>(VecLen ? nrows / VecLen : nrows, ThreadsPerBlock);
+  // VecLen == 0 is a valid instantiation (e.g. 2 / sizeof(DataT) for 4-byte DataT). Fold the
+  // guard into a constant so the divisor is never literally zero: writing the guard as a ternary
+  // still leaves a constant division by zero in the dead branch, which clang diagnoses under
+  // -Wdivision-by-zero.
+  constexpr int kVecLen = VecLen > 0 ? VecLen : 1;
+  int nblksx            = raft::ceildiv<int>(nrows / kVecLen, ThreadsPerBlock);
   // for cases when there aren't a lot of blocks for computing one histogram
   nblksx = std::min(nblksx, maxBlks);
   return dim3(nblksx, ncols);
