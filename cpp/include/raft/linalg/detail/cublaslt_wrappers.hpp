@@ -36,10 +36,14 @@
 
 #include <raft/core/cublas_macros.hpp>
 #include <raft/core/nvtx.hpp>
+// NOTE(HIP/AMD): needed for the plain-gemm fallback taken when hipBLASLt has no solution for a
+// problem shape; see the comment on matmul_desc::algo_count.
+#include <raft/core/resource/cublas_handle.hpp>
 #include <raft/core/resource/cublaslt_handle.hpp>
 #include <raft/core/resource/cuda_stream.hpp>
 #include <raft/core/resource/custom_resource.hpp>
 #include <raft/core/resources.hpp>
+#include <raft/linalg/detail/cublas_wrappers.hpp>
 #include <raft/util/cache.hpp>
 #include <raft/util/cuda_data_type.hpp>
 
@@ -210,7 +214,14 @@ struct matmul_desc {
   cublastlt_matrix_layout a;
   cublastlt_matrix_layout b;
   cublastlt_matrix_layout c;
-  cublasLtMatmulHeuristicResult_t heuristics;
+  cublasLtMatmulHeuristicResult_t heuristics{};
+  /**
+   * Number of algorithms the heuristic actually returned.
+   *
+   * NOTE(HIP/AMD): zero is a legitimate answer, and it does not come with an error status --
+   * see the comment in create() below. Callers must consult this before using `heuristics.algo`.
+   */
+  int algo_count{0};
 
   template <typename S, typename A, typename B, typename C, bool DevicePointerMode = false>
   static inline auto create(raft::resources const& res, const matmul_key_t& args) -> matmul_desc
@@ -220,7 +231,7 @@ struct matmul_desc {
       cublastlt_matrix_layout::for_matmul<A>(!(args.trans_a), args.m, args.k, args.lda),
       cublastlt_matrix_layout::for_matmul<B>(!(args.trans_b), args.k, args.n, args.ldb),
       cublastlt_matrix_layout::for_matmul<C>(true, args.m, args.n, args.ldc)};
-    int algo_count;
+    int algo_count = 0;
     cublasLtMatmulPreference_t preference;
     RAFT_CUBLAS_TRY(cublasLtMatmulPreferenceCreate(&preference));
     RAFT_CUBLAS_TRY(cublasLtMatmulAlgoGetHeuristic(resource::get_cublaslt_handle(res),
@@ -234,6 +245,20 @@ struct matmul_desc {
                                                    &r.heuristics,
                                                    &algo_count));
     RAFT_CUBLAS_TRY(cublasLtMatmulPreferenceDestroy(preference));
+    // NOTE(HIP/AMD): hipBLASLt reports HIPBLAS_STATUS_SUCCESS with requestedAlgoCount honoured but
+    // *zero* results when Tensile has no solution for the problem shape, so the status check above
+    // is not sufficient. Measured on gfx90a: every float64 problem with m == 1 comes back with
+    // algo_count == 0 (float32 always yields 1). Leaving that unchecked left `heuristics` zeroed
+    // and passed `&heuristics.algo` -- an all-zero solution handle -- to hipblasLtMatmul, which
+    // dereferenced it and segfaulted in TensileLite::ContractionSolution::requiredWorkspaceSize.
+    //
+    // m == 1 is the intercept/Gram-row shape, so this took down most double-precision GEMM users:
+    // cuML's GLM OLS path (LinearRegression/Ridge/Lasso/ElasticNet/CD/SGD), ML::tsvdTransform, and
+    // SVM's kernel cache via cuVS GramMatrixBase<double>::linear.
+    //
+    // Record the count and let matmul() fall back to a plain gemm; do not fail here, because a
+    // missing Lt solution is not an error, only an absence.
+    r.algo_count = algo_count;
     return r;
   }
 };
@@ -357,6 +382,42 @@ template <bool DevicePointerMode = false, typename S, typename A, typename B, ty
   }
   // Allocate alpha and beta pointers if not provided.
   coef_wrapper<kActualDeviceMode, S> w(alpha_ptr, beta_ptr, stream);
+#ifdef __HIP_PLATFORM_AMD__
+  // NOTE(HIP/AMD): no Lt solution exists for this problem shape (see matmul_desc::create). Passing
+  // the zeroed heuristics.algo on to hipblasLtMatmul is a segfault, so use the plain gemm instead:
+  // rocBLAS handles the shapes Tensile declines, m == 1 in particular. Remove once hipBLASLt
+  // provides solutions for them.
+  if (mm_desc->algo_count < 1) {
+    if constexpr (std::is_same_v<S, A> && std::is_same_v<A, B> && std::is_same_v<B, C> &&
+                  !kActualDeviceMode) {
+      RAFT_CUBLAS_TRY(cublasgemm<S>(resource::get_cublas_handle(res),
+                                    trans_a ? CUBLAS_OP_T : CUBLAS_OP_N,
+                                    trans_b ? CUBLAS_OP_T : CUBLAS_OP_N,
+                                    static_cast<int>(m),
+                                    static_cast<int>(n),
+                                    static_cast<int>(k),
+                                    w.alpha,
+                                    a_ptr,
+                                    static_cast<int>(lda),
+                                    b_ptr,
+                                    static_cast<int>(ldb),
+                                    w.beta,
+                                    c_ptr,
+                                    static_cast<int>(ldc),
+                                    stream));
+      return;
+    } else {
+      // Mixed-precision matmuls have no equivalent plain-gemm spelling here. Fail loudly rather
+      // than hand hipBLASLt an algo it will dereference.
+      RAFT_FAIL(
+        "hipBLASLt returned no algorithm for this matmul (m=%zu, n=%zu, k=%zu) and no plain-gemm "
+        "fallback exists for these element types.",
+        static_cast<size_t>(m),
+        static_cast<size_t>(n),
+        static_cast<size_t>(k));
+    }
+  }
+#endif
   RAFT_CUBLAS_TRY(cublasLtMatmul(resource::get_cublaslt_handle(res),
                                  mm_desc->desc,
                                  w.alpha,
