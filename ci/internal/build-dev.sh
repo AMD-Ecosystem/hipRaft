@@ -29,9 +29,10 @@
 #   HIPRAFT_BUILD_TYPE  -- build scope (cpp, cpp_py, cpp_wheels, examples, all,
 #                          and their install_* forms)
 #   PROJECT_ID, SRC_DIR, BUILD_DIR, INSTALL_DIR, ROCM_PATH, AMDGPU_TARGETS,
-#   BUILD_ARTIFACTS_DIR, CMAKE_INSTALL_PREFIX
+#   BUILD_ARTIFACTS_DIR
 #
 # Optional environment variables:
+#   CMAKE_INSTALL_PREFIX       -- overrides INSTALL_DIR as the install prefix
 #   HIPRAFT_USE_VERSIONS_JSON  -- fetch deps via versions.json instead of /src/ (default: false)
 #   HIPRAFT_BUILD_TESTS        -- build C++ tests (default: true)
 #   HIPRAFT_BUILD_BENCH_PRIMS  -- build bench-prims (default: true)
@@ -43,7 +44,7 @@ set -euxo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/_activate-env.sh"
-require_envs HIPRAFT_BUILD_TYPE PROJECT_ID SRC_DIR BUILD_DIR INSTALL_DIR ROCM_PATH AMDGPU_TARGETS BUILD_ARTIFACTS_DIR CMAKE_INSTALL_PREFIX
+require_envs HIPRAFT_BUILD_TYPE PROJECT_ID SRC_DIR BUILD_DIR INSTALL_DIR ROCM_PATH AMDGPU_TARGETS BUILD_ARTIFACTS_DIR
 
 build_dir="${BUILD_DIR}/${PROJECT_ID}"
 src_dir="${SRC_DIR}/${PROJECT_ID}"
