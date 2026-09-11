@@ -122,8 +122,8 @@ echo "=============================================================="
 PATH="${python_bins[0]}:${base_path}" \
 BUILD_DIR="${BUILD_DIR}/libraft" \
 HIPRAFT_BUILD_TYPE="${HIPRAFT_BUILD_TYPE}" \
-HIPRAFT_BUILD_PYLIBRAFT= \
-HIPRAFT_BUILD_RAFT_DASK= \
+HIPRAFT_BUILD_PYLIBRAFT="" \
+HIPRAFT_BUILD_RAFT_DASK="" \
   "${SCRIPT_DIR}/build-wheels.sh"
 
 for i in "${!python_versions[@]}"; do
@@ -138,7 +138,7 @@ for i in "${!python_versions[@]}"; do
   PATH="${python_bin}:${base_path}" \
   BUILD_DIR="${BUILD_DIR}/cp${python_version//./}" \
   HIPRAFT_BUILD_TYPE="${HIPRAFT_BUILD_TYPE}" \
-  HIPRAFT_BUILD_LIBRAFT= \
+  HIPRAFT_BUILD_LIBRAFT="" \
   USE_SABI="${sabi}" \
     "${SCRIPT_DIR}/build-wheels.sh"
 done
