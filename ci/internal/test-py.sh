@@ -22,22 +22,24 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# Run hipRAFT test suites based on environment variables.
+# Run the hipRAFT Python tests via pytest, against the Python components the
+# dev build installed into the conda env or the dev venv. The wheel equivalent
+# is test-wheels.sh, which installs from BUILD_ARTIFACTS_DIR instead.
 #
 # Required environment variables:
-#   PROJECT_ID, BUILD_DIR
+#   PROJECT_ID, BUILD_DIR, INSTALL_DIR, ARTIFACTS_DIR, BUILD_ARTIFACTS_DIR
 #
-# Optional environment variables (each defaults to false):
-#   HIPRAFT_CPP_TESTS      -- run C++ tests via ctest
-#   HIPRAFT_PYTHON_TESTS   -- run Python tests via pytest
-#   HIPRAFT_RUN_BENCH_PRIMS -- run primitives benchmarks
-#   HIPRAFT_RUN_EXAMPLES   -- run C++ examples
+# Optional environment variables:
+#   HIPRAFT_CONDA_ENV, CONDA_DIR -- for conda-based environments
+#   CMAKE_INSTALL_PREFIX         -- overrides INSTALL_DIR as the prefix the
+#                                   venv-mode LD_LIBRARY_PATH points at
 
 set -euxo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "${SCRIPT_DIR}/_helpers.sh"
-require_envs PROJECT_ID BUILD_DIR INSTALL_DIR
+source "${SCRIPT_DIR}/_activate-env.sh"
+source "${SCRIPT_DIR}/_test-helpers.sh"
+require_envs PROJECT_ID BUILD_DIR INSTALL_DIR ARTIFACTS_DIR BUILD_ARTIFACTS_DIR
 
 printenv
 
@@ -45,29 +47,25 @@ printenv
 # note: the test phase might run without the preceding build phase.
 if ! activate_hipraft_conda_env; then
     activate_hipraft_venv
+    install_prefix="${CMAKE_INSTALL_PREFIX:-${INSTALL_DIR}}"
+    export LD_LIBRARY_PATH="\
+${install_prefix}/lib:\
+${install_prefix}/lib64:\
+${LD_LIBRARY_PATH:-}"
 fi
 
-exit_code=0
+. "${SCRIPT_DIR}/_install-test-deps.sh"
 
-if [[ "${HIPRAFT_CPP_TESTS:-false}" == "true" ]]; then
-    echo "=== Running C++ tests ==="
-    (cd "${BUILD_DIR}/${PROJECT_ID}/cpp/build/tests" && ctest --output-on-failure .) || exit_code=$?
-fi
+test_failures=0
+cd "${BUILD_DIR}/${PROJECT_ID}"
 
-if [[ "${HIPRAFT_PYTHON_TESTS:-false}" == "true" ]]; then
-    echo "=== Running Python tests ==="
-    pip install scikit-learn
-    (cd "${BUILD_DIR}/${PROJECT_ID}" && pytest -v --continue-on-collection-errors python/pylibraft/pylibraft/tests) || exit_code=$?
-fi
+    CSV_OUTPUT_DIR=${PROJECT_ID}_pytest_output
 
-if [[ "${HIPRAFT_RUN_BENCH_PRIMS:-false}" == "true" ]]; then
-    echo "=== Running bench prims ==="
-    (cd "${BUILD_DIR}/${PROJECT_ID}/cpp/build/bench/prims" && find . -maxdepth 1 -not -name "*.so*" -type f -executable -exec {} \;) || exit_code=$?
-fi
+    TIMEOUT_PER_TEST_SEC=240
 
-if [[ "${HIPRAFT_RUN_EXAMPLES:-false}" == "true" ]]; then
-    echo "=== Running examples ==="
-    (cd "${BUILD_DIR}/${PROJECT_ID}/examples/build" && find . -maxdepth 1 -not -name "*.so*" -type f -executable -exec {} \;) || exit_code=$?
-fi
+    run_tests python/pylibraft/pylibraft/tests ${CSV_OUTPUT_DIR} ${TIMEOUT_PER_TEST_SEC}
 
-exit "${exit_code}"
+    result=$(merge_test_results ${CSV_OUTPUT_DIR}) || test_failures=1
+    echo $result > ${ARTIFACTS_DIR}/${PROJECT_ID}-test-results-py.csv
+
+exit $test_failures

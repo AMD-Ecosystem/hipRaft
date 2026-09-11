@@ -22,11 +22,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# Shared helper: validates that required environment variables are set.
+# Shared helpers: environment validation and build-environment activation.
 # Meant to be sourced, not executed directly.
 #
 # Provides:
-#   require_envs() - fails with a clear error if any named variable is unset or empty
+#   require_envs()                 - fails with a clear error if any named
+#                                    variable is unset or empty
+#   activate_hipraft_venv()        - activates the dev venv build-dev.sh creates
+#   activate_hipraft_conda_env()   - activates HIPRAFT_CONDA_ENV when set
 
 set -euo pipefail
 
