@@ -2,4 +2,4 @@ License
 =======
 
 .. literalinclude:: ../LICENSE
-   :language: plain
+   :language: text

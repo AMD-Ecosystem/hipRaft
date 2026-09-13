@@ -26,6 +26,44 @@ hipRAFT is AMD's port of NVIDIA's RAFT library, enabling RAFT on AMD GPUs using 
     SOFTWARE.
 -->
 
+## [Release Version 2.0.0] - 2026-09-30
+
+### Features
+- Upgraded upstream RAFT baseline from 25.10 to 26.06, incorporating new upstream primitives, performance improvements, and API changes
+- ROCm 10.0.0 support
+- Added PCA and truncated SVD primitives (`raft::linalg::pca`, `raft::linalg::tsvd`), moved from cuML into RAFT upstream
+- Added sparse randomized SVD solvers (`raft::sparse::solver::randomized_svds`)
+- Exposed the `numpy_serializer` helpers as public APIs
+- Migrated memory resource handling to the unified CCCL memory-resource design, including tracking memory resources
+- Python wheels published on AMD PyPI as `amd-libraft` and `amd-pylibraft` for Python 3.11, 3.12, and 3.13
+
+### Bug Fixes
+- Fall back to plain `gemm` when hipBLASLt reports that no algorithm is available
+- Avoid a constant division by zero in the histogram `computeGridDim` path
+- Correct the ROCm version guard for the `constexpr` half-precision workaround
+- Clamp negative eigenvalues in the `rsvdFixedRank` BBt path, which produced `NaN` results on gfx942
+- Keep the previous global device memory resource alive in the memory-tracking resources
+- Resolve the Tensile library path per GPU architecture instead of using the parent directory
+- Use a HIP shim for `cudaStreamPerThread` in `handle.pyx`
+- Fix the gfx90a build against the upstream 26.06 baseline
+- Add a missing stream synchronization in the half-precision transpose tests
+
+### Build & Infrastructure
+- Bump hipMM from 4.0.0 to 5.0.0 and ROCmDS-Logger from 1.0.0 to 2.0.0
+- Migrate the Python packages to the `scikit-build-core` build backend
+- Replace the `hip-python` dependencies with `rocm-bindings-hip` and `hip-python-interop`
+- Relocate upstream CI, devcontainer, and conda files under `.upstream/`
+- Promote the rocPRIM, hipCUB, rocThrust, and CCCL/hipCCL CMake targets to global scope
+- Update the conda environments to Python 3.11, `cython>=3.2.2`, and add `ninja`
+
+### Limitations
+- Multi-Node / Multi GPU is experimental
+- Raft-dask is experimental
+- `raft::linalg::randomized_svd` is not supported; it requires a hipSOLVER equivalent of `cusolverDnXgesvdr`
+- `raft::sparse::linalg::masked_matmul` is not supported for the `half` type
+- `raft::random::make_regression` is not supported for the `double` type
+- The APIs in `raft/core/interruptible.hpp` are not supported
+
 ## [Release Version 1.0.0] - 2026-04-01
 
 ### Features

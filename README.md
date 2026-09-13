@@ -50,62 +50,64 @@ While not exhaustive, the following table summarizes the accelerated functions i
 
 ## Useful Resources
 
-- [RAFT Reference Documentation](https://docs.rapids.ai/api/raft/stable/): API Documentation.
-- [RAFT Getting Started](./docs/source/quick_start.md): Getting started with RAFT.
-- [Build and Install RAFT](./docs/source/build.md): Instructions for installing and building RAFT.
-- [RAPIDS Community](https://rapids.ai/community.html): Get help, contribute, and collaborate.
-- [GitHub repository](https://github.com/rapidsai/raft): Download the RAFT source code.
-- [Issue tracker](https://github.com/rapidsai/raft/issues): Report issues or request features.
+- [hipRAFT Documentation](https://rocm.docs.amd.com/projects/hipRaft/en/latest/): API documentation.
+- [System requirements](https://rocm.docs.amd.com/projects/hipRaft/en/latest/install/system-requirements.html): Supported ROCm versions, operating systems, AMD GPUs, and Python versions.
+- [Install hipRAFT](https://rocm.docs.amd.com/projects/hipRaft/en/latest/install/install.html): Instructions for installing hipRAFT from AMD PyPI.
+- [Build hipRAFT](https://rocm.docs.amd.com/projects/hipRaft/en/latest/install/build.html): Instructions for building hipRAFT from source.
+- [AMD Data Science](https://rocm.docs.amd.com/projects/rocm-ds/en/latest/): The toolkit that hipRAFT is part of.
+- [GitHub repository](https://github.com/AMD-Ecosystem/hipRaft): Download the hipRAFT source code.
+- [Issue tracker](https://github.com/AMD-Ecosystem/hipRaft/issues): Report issues or request features.
+- [Upstream RAFT](https://github.com/rapidsai/raft): The NVIDIA RAPIDS project that hipRAFT is derived from.
 
 
 
-## What is RAFT?
+## What is hipRAFT?
 
-RAFT contains fundamental widely-used algorithms and primitives for machine learning and data mining. The algorithms are CUDA-accelerated and form building blocks for more easily writing high performance applications.
+hipRAFT contains fundamental widely-used algorithms and primitives for machine learning and data mining. The algorithms are GPU-accelerated with HIP and form building blocks for more easily writing high performance applications.
 
-By taking a primitives-based approach to algorithm development, RAFT
+By taking a primitives-based approach to algorithm development, hipRAFT
 - accelerates algorithm construction time
 - reduces the maintenance burden by maximizing reuse across projects, and
 - centralizes core reusable computations, allowing future optimizations to benefit all algorithms that use them.
 
-While not exhaustive, the following general categories help summarize the accelerated functions in RAFT:
+While not exhaustive, the following general categories help summarize the accelerated functions in hipRAFT:
 #####
-| Category              | Accelerated Functions in RAFT                                                                                                     |
+| Category              | Accelerated Functions in hipRAFT                                                                                                  |
 |-----------------------|-----------------------------------------------------------------------------------------------------------------------------------|
 | **Data Formats**      | sparse & dense, conversions, data generation                                                                                      |
 | **Dense Operations**  | linear algebra, matrix and vector operations, reductions, slicing, norms, factorization, least squares, svd & eigenvalue problems |
 | **Sparse Operations** | linear algebra, eigenvalue problems, slicing, norms, reductions, factorization, symmetrization, components & labeling             |
 | **Solvers**           | combinatorial optimization, iterative solvers                                                                                     |
 | **Statistics**        | sampling, moments and summary statistics, metrics, model evaluation                                                               |
-| **Tools & Utilities** | common tools and utilities for developing CUDA applications, multi-node multi-gpu infrastructure                                  |
+| **Tools & Utilities** | common tools and utilities for developing HIP applications, multi-node multi-gpu infrastructure                                   |
 
 
-RAFT is a C++ header-only template library with an optional shared library that
+hipRAFT is a C++ header-only template library with an optional shared library that
 1) can speed up compile times for common template types, and
-2) provides host-accessible "runtime" APIs, which don't require a CUDA compiler to use
+2) provides host-accessible "runtime" APIs, which don't require a HIP compiler to use
 
-In addition being a C++ library, RAFT also provides 2 Python libraries:
-- `pylibraft` - lightweight Python wrappers around RAFT's host-accessible "runtime" APIs.
-- `raft-dask` - multi-node multi-GPU communicator infrastructure for building distributed algorithms on the GPU with Dask.
+In addition being a C++ library, hipRAFT also provides 2 Python libraries:
+- `pylibraft` - lightweight Python wrappers around hipRAFT's host-accessible "runtime" APIs.
+- `raft-dask` - multi-node multi-GPU communicator infrastructure for building distributed algorithms on the GPU with Dask. This package is experimental and has limited testing.
 
-![RAFT is a C++ header-only template library with optional shared library and lightweight Python wrappers](https://raw.githubusercontent.com/rapidsai/raft/HEAD/img/arch.png)
+![hipRAFT is a C++ header-only template library with optional shared library and lightweight Python wrappers](https://raw.githubusercontent.com/rapidsai/raft/HEAD/img/arch.png)
 
 
-## Is RAFT right for me?
+## Is hipRAFT right for me?
 
-RAFT contains low-level primitives for accelerating applications and workflows. Data source providers and application developers may find specific tools very useful. RAFT is not intended to be used directly by data scientists for discovery and experimentation. For data science tools, please see the [RAPIDS website](https://rapids.ai/).
+hipRAFT contains low-level primitives for accelerating applications and workflows. Data source providers and application developers may find specific tools very useful. hipRAFT is not intended to be used directly by data scientists for discovery and experimentation. For data science tools, please see the [AMD Data Science](https://rocm.docs.amd.com/projects/rocm-ds/en/latest/) documentation.
 
 ## Getting started
 
-### RAPIDS Memory Manager (RMM)
+### Memory management (hipMM)
 
-RAFT relies heavily on RMM which eases the burden of configuring different allocation strategies globally across the libraries that use it.
+hipRAFT relies heavily on hipMM, AMD's port of the RAPIDS Memory Manager (RMM), which eases the burden of configuring different allocation strategies globally across the libraries that use it.
 
 ### Multi-dimensional Arrays
 
-The APIs in RAFT accept the [mdspan](https://arxiv.org/abs/2010.06474) multi-dimensional array view for representing data in higher dimensions similar to the `ndarray` in the Numpy Python library. RAFT also contains the corresponding owning `mdarray` structure, which simplifies the allocation and management of multi-dimensional data in both host and device (GPU) memory.
+The APIs in hipRAFT accept the [mdspan](https://arxiv.org/abs/2010.06474) multi-dimensional array view for representing data in higher dimensions similar to the `ndarray` in the Numpy Python library. hipRAFT also contains the corresponding owning `mdarray` structure, which simplifies the allocation and management of multi-dimensional data in both host and device (GPU) memory.
 
-The `mdarray` forms a convenience layer over RMM and can be constructed in RAFT using a number of different helper functions:
+The `mdarray` forms a convenience layer over hipMM and can be constructed in hipRAFT using a number of different helper functions:
 
 ```c++
 #include <raft/core/device_mdarray.hpp>
@@ -120,10 +122,10 @@ auto matrix = raft::make_device_matrix<float>(handle, n_rows, n_cols);
 
 ### C++ Example
 
-Most of the primitives in RAFT accept a `raft::device_resources` object for the management of resources which are expensive to create, such CUDA streams, stream pools, and handles to other CUDA libraries like `cublas` and `cusolver`.
+Most of the primitives in hipRAFT accept a `raft::device_resources` object for the management of resources which are expensive to create, such as HIP streams, stream pools, and handles to other ROCm libraries like hipBLAS and hipSOLVER.
 
-The example below demonstrates creating a RAFT handle and using it with `device_matrix` and `device_vector` to allocate memory, generating random clusters, and computing
-pairwise Euclidean distances with the [NVIDIA cuVS](https://github.com/rapidsai/cuvs) library:
+The example below demonstrates creating a hipRAFT handle and using it with `device_matrix` and `device_vector` to allocate memory, generating random clusters, and computing
+pairwise Euclidean distances with the [hipVS](https://github.com/AMD-Ecosystem/hipVS) library. hipVS preserves the cuVS API naming, so the `cuvs::` namespace is used here as well:
 
 ```c++
 #include <raft/core/device_resources.hpp>
@@ -157,9 +159,9 @@ cuvs::distance::pairwise_distance(handle, input_view, input_view, output_view, m
 
 ### Python Example
 
-The `pylibraft` package contains a Python API for RAFT algorithms and primitives. `pylibraft` integrates nicely into other libraries by being very lightweight with minimal dependencies and accepting any object that supports the `__cuda_array_interface__`, such as [CuPy's ndarray](https://docs.cupy.dev/en/stable/user_guide/interoperability.html#rmm). The number of RAFT algorithms exposed in this package is continuing to grow from release to release.
+The `pylibraft` package contains a Python API for hipRAFT algorithms and primitives. `pylibraft` integrates nicely into other libraries by being very lightweight with minimal dependencies and accepting any object that supports the `__cuda_array_interface__`, which on AMD GPUs is backed by HIP. The number of hipRAFT algorithms exposed in this package is continuing to grow from release to release.
 
-The example below demonstrates computing the pairwise Euclidean distances between CuPy arrays using the [NVIDIA cuVS](https://github.com/rapidsai/cuvs) library. Note that CuPy is not a required dependency for `pylibraft`.
+The example below demonstrates computing the pairwise Euclidean distances between CuPy arrays using the [hipVS](https://github.com/AMD-Ecosystem/hipVS) library. Note that CuPy is not a required dependency for `pylibraft`.
 
 ```python
 import cupy as cp
@@ -194,7 +196,7 @@ Or converting to a RAPIDS cuDF dataframe:
 cudf_dataframe = cudf.DataFrame(output)
 ```
 
-When the corresponding library has been installed and available in your environment, this conversion can also be done automatically by all RAFT compute APIs by setting a global configuration option:
+When the corresponding library has been installed and available in your environment, this conversion can also be done automatically by all hipRAFT compute APIs by setting a global configuration option:
 ```python
 import pylibraft.config
 pylibraft.config.set_output_as("cupy")  # All compute APIs will return cupy arrays
@@ -226,64 +228,47 @@ pairwise_distance(in1, in2, out=output, metric="euclidean")
 
 ## Installing
 
-RAFT's C++ and Python libraries can both be installed through Conda and the Python libraries through Pip.
+hipRAFT is distributed through [AMD PyPI](https://pypi.amd.com/rocm-10.0.0/simple/). Before installing, see the
+[system requirements](https://rocm.docs.amd.com/projects/hipRaft/en/latest/install/system-requirements.html)
+for the supported ROCm versions, operating systems, AMD GPUs, and Python versions.
 
+Two packages are published:
 
-### Installing C++ and Python through Conda
+| Package | Contents |
+|---------|----------|
+| `amd-libraft` | The hipRAFT C++ headers and the `libraft` shared library. |
+| `amd-pylibraft` | The Python bindings. Installing this package pulls in a matching `amd-libraft`. |
 
-The easiest way to install RAFT is through conda and several packages are provided.
-- `libraft-headers` C++ headers
-- `pylibraft` (optional) Python library
-- `raft-dask` (optional) Python library for deployment of multi-node multi-GPU algorithms that use the RAFT `raft::comms` abstraction layer in Dask clusters.
-
-Use the following command, depending on your CUDA version, to install all of the RAFT packages with conda (replace `rapidsai` with `rapidsai-nightly` to install more up-to-date but less stable nightly packages). `mamba` is preferred over the `conda` command.
-
-```bash
-# CUDA 13
-mamba install -c rapidsai -c conda-forge raft-dask pylibraft cuda-version=13.2
-
-# CUDA 12
-mamba install -c rapidsai -c conda-forge raft-dask pylibraft cuda-version=12.9
-```
-
-Note that the above commands will also install `libraft-headers` and `libraft`.
-
-You can also install the conda packages individually using the `mamba` command above. For example, if you'd like to install RAFT's headers and pre-compiled shared library to use in your project:
+Create and activate an environment with a supported Python version, then install with pip:
 
 ```bash
-# CUDA 13
-mamba install -c rapidsai -c conda-forge libraft libraft-headers cuda-version=13.2
+conda create --name hipraft python=3.12 # Specify your Python version
+conda activate hipraft
 
-# CUDA 12
-mamba install -c rapidsai -c conda-forge libraft libraft-headers cuda-version=12.9
+pip install amd-pylibraft==2.0.0 --extra-index-url=https://pypi.amd.com/rocm-10.0.0/simple/
 ```
 
-### Installing Python through Pip
-
-`pylibraft` and `raft-dask` both have experimental packages that can be [installed through pip](https://rapids.ai/pip.html#install):
+Installing `amd-pylibraft` is sufficient for Python workloads. To install only the C++ artifacts,
+for example when building a downstream C++ project against hipRAFT, install `amd-libraft` on its own:
 
 ```bash
-# CUDA 13
-pip install pylibraft-cu13
-pip install raft-dask-cu13
-
-# CUDA 12
-pip install pylibraft-cu12
-pip install raft-dask-cu12
+pip install amd-libraft==2.0.0 --extra-index-url=https://pypi.amd.com/rocm-10.0.0/simple/
 ```
 
-These packages statically build RAFT's pre-compiled instantiations and so the C++ headers won't be readily available to use in your code.
-
-The [build instructions](https://docs.rapids.ai/api/raft/nightly/build/) contain more details on building RAFT from source and including it in downstream projects. You can also find a more comprehensive version of the above CPM code snippet the [Building RAFT C++ and Python from source](https://docs.rapids.ai/api/raft/nightly/build/#building-c-and-python-from-source) section of the build instructions.
+The [build instructions](https://rocm.docs.amd.com/projects/hipRaft/en/latest/install/build.html) contain
+more details on building hipRAFT from source and including it in downstream projects.
 
 
 ## Contributing
 
-If you are interested in contributing to the RAFT project, please read our [Contributing guidelines](docs/source/contributing.md). Refer to the [Developer Guide](docs/source/developer_guide.md) for details on the developer guidelines, workflows, and principals.
+If you are interested in contributing to the hipRAFT project, refer to
+[Contributing to AMD Data Science](https://rocm.docs.amd.com/projects/rocm-ds/en/latest/contribute/contributing.html).
+The upstream RAFT [developer guide](.upstream/docs/source/developer_guide.md) documents the coding
+guidelines, workflows, and principles that hipRAFT continues to follow.
 
 ## References
 
-When citing RAFT generally, please consider referencing this Github project.
+hipRAFT is derived from the RAPIDS RAFT project. When citing RAFT generally, please consider referencing this Github project.
 ```bibtex
 @misc{rapidsai,
   title={Rapidsai/raft: RAFT contains fundamental widely-used algorithms and primitives for data science, Graph and machine learning.},

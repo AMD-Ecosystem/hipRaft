@@ -50,11 +50,11 @@ all_article_info_author = ""
 
 external_projects_current_project = "hipRAFT"
 
-html_context = {"docs_header_version": "26.06"}
+html_context = {"docs_header_version": "26.09"}
 html_theme = "rocm_docs_theme"
 html_theme_options = {
     "flavor": "rocm-ds",
-    "repository_url": "https://github.com/ROCm-DS/hipRaft/",
+    "repository_url": "https://github.com/AMD-Ecosystem/hipRaft/",
 }
 
 external_toc_path = "./sphinx/_toc.yml"

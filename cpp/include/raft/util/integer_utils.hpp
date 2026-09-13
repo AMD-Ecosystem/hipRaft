@@ -191,7 +191,7 @@ constexpr inline auto bound_by_power_of_two(T x) noexcept
  *
  * This was created to prevent compile errors calling `std::abs()` with unsigned integers.
  * An example compile error appears as follows:
- * @code{.pseudo}
+ * @verbatim
  * error: more than one instance of overloaded function "std::abs" matches the argument list:
  *          function "abs(int)"
  *          function "std::abs(long)"
@@ -200,7 +200,7 @@ constexpr inline auto bound_by_power_of_two(T x) noexcept
  *          function "std::abs(float)"
  *          function "std::abs(long double)"
  *          argument types are: (uint64_t)
- * @endcode
+ * @endverbatim
  *
  * Not all cases could be if-ed out using std::is_signed<T>::value and satisfy the compiler.
  *

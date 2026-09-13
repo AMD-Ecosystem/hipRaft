@@ -40,6 +40,8 @@ namespace *raft::linalg*
     :members:
     :content-only:
 
+.. _linalg-blas-dot:
+
 dot
 ---
 
@@ -63,6 +65,8 @@ namespace *raft::linalg*
     :project: RAFT
     :members:
     :content-only:
+
+.. _linalg-blas-gemv:
 
 gemv
 ----

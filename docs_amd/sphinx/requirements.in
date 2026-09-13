@@ -20,7 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-rocm-docs-core==1.35.0
+rocm-docs-core==1.37.0
 doxysphinx
 myst-parser
 sphinx-autoapi

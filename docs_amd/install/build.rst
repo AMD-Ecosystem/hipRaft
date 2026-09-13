@@ -29,7 +29,7 @@
 Building hipRAFT from source
 ****************************
 
-hipRAFT currently provides C++ and Python APIs. The following instructions provide steps to build and test hipRAFT from source files provided in the `https://github.com/ROCm-DS/hipRaft <https://github.com/ROCm-DS/hipRaft>`_ repository. To install hipRAFT for end users, see :doc:`Installing hipRAFT <./install>`.
+hipRAFT currently provides C++ and Python APIs. The following instructions provide steps to build and test hipRAFT from source files provided in the `https://github.com/AMD-Ecosystem/hipRaft <https://github.com/AMD-Ecosystem/hipRaft>`_ repository. To install hipRAFT for end users, see :doc:`Installing hipRAFT <./install>`.
 
 See :ref:`sys-req` for information regarding supported operating systems, ROCm versions,
 and AMD GPUs before building and installing hipRAFT.
@@ -37,7 +37,7 @@ and AMD GPUs before building and installing hipRAFT.
 Dependencies
 ============
 
-Install ROCm 7.2.3 and verify that the ``rocminfo`` and ``hipcc`` commands are available in your ``PATH``.
+Install ROCm 10.0.0 and verify that the ``rocminfo`` and ``hipcc`` commands are available in your ``PATH``.
 hipRAFT builds against the AMD ROCm software stack, that is the ROCm runtime, HIP compiler tool-chain, and a GPU driver that matches your ROCm version.
 
 .. list-table::
@@ -51,15 +51,15 @@ hipRAFT builds against the AMD ROCm software stack, that is the ROCm runtime, HI
    * - `ninja <https://ninja-build.org/>`_
      - ≥ 1.11.1
    * - `hipsolver <https://rocm.docs.amd.com/projects/hipSOLVER/en/latest/>`_
-     - Version that comes bundled with ROCm ≥ 7.2.3
+     - Version that comes bundled with ROCm ≥ 10.0.0
    * - `hipblas <https://rocm.docs.amd.com//projects/hipBLAS/en/latest/>`_
-     - Version that comes bundled with ROCm ≥ 7.2.3
+     - Version that comes bundled with ROCm ≥ 10.0.0
    * - `hipblaslt <https://rocm.docs.amd.com/projects/hipBLASLt/en/latest/>`_
-     - Version that comes bundled with ROCm ≥ 7.2.3
+     - Version that comes bundled with ROCm ≥ 10.0.0
    * - `hiprand <https://rocm.docs.amd.com/projects/hipRAND/en/latest/>`_
-     - Version that comes bundled with ROCm ≥ 7.2.3
+     - Version that comes bundled with ROCm ≥ 10.0.0
    * - `hipsparse <https://rocm.docs.amd.com/projects/hipSPARSE/en/latest/>`_
-     - Version that comes bundled with ROCm ≥ 7.2.3
+     - Version that comes bundled with ROCm ≥ 10.0.0
    * - `libblas-dev <https://www.netlib.org/lapack/>`_
      - Tested with 3.12.0
    * - `liblapack-dev <https://www.netlib.org/lapack/>`_
@@ -68,22 +68,22 @@ hipRAFT builds against the AMD ROCm software stack, that is the ROCm runtime, HI
      - Tested with 7.6.1
    * - **Additional Required Dependencies**
      -
-   * - **\*** `hipMM <https://github.com/ROCm-DS/hipMM>`_
-     - 4.0.0
+   * - **\*** `hipMM <https://github.com/AMD-Ecosystem/hipMM>`_
+     - 5.0.0
    * - **\*** `hipCollections <https://github.com/ROCm/hipCollections>`_
      - 0.4.0
    * - **\*** `libhipcxx <https://github.com/ROCm/libhipcxx>`_
      - 3.0.2
    * - **\*** `hipCUB <https://github.com/ROCm/hipCUB>`_
-     - Version that comes bundled with ROCm ≥ 7.2.3
+     - Version that comes bundled with ROCm ≥ 10.0.0
    * - **\*** `rocThrust <https://github.com/ROCm/rocThrust>`_
-     - Version that comes bundled with ROCm ≥ 7.2.3
+     - Version that comes bundled with ROCm ≥ 10.0.0
    * - **\*\*** `OpenMP <https://www.openmp.org/>`_
-     - Version that comes bundled with ROCm ≥ 7.2.3
+     - Version that comes bundled with ROCm ≥ 10.0.0
    * - **Optional Dependencies**
      -
    * - `RCCL <https://rocm.docs.amd.com/projects/rccl/en/latest/>`_
-     - Version that comes bundled with ROCm ≥ 7.2.3
+     - Version that comes bundled with ROCm ≥ 10.0.0
    * - `UCX <https://github.com/openucx/ucx>`_
      - ≥ 1.18.0
    * - `Googletest <https://github.com/google/googletest>`_
@@ -95,7 +95,7 @@ hipRAFT builds against the AMD ROCm software stack, that is the ROCm runtime, HI
 
 .. note::
 
-   **\*** - If not found locally the CMake build system will attempt to download a compatible version using `ROCmDS-cmake <https://github.com/ROCm-DS/ROCmDS-cmake>`_.
+   **\*** - If not found locally the CMake build system will attempt to download a compatible version using `ROCmDS-cmake <https://github.com/AMD-Ecosystem/ROCmDS-cmake>`_.
 
    **\*\*** - The ``OpenMP`` toolchain is automatically installed as part of the standard ROCm installation and is available under ``/opt/rocm-{version}/llvm``.
 
@@ -143,7 +143,7 @@ The following section discusses building the C++ library.
 Header-only C++
 ---------------
 
-``build.sh`` uses `ROCmDS-cmake <https://github.com/ROCm-DS/ROCmDS-cmake>`_, which will automatically download any dependencies that are not already installed.
+``build.sh`` uses `ROCmDS-cmake <https://github.com/AMD-Ecosystem/ROCmDS-cmake>`_, which will automatically download any dependencies that are not already installed.
 
 The following example will download the needed dependencies and install the hipRAFT headers into ``$INSTALL_PREFIX/include/hipRAFT``.
 
@@ -259,7 +259,7 @@ For hipRAFT, CMake has the following configurable flags available:
    * - CMAKE_HIP_ARCHITECTURES
      - NATIVE or specific GPU architectures
      - NATIVE
-     - NATIVE to compile for the automatically detected GPU on the system. Can also specify ``;`` delimited list of specific architectures. Example: ``gfx942;gfx90a``
+     - NATIVE to compile for the automatically detected GPU on the system. Can also specify ``;`` delimited list of specific architectures. Example: ``gfx950;gfx942;gfx90a``
    * - BUILD_TESTS
      - ON, OFF
      - ON
@@ -301,7 +301,7 @@ When specifying target architectures, provide them as a single string enclosed i
 
 .. code-block:: bash
 
-   ./build.sh libraft tests --gpu-arch="gfx90a;gfx942"
+   ./build.sh libraft tests --gpu-arch="gfx90a;gfx942;gfx950"
 
 OR
 
@@ -457,8 +457,8 @@ To generate other types of packages like ``tar`` or ``rpm`` packages:
    ninja install
 
    # Invoke cpack to generate package
-   cpack -G RPM # To generate a RPM package. hipraft-25.02.00-Linux.rpm will be created at <HIPRAFT_ROOT>/cpp/build.
-   cpack -G TGZ # To generate a TGZ package. hipraft-25.02.00-Linux.tar.gz will be created at <HIPRAFT_ROOT>/cpp/build.
+   cpack -G RPM # To generate a RPM package. hipraft-<VERSION>-Linux.rpm will be created at <HIPRAFT_ROOT>/cpp/build.
+   cpack -G TGZ # To generate a TGZ package. hipraft-<VERSION>-Linux.tar.gz will be created at <HIPRAFT_ROOT>/cpp/build.
 
 Building the primitives benchmarks
 ===================================
@@ -495,7 +495,7 @@ Prepare the environment to build documentation using the following commands:
    # Activate the pylibraft conda environment.
    micromamba activate pylibraft
    # Install dependencies and tools required for generating documentation.
-   pip install -r docs/sphinx/requirements.txt
+   pip install -r docs_amd/sphinx/requirements.txt
 
 Use ``build.sh`` to generate documentation
 --------------------------------------------
@@ -505,4 +505,4 @@ Use ``build.sh`` to generate documentation
    cd <HIPRAFT_ROOT>
    ./build.sh docs clean
 
-Navigate to ``<HIPRAFT_ROOT>/docs/_build`` and use the tool of your choice, e.g. Firefox, to open and examine the root level html file, ``index.html``. From this point you should be able to navigate through the documentation.
+Navigate to ``<HIPRAFT_ROOT>/docs_amd/_build`` and use the tool of your choice, e.g. Firefox, to open and examine the root level html file, ``index.html``. From this point you should be able to navigate through the documentation.

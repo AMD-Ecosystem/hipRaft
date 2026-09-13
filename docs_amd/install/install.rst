@@ -1,6 +1,6 @@
 .. meta::
    :description: hipRAFT documentation and API reference library
-   :keywords: Machine-Learning, Information-Retrieval, Primitives, Nearest-Neighbors, GPU, RAPIDS, ROCm-DS
+   :keywords: Machine-Learning, Information-Retrieval, Primitives, Nearest-Neighbors, GPU, RAPIDS, AMD-DS
 
 ..
     MIT License
@@ -38,7 +38,7 @@ Install hipRAFT via AMD PyPI
 =============================
 
 Packaged versions of hipRAFT and its dependencies are distributed via
-`AMD PyPI <https://pypi.amd.com/rocm-7.2.3/simple/>`_. This section discusses how to install
+`AMD PyPI <https://pypi.amd.com/rocm-10.0.0/simple/>`_. This section discusses how to install
 hipRAFT via this package index.
 
 Create and activate a Conda environment with a compatible Python version, such as 3.11 or 3.12 as shown below. For more information on compatible Python versions, see :ref:`sys-req`.
@@ -52,4 +52,25 @@ hipRAFT can then be installed into this environment using pip and the AMD PyPI U
 
 .. code-block:: bash
 
-   pip install amd-pylibraft==2.0.0 --extra-index-url=https://pypi.amd.com/rocm-7.2.3/simple/
+   pip install amd-pylibraft==2.0.0 --extra-index-url=https://pypi.amd.com/rocm-10.0.0/simple/
+
+hipRAFT is published as two wheels:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 30 70
+
+   * - Package
+     - Contents
+   * - ``amd-libraft``
+     - The hipRAFT C++ headers and the ``libraft`` shared library.
+   * - ``amd-pylibraft``
+     - The Python bindings. Installing this package pulls in a matching ``amd-libraft``.
+
+Installing ``amd-pylibraft`` is sufficient for Python workloads. To install only the C++
+artifacts, for example when building a downstream C++ project against hipRAFT, install
+``amd-libraft`` on its own:
+
+.. code-block:: bash
+
+   pip install amd-libraft==2.0.0 --extra-index-url=https://pypi.amd.com/rocm-10.0.0/simple/

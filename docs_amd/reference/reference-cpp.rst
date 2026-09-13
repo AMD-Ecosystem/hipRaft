@@ -23,7 +23,7 @@
 
 .. meta::
   :description: hipRAFT documentation and API reference library
-  :keywords: Machine-Learning, Information-Retrieval, Primitives, Nearest-Neighbors, Linear-Algebra, Sparse, GPU, RAPIDS, ROCm-DS
+  :keywords: Machine-Learning, Information-Retrieval, Primitives, Nearest-Neighbors, Linear-Algebra, Sparse, GPU, RAPIDS, AMD-DS
 
 .. _hipraft-cpp:
 
