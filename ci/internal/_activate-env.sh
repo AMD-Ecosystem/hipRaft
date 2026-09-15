@@ -30,8 +30,18 @@
 #                                    variable is unset or empty
 #   activate_hipraft_venv()        - activates the dev venv build-dev.sh creates
 #   activate_hipraft_conda_env()   - activates HIPRAFT_CONDA_ENV when set
+#
+# Also pins the cmake version every cmake-installing script (prepare.sh,
+# _build-preamble.sh, _install-build-deps.sh) shares, since all of them source
+# this file before their `pip install cmake`.
 
 set -euo pipefail
+
+# raft-dask compiles hipUCXX from source, whose cpp/CMakeLists.txt requires
+# CMake >= 4.0. The shared CI env still pins CMAKE_VERSION=3.* for the other
+# ROCm-DS components, so override it here to the CMake-4 line for the hipRAFT
+# build. HIPRAFT_CMAKE_VERSION lets a job pin an exact version if needed.
+export CMAKE_VERSION="${HIPRAFT_CMAKE_VERSION:-4.*}"
 
 require_envs() {
     local missing=0
