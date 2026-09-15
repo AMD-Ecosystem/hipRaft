@@ -32,6 +32,10 @@
 #   HIPRAFT_UCX_FULL_VERSION       -- UCX version (default: 1.17.0)
 #   HIPRAFT_OPENMPI_MAJOR_VERSION  -- OpenMPI major version dir (default: v5.0)
 #   HIPRAFT_OPENMPI_FULL_VERSION   -- OpenMPI full version (default: 5.0.6)
+#   HIPRAFT_OPENMPI_STAGING_DIR    -- if set, `make install DESTDIR=...` here in
+#                                     addition to installing into the prefix, so
+#                                     a caller can export this tree as a build
+#                                     artifact (e.g. for a companion tester image)
 #   ROCM_HOME                      -- ROCm installation path
 #   MAX_JOBS                       -- parallel make jobs
 
@@ -76,19 +80,19 @@ if [[ "${HIPRAFT_OPENMPI_PREINSTALLED}" == "false" ]]; then
     bzip2 -d "openmpi-${HIPRAFT_OPENMPI_FULL_VERSION}.tar.bz2"
     tar -xvf "openmpi-${HIPRAFT_OPENMPI_FULL_VERSION}.tar"
     cd "openmpi-${HIPRAFT_OPENMPI_FULL_VERSION}"
-    env -i PATH="${PATH}" CC=gcc CXX=g++ ./configure --prefix=/usr --with-ucx=/usr --with-rocm="${ROCM_HOME}"
+    # GCC 14 defaults to gnu23, which promotes implicit-function-declaration to
+    # a hard error; this version's ROCm accelerator module calls memcpy()
+    # without including <string.h> (open-mpi/ompi#13476).
+    env -i PATH="${PATH}" CC=gcc CXX=g++ \
+        CFLAGS="-Wno-error=implicit-function-declaration -Wno-error=int-conversion" \
+        ./configure --prefix=/usr --with-ucx=/usr --with-rocm="${ROCM_HOME}"
     env -i PATH="${PATH}" CC=gcc CXX=g++ make -j "${MAX_JOBS}"
-    env -i PATH="${PATH}" CC=gcc CXX=g++ make install
+    if [[ -n "${HIPRAFT_OPENMPI_STAGING_DIR:-}" ]]; then
+        env -i PATH="${PATH}" CC=gcc CXX=g++ make install DESTDIR="${HIPRAFT_OPENMPI_STAGING_DIR}"
+        cp -a "${HIPRAFT_OPENMPI_STAGING_DIR}"/* /
+    else
+        env -i PATH="${PATH}" CC=gcc CXX=g++ make install
+    fi
     cd -
     rm -rf openmpi*
-fi
-
-if [[ "${ROCM_SPECIFIER}" != "therock:"* ]]; then
-    if [[ "${os_id}" == *"ubuntu"* ]]; then
-        rocm_suffix=$(apt list --installed 2>/dev/null | grep rocm-core | grep -v rocm-core-asan | cut -d '/' -f1 | sed 's,rocm-core,,g')
-        apt install -y "rocthrust-dev${rocm_suffix}" "hipcub${rocm_suffix}" "hipblas${rocm_suffix}" "hipblas-dev${rocm_suffix}" "hipfft${rocm_suffix}" "hipsparse${rocm_suffix}" "hiprand${rocm_suffix}" "rocsolver${rocm_suffix}" "rocrand-dev${rocm_suffix}" "rccl-dev${rocm_suffix}" "hipsolver${rocm_suffix}"
-    elif [[ "${os_id_like}" == *"rhel"* ]]; then
-        rocm_suffix=$(rpm -qa | grep '^rocm-core[0-9]' | grep -v asan | head -1 | sed 's,rocm-core,,; s,-.*,,')
-        dnf install -y "rocthrust-devel${rocm_suffix}" "hipcub${rocm_suffix}" "hipblas${rocm_suffix}" "hipblas-devel${rocm_suffix}" "hipfft${rocm_suffix}" "hipsparse${rocm_suffix}" "hiprand${rocm_suffix}" "rocsolver${rocm_suffix}" "rocrand-devel${rocm_suffix}" "rccl-devel${rocm_suffix}" "hipsolver${rocm_suffix}"
-    fi
 fi
