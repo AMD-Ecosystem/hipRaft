@@ -55,10 +55,17 @@ python3 -m venv "${wheels_test_env}"
 
   # No --no-index here, unlike the build: this install resolves the wheels'
   # own runtime dependencies for real.
-  install_built_wheel -- \
-    "amd_libraft${HIPRAFT_VERSION:+==${HIPRAFT_VERSION}}" \
-    "amd_pylibraft${HIPRAFT_VERSION:+==${HIPRAFT_VERSION}}" \
-    "amd_raft_dask${HIPRAFT_VERSION:+==${HIPRAFT_VERSION}}"
+  #
+  # NOTE(HIP/AMD): amd_raft_dask is opt-in via HIPRAFT_ENABLE_RAFT_DASK (the same
+  # central toggle build-wheels-manylinux.sh gates its build on). Install and
+  # test it only when that build was enabled; otherwise the wheel does not exist.
+  wheel_specs=(
+    "amd_libraft${HIPRAFT_VERSION:+==${HIPRAFT_VERSION}}"
+    "amd_pylibraft${HIPRAFT_VERSION:+==${HIPRAFT_VERSION}}"
+  )
+  [ "${HIPRAFT_ENABLE_RAFT_DASK:-false}" = "true" ] && \
+    wheel_specs+=( "amd_raft_dask${HIPRAFT_VERSION:+==${HIPRAFT_VERSION}}" )
+  install_built_wheel -- "${wheel_specs[@]}"
 
   test_failures=0
   cd "${BUILD_DIR}/${PROJECT_ID}"
@@ -69,7 +76,9 @@ python3 -m venv "${wheels_test_env}"
       TIMEOUT_PER_TEST_SEC=240
 
       run_tests python/pylibraft/pylibraft/tests "${CSV_OUTPUT_DIR}" "${TIMEOUT_PER_TEST_SEC}"
-      run_tests python/raft-dask/raft_dask/tests "${CSV_OUTPUT_DIR}" "${TIMEOUT_PER_TEST_SEC}"
+      if [ "${HIPRAFT_ENABLE_RAFT_DASK:-false}" = "true" ]; then
+        run_tests python/raft-dask/raft_dask/tests "${CSV_OUTPUT_DIR}" "${TIMEOUT_PER_TEST_SEC}"
+      fi
 
       result=$(merge_test_results "${CSV_OUTPUT_DIR}") || test_failures=1
       echo "$result" > "${ARTIFACTS_DIR}/${PROJECT_ID}-test-results-py${results_suffix}.csv"

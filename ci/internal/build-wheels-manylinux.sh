@@ -35,6 +35,14 @@
 #                      built in the same pass: they share an interpreter and a
 #                      tag, and raft-dask builds against pylibraft anyway.
 #
+# NOTE(HIP/AMD): amd_raft_dask is opt-in via HIPRAFT_ENABLE_RAFT_DASK ("true" to
+# build, default off). It is disabled by default because raft-dask compiles
+# hipUCXX from source, whose configure currently fails on a rocprim/hipCCL cmake
+# export-set collision. The central toggle lives in the builder-tester env file
+# (_envs/rocmds/<branch>) and is threaded here through the image ENV; test-wheels.sh
+# gates the matching test the same way. When off, the pass below and the
+# verification loops treat amd_raft_dask as if it were not part of the matrix.
+#
 #     3.11, no SABI    -> cp311-cp311
 #     3.12, SABI 3.12  -> cp312-abi3, which installs on 3.12 and on every later
 #                         CPython, so the tail of the range needs no build of
@@ -113,6 +121,15 @@ base_path=${PATH}
 # C++-only build in the same run.
 HIPRAFT_BUILD_TYPE=wheels
 
+# amd_raft_dask is opt-in (see the note at the top). Translate the central
+# HIPRAFT_ENABLE_RAFT_DASK toggle into the per-pass switch build-wheels.sh reads:
+# "1" builds raft-dask, "" skips it.
+if [ "${HIPRAFT_ENABLE_RAFT_DASK:-false}" = "true" ]; then
+  raft_dask_switch=1
+else
+  raft_dask_switch=""
+fi
+
 echo "=============================================================="
 echo "amd_libraft, built once with CPython ${python_versions[0]}"
 echo "=============================================================="
@@ -132,13 +149,14 @@ for i in "${!python_versions[@]}"; do
   python_bin=${python_bins[${i}]}
 
   echo "=============================================================="
-  echo "amd_pylibraft and amd_raft_dask for CPython ${python_version} (USE_SABI=${sabi})"
+  echo "amd_pylibraft${raft_dask_switch:+ and amd_raft_dask} for CPython ${python_version} (USE_SABI=${sabi})"
   echo "=============================================================="
 
   PATH="${python_bin}:${base_path}" \
   BUILD_DIR="${BUILD_DIR}/cp${python_version//./}" \
   HIPRAFT_BUILD_TYPE="${HIPRAFT_BUILD_TYPE}" \
   HIPRAFT_BUILD_LIBRAFT="" \
+  HIPRAFT_BUILD_RAFT_DASK="${raft_dask_switch}" \
   USE_SABI="${sabi}" \
     "${SCRIPT_DIR}/build-wheels.sh"
 done
@@ -166,7 +184,11 @@ fi
 # A floor above the building interpreter is not an error to scikit-build-core,
 # it silently drops back to a version-specific tag, and this is where such an
 # entry would surface.
-for dist in amd_pylibraft amd_raft_dask; do
+#
+# Cython wheels to verify: amd_raft_dask only when the toggle built it.
+verify_dists=(amd_pylibraft)
+[ -n "${raft_dask_switch}" ] && verify_dists+=(amd_raft_dask)
+for dist in "${verify_dists[@]}"; do
   for i in "${!expected_tags[@]}"; do
     expected_tag=${expected_tags[${i}]}
 
@@ -187,7 +209,7 @@ if [ ${#missing[@]} -gt 0 ]; then
 fi
 
 unexpected=()
-for dist in amd_pylibraft amd_raft_dask; do
+for dist in "${verify_dists[@]}"; do
   for bad_tag in cp312-cp312 cp313-cp313; do
     found=("${BUILD_ARTIFACTS_DIR}"/"${dist}"-*-"${bad_tag}"-*.whl)
     if [ ${#found[@]} -gt 0 ]; then
