@@ -88,6 +88,42 @@ if [ -n "${build_cpp:-}" ]; then
 
     bash build.sh "${build_sh_args[@]}" \
         ${cmake_args:+"--cmake-args=\"${cmake_args[*]}\""}
+
+    # Build the CTest targets that cpp/tests registers but build.sh never names.
+    #
+    # build.sh drives a fixed named-target list (raft_lib;TEST_TARGETS;...), so
+    # anything cpp/tests configures outside that list is registered as a ctest
+    # test yet never compiled. At test time ctest then has tests whose
+    # executables do not exist: generate_resource_spec runs "Not Run" and every
+    # test that depends on its fixture is skipped, while the amd/ gtests fail
+    # outright with "no such file". Build the missing targets here, into the
+    # same cpp/build tree the tests tarball ships (build.sh's LIBRAFT_BUILD_DIR
+    # default).
+    #
+    # Always present under BUILD_TESTS:
+    #   generate_ctest_json  rapids-cmake's resource-spec helper (added to ALL
+    #                        by rapids_test_init(), so never named by build.sh)
+    #   RUNTIME_RANDOM_TEST / SRC_LINALG_TEST / WARP_PRIMITIVES
+    #                        the unconditional cpp/tests/amd gtests
+    if [[ "${HIPRAFT_BUILD_TESTS:-true}" == "true" ]]; then
+        cpp_build="${build_dir}/cpp/build"
+        cmake --build "${cpp_build}" -j"${MAX_JOBS:-$(nproc)}" --target \
+            generate_ctest_json RUNTIME_RANDOM_TEST SRC_LINALG_TEST WARP_PRIMITIVES
+
+        # The distributed-comms gtests (STD_COMMS_TEST and the MPI runner's
+        # mpi_comms_test_executable) exist only when the C++ build configured
+        # raft_distributed -- i.e. ucxx and MPI were present. They are created
+        # together in one guarded block, so the generated CTest files are the
+        # reliable signal that both targets exist: register-time truth, immune
+        # to a stale build tree quietly re-running cmake under a dry-run probe.
+        if grep -rqsE "STD_COMMS_TEST|MPI_COMMS_TEST_MPI_RUN" \
+               "${cpp_build}" --include=CTestTestfile.cmake; then
+            cmake --build "${cpp_build}" -j"${MAX_JOBS:-$(nproc)}" --target \
+                STD_COMMS_TEST mpi_comms_test_executable
+        else
+            echo "note: distributed-comms gtests not configured; skipping"
+        fi
+    fi
 fi
 
 if [ -n "${build_examples:-}" ]; then

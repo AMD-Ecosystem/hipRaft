@@ -32,20 +32,29 @@
 
 set -euo pipefail
 
-# Runs all tests individually given the input folder (1st arg),
-# the output folder (2nd arg), and a timeout value (3rd arg)
-# that should be chosen so that long running tests
-# complete but hanging tests are aborted.
-# The 4th argument can be used to append additional
-# pytest arguments. Do not forget to use quotes if there are
-# more than one arguments.
-# The 5th argument can be used to append a suffix to the CSV filename.
-# The 6th argument can be used to append a suffix to the test ID in CSV output.
+# Runs all test files under a folder individually, each with its own timeout and
+# CSV output, so one hanging or crashing test cannot take the rest down with it.
+#
+# Arguments:
+#   1 (required) input folder to search for test_*.py
+#   2 (required) output folder for the per-file CSV results
+#   3 (required) per-test timeout in seconds: long enough for the slow tests to
+#                finish, short enough to abort a hanging one
+#   4 (optional) extra pytest arguments; quote them if there is more than one
+#   5 (optional) suffix appended to the CSV filename
+#   6 (optional) suffix appended to the test ID in the CSV output
+#
+# 4-6 are defaulted below, so a caller that passes only the required three does
+# not trip `set -u` on the unset positionals.
 function run_tests() {
     set +e # continue on error
+    local test_dir=$1
+    local output_dir=$2
+    local timeout=$3
+    local extra_args=${4:-""}
     local suffix=${5:-""}
     local id_suffix=${6:-""}
-    find "$1" -name "test_*.py" \
+    find "$test_dir" -name "test_*.py" \
       -printf "run_tests: found test file: %p\n" \
       -exec bash -c '
         csv_file="$2/$7${5}.csv"
@@ -58,7 +67,7 @@ function run_tests() {
           tail -n +2 "$csv_file" | awk -F"," -v suffix="$6" "BEGIN{OFS=\",\"} {\$2=\$2 suffix; print}" >> "$temp_file"
           mv "$temp_file" "$csv_file"
         fi
-        ' _ "$1" "$2" "$3" "$4" "$suffix" "$id_suffix" {} \;
+        ' _ "$test_dir" "$output_dir" "$timeout" "$extra_args" "$suffix" "$id_suffix" {} \;
     set -e
 }
 
