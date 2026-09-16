@@ -40,6 +40,14 @@ pip install --upgrade pip
 pip install numpy scipy scikit-learn
 pip install pytest pytest-cov pytest-csv pytest-timeout
 
+# amd-cupy is installed --no-deps below (to keep the rocm-bindings-* set
+# unpinned and off the CUDA cupy dependency chain), so its one pure-Python
+# runtime dependency that pip would otherwise pull in, fastrlock, has to be
+# named here. Without it `import cupy` fails with "No module named 'fastrlock'"
+# and every cupy-touching pylibraft test errors on collection. numpy, cupy's
+# other dependency, is already installed above.
+pip install fastrlock
+
 # hipRAFT wheels are installed separately by test-wheels.sh, which resolves
 # their runtime dependencies for real.
 # The rocm-bindings-* / hip-python-interop set stays unpinned: their version
