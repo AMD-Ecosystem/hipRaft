@@ -33,11 +33,15 @@
 # Optional environment variables:
 #   HIPRAFT_RUN_EXAMPLES -- also run the built C++ examples (default: false)
 #   HIPRAFT_CONDA_ENV, CONDA_DIR -- for conda-based environments
+#   HIPBLASLT_TENSILE_LIBPATH -- where hipBLASLt looks for its Tensile kernels.
+#               Left alone when set; otherwise auto-detected, see
+#               setup_hipblaslt_tensile_libpath in _rocm-workarounds.sh.
 
 set -euxo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/_activate-env.sh"
+source "${SCRIPT_DIR}/_rocm-workarounds.sh"
 require_envs PROJECT_ID BUILD_DIR INSTALL_DIR
 
 printenv
@@ -47,6 +51,9 @@ printenv
 if ! activate_hipraft_conda_env; then
     activate_hipraft_venv
 fi
+
+# Activation can set ROCM_PATH, so this has to come after it.
+setup_hipblaslt_tensile_libpath
 
 exit_code=0
 

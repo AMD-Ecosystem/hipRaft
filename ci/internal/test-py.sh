@@ -33,12 +33,18 @@
 #   HIPRAFT_CONDA_ENV, CONDA_DIR -- for conda-based environments
 #   CMAKE_INSTALL_PREFIX         -- overrides INSTALL_DIR as the prefix the
 #                                   venv-mode LD_LIBRARY_PATH points at
+#   HIPBLASLT_TENSILE_LIBPATH    -- where hipBLASLt looks for its Tensile
+#                                   kernels. Left alone when set; otherwise
+#                                   auto-detected, see
+#                                   setup_hipblaslt_tensile_libpath in
+#                                   _rocm-workarounds.sh.
 
 set -euxo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/_activate-env.sh"
 source "${SCRIPT_DIR}/_test-helpers.sh"
+source "${SCRIPT_DIR}/_rocm-workarounds.sh"
 require_envs PROJECT_ID BUILD_DIR INSTALL_DIR ARTIFACTS_DIR BUILD_ARTIFACTS_DIR
 
 printenv
@@ -53,6 +59,9 @@ ${install_prefix}/lib:\
 ${install_prefix}/lib64:\
 ${LD_LIBRARY_PATH:-}"
 fi
+
+# Activation can set ROCM_PATH, so this has to come after it.
+setup_hipblaslt_tensile_libpath
 
 . "${SCRIPT_DIR}/_install-test-deps.sh"
 

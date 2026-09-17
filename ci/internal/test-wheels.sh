@@ -34,6 +34,9 @@
 #               artifacts dir; unset, the names are the ones test-py.sh
 #               also writes.
 #   HIPRAFT_VERSION -- pins the hipRAFT wheels installed from BUILD_ARTIFACTS_DIR
+#   HIPBLASLT_TENSILE_LIBPATH -- where hipBLASLt looks for its Tensile kernels.
+#               Left alone when set; otherwise auto-detected, see
+#               setup_hipblaslt_tensile_libpath in _rocm-workarounds.sh.
 
 set -euxo pipefail
 
@@ -45,6 +48,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 source "${SCRIPT_DIR}/_test-helpers.sh"
 source "${SCRIPT_DIR}/_wheel-helpers.sh"
+source "${SCRIPT_DIR}/_rocm-workarounds.sh"
 
 wheels_test_env=$(mktemp -d)
 python3 -m venv "${wheels_test_env}"
@@ -66,6 +70,8 @@ python3 -m venv "${wheels_test_env}"
   [ "${HIPRAFT_ENABLE_RAFT_DASK:-false}" = "true" ] && \
     wheel_specs+=( "amd_raft_dask${HIPRAFT_VERSION:+==${HIPRAFT_VERSION}}" )
   install_built_wheel -- "${wheel_specs[@]}"
+
+  setup_hipblaslt_tensile_libpath
 
   test_failures=0
   cd "${BUILD_DIR}/${PROJECT_ID}"
