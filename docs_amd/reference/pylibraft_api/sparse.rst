@@ -24,7 +24,7 @@
 Sparse
 ======
 
-This page provides pylibraft class references for the publicly-exposed elements of the `pylibraft.sparse.linalg.eigsh` package.
+This page provides pylibraft class references for the publicly-exposed elements of the `pylibraft.sparse.linalg` package.
 
 
 .. role:: py(code)
@@ -32,3 +32,5 @@ This page provides pylibraft class references for the publicly-exposed elements 
    :class: highlight
 
 .. autoapifunction:: linalg.lanczos.eigsh
+
+.. autoapifunction:: linalg.svds.svds

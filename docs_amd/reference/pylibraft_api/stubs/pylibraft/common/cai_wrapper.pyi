@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: Copyright (c) 2022-2023, NVIDIA CORPORATION.
+# SPDX-License-Identifier: Apache-2.0
+#
+
 # MIT License
 #
 # Modifications Copyright (C) 2026 Advanced Micro Devices, Inc. All rights reserved.
@@ -28,20 +32,18 @@ __all__: list[str] = ['SimpleNamespace', 'ai_wrapper', 'cai_wrapper', 'wrap_arra
 class cai_wrapper(pylibraft.common.ai_wrapper.ai_wrapper):
     """
     
-        Simple wrapper around a CUDA array interface object to reduce
-        boilerplate for extracting common information from the underlying
-        dictionary.
-        
+    Simple wrapper around a CUDA array interface object to reduce
+    boilerplate for extracting common information from the underlying
+    dictionary.
     """
     def __init__(self, cai_arr):
         """
         
-                Constructor accepts a CUDA array interface compliant array
+        Constructor accepts a CUDA array interface compliant array
         
-                Parameters
-                ----------
-                cai_arr : CUDA array interface array
-                
+        Parameters
+        ----------
+        cai_arr : CUDA array interface array
         """
 def wrap_array(array):
     ...

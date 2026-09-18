@@ -1,6 +1,10 @@
+# SPDX-FileCopyrightText: Copyright (c) 2022-2023, NVIDIA CORPORATION.
+# SPDX-License-Identifier: Apache-2.0
+#
+
 # MIT License
 #
-# Modifications Copyright (C) 2026 Advanced Micro Devices, Inc. All rights reserved.
+# Modifications Copyright (C) 2025-2026 Advanced Micro Devices, Inc. All rights reserved.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -82,4 +86,4 @@ def rmat(*args, handle = None, **kwargs):
     >>> # handle needs to be explicitly synchronized
     >>> handle.sync()
     """
-__test__: dict = {'rmat (line 68)': '\n    Generate RMAT adjacency list based on the input distribution.\n\n    Parameters\n    ----------\n\n    out:\n        CUDA array interface compliant matrix shape (n_edges, 2). This will\n        contain the src/dst node ids stored consecutively like a pair.\n    theta:\n        CUDA array interface compliant matrix shape\n        (max(r_scale, c_scale) * 4) This stores the probability distribution\n        at each RMAT level\n    r_scale: int\n        log2 of number of source nodes\n    c_scale: int\n        log2 of number of destination nodes\n    seed: int\n        random seed used for reproducibility\n    {handle_docstring}\n\n    Examples\n    --------\n\n    >>> import cupy as cp\n\n    >>> from pylibraft.common import Handle\n    >>> from pylibraft.random import rmat\n\n    >>> n_edges = 5000\n    >>> r_scale = 16\n    >>> c_scale = 14\n    >>> theta_len = max(r_scale, c_scale) * 4\n\n    >>> out = cp.empty((n_edges, 2), dtype=cp.int32)\n    >>> theta = cp.random.random_sample(theta_len, dtype=cp.float32)\n\n    >>> # A single RAFT handle can optionally be reused across\n    >>> # pylibraft functions.\n    >>> handle = Handle()\n\n    >>> rmat(out, theta, r_scale, c_scale, handle=handle)\n\n    >>> # pylibraft functions are often asynchronous so the\n    >>> # handle needs to be explicitly synchronized\n    >>> handle.sync()\n   '}
+__test__: dict = {'rmat (line 90)': '\n    Generate RMAT adjacency list based on the input distribution.\n\n    Parameters\n    ----------\n\n    out:\n        CUDA array interface compliant matrix shape (n_edges, 2). This will\n        contain the src/dst node ids stored consecutively like a pair.\n    theta:\n        CUDA array interface compliant matrix shape\n        (max(r_scale, c_scale) * 4) This stores the probability distribution\n        at each RMAT level\n    r_scale: int\n        log2 of number of source nodes\n    c_scale: int\n        log2 of number of destination nodes\n    seed: int\n        random seed used for reproducibility\n    {handle_docstring}\n\n    Examples\n    --------\n\n    >>> import cupy as cp\n\n    >>> from pylibraft.common import Handle\n    >>> from pylibraft.random import rmat\n\n    >>> n_edges = 5000\n    >>> r_scale = 16\n    >>> c_scale = 14\n    >>> theta_len = max(r_scale, c_scale) * 4\n\n    >>> out = cp.empty((n_edges, 2), dtype=cp.int32)\n    >>> theta = cp.random.random_sample(theta_len, dtype=cp.float32)\n\n    >>> # A single RAFT handle can optionally be reused across\n    >>> # pylibraft functions.\n    >>> handle = Handle()\n\n    >>> rmat(out, theta, r_scale, c_scale, handle=handle)\n\n    >>> # pylibraft functions are often asynchronous so the\n    >>> # handle needs to be explicitly synchronized\n    >>> handle.sync()\n   '}

@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: Copyright (c) 2022, NVIDIA CORPORATION.
+# SPDX-License-Identifier: Apache-2.0
+#
+
 # MIT License
 #
 # Modifications Copyright (C) 2026 Advanced Micro Devices, Inc. All rights reserved.
@@ -34,11 +38,10 @@ def do_shapes_match(*cais):
 def is_c_contiguous(cai):
     """
     
-        Checks whether an array is C contiguous.
+    Checks whether an array is C contiguous.
     
-        Parameters
-        ----------
-        cai : CUDA array interface
+    Parameters
+    ----------
+    cai : CUDA array interface
     
-        
     """

@@ -39,7 +39,7 @@ mdspan: Multi-dimensional Non-owning View
 .. doxygenfunction:: raft::make_extents
     :project: RAFT
 
-.. doxygenfunction:: raft::make_strided_layout(Extents extents, Strides strides)
+.. doxygenfunction:: raft::make_strided_layout
     :project: RAFT
 
 .. doxygengroup:: mdspan_unravel

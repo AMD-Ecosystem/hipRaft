@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: Copyright (c) 2024-2025, NVIDIA CORPORATION.
+# SPDX-License-Identifier: Apache-2.0
+#
+
 # MIT License
 #
 # Modifications Copyright (C) 2026 Advanced Micro Devices, Inc. All rights reserved.

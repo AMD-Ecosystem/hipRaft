@@ -48,7 +48,17 @@ setting_all_article_info = True
 all_article_info_os = ["linux"]
 all_article_info_author = ""
 
-external_projects_current_project = "hipRAFT"
+# Must match the (lower-case) key in rocm-docs-core's projects.yaml, not the
+# display name in `project` above.
+external_projects_current_project = "hipraft"
+
+# rocm-docs-core defaults this to "all", which makes every build fetch an
+# `objects.inv` from all ~94 ROCm project doc sites. Nothing here uses an
+# `:external:` cross-reference, so the mappings are pure overhead -- and the
+# build hard-fails whenever one of those sites serves an HTML error page with a
+# 200 status (intersphinx warns on HTTP errors but raises on unparseable
+# content). Keep this list empty unless a real cross-project reference is added.
+external_projects: list[str] = []
 
 html_context = {"docs_header_version": "26.09"}
 html_theme = "rocm_docs_theme"
@@ -93,6 +103,19 @@ autoapi_dirs = [
 ]
 autoapi_file_patterns = ["*.pyi"]
 autoapi_add_toctree_entry = False
+# The curated `reference/*_api/*.rst` pages pull in each symbol explicitly via
+# `autoapiclass`/`autoapifunction`, so autoapi's own per-module pages are not
+# needed. Leaving them enabled publishes ~24 orphan pages that are excluded from
+# the nav but still land in the search index, duplicating the curated pages and
+# raising a `duplicate object description` warning for every symbol.
+autoapi_generate_api_docs = False
+
+# Maintainer notes that live alongside the docs sources (how to regenerate the
+# pyi stubs); they are not user-facing documentation and must not be published.
+exclude_patterns = [
+    "reference/pylibraft_api/README.md",
+    "reference/hipraft_dask_api/README.md",
+]
 
 source_suffix = {
     ".rst": "restructuredtext",

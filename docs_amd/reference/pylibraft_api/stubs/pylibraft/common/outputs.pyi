@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: Copyright (c) 2022, NVIDIA CORPORATION.
+# SPDX-License-Identifier: Apache-2.0
+#
+
 # MIT License
 #
 # Modifications Copyright (C) 2026 Advanced Micro Devices, Inc. All rights reserved.
@@ -28,9 +32,8 @@ __all__: list[str] = ['auto_convert_output', 'conv', 'convert_to_cai_type', 'con
 def auto_convert_output(f):
     """
     Decorator to automatically convert an output device_ndarray
-        (or list or tuple of device_ndarray) into the configured
-        `__cuda_array_interface__` compliant type.
-        
+    (or list or tuple of device_ndarray) into the configured
+    `__cuda_array_interface__` compliant type.
     """
 def conv(ret):
     ...

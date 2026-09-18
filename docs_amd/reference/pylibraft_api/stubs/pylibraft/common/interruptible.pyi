@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: Copyright (c) 2021-2026, NVIDIA CORPORATION.
+# SPDX-License-Identifier: Apache-2.0
+#
+
 # MIT License
 #
 # Modifications Copyright (C) 2026 Advanced Micro Devices, Inc. All rights reserved.
@@ -52,11 +56,13 @@ def cuda_yield():
     Raises the exception if a user pressed Ctrl+C within a
     `with cuda_interruptible()` block before.
     """
-def synchronize(stream: Stream):
+def synchronize(stream):
     """
-    synchronize(Stream stream: Stream)
+    synchronize(stream)
     
     Same as cudaStreamSynchronize, but can be interrupted
     if called within a `with cuda_interruptible()` block.
+    Accepts a Stream, int cudaStream_t pointer, or any object
+    implementing the __cuda_stream__ protocol.
     """
-__test__: dict = {'cuda_interruptible (line 22)': "\n    Temporarily install a keyboard interrupt handler (Ctrl+C)\n    that cancels the enclosed interruptible C++ thread.\n\n    Use this on a long-running C++ function imported via cython:\n\n    >>> with cuda_interruptible():\n    >>>     my_long_running_function(...)\n\n    It's also recommended to release the GIL during the call, to\n    make sure the handler has a chance to run:\n\n    >>> with cuda_interruptible():\n    >>>     with nogil:\n    >>>         my_long_running_function(...)\n    "}
+__test__: dict = {'cuda_interruptible (line 20)': "\n    Temporarily install a keyboard interrupt handler (Ctrl+C)\n    that cancels the enclosed interruptible C++ thread.\n\n    Use this on a long-running C++ function imported via cython:\n\n    >>> with cuda_interruptible():\n    >>>     my_long_running_function(...)\n\n    It's also recommended to release the GIL during the call, to\n    make sure the handler has a chance to run:\n\n    >>> with cuda_interruptible():\n    >>>     with nogil:\n    >>>         my_long_running_function(...)\n    "}

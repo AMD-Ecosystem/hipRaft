@@ -64,7 +64,10 @@ Device Factories
 .. doxygenfunction:: raft::make_device_vector
     :project: RAFT
 
-.. doxygenfunction:: raft::make_device_scalar
+.. doxygenfunction:: raft::make_device_scalar(raft::resources const &handle)
+    :project: RAFT
+
+.. doxygenfunction:: raft::make_device_scalar(raft::resources const &handle, ElementType const &v)
     :project: RAFT
 
 

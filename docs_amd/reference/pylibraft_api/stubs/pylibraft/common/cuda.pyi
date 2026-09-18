@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: Copyright (c) 2022-2026, NVIDIA CORPORATION.
+# SPDX-License-Identifier: Apache-2.0
+#
+
 # MIT License
 #
 # Modifications Copyright (C) 2026 Advanced Micro Devices, Inc. All rights reserved.
@@ -58,6 +62,13 @@ class Stream:
     def __setstate__(*args, **kwargs):
         """
         Stream.__setstate_cython__(self, __pyx_state)
+        """
+    def __cuda_stream__(self):
+        """
+        Stream.__cuda_stream__(self)
+        
+        Return a tuple (version, stream_pointer) per the __cuda_stream__ protocol.
+        This allows any library using the CUDA stream protocol to use pylibraft Streams.
         """
     def get_ptr(self):
         """

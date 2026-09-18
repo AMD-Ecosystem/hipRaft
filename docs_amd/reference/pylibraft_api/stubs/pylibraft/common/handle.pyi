@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: Copyright (c) 2022-2026, NVIDIA CORPORATION.
+# SPDX-License-Identifier: Apache-2.0
+#
+
 # MIT License
 #
 # Modifications Copyright (C) 2026 Advanced Micro Devices, Inc. All rights reserved.
@@ -23,8 +27,7 @@
 from __future__ import annotations
 import builtins as __builtins__
 import functools as functools
-from pylibraft.common.cuda import CudaRuntimeError
-__all__: list[str] = ['CudaRuntimeError', 'DeviceResources', 'DeviceResourcesSNMG', 'Handle', 'auto_sync_handle', 'functools']
+__all__: list[str] = ['DeviceResources', 'DeviceResourcesSNMG', 'Handle', 'auto_sync_handle', 'functools']
 class DeviceResources:
     """
     
