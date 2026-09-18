@@ -107,6 +107,31 @@ inline auto get_matmul_type<double, double, double, double>() -> cublasComputeTy
   return CUBLAS_COMPUTE_64F;
 }
 
+#ifdef __HIP_PLATFORM_AMD__
+/**
+ * NOTE(HIP/AMD): human-readable element type name, used only to build the diagnostic for a
+ * matmul hipBLASLt has no solution for. Whether a combination is supported depends on the
+ * element types at least as much as on the problem shape, so the error has to name both.
+ */
+template <typename T>
+constexpr auto matmul_type_name() -> const char*
+{
+  if constexpr (std::is_same_v<T, float>) {
+    return "float";
+  } else if constexpr (std::is_same_v<T, double>) {
+    return "double";
+  } else if constexpr (std::is_same_v<T, half>) {
+    return "half";
+  } else if constexpr (std::is_same_v<T, int8_t>) {
+    return "int8";
+  } else if constexpr (std::is_same_v<T, int32_t>) {
+    return "int32";
+  } else {
+    return "?";
+  }
+}
+#endif
+
 /** Unique representation of a matrix multiplication (assuming fixed types). */
 struct matmul_key_t {
   uint64_t m;
@@ -402,11 +427,23 @@ template <bool DevicePointerMode = false, typename S, typename A, typename B, ty
                                     stream));
       return;
     } else {
-      // Mixed-precision matmuls have no equivalent plain-gemm spelling here. Fail loudly rather
-      // than hand hipBLASLt an algo it will dereference.
+      // Mixed-precision matmuls have no equivalent plain-gemm spelling here (cublasgemm<S> is
+      // homogeneous: S == A == B == C). Fail loudly rather than hand hipBLASLt an algo it will
+      // dereference.
+      //
+      // Name the element types, not just the shape. The usual cause is that the combination
+      // itself is unsupported rather than that Tensile declined this particular size -- e.g.
+      // i8xi8->i32 (COMPUTE_32I) exists but i8xi8->f32 (COMPUTE_32F) does not, on hipBLASLt or
+      // rocBLAS. A shape-only message sends the reader looking in the wrong place.
       RAFT_FAIL(
-        "hipBLASLt returned no algorithm for this matmul (m=%zu, n=%zu, k=%zu) and no plain-gemm "
-        "fallback exists for these element types.",
+        "hipBLASLt returned no algorithm for this matmul: alpha/beta=%s, A=%s, B=%s, C=%s, "
+        "m=%zu, n=%zu, k=%zu. No plain-gemm fallback exists for these element types (that path "
+        "requires alpha/beta, A, B and C to all be the same type). This combination is most "
+        "likely unsupported by hipBLASLt/rocBLAS rather than declined for this shape.",
+        matmul_type_name<S>(),
+        matmul_type_name<A>(),
+        matmul_type_name<B>(),
+        matmul_type_name<C>(),
         static_cast<size_t>(m),
         static_cast<size_t>(n),
         static_cast<size_t>(k));
