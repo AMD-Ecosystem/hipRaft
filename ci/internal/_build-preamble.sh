@@ -91,6 +91,12 @@ if [ -n "${no_use_versions_json:-}" ] && [ -d "${SRC_DIR}/hipucxx" ]; then
     cmake_args+=("-DCPM_ucxx_SOURCE=${SRC_DIR}/hipucxx")
 fi
 
+case "${ENABLE_CODE_COVERAGE:-${HIPRAFT_ENABLE_CODE_COVERAGE:-false}}" in
+    1|true|yes|on)
+        cmake_args+=("-DENABLE_CODE_COVERAGE=ON")
+        ;;
+esac
+
 if [ -d "/opt/rh/gcc-toolset-$(g++ -dumpversion)" ]; then
     toolchain="/opt/rh/gcc-toolset-$(g++ -dumpversion)/root/usr"
     export CCC_OVERRIDE_OPTIONS="+--gcc-toolchain=${toolchain}"

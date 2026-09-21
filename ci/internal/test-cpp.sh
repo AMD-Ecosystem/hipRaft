@@ -42,7 +42,9 @@ set -euxo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/_activate-env.sh"
 source "${SCRIPT_DIR}/_rocm-workarounds.sh"
+source "${SCRIPT_DIR}/_test-helpers.sh"
 require_envs PROJECT_ID BUILD_DIR INSTALL_DIR
+: "${ARTIFACTS_DIR:=/artifacts}"
 
 printenv
 
@@ -57,8 +59,20 @@ setup_hipblaslt_tensile_libpath
 
 exit_code=0
 
+cpp_build="${BUILD_DIR}/${PROJECT_ID}/cpp/build"
+begin_llvm_profiling "${cpp_build}/profiles"
+
 echo "=== Running C++ tests ==="
-(cd "${BUILD_DIR}/${PROJECT_ID}/cpp/build/tests" && ctest --output-on-failure .) || exit_code=$?
+(cd "${cpp_build}/tests" && ctest --output-on-failure .) || exit_code=$?
+
+llvm_objects=()
+[[ -e "${cpp_build}/libraft.so" ]] && llvm_objects+=("${cpp_build}/libraft.so")
+shopt -s nullglob
+llvm_objects+=("${cpp_build}/gtests"/*)
+shopt -u nullglob
+export_llvm_cov_json "${cpp_build}/profiles" \
+    "${COVERAGE_LLVM_JSON:-${ARTIFACTS_DIR}/llvm-cov_code_coverage.json}" \
+    "${llvm_objects[@]}"
 
 if [[ "${HIPRAFT_RUN_EXAMPLES:-false}" == "true" ]]; then
     echo "=== Running examples ==="
