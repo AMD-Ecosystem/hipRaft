@@ -21,7 +21,14 @@
 
 [build-system]
 build-backend = "scikit_build_core.build"
-requires = ["scikit-build-core[pyproject]>=0.10.0","cmake>=3.30","ninja"]
+requires = [
+    "scikit-build-core[pyproject]>=0.10.0",
+    "cmake>=3.30",
+    "ninja",
+    # The cmake configure resolves these through their `cmake.prefix` entry points.
+    "amd-libhipmm==5.*",
+    "amd-rocmds-logger==2.0.*",
+]
 
 [project]
 name = "amd-libraft"
