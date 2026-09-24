@@ -39,7 +39,7 @@
 #                    conda environment supplies cmake
 #
 # Optional environment variables:
-#   HIPRAFT_CONDA_ENV, CONDA_DIR, HIPRAFT_USE_VERSIONS_JSON,
+#   HIPRAFT_CONDA_ENV, CONDA_DIR, HIPRAFT_USE_VERSIONS_JSON, HIPRAFT_BUILD_TYPE,
 #   SCCACHE_ENABLE, AMDGPU_TARGETS, MAX_JOBS
 #   CMAKE_INSTALL_PREFIX -- overrides INSTALL_DIR as the install prefix;
 #                           '<conda-prefix>' selects the active conda env
@@ -64,6 +64,19 @@ cmake --version && cpack --version && ctest --version
 
 [[ "${SCCACHE_ENABLE:-false}" == "true" ]] && use_sccache=1
 
+# Wheel builds resolve rmm and rapids_logger from the installed wheels via
+# find_package. A CPM_<pkg>_SOURCE override skips find_package entirely and
+# rebuilds the dependency from /src -- install rules and all -- into the
+# libraft wheel, which installs without a component filter.
+case "${HIPRAFT_BUILD_TYPE:-}" in
+    wheels) wheel_deps_from_pip=1 ;;
+esac
+
+use_local_cpm_sources=
+if [ -n "${no_use_versions_json:-}" ] && [ -z "${wheel_deps_from_pip:-}" ]; then
+    use_local_cpm_sources=1
+fi
+
 # The job's install root is the prefix unless the caller overrides it, so a
 # build that only gets the mounts still installs where the job expects.
 if [[ "${CMAKE_INSTALL_PREFIX:-}" == "<conda-prefix>" ]]; then
@@ -73,23 +86,20 @@ else
 fi
 
 # The dependency checkouts CPM resolves from instead of downloading. The paths
-# are the manifest's, and the dev pipelines use the same ones.
+# are the manifest's, and the dev pipelines use the same ones. cuco ships no
+# wheel, so it and libhipcxx stay on the checkouts everywhere.
+#
+# Consumed by the scripts that source this file, not here.
+# shellcheck disable=SC2034
 cmake_args=(
     ${no_use_versions_json:+"-DCPM_libhipcxx_SOURCE=${SRC_DIR}/libhipcxx"}
     ${no_use_versions_json:+"-DCPM_cuco_SOURCE=${SRC_DIR}/hipcollections"}
-    ${no_use_versions_json:+"-DCPM_rmm_SOURCE=${SRC_DIR}/hipmm"}
-    ${no_use_versions_json:+"-DCPM_rapids_logger_SOURCE=${SRC_DIR}/rocmds_logger"}
+    ${use_local_cpm_sources:+"-DCPM_rmm_SOURCE=${SRC_DIR}/hipmm"}
+    ${use_local_cpm_sources:+"-DCPM_rapids_logger_SOURCE=${SRC_DIR}/rocmds_logger"}
     ${use_sccache:+"-DCMAKE_HIP_COMPILER_LAUNCHER=sccache"}
     ${use_sccache:+"-DCMAKE_CXX_COMPILER_LAUNCHER=sccache"}
     ${use_sccache:+"-DCMAKE_C_COMPILER_LAUNCHER=sccache"}
 )
-
-# raft-dask CPM-fetches ucxx from GitHub unless pointed at a checkout, and the
-# manifest supplies one. Only added when it is actually there, so a C++-only
-# job without the hipucxx source still configures.
-if [ -n "${no_use_versions_json:-}" ] && [ -d "${SRC_DIR}/hipucxx" ]; then
-    cmake_args+=("-DCPM_ucxx_SOURCE=${SRC_DIR}/hipucxx")
-fi
 
 case "${ENABLE_CODE_COVERAGE:-${HIPRAFT_ENABLE_CODE_COVERAGE:-false}}" in
     1|true|yes|on)
