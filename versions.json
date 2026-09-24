@@ -1,33 +1,11 @@
 {
-  "packages": {
-    "hipmm": {
-      "version": "5.0.0",
-      "git_url": "https://$ENV{GITHUB_PASS}@github.com/AMD-AIOSS/hipmm",
-      "git_tag": "amd-integration"
-    },
-    "rocmds_logger": {
-      "version": "2.0.0",
-      "git_url": "https://$ENV{GITHUB_PASS}@github.com/AMD-AIOSS/rocmds-logger",
-      "git_tag": "amd-integration"
-    },
-    "libhipcxx" : {
-      "version" : "3.0.2",
-      "git_url" : "https://$ENV{GITHUB_PASS}@github.com/AMD-AIOSS/libhipcxx",
-      "git_tag" : "upgrade/3.4.0_base_enable"
-    },
-    "hipco" : {
-      "version" : "0.4.0",
-      "git_url" : "https://$ENV{GITHUB_PASS}@github.com/AMD-AIOSS/hipCollections",
-      "git_tag" : "amd-integration"
-    },
-    "rocthrust" : {
-      "version" : "4.2.0"
-    },
+  "packages" : {
     "ucxx" : {
       "version" : "0.1.0",
       "git_url" : "https://$ENV{GITHUB_PASS}@github.com/AMD-AIOSS/hip-ucxx",
       "git_tag" : "amd-integration",
-      "source_subdir" : "cpp"
+      "source_subdir" : "cpp",
+      "always_download" : false
     }
   }
 }
