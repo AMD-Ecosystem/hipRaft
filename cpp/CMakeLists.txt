@@ -294,8 +294,15 @@ endif()
 # ##################################################################################################
 # * code coverage ------------------------------------------------------------
 if(ENABLE_CODE_COVERAGE)
-  add_compile_options(-fprofile-instr-generate -fcoverage-mapping)
-  add_link_options(-fprofile-instr-generate -fcoverage-mapping)
+  # ROCm clang also instruments device code: the new offload driver is needed to link the device
+  # profile runtime, and the anchor gives TUs without device code the sections lld expects. CXX is
+  # included because build.sh compiles CXX sources with hipcc.
+  add_compile_options(
+    -fprofile-instr-generate
+    -fcoverage-mapping
+    "$<$<COMPILE_LANGUAGE:HIP,CXX>:--offload-new-driver;-include;${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules/coverage_anchor.h>"
+  )
+  add_link_options(-fprofile-instr-generate -fcoverage-mapping --offload-new-driver)
 endif()
 
 # ##################################################################################################

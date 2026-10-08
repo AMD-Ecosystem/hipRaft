@@ -66,14 +66,17 @@ fi
 
 set -x
 
+# Use the LLVM tools matching ROCm's clang, which wrote the profiles.
+export PATH="${ROCM_PATH:-/opt/rocm}/lib/llvm/bin:${PATH}"
+
 llvm-profdata merge -sparse "${HIPRAFT_PROFILES_DIR}"/*.profraw -o "${HIPRAFT_COVERAGE_DATA}"
 
 mkdir -p "$HIPRAFT_COVERAGE_REPORT_PATH"
 
-OBJECTS="$(printf ' --object=%s' "${BINARIES[@]}")"
-LLVM_COV_OPTIONS="--format=html --show-line-counts-or-regions --Xdemangler c++filt"
+OBJECTS=("${BINARIES[@]/#/--object=}")
+LLVM_COV_OPTIONS=(--format=html --show-line-counts-or-regions --Xdemangler c++filt)
 llvm-cov show \
-    "${OBJECTS}" "${LLVM_COV_OPTIONS}" \
+    "${OBJECTS[@]}" "${LLVM_COV_OPTIONS[@]}" \
     --instr-profile="${HIPRAFT_COVERAGE_DATA}" \
     --output-dir="${HIPRAFT_COVERAGE_REPORT_PATH}" \
     --ignore-filename-regex="${HIPRAFT_BUILD_DIR}/_deps"
