@@ -85,6 +85,12 @@ else
     install_prefix="${CMAKE_INSTALL_PREFIX:-${INSTALL_DIR}}"
 fi
 
+# prepare.sh installs UCX at HIPRAFT_UCX_PREFIX. The default prefix is already
+# on CMake's search path, so only an overridden one has to be pointed at.
+if [ -z "${ucx_DIR:-}" ] && [ -n "${HIPRAFT_UCX_PREFIX:-}" ]; then
+    ucx_DIR="${HIPRAFT_UCX_PREFIX}/lib64/cmake/ucx"
+fi
+
 # The dependency checkouts CPM resolves from instead of downloading. The paths
 # are the manifest's, and the dev pipelines use the same ones. cuco ships no
 # wheel, so it and libhipcxx stay on the checkouts everywhere.
@@ -92,6 +98,7 @@ fi
 # Consumed by the scripts that source this file, not here.
 # shellcheck disable=SC2034
 cmake_args=(
+    ${ucx_DIR:+"-Ducx_DIR=${ucx_DIR}"}
     ${no_use_versions_json:+"-DCPM_libhipcxx_SOURCE=${SRC_DIR}/libhipcxx"}
     ${no_use_versions_json:+"-DCPM_cuco_SOURCE=${SRC_DIR}/hipcollections"}
     ${use_local_cpm_sources:+"-DCPM_rmm_SOURCE=${SRC_DIR}/hipmm"}

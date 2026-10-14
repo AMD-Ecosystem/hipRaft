@@ -30,6 +30,14 @@
 #
 # Optional environment variables:
 #   HIPRAFT_UCX_FULL_VERSION       -- UCX version (default: 1.17.0)
+#   HIPRAFT_UCX_SOURCE             -- where UCX comes from when it is not
+#                                     preinstalled: "package" for the
+#                                     amd-libucx package, which is the ROCm
+#                                     UCX hipUCXX links against, or "source"
+#                                     to build the upstream release here
+#                                     (default: source)
+#   HIPRAFT_UCX_PREFIX             -- where UCX is installed and where OpenMPI
+#                                     is pointed at it (default: /usr)
 #   HIPRAFT_OPENMPI_MAJOR_VERSION  -- OpenMPI major version dir (default: v5.0)
 #   HIPRAFT_OPENMPI_FULL_VERSION   -- OpenMPI full version (default: 5.0.6)
 #   HIPRAFT_OPENMPI_STAGING_DIR    -- if set, `make install DESTDIR=...` here in
@@ -46,6 +54,8 @@ source "${SCRIPT_DIR}/_activate-env.sh"
 require_envs HIPRAFT_UCX_PREINSTALLED HIPRAFT_OPENMPI_PREINSTALLED INSTALL_DIR CMAKE_VERSION ROCM_SPECIFIER
 
 HIPRAFT_UCX_FULL_VERSION="${HIPRAFT_UCX_FULL_VERSION:-1.17.0}"
+HIPRAFT_UCX_SOURCE="${HIPRAFT_UCX_SOURCE:-source}"
+HIPRAFT_UCX_PREFIX="${HIPRAFT_UCX_PREFIX:-/usr}"
 HIPRAFT_OPENMPI_MAJOR_VERSION="${HIPRAFT_OPENMPI_MAJOR_VERSION:-v5.0}"
 HIPRAFT_OPENMPI_FULL_VERSION="${HIPRAFT_OPENMPI_FULL_VERSION:-5.0.6}"
 
@@ -69,14 +79,43 @@ pip install --force-reinstall cmake${CMAKE_VERSION:+==${CMAKE_VERSION}}
 pip install scikit-build-core auditwheel cython pytest "numba<0.62" fastrlock
 
 if [[ "${HIPRAFT_UCX_PREINSTALLED}" == "false" ]]; then
-    wget "https://github.com/openucx/ucx/releases/download/v${HIPRAFT_UCX_FULL_VERSION}/ucx-${HIPRAFT_UCX_FULL_VERSION}.tar.gz"
-    tar xzf "ucx-${HIPRAFT_UCX_FULL_VERSION}.tar.gz"
-    cd "ucx-${HIPRAFT_UCX_FULL_VERSION}"
-    env -i PATH="${PATH}" CC=gcc CXX=g++ ./contrib/configure-release --prefix=/usr --with-rocm="${ROCM_HOME}"
-    make -j "${MAX_JOBS}"
-    make install
-    cd -
-    rm -rf ucx*
+    case "${HIPRAFT_UCX_SOURCE}" in
+    package)
+        # amd-libucx builds OpenUCX --with-rocm at install time: the same UCX
+        # hipUCXX links against, so a build that pairs the two does not have
+        # two UCX versions in it.
+        pip install "amd-libucx==${HIPRAFT_UCX_FULL_VERSION%.*}.*"
+        # The package keeps UCX inside site-packages, which is no use below:
+        # --with-ucx is baked into the OpenMPI libraries, and the staged tree
+        # is unpacked in a tester image that has no such interpreter. Copy it
+        # to the prefix. The bundled libraries carry $ORIGIN-relative RPATHs
+        # and UCX's cmake config derives its prefix from its own location, so
+        # they survive the move; only the .pc files keep the build prefix, and
+        # nothing reads those here.
+        ucx_package_dir="$(python -c 'import libucx, os; print(os.path.dirname(libucx.get_lib()))')"
+        for d in lib64 include bin; do
+            [[ -d "${ucx_package_dir}/${d}" ]] || continue
+            mkdir -p "${HIPRAFT_UCX_PREFIX}/${d}"
+            cp -a "${ucx_package_dir}/${d}/." "${HIPRAFT_UCX_PREFIX}/${d}/"
+        done
+        ldconfig
+        ;;
+    source)
+        wget "https://github.com/openucx/ucx/releases/download/v${HIPRAFT_UCX_FULL_VERSION}/ucx-${HIPRAFT_UCX_FULL_VERSION}.tar.gz"
+        tar xzf "ucx-${HIPRAFT_UCX_FULL_VERSION}.tar.gz"
+        cd "ucx-${HIPRAFT_UCX_FULL_VERSION}"
+        env -i PATH="${PATH}" CC=gcc CXX=g++ ./contrib/configure-release \
+            --prefix="${HIPRAFT_UCX_PREFIX}" --with-rocm="${ROCM_HOME}"
+        make -j "${MAX_JOBS}"
+        make install
+        cd -
+        rm -rf ucx*
+        ;;
+    *)
+        echo "ERROR: HIPRAFT_UCX_SOURCE is '${HIPRAFT_UCX_SOURCE}', expected package or source" >&2
+        exit 2
+        ;;
+    esac
 fi
 
 if [[ "${HIPRAFT_OPENMPI_PREINSTALLED}" == "false" ]]; then
@@ -89,7 +128,8 @@ if [[ "${HIPRAFT_OPENMPI_PREINSTALLED}" == "false" ]]; then
     # without including <string.h> (open-mpi/ompi#13476).
     env -i PATH="${PATH}" CC=gcc CXX=g++ \
         CFLAGS="-Wno-error=implicit-function-declaration -Wno-error=int-conversion" \
-        ./configure --prefix=/usr --with-ucx=/usr --with-rocm="${ROCM_HOME}"
+        ./configure --prefix=/usr --with-ucx="${HIPRAFT_UCX_PREFIX}" \
+            --with-rocm="${ROCM_HOME}"
     env -i PATH="${PATH}" CC=gcc CXX=g++ make -j "${MAX_JOBS}"
     if [[ -n "${HIPRAFT_OPENMPI_STAGING_DIR:-}" ]]; then
         env -i PATH="${PATH}" CC=gcc CXX=g++ make install DESTDIR="${HIPRAFT_OPENMPI_STAGING_DIR}"
