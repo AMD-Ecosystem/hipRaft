@@ -29,7 +29,7 @@
 # THE SOFTWARE.
 
 set(RAFT_VERSION "2.0.0")
-set(RAFT_FORK "AMD-AIOSS")
+set(RAFT_FORK "AMD-Ecosystem")
 set(RAFT_PINNED_TAG "amd-integration")
 # When PINNED_TAG above doesn't match the default branch,
 # force local raft clone in build directory
@@ -63,7 +63,7 @@ function(find_and_configure_raft)
             INSTALL_EXPORT_SET  raft-template-exports
             COMPONENTS          ${RAFT_COMPONENTS}
             CPM_ARGS
-            GIT_REPOSITORY https://$ENV{GITHUB_PASS}@github.com/${PKG_FORK}/hipRaft.git
+            GIT_REPOSITORY https://github.com/${PKG_FORK}/hipRaft.git
             GIT_TAG        ${PKG_PINNED_TAG}
             SOURCE_SUBDIR  cpp
             OPTIONS
