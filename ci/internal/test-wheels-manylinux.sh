@@ -51,10 +51,18 @@
 #   Everything else test-wheels.sh reads is passed through untouched.
 #
 # Optional environment variables:
+#   ENABLE_BENCHMARKS -- 1/true/yes/on skips wheel tests (test-cpp.sh runs benchmarks)
 #   HIPRAFT_TEST_PYTHONS -- whitespace-separated CPython versions to test
 #                           (default: "3.11 3.12 3.13")
 
 set -euo pipefail
+
+case "${ENABLE_BENCHMARKS:-false}" in
+    1 | true | yes | on)
+        echo "=== Benchmarks only (wheel tests disabled) ==="
+        exit 0
+        ;;
+esac
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 : "${PROJECT_ID:?PROJECT_ID must be set}"

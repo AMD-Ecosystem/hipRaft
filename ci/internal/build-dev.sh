@@ -35,7 +35,8 @@
 #   CMAKE_INSTALL_PREFIX       -- overrides INSTALL_DIR as the install prefix
 #   HIPRAFT_USE_VERSIONS_JSON  -- fetch deps via versions.json instead of /src/ (default: false)
 #   HIPRAFT_BUILD_TESTS        -- build C++ tests (default: true)
-#   HIPRAFT_BUILD_BENCH_PRIMS  -- build bench-prims (default: true)
+#   HIPRAFT_BUILD_BENCH_PRIMS  -- build bench-prims (default: false)
+#   ENABLE_BENCHMARKS         -- 1/true/yes/on builds benchmarks and disables tests
 #   SCCACHE_ENABLE             -- use sccache as compiler launcher (default: false)
 #   CI_INTERNAL_CREATE_TESTS_TARBALL -- '1' packs the tests tarball the tester
 #                                       images consume (default: 0).
@@ -45,6 +46,15 @@ set -euxo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/_activate-env.sh"
 require_envs HIPRAFT_BUILD_TYPE PROJECT_ID SRC_DIR BUILD_DIR INSTALL_DIR ROCM_PATH AMDGPU_TARGETS BUILD_ARTIFACTS_DIR
+
+# Keep benchmark job policy in the component, including when called by the
+# external builder wrapper. Explicit build toggles still work for other jobs.
+case "${ENABLE_BENCHMARKS:-false}" in
+    1 | true | yes | on)
+        export HIPRAFT_BUILD_BENCH_PRIMS=true
+        export HIPRAFT_BUILD_TESTS=false
+        ;;
+esac
 
 # shellcheck disable=SC2153  # BUILD_DIR and SRC_DIR are job mounts, not typos
 build_dir="${BUILD_DIR}/${PROJECT_ID}"
@@ -82,7 +92,7 @@ if [ -n "${build_cpp:-}" ]; then
     build_sh_args=(libraft --compile-lib ${no_install:+"-n"})
 
     [[ "${HIPRAFT_BUILD_TESTS:-true}" == "true" ]] && build_sh_args+=(tests)
-    [[ "${HIPRAFT_BUILD_BENCH_PRIMS:-true}" == "true" ]] && build_sh_args+=(bench-prims)
+    [[ "${HIPRAFT_BUILD_BENCH_PRIMS:-false}" == "true" ]] && build_sh_args+=(bench-prims)
 
     [[ -n "${AMDGPU_TARGETS}" ]] && build_sh_args+=("--gpu-arch=${AMDGPU_TARGETS}")
 

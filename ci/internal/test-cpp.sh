@@ -31,6 +31,7 @@
 #   PROJECT_ID, BUILD_DIR, INSTALL_DIR
 #
 # Optional environment variables:
+#   ENABLE_BENCHMARKS -- 1/true/yes/on runs report-only benchmarks instead of tests
 #   HIPRAFT_RUN_EXAMPLES -- also run the built C++ examples (default: false)
 #   HIPRAFT_CONDA_ENV, CONDA_DIR -- for conda-based environments
 #   HIPBLASLT_TENSILE_LIBPATH -- where hipBLASLt looks for its Tensile kernels.
@@ -40,6 +41,19 @@
 set -euxo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# The tester wrapper always calls this entry point once. Dispatch before test
+# setup so benchmark jobs need neither CTest nor coverage artifacts.
+case "${ENABLE_BENCHMARKS:-false}" in
+    1 | true | yes | on)
+        echo "=== Benchmarks only (C++ tests disabled; report-only) ==="
+        if ! bash "${SCRIPT_DIR}/benchmark-cpp.sh"; then
+            echo "WARNING: benchmarks failed; see ${ARTIFACTS_DIR:-/artifacts}/benchmarks (report-only)"
+        fi
+        exit 0
+        ;;
+esac
+
 source "${SCRIPT_DIR}/_activate-env.sh"
 source "${SCRIPT_DIR}/_rocm-workarounds.sh"
 source "${SCRIPT_DIR}/_test-helpers.sh"
