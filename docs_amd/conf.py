@@ -60,7 +60,7 @@ external_projects_current_project = "hipraft"
 # content). Keep this list empty unless a real cross-project reference is added.
 external_projects: list[str] = []
 
-html_context = {"docs_header_version": "26.09"}
+html_context = {"docs_header_version": "26.10"}
 html_theme = "rocm_docs_theme"
 html_theme_options = {
     "flavor": "rocm-ds",
