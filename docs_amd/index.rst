@@ -69,6 +69,6 @@ The hipRAFT code is open and hosted at `https://github.com/AMD-Ecosystem/hipRaft
     * :ref:`Python API reference <hipraft-python>`
 
 
-To contribute to the documentation refer to `Contributing to AMD Data Science  <https://rocm.docs.amd.com/projects/rocm-ds/en/latest/contribute/contributing.html>`_.
+To contribute to the documentation refer to `Contributing to AMD Data Science  <https://rocm.docs.amd.com/projects/datascience/en/latest/contribute/contributing.html>`_.
 
-You can find licensing information on the `Licensing <https://rocm.docs.amd.com/projects/rocm-ds/en/latest/about/license.html>`_ page.
+You can find licensing information on the `Licensing <https://rocm.docs.amd.com/projects/datascience/en/latest/about/license.html>`_ page.
