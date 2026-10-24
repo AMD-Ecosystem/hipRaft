@@ -29,8 +29,8 @@
 # THE SOFTWARE.
 
 set(RAFT_VERSION "2.0.0")
-set(RAFT_FORK "AMD-Ecosystem")
-set(RAFT_PINNED_TAG "amd-integration")
+set(RAFT_FORK "AMD-AIOSS")
+set(RAFT_PINNED_TAG "release/26.10")
 # When PINNED_TAG above doesn't match the default branch,
 # force local raft clone in build directory
 # even if it's already installed.
@@ -40,7 +40,7 @@ function(find_and_configure_raft)
     set(oneValueArgs VERSION FORK PINNED_TAG COMPILE_LIBRARY ENABLE_MNMG_DEPENDENCIES CLONE_ON_PIN)
     cmake_parse_arguments(PKG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
-    if(NOT CPM_raft_SOURCE AND PKG_CLONE_ON_PIN AND NOT PKG_PINNED_TAG STREQUAL "amd-integration")
+    if(NOT CPM_raft_SOURCE AND PKG_CLONE_ON_PIN AND NOT PKG_PINNED_TAG STREQUAL "release/26.10")
         message(STATUS "RAFT pinned tag found: ${PKG_PINNED_TAG}. Cloning raft locally.")
         set(CPM_DOWNLOAD_raft ON)
     endif()

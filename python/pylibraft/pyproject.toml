@@ -68,9 +68,9 @@ test = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/ROCm-DS/hipRaft"
+Homepage = "https://github.com/AMD-AIOSS/hipRaft"
 Documentation = "https://rocm.docs.amd.com/projects/hipRaft/en/latest/"
-"Issue Tracker" = "https://github.com/ROCm-DS/hipRaft/issues"
+"Issue Tracker" = "https://github.com/AMD-AIOSS/hipRaft/issues"
 
 [tool.ruff]
 extend = "../../pyproject.toml"
