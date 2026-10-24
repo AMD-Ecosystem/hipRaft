@@ -29,7 +29,7 @@
 # THE SOFTWARE.
 
 set(RAFT_VERSION "2.0.0")
-set(RAFT_FORK "AMD-AIOSS")
+set(RAFT_FORK "AMD-Ecosystem")
 set(RAFT_PINNED_TAG "release/26.10")
 # When PINNED_TAG above doesn't match the default branch,
 # force local raft clone in build directory

@@ -55,8 +55,8 @@ While not exhaustive, the following table summarizes the accelerated functions i
 - [Install hipRAFT](https://rocm.docs.amd.com/projects/hipRaft/en/latest/install/install.html): Instructions for installing hipRAFT from AMD PyPI.
 - [Build hipRAFT](https://rocm.docs.amd.com/projects/hipRaft/en/latest/install/build.html): Instructions for building hipRAFT from source.
 - [AMD Data Science](https://rocm.docs.amd.com/projects/rocm-ds/en/latest/): The toolkit that hipRAFT is part of.
-- [GitHub repository](https://github.com/AMD-AIOSS/hipRaft): Download the hipRAFT source code.
-- [Issue tracker](https://github.com/AMD-AIOSS/hipRaft/issues): Report issues or request features.
+- [GitHub repository](https://github.com/AMD-Ecosystem/hipRaft): Download the hipRAFT source code.
+- [Issue tracker](https://github.com/AMD-Ecosystem/hipRaft/issues): Report issues or request features.
 - [Upstream RAFT](https://github.com/rapidsai/raft): The NVIDIA RAPIDS project that hipRAFT is derived from.
 
 
@@ -125,7 +125,7 @@ auto matrix = raft::make_device_matrix<float>(handle, n_rows, n_cols);
 Most of the primitives in hipRAFT accept a `raft::device_resources` object for the management of resources which are expensive to create, such as HIP streams, stream pools, and handles to other ROCm libraries like hipBLAS and hipSOLVER.
 
 The example below demonstrates creating a hipRAFT handle and using it with `device_matrix` and `device_vector` to allocate memory, generating random clusters, and computing
-pairwise Euclidean distances with the [hipVS](https://github.com/AMD-AIOSS/hipVS) library. hipVS preserves the cuVS API naming, so the `cuvs::` namespace is used here as well:
+pairwise Euclidean distances with the [hipVS](https://github.com/AMD-Ecosystem/hipVS) library. hipVS preserves the cuVS API naming, so the `cuvs::` namespace is used here as well:
 
 ```c++
 #include <raft/core/device_resources.hpp>
@@ -161,7 +161,7 @@ cuvs::distance::pairwise_distance(handle, input_view, input_view, output_view, m
 
 The `pylibraft` package contains a Python API for hipRAFT algorithms and primitives. `pylibraft` integrates nicely into other libraries by being very lightweight with minimal dependencies and accepting any object that supports the `__cuda_array_interface__`, which on AMD GPUs is backed by HIP. The number of hipRAFT algorithms exposed in this package is continuing to grow from release to release.
 
-The example below demonstrates computing the pairwise Euclidean distances between CuPy arrays using the [hipVS](https://github.com/AMD-AIOSS/hipVS) library. Note that CuPy is not a required dependency for `pylibraft`.
+The example below demonstrates computing the pairwise Euclidean distances between CuPy arrays using the [hipVS](https://github.com/AMD-Ecosystem/hipVS) library. Note that CuPy is not a required dependency for `pylibraft`.
 
 ```python
 import cupy as cp

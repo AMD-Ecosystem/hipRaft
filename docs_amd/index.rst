@@ -48,7 +48,7 @@ Key highlights in hipRAFT v2.0.0 include:
 
 * Performance and resource management improvements – Enhanced GPU memory handling, logging, and profiling utilities for efficient large-scale computation.
 
-The hipRAFT code is open and hosted at `https://github.com/AMD-AIOSS/hipRaft <https://github.com/AMD-AIOSS/hipRaft>`_.
+The hipRAFT code is open and hosted at `https://github.com/AMD-Ecosystem/hipRaft <https://github.com/AMD-Ecosystem/hipRaft>`_.
 
 .. grid:: 2
   :gutter: 3

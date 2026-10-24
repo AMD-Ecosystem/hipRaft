@@ -2,7 +2,7 @@
   "packages" : {
     "ucxx" : {
       "version" : "0.2.0",
-      "git_url" : "https://github.com/AMD-AIOSS/hip-ucxx",
+      "git_url" : "https://github.com/AMD-Ecosystem/hip-ucxx",
       "git_tag" : "release/26.10",
       "source_subdir" : "cpp",
       "always_download" : false
