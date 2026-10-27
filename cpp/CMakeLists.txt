@@ -588,14 +588,10 @@ if(TARGET ucxx::ucxx)
     rapids_export_package(INSTALL rccl raft-distributed-exports)
   endif()
 
-  rapids_export_package(
-    BUILD ucxx raft-distributed-exports COMPONENTS ucxx python GLOBAL_TARGETS ucxx::ucxx
-                                                                              ucxx::python
-  )
-  rapids_export_package(
-    INSTALL ucxx raft-distributed-exports COMPONENTS ucxx python GLOBAL_TARGETS ucxx::ucxx
-                                                                                ucxx::python
-  )
+  # NOTE(HIP/AMD): hip-ucxx exports ucxx::ucxx alone -- the amd-libhipucxx wheel has no python
+  # component -- so requiring one would fail find_package(raft COMPONENTS distributed) downstream.
+  rapids_export_package(BUILD ucxx raft-distributed-exports GLOBAL_TARGETS ucxx::ucxx)
+  rapids_export_package(INSTALL ucxx raft-distributed-exports GLOBAL_TARGETS ucxx::ucxx)
 
   # ucx is a requirement for raft_distributed, but its config is not safe to be found multiple
   # times, so rather than exporting a package dependency on it above we rely on consumers to find it

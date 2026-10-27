@@ -36,6 +36,7 @@
 #   CMAKE_VERSION         -- pins cmake
 #   ROCMDS_LOGGER_VERSION -- pins amd-rocmds-logger
 #   HIPMM_VERSION         -- pins amd-libhipmm and amd-hipmm
+#   UCXX_VERSION          -- pins amd-libhipucxx
 #                            CI sets these from the builder-tester
 #                            _envs/rocmds/<branch> env file, and a bare checkout
 #                            without them installs unpinned
@@ -49,6 +50,8 @@ case "${HIPRAFT_BUILD_TYPE:-}" in
     # pylibraft's .pyx files cimport rmm.librmm.cuda_stream_pool from the hipMM
     # wheels and cuda.bindings.cyruntime from the hip-python set, and
     # raft-dask's cmake resolves librmm through amd-libhipmm's cmake prefix.
+    # The ucxx that raft_distributed links comes from amd-libhipucxx's cmake
+    # prefix the same way.
     #
     # The rocm-bindings-* / hip-python-interop set stays unpinned: their version
     # leads with the ROCm version of the base image, which no env key names.
@@ -57,6 +60,7 @@ case "${HIPRAFT_BUILD_TYPE:-}" in
         "amd-rocmds-logger${ROCMDS_LOGGER_VERSION:+==${ROCMDS_LOGGER_VERSION}}" \
         "amd-libhipmm${HIPMM_VERSION:+==${HIPMM_VERSION}}" \
         "amd-hipmm${HIPMM_VERSION:+==${HIPMM_VERSION}}" \
+        "amd-libhipucxx${UCXX_VERSION:+==${UCXX_VERSION}}" \
         rocm-bindings-core \
         rocm-bindings-hip \
         hip-python-interop

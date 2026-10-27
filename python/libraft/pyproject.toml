@@ -27,6 +27,7 @@ requires = [
     "ninja",
     # The cmake configure resolves these through their `cmake.prefix` entry points.
     "amd-libhipmm==5.*",
+    "amd-libhipucxx==0.2.*",
     "amd-rocmds-logger==2.0.*",
 ]
 

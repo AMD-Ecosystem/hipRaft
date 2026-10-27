@@ -103,9 +103,10 @@ regex = "(?P<value>.*)"
 build-backend = "scikit_build_core.build"
 # NOTE(HIP/AMD): the ROCm-DS forks replace libraft and librmm. libucx is gone
 # with them: UCX is the system build ci/internal/prepare.sh produces, not a
-# wheel, and ucxx itself is resolved by CPM from the hipucxx checkout.
+# wheel, and ucxx itself is resolved through amd-libhipucxx's cmake prefix.
 requires = [
     "amd-libhipmm==5.*",
+    "amd-libhipucxx==0.2.*",
     "amd-libraft==2.0.*",
     "cmake>=3.30.4",
     "cython>=3.2.2",

@@ -39,12 +39,13 @@ function(find_and_configure_ucxx)
     if(PKG_UCXX_STATIC)
       set(BUILD_UCXX_SHARED OFF)
     endif()
-    # NOTE(HIP/AMD): an installed hip-ucxx on CMAKE_PREFIX_PATH is used first;
+    # NOTE(HIP/AMD): an installed hip-ucxx on CMAKE_PREFIX_PATH is used first --
+    # in wheel builds that is amd-libhipucxx, via its cmake.prefix entry point;
     # otherwise it is built from CPM_ucxx_SOURCE or cloned from the public fork.
     # The git_url/git_tag in ../../../../versions.json must match the values
     # below: cpp/CMakeLists.txt applies that file, and its entry wins.
     rapids_cpm_find(ucxx ${PKG_VERSION}
-            GLOBAL_TARGETS         ucxx::ucxx ucxx::python
+            GLOBAL_TARGETS         ucxx::ucxx
             BUILD_EXPORT_SET       raft-distributed-exports
             INSTALL_EXPORT_SET     raft-distributed-exports
             CPM_ARGS

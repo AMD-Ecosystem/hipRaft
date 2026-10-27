@@ -33,6 +33,7 @@
 #   HIPRAFT_BUILD_TYPE, CMAKE_VERSION
 #   HIPRAFT_VERSION -- pins the wheels this build installs from BUILD_ARTIFACTS_DIR
 #   HIPMM_VERSION   -- pins the hipMM wheels _install-build-deps.sh resolves
+#   UCXX_VERSION    -- pins the amd-libhipucxx wheel _install-build-deps.sh resolves
 #   CMAKE_INSTALL_PREFIX -- overrides INSTALL_DIR as the install prefix
 #   USE_SABI -- "no", or the CPython version to use as the stable-ABI (abi3)
 #               floor for the Cython wheels, e.g. "3.12". A floor tags the wheel
