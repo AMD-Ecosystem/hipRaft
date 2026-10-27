@@ -102,6 +102,7 @@ cmake_args=(
     ${no_use_versions_json:+"-DCPM_libhipcxx_SOURCE=${SRC_DIR}/libhipcxx"}
     ${no_use_versions_json:+"-DCPM_cuco_SOURCE=${SRC_DIR}/hipcollections"}
     ${use_local_cpm_sources:+"-DCPM_rmm_SOURCE=${SRC_DIR}/hipmm"}
+    ${use_local_cpm_sources:+"-DCPM_ucxx_SOURCE=${SRC_DIR}/hipucxx"}
     ${use_local_cpm_sources:+"-DCPM_rapids_logger_SOURCE=${SRC_DIR}/rocmds_logger"}
     ${use_sccache:+"-DCMAKE_HIP_COMPILER_LAUNCHER=sccache"}
     ${use_sccache:+"-DCMAKE_CXX_COMPILER_LAUNCHER=sccache"}
