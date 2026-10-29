@@ -51,11 +51,6 @@ template <typename InType, typename OutType, typename MapOp>
 RAFT_KERNEL naiveMapReduceKernel(OutType* out, const InType* in, size_t len, MapOp map)
 {
   int idx = threadIdx.x + blockIdx.x * blockDim.x;
-  // (HIP/AMD) We cannot assume that the memory location pointed by "out" has been zero'ed out like
-  // on the NV platform. We assign the first thread to zero it out and then announce this to all the
-  // other threads using the threadfence_system call.
-  if (idx == 0) { *out = OutType(0.0); }
-  __threadfence_system();
   if (idx < len) { raft::myAtomicAdd(out, (OutType)map(in[idx])); }
 }
 
@@ -64,6 +59,10 @@ void naiveMapReduce(OutType* out, const InType* in, size_t len, MapOp map, cudaS
 {
   static const int TPB = 64;
   int nblks            = raft::ceildiv(len, (size_t)TPB);
+  // The output is not guaranteed to be zero-initialized. Zero it on the stream before the launch:
+  // zeroing it from inside the kernel races with atomic adds from other blocks, since there is no
+  // grid-wide ordering between blocks (a fence only orders the calling thread's own writes).
+  RAFT_CUDA_TRY(cudaMemsetAsync(out, 0, sizeof(OutType), stream));
   naiveMapReduceKernel<InType, OutType, MapOp><<<nblks, TPB, 0, stream>>>(out, in, len, map);
   RAFT_CUDA_TRY(cudaPeekAtLastError());
 }
