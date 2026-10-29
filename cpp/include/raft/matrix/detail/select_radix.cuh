@@ -775,6 +775,22 @@ RAFT_KERNEL radix_kernel(const T* in,
                                              pass,
                                              early_stop);
   __threadfence();
+  // Block-wide barrier before signalling completion.
+  //
+  // Every thread of the block publishes results to global memory in filter_and_histogram (merging
+  // its share of the shared-memory histogram with atomicAdd, writing to out/out_buf), but only
+  // thread 0 increments `finished_block_cnt` below. __threadfence() orders only the calling
+  // thread's own writes, so on its own it does not guarantee that the other threads' writes have
+  // been issued by the time thread 0 reports this block as done. If the last block then ran, it
+  // would scan a partial histogram and pick the wrong k-th bucket, so elements near the selection
+  // boundary would be swapped, or fewer than k results written (observed as intermittent wrong
+  // top-k results). The window is normally tiny, but anything that skews warp timing widens it:
+  // the race was greatly exaggerated by the code-coverage build (ENABLE_CODE_COVERAGE), which
+  // made SelectKCsrTest fail roughly 1 run in 3. The barrier makes every thread's fence complete
+  // before thread 0 signals.
+  //
+  // The same race was also fixed upstream: https://github.com/NVIDIA/raft/pull/3041
+  __syncthreads();
 
   bool isLastBlock = false;
   if (threadIdx.x == 0) {
