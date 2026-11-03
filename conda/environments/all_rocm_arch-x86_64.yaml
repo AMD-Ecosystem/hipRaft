@@ -1,6 +1,6 @@
 # MIT License
 #
-# Modifications (C) 2025 Advanced Micro Devices, Inc. All rights reserved.
+# Modifications (C) 2025-2026 Advanced Micro Devices, Inc. All rights reserved.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -32,12 +32,13 @@ dependencies:
 - pip-tools
 - pytest==7.*
 - pip:
-  - --extra-index-url https://pypi.amd.com/rocm-7.2.1/simple/
+  - --index-url https://pypi.amd.com/rocm-10.0.0/simple/
+  - --extra-index-url https://pypi.org/simple/
   - --pre
-  - amd-cupy==13.5.1
-  - amd-hipmm==4.0.0
-  - amd-libhipmm==4.0.0
-  - rocm-bindings-hip~=7.2.0
-  - hip-python-interop~=7.2.0
+  - amd-cupy==14.1.1
+  - amd-hipmm==5.*
+  - amd-libhipmm==5.*
+  - rocm-bindings-hip~=10.0.0
+  - hip-python-interop~=10.0.0
 
 name: all_rocm_arch-x86_64

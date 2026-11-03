@@ -37,10 +37,10 @@ authors = [
 license = "Apache-2.0"
 requires-python = ">=3.11"
 dependencies = [
-    # NOTE(HIP/AMD): the ROCm-DS forks of the RAPIDS packages, which carry
+    # NOTE(HIP/AMD): the AMD forks of the RAPIDS packages, which carry
     # their own version streams rather than the upstream 26.x one.
-    "amd-dask-hip==1.0.*",
-    "amd-distributed-hipucxx==0.1.*",
+    "amd-dask-hip==2.0.*",
+    "amd-distributed-hipucxx==0.2.*",
     "amd-libraft==2.0.*",
     "amd-pylibraft==2.0.*",
     "rapids-dask-dependency==26.4.*",
@@ -101,9 +101,9 @@ regex = "(?P<value>.*)"
 
 [tool.rapids-build-backend]
 build-backend = "scikit_build_core.build"
-# NOTE(HIP/AMD): the ROCm-DS forks replace libraft and librmm. libucx is gone
-# with them: UCX is the system build ci/internal/prepare.sh produces, not a
-# wheel, and ucxx itself is resolved through amd-libhipucxx's cmake prefix.
+# NOTE(HIP/AMD): the AMD packages replace libraft and librmm. UCX comes from
+# the system build produced by ci/internal/prepare.sh rather than a wheel;
+# ucxx is resolved through amd-libhipucxx's cmake prefix.
 requires = [
     "amd-libhipmm==5.*",
     "amd-libhipucxx==0.2.*",

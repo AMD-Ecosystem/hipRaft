@@ -60,7 +60,7 @@ classifiers = [
 
 [project.optional-dependencies]
 test = [
-    "amd-cupy==13.5.1",
+    "amd-cupy==14.1.1",
     "pytest",
     "pytest-cov",
     "scikit-learn",

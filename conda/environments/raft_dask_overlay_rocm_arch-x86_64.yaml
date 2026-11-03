@@ -32,13 +32,14 @@ dependencies:
 - distributed
 - pytest-timeout
 - pip:
-  - --extra-index-url https://pypi.amd.com/simple
-  - amd-dask-hip==1.0.*
-  - amd-libhipucxx==0.1.*
-  - amd-hipucxx==0.1.*
-  - amd-distributed-hipucxx==0.1.*
-  - amd-libraft==1.0.*
-  - amd-pylibraft==1.0.*
-  - amd-raft-dask==1.0.*
+  - --index-url https://pypi.amd.com/rocm-10.0.0/simple/
+  - --extra-index-url https://pypi.org/simple/
+  - amd-dask-hip==2.0.*
+  - amd-libhipucxx==0.2.*
+  - amd-hipucxx==0.2.*
+  - amd-distributed-hipucxx==0.2.*
+  - amd-libraft==2.0.*
+  - amd-pylibraft==2.0.*
+  - amd-raft-dask==2.0.*
 
 name: all_rocm_arch-x86_64
