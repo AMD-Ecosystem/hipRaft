@@ -31,7 +31,7 @@
 hipRAFT documentation
 ********************************************************************
 
-hipRAFT is a library of fundamental algorithms and primitives for machine-learning and data-mining workloads that can be run on AMD GPUs. It is part of the AMD Data Science toolkit, an open-source software collection for high-performance data science applications. Forked from the RAPIDS® RAFT project, hipRAFT brings the same rich functionality to the :doc:`HIP <hip:index>`/:doc:`ROCm <rocm:index>` stack while preserving the directory structure, file naming, and API naming, to minimize porting friction for developers using both projects. It offers both a modern C++ interface for systems developers and fully featured Python bindings for rapid prototyping and data-science workflows. For more information, see :doc:`What is hipRAFT? <what-is-hipRAFT>`
+hipRAFT is a library of fundamental algorithms and primitives for machine-learning and data-mining workloads that can be run on AMD GPUs. It is part of the AMD Data Science toolkit, an open-source software collection for high-performance data science applications. Forked from the RAPIDS® RAFT project, hipRAFT brings the same rich functionality to the `HIP/ROCm <https://rocm.docs.amd.com/projects/HIP/en/latest/index.html>`_ stack while preserving the directory structure, file naming, and API naming, to minimize porting friction for developers using both projects. It offers both a modern C++ interface for systems developers and fully featured Python bindings for rapid prototyping and data-science workflows. For more information, see :doc:`What is hipRAFT? <what-is-hipRAFT>`
 
 The hipRAFT code is open and hosted at `https://github.com/AMD-Ecosystem/hipRaft <https://github.com/AMD-Ecosystem/hipRaft>`_.
 
