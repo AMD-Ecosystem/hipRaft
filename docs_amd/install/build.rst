@@ -60,10 +60,6 @@ hipRAFT builds against the AMD ROCm software stack, that is the ROCm runtime, HI
      - Version that comes bundled with ROCm ≥ 10.0.0
    * - `hipsparse <https://rocm.docs.amd.com/projects/hipSPARSE/en/docs-10.0.0/>`_
      - Version that comes bundled with ROCm ≥ 10.0.0
-   * - `libblas-dev <https://netlib.org/blas/>`_
-     - Tested with 3.12.0
-   * - `liblapack-dev <https://www.netlib.org/lapack/>`_
-     - Tested with 3.12.0
    * - `SuiteSparse <https://github.com/DrTimothyAldenDavis/SuiteSparse>`_
      - Tested with 7.6.1
    * - **Additional Required Dependencies**

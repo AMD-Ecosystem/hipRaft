@@ -76,13 +76,10 @@
 #include <raft/cuda_runtime.h>
 #include <raft/curand.h>
 #include <raft/cusparse.h>
-#include <raft/spectral/detail/lapack_hip.hpp>
 
 #include <thrust/sequence.h>
 #include <thrust/sort.h>
 #else
-#include <raft/spectral/detail/lapack.hpp>
-
 #include <cuda.h>
 #include <thrust/sort.h>
 

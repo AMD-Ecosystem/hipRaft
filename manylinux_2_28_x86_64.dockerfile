@@ -61,8 +61,6 @@ RUN dnf install -y sudo \
         ca-certificates \
         clangd \
         ccache \
-        openblas-devel \
-        lapack-devel \
         suitesparse-devel \
         autoconf \
         libtool \

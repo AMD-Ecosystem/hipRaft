@@ -351,15 +351,8 @@ else()
   find_package(hiprand CONFIG PATHS "/opt/rocm/")
   find_package(hipsparse CONFIG PATHS "/opt/rocm/")
   find_package(rccl CONFIG PATHS "/opt/rocm/")
-  # NOTE(HIP/AMD): BLAS and LAPACK are needed for lapack_hip.hpp
-  find_package(BLAS REQUIRED)
-  find_package(LAPACK REQUIRED)
   find_package(MPI COMPONENTS CXX)
   rapids_find_package(ucx GLOBAL_TARGETS ucx::ucp ucx::ucs)
-  # See https://gitlab.kitware.com/cmake/cmake/-/issues/20268
-  find_path(BLAS_INCLUDE_DIRS cblas.h /usr/include /usr/local/include /usr/include/openblas
-            /usr/include/cblas
-  )
   if(TARGET ucx::ucs)
     include(../python/raft-dask/cmake/thirdparty/get_ucxx.cmake)
   endif()
@@ -369,25 +362,12 @@ else()
   set(RAFT_CUBLASLT_DEPENDENCY hipblaslt${_ctk_static_suffix})
   set(RAFT_CURAND_DEPENDENCY hiprand${_ctk_static_suffix})
   set(RAFT_CUSPARSE_DEPENDENCY hipsparse${_ctk_static_suffix})
-  set(RAFT_BLAS_DEPENDENCY ${BLAS_LIBRARIES}${_ctk_static_suffix})
-  set(RAFT_LAPACK_DEPENDENCY ${LAPACK_LIBRARIES}${_ctk_static_suffix})
 endif()
 
 set(RAFT_CTK_MATH_DEPENDENCIES
-    ${RAFT_CUBLAS_DEPENDENCY}
-    ${RAFT_CUBLASLT_DEPENDENCY}
-    ${RAFT_CUSOLVER_DEPENDENCY}
-    ${RAFT_CUSPARSE_DEPENDENCY}
-    ${RAFT_CURAND_DEPENDENCY}
-    ${RAFT_BLAS_DEPENDENCY}
-    ${RAFT_LAPACK_DEPENDENCY}
+    ${RAFT_CUBLAS_DEPENDENCY} ${RAFT_CUBLASLT_DEPENDENCY} ${RAFT_CUSOLVER_DEPENDENCY}
+    ${RAFT_CUSPARSE_DEPENDENCY} ${RAFT_CURAND_DEPENDENCY}
 )
-
-if(BLAS_INCLUDE_DIRS)
-  target_include_directories(raft INTERFACE ${BLAS_INCLUDE_DIRS})
-else()
-  message(WARNING "BLAS_INCLUDE_DIRS is not set. Skipping inclusion of BLAS include directories.")
-endif()
 
 # Endian detection
 include(TestBigEndian)
@@ -754,7 +734,6 @@ target_link_libraries(raft::raft INTERFACE
   $<$<BOOL:${RAFT_ENABLE_CUBLAS_DEPENDENCY}>:${RAFT_CUBLAS_DEPENDENCY}>
   $<$<BOOL:${RAFT_ENABLE_CUSPARSE_DEPENDENCY}>:${RAFT_CUSPARSE_DEPENDENCY}>
   $<$<BOOL:${RAFT_ENABLE_CURAND_DEPENDENCY}>:${RAFT_CURAND_DEPENDENCY}>
-  $<$<BOOL:${RAFT_ENABLE_BLAS_DEPENDENCY}>:${RAFT_BLAS_DEPENDENCY}>
   $<$<BOOL:${HIPDF_GPU_DEFINITIONS}>:${HIPDF_GPU_DEFINITIONS}>
 )
 ]=]
@@ -826,8 +805,8 @@ set(CPACK_PACKAGING_INSTALL_PREFIX
     CACHE PATH "Package install prefix."
 )
 # System dependencies
-set(CPACK_DEBIAN_PACKAGE_DEPENDS libblas-dev liblapack-dev libsuitesparse-dev)
-set(CPACK_RPM_PACKAGE_REQUIRES_LIST openblas-devel lapack-devel suitesparse-devel)
+set(CPACK_DEBIAN_PACKAGE_DEPENDS libsuitesparse-dev)
+set(CPACK_RPM_PACKAGE_REQUIRES_LIST suitesparse-devel)
 # Other ROCmDS packages
 include("${rapids-cmake-dir}/cpm/detail/package_details.cmake")
 macro(append_rocmds_package pkg_name deb_name rpm_name)
